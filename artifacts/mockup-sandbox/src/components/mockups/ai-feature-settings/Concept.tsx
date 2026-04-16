@@ -272,10 +272,13 @@ function UserPermissionsRow() {
  * --------------------------------------------------------------------------- */
 function RingCentralLogo() {
   return (
-    <div className="flex items-baseline text-[26px] font-extrabold italic leading-none tracking-tight">
-      <span className="text-[var(--rc-blue)]">Ring</span>
-      <span className="text-[var(--rc-orange)]">Central</span>
-    </div>
+    <img
+      src="/__mockup/figma-ref/ringcentral-logo.svg"
+      alt="RingCentral"
+      width={172}
+      height={26}
+      className="block h-[26px] w-auto"
+    />
   );
 }
 
