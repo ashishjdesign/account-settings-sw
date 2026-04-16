@@ -295,11 +295,13 @@ export function Concept() {
       {/* ============================================================ */}
       <div className="swui-scope w-full">
         {/* Masterhead */}
-        <header className="flex h-[64px] w-full items-center justify-between bg-white px-10">
-          <RingCentralLogo />
-          <div className="flex items-center gap-5 text-[13px] text-[var(--rc-text)]">
+        <header className="flex h-[64px] w-full min-w-0 items-center justify-between gap-4 bg-white px-4 sm:px-6 lg:px-10">
+          <div className="min-w-0 shrink">
+            <RingCentralLogo />
+          </div>
+          <div className="flex shrink-0 items-center gap-3 text-[13px] text-[var(--rc-text)] sm:gap-5">
             <button className="flex items-center gap-1.5 hover:text-[var(--rc-blue)]">
-              <span>Admin Portal</span>
+              <span className="hidden sm:inline">Admin Portal</span>
               <ChevronDown className="h-3.5 w-3.5" strokeWidth={2} />
             </button>
             <button className="text-[var(--rc-text-muted)] hover:text-[var(--rc-blue)]">
@@ -313,8 +315,8 @@ export function Concept() {
         </header>
 
         {/* Sub-nav with search on the right */}
-        <div className="flex h-[52px] w-full items-center justify-between border-b border-[var(--rc-border)] bg-white px-10 text-[13px]">
-          <nav className="flex h-full items-center gap-9">
+        <div className="flex h-[52px] w-full min-w-0 items-center justify-between gap-4 border-b border-[var(--rc-border)] bg-white px-4 text-[13px] sm:px-6 lg:px-10">
+          <nav className="flex h-full min-w-0 flex-1 items-center gap-4 overflow-x-auto whitespace-nowrap lg:gap-9 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
             {[
               ['Home', false],
               ['Users', false],
@@ -326,25 +328,25 @@ export function Concept() {
             ].map(([label, hasChev]) => (
               <button
                 key={label as string}
-                className="flex h-full items-center gap-1.5 text-[var(--rc-text)] hover:text-[var(--rc-blue)]"
+                className="flex h-full shrink-0 items-center gap-1.5 text-[var(--rc-text)] hover:text-[var(--rc-blue)]"
               >
                 <span>{label}</span>
                 {hasChev && <ChevronDown className="h-3.5 w-3.5" strokeWidth={2} />}
               </button>
             ))}
-            <button className="relative flex h-full items-center font-medium text-[var(--rc-blue)]">
+            <button className="relative flex h-full shrink-0 items-center font-medium text-[var(--rc-blue)]">
               <span>More</span>
               <span className="absolute bottom-0 left-0 right-0 h-[3px] rounded-t-sm bg-[var(--rc-blue)]" />
             </button>
           </nav>
 
-          <div className="flex h-[34px] w-[300px] items-center rounded-[4px] border border-[var(--rc-border-strong)] bg-white px-3">
+          <div className="flex h-[34px] w-full max-w-[300px] min-w-[160px] shrink-0 basis-[260px] items-center rounded-[4px] border border-[var(--rc-border-strong)] bg-white px-3">
             <input
               type="text"
               placeholder="Search settings, pages, or help articles"
-              className="w-full bg-transparent text-[12.5px] text-[var(--rc-text)] placeholder-[var(--rc-text-faint)] outline-none"
+              className="w-full min-w-0 bg-transparent text-[12.5px] text-[var(--rc-text)] placeholder-[var(--rc-text-faint)] outline-none"
             />
-            <Search className="ml-2 h-[14px] w-[14px] text-[var(--rc-text-muted)]" strokeWidth={2} />
+            <Search className="ml-2 h-[14px] w-[14px] shrink-0 text-[var(--rc-text-muted)]" strokeWidth={2} />
           </div>
         </div>
       </div>
@@ -352,7 +354,7 @@ export function Concept() {
       {/* ============================================================ */}
       {/* BODY — left chrome side panel + Spring content panel          */}
       {/* ============================================================ */}
-      <div className="flex w-full justify-center bg-white px-10 pt-6">
+      <div className="flex w-full justify-center bg-white px-4 pt-6 sm:px-6 lg:px-10">
         <div className="flex w-full max-w-[1180px] gap-6">
           {/* Side panel — chrome */}
           <div className="swui-scope">
