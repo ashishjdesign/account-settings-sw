@@ -1,60 +1,41 @@
 import React from 'react';
 import {
+  ChevronDown,
+  ChevronRight,
   Search,
   LayoutGrid,
-  Headphones,
-  Gift,
-  Bell,
-  ChevronDown,
-  ChevronsRight,
-  Info,
+  Monitor,
+  Settings,
+  ShieldCheck,
+  AppWindow,
   Sparkles,
-  Phone,
-  MessageSquare,
-  Video,
-  Calendar,
-  Megaphone,
-  MessageCircle,
-  Printer,
-  PlugZap,
-  CreditCard,
-  BarChart3,
+  Info,
+  Check,
 } from 'lucide-react';
 import * as SwitchPrimitives from '@radix-ui/react-switch';
 import { cn } from '@/lib/utils';
 
-/**
- * -----------------------------------------------------------------------------
- * SCOPED TOKEN STYLES
- *
- * Two design systems coexist on this page. Their tokens are defined as CSS
- * custom properties on dedicated scope wrappers so they cannot bleed across
- * the seam:
- *   .swui-scope    → Service Web UI Library (admin chrome: header, sub-nav,
- *                    breadcrumb). Helvetica + RingCentral palette.
- *   .spring-scope  → Spring Design System (left nav + page panel). Inter
- *                    + --sui-colors-* tokens.
- * -----------------------------------------------------------------------------
- */
+/* -----------------------------------------------------------------------------
+ * Scoped tokens — Service Web UI Library (chrome) and Spring DS (content panel).
+ * Each scope owns its own CSS variables so the two systems cannot bleed across
+ * the seam.
+ * --------------------------------------------------------------------------- */
 const scopedTokens = `
   .swui-scope {
-    /* Service Web UI Library */
-    --rc-brand: #0679BA;
-    --rc-text-black: #2F2F2F;
-    --rc-text-dark: #666666;
-    --rc-text-medium: #999999;
-    --rc-border-light: #E2E2E2;
-    --rc-border-medium: #C7C7C7;
-    --rc-bg-base: #FFFFFF;
+    --rc-blue: #0679BA;
+    --rc-orange: #FF8800;
+    --rc-text: #2F2F2F;
+    --rc-text-muted: #666666;
+    --rc-text-faint: #999999;
+    --rc-border: #E2E2E2;
+    --rc-border-strong: #C7C7C7;
+    --rc-bg: #FFFFFF;
     --rc-bg-fog: #FBFBFB;
-    --rc-accent-orange: #FF8800;
-    --rc-success-leaf: #1A8517;
+    --rc-success: #1A8517;
     font-family: Helvetica, Arial, sans-serif;
-    color: var(--rc-text-black);
+    color: var(--rc-text);
   }
-
   .spring-scope {
-    /* Spring Design System (subset used on this page) */
     --sui-colors-primary-b: #066fac;
     --sui-colors-primary-b-high-contrast: #0040dd;
     --sui-colors-neutral-base: #ffffff;
@@ -64,297 +45,381 @@ const scopedTokens = `
     --sui-colors-neutral-b3: #9e9fa4;
     --sui-colors-neutral-b4: #dddfe5;
     --sui-radius-sm: 10px;
-    --sui-radius-full: 9999px;
     font-family: Inter, system-ui, sans-serif;
     color: var(--sui-colors-neutral-b1);
   }
 `;
 
-/**
- * -----------------------------------------------------------------------------
- * SPRING-THEMED PRIMITIVES
- * -----------------------------------------------------------------------------
- */
+/* -----------------------------------------------------------------------------
+ * Spring switch (40 × 24 track, 20 dot)
+ * --------------------------------------------------------------------------- */
 const SpringSwitch = React.forwardRef<
   React.ElementRef<typeof SwitchPrimitives.Root>,
-  React.ComponentPropsWithoutRef<typeof SwitchPrimitives.Root> & { focused?: boolean }
->(({ className, focused, ...props }, ref) => (
-  <div
+  React.ComponentPropsWithoutRef<typeof SwitchPrimitives.Root>
+>(({ className, ...props }, ref) => (
+  <SwitchPrimitives.Root
+    ref={ref}
     className={cn(
-      'relative inline-flex items-center justify-center',
-      focused && 'rounded-full ring-2 ring-[var(--sui-colors-primary-b-high-contrast)] ring-offset-2 ring-offset-white',
+      'peer inline-flex h-[24px] w-[40px] shrink-0 cursor-pointer items-center rounded-full transition-colors',
+      'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sui-colors-primary-b-high-contrast)] focus-visible:ring-offset-2',
+      'data-[state=checked]:bg-[var(--sui-colors-primary-b)] data-[state=unchecked]:bg-[var(--sui-colors-neutral-b3)]',
+      className,
     )}
+    {...props}
   >
-    <SwitchPrimitives.Root
-      className={cn(
-        'peer inline-flex h-[24px] w-[40px] shrink-0 cursor-pointer items-center rounded-full transition-colors',
-        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sui-colors-primary-b-high-contrast)] focus-visible:ring-offset-2',
-        'data-[state=checked]:bg-[var(--sui-colors-primary-b)] data-[state=unchecked]:bg-[var(--sui-colors-neutral-b3)]',
-        className,
-      )}
-      {...props}
-      ref={ref}
-    >
-      <SwitchPrimitives.Thumb
-        className={cn(
-          'pointer-events-none block h-[20px] w-[20px] rounded-full bg-[var(--sui-colors-neutral-base)] shadow-sm ring-0 transition-transform',
-          'data-[state=checked]:translate-x-[18px] data-[state=unchecked]:translate-x-[2px]',
-        )}
-      />
-    </SwitchPrimitives.Root>
-  </div>
+    <SwitchPrimitives.Thumb className="pointer-events-none block h-[20px] w-[20px] rounded-full bg-white shadow-sm transition-transform data-[state=checked]:translate-x-[18px] data-[state=unchecked]:translate-x-[2px]" />
+  </SwitchPrimitives.Root>
 ));
 SpringSwitch.displayName = 'SpringSwitch';
 
-const SpringPill: React.FC<React.PropsWithChildren<{ tone?: 'neutral' }>> = ({ children }) => (
-  <span className="inline-flex items-center rounded-full bg-[var(--sui-colors-neutral-b4)] px-2.5 py-0.5 text-[13px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b2)]">
-    {children}
-  </span>
-);
+/* -----------------------------------------------------------------------------
+ * Spring dropdown trigger — looks like a Select control.
+ * --------------------------------------------------------------------------- */
+function SpringSelect({ value, width = 180 }: { value: string; width?: number }) {
+  return (
+    <button
+      style={{ width }}
+      className="flex h-[36px] items-center justify-between rounded-[6px] border border-[var(--sui-colors-neutral-b4)] bg-white px-3 text-[14px] leading-[20px] text-[var(--sui-colors-neutral-b1)] hover:border-[var(--sui-colors-neutral-b3)] focus:outline-none focus:ring-2 focus:ring-[var(--sui-colors-primary-b-high-contrast)]"
+    >
+      <span>{value}</span>
+      <ChevronDown className="h-4 w-4 text-[var(--sui-colors-neutral-b2)]" />
+    </button>
+  );
+}
 
-/**
- * -----------------------------------------------------------------------------
- * MAIN COMPONENT
- * -----------------------------------------------------------------------------
- */
+/* -----------------------------------------------------------------------------
+ * Spring outlined pill tab.
+ * --------------------------------------------------------------------------- */
+function PillTab({ label, selected }: { label: string; selected?: boolean }) {
+  return (
+    <button
+      className={cn(
+        'inline-flex h-[36px] items-center justify-center rounded-full border px-5 text-[14px] font-medium leading-[20px] transition-colors',
+        selected
+          ? 'border-[var(--sui-colors-neutral-b3)] bg-[var(--sui-colors-neutral-b4)] text-[var(--sui-colors-neutral-b0)]'
+          : 'border-[var(--sui-colors-neutral-b4)] bg-white text-[var(--sui-colors-neutral-b1)] hover:bg-[var(--sui-colors-neutral-b4)]/30',
+      )}
+    >
+      {label}
+    </button>
+  );
+}
+
+/* -----------------------------------------------------------------------------
+ * Left side panel — Service Web UI nav tree
+ * --------------------------------------------------------------------------- */
+function SideNav() {
+  const topItems = [
+    { label: 'Service Console', icon: Monitor, hasChevron: true },
+  ];
+  const accountChildren = [
+    'Feature Settings',
+    'Appearance',
+    'App Integrations',
+    'Archiver Settings',
+    'Directory Integration',
+    'Headset Support',
+    'Microsoft Teams',
+    'Multi-Site Settings',
+    'Outbound Call Prefix',
+  ];
+  const bottomItems = [
+    { label: 'Security and Compliance', icon: ShieldCheck, hasChevron: false },
+    { label: 'Apps and Resources', icon: AppWindow, hasChevron: false },
+  ];
+
+  return (
+    <aside className="w-[210px] shrink-0 overflow-hidden rounded-[6px] border border-[var(--rc-border)] bg-white text-[13px] text-[var(--rc-text)]">
+      {topItems.map((item) => (
+        <button
+          key={item.label}
+          className="flex w-full items-center gap-2 px-3 py-2.5 text-left hover:bg-[var(--rc-bg-fog)]"
+        >
+          <item.icon className="h-4 w-4 text-[var(--rc-text-muted)]" strokeWidth={1.6} />
+          <span className="flex-1">{item.label}</span>
+          <ChevronRight className="h-3.5 w-3.5 text-[var(--rc-text-faint)]" />
+        </button>
+      ))}
+
+      {/* Account Settings — expanded, header is the "owner" of the selected child */}
+      <div>
+        <button className="flex w-full items-center gap-2 border-l-[3px] border-[var(--rc-blue)] bg-white px-[9px] py-2.5 text-left text-[var(--rc-blue)]">
+          <Settings className="h-4 w-4" strokeWidth={1.6} />
+          <span className="flex-1 font-medium">Account Settings</span>
+          <ChevronDown className="h-3.5 w-3.5" />
+        </button>
+        <ul className="pb-1">
+          {accountChildren.map((label) => {
+            const selected = label === 'Feature Settings';
+            return (
+              <li key={label}>
+                <button
+                  className={cn(
+                    'flex w-full items-center px-3 py-1.5 pl-9 text-left',
+                    selected
+                      ? 'bg-[#EAF4FA] font-medium text-[var(--rc-blue)]'
+                      : 'text-[var(--rc-text)] hover:bg-[var(--rc-bg-fog)]',
+                  )}
+                >
+                  {label}
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      </div>
+
+      {bottomItems.map((item) => (
+        <button
+          key={item.label}
+          className="flex w-full items-center gap-2 border-t border-[var(--rc-border)] px-3 py-2.5 text-left hover:bg-[var(--rc-bg-fog)]"
+        >
+          <item.icon className="h-4 w-4 text-[var(--rc-text-muted)]" strokeWidth={1.6} />
+          <span className="flex-1">{item.label}</span>
+        </button>
+      ))}
+    </aside>
+  );
+}
+
+/* -----------------------------------------------------------------------------
+ * Spring "Setting card" — bordered white card with a header row.
+ * --------------------------------------------------------------------------- */
+function SettingCard({
+  title,
+  description,
+  switchOn,
+  children,
+}: React.PropsWithChildren<{ title: string; description: React.ReactNode; switchOn: boolean }>) {
+  return (
+    <section className="rounded-[10px] border border-[var(--sui-colors-neutral-b4)] bg-white">
+      <div className="flex items-start gap-4 px-6 py-5">
+        <Sparkles className="mt-0.5 h-5 w-5 shrink-0 text-[var(--sui-colors-neutral-b1)]" strokeWidth={1.6} />
+        <div className="flex-1">
+          <h3 className="text-[15px] font-bold leading-[20px] text-[var(--sui-colors-neutral-b0)]">{title}</h3>
+          <p className="mt-1 max-w-[640px] text-[13px] leading-[19px] text-[var(--sui-colors-neutral-b2)]">
+            {description}{' '}
+            <a href="#" className="font-medium text-[var(--sui-colors-primary-b)] hover:underline">
+              Learn more
+            </a>
+          </p>
+        </div>
+        <SpringSwitch checked={switchOn} />
+      </div>
+      {children && (
+        <div className="border-t border-[var(--sui-colors-neutral-b4)]">
+          {children}
+        </div>
+      )}
+    </section>
+  );
+}
+
+/* -----------------------------------------------------------------------------
+ * Setting card sub-rows
+ * --------------------------------------------------------------------------- */
+function SubRow({ children }: React.PropsWithChildren) {
+  return (
+    <div className="flex items-center justify-between gap-4 border-b border-[var(--sui-colors-neutral-b4)] px-6 py-3.5 last:border-b-0">
+      {children}
+    </div>
+  );
+}
+
+function LabelWithInfo({ children }: React.PropsWithChildren) {
+  return (
+    <div className="flex items-center gap-1.5 text-[13px] text-[var(--sui-colors-neutral-b1)]">
+      <span>{children}</span>
+      <Info className="h-3.5 w-3.5 text-[var(--sui-colors-neutral-b3)]" />
+    </div>
+  );
+}
+
+function UserDefaultsRow() {
+  return (
+    <SubRow>
+      <LabelWithInfo>User defaults</LabelWithInfo>
+      <div className="flex items-center gap-3 text-[13px]">
+        <span>
+          <a href="#" className="font-medium text-[var(--sui-colors-primary-b)] hover:underline">
+            72/98 users
+          </a>{' '}
+          <span className="text-[var(--sui-colors-neutral-b2)]">are using the default</span>
+        </span>
+        <span className="ml-6 text-[var(--sui-colors-neutral-b1)]">Set this setting for users</span>
+        <SpringSelect value="On" width={96} />
+      </div>
+    </SubRow>
+  );
+}
+
+function UserPermissionsRow() {
+  return (
+    <SubRow>
+      <span className="text-[13px] text-[var(--sui-colors-neutral-b1)]">User permissions</span>
+      <label className="flex cursor-pointer items-center gap-2 text-[13px] text-[var(--sui-colors-neutral-b1)]">
+        <span className="flex h-[18px] w-[18px] items-center justify-center rounded-[4px] bg-[var(--sui-colors-primary-b-high-contrast)]">
+          <Check className="h-3 w-3 text-white" strokeWidth={3} />
+        </span>
+        Allow users to change this setting
+      </label>
+    </SubRow>
+  );
+}
+
+/* -----------------------------------------------------------------------------
+ * RingCentral wordmark — blue "Ring", orange "Central", italic-ish.
+ * --------------------------------------------------------------------------- */
+function RingCentralLogo() {
+  return (
+    <div className="flex items-baseline text-[26px] font-extrabold italic leading-none tracking-tight">
+      <span className="text-[var(--rc-blue)]">Ring</span>
+      <span className="text-[var(--rc-orange)]">Central</span>
+    </div>
+  );
+}
+
+/* -----------------------------------------------------------------------------
+ * MAIN
+ * --------------------------------------------------------------------------- */
 export function Concept() {
   return (
     <div className="min-h-[100dvh] w-full bg-white">
       <style>{scopedTokens}</style>
 
       {/* ============================================================ */}
-      {/* SCOPE 1 — ADMIN PORTAL CHROME (Service Web UI Library)        */}
+      {/* CHROME — Service Web UI Library                                */}
       {/* ============================================================ */}
       <div className="swui-scope w-full">
-        {/* Header / Masterhead */}
-        <div className="flex w-full justify-center border-b border-[var(--rc-border-light)] bg-[var(--rc-bg-base)]">
-          <header className="flex h-[72px] w-[1200px] shrink-0 items-center justify-between px-4 xl:px-0">
-            {/* Logo */}
-            <div className="flex items-center text-[24px] font-bold tracking-tight text-[var(--rc-brand)]">
-              <span className="mr-1 flex h-8 w-8 items-center justify-center rounded-sm bg-[var(--rc-brand)] text-[var(--rc-bg-base)]">
-                R
-              </span>
-              RingCentral
+        {/* Masterhead */}
+        <header className="flex h-[64px] w-full items-center justify-between bg-white px-10">
+          <RingCentralLogo />
+          <div className="flex items-center gap-5 text-[13px] text-[var(--rc-text)]">
+            <button className="flex items-center gap-1.5 hover:text-[var(--rc-blue)]">
+              <span>Admin Portal</span>
+              <ChevronDown className="h-3.5 w-3.5" strokeWidth={2} />
+            </button>
+            <button className="text-[var(--rc-text-muted)] hover:text-[var(--rc-blue)]">
+              <LayoutGrid className="h-[18px] w-[18px]" strokeWidth={1.5} />
+            </button>
+            <div className="relative ml-1 flex h-9 w-9 items-center justify-center rounded-full bg-[var(--rc-orange)] text-[12px] font-bold text-white">
+              RC
+              <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full border-2 border-white bg-[var(--rc-success)]" />
             </div>
-
-            {/* Search */}
-            <div className="flex h-[34px] w-[480px] items-center rounded-sm border border-[var(--rc-border-medium)] bg-white px-3 focus-within:border-[var(--rc-brand)]">
-              <Search className="mr-2 h-[13px] w-[13px] text-[var(--rc-text-dark)]" strokeWidth={2.5} />
-              <input
-                type="text"
-                placeholder="Search settings, pages, or help articles"
-                className="w-full bg-transparent text-[13px] text-[var(--rc-text-black)] placeholder-[var(--rc-text-dark)] outline-none"
-              />
-            </div>
-
-            {/* Right cluster */}
-            <div className="flex items-center gap-5">
-              <div className="flex cursor-pointer items-center gap-1 text-[13px] hover:text-[var(--rc-brand)]">
-                <span>RingEX</span>
-                <ChevronDown className="h-[14px] w-[14px]" strokeWidth={2} />
-              </div>
-              <div className="h-6 w-px bg-[var(--rc-border-light)]" />
-              <div className="flex items-center gap-4 text-[var(--rc-text-dark)]">
-                <button className="hover:text-[var(--rc-brand)]"><LayoutGrid className="h-[18px] w-[18px]" /></button>
-                <button className="hover:text-[var(--rc-brand)]"><Headphones className="h-[18px] w-[18px]" /></button>
-                <button className="hover:text-[var(--rc-brand)]"><Gift className="h-[18px] w-[18px]" /></button>
-                <button className="relative hover:text-[var(--rc-brand)]">
-                  <Bell className="h-[18px] w-[18px]" />
-                  <span className="absolute -right-1 -top-1 h-2.5 w-2.5 rounded-full border-2 border-white bg-[var(--rc-accent-orange)]" />
-                </button>
-              </div>
-              <div className="relative ml-2 flex h-10 w-10 items-center justify-center rounded-full bg-[var(--rc-accent-orange)] text-[16px] font-bold text-white">
-                RC
-                <span className="absolute bottom-0 right-0 h-3.5 w-3.5 rounded-full border-2 border-white bg-[var(--rc-success-leaf)]" />
-              </div>
-            </div>
-          </header>
-        </div>
-
-        {/* Sub nav */}
-        <div className="flex w-full justify-center border-b border-[var(--rc-border-light)] bg-[var(--rc-bg-fog)]">
-          <div className="flex h-[60px] w-[1200px] items-center gap-10 px-4 text-[13px] xl:px-0">
-            <div className="cursor-pointer py-5">Home</div>
-            <div className="cursor-pointer py-5">Users</div>
-            <div className="cursor-pointer py-5">Phone System</div>
-            <div className="flex cursor-pointer items-center gap-2 py-5">AI <ChevronDown className="h-3 w-3" /></div>
-            <div className="cursor-pointer py-5">Meetings</div>
-            <div className="flex cursor-pointer items-center gap-2 py-5">Reports <ChevronDown className="h-3 w-3" /></div>
-            <div className="flex cursor-pointer items-center gap-2 py-5">Account <ChevronDown className="h-3 w-3" /></div>
-            <div className="cursor-pointer border-b-2 border-[var(--rc-brand)] py-5 font-bold text-[var(--rc-brand)]">More</div>
           </div>
-        </div>
+        </header>
 
-        {/* Breadcrumb (chrome — Helvetica + RC palette) */}
-        <div className="flex w-full justify-center bg-[var(--rc-bg-base)]">
-          <div className="flex w-[1200px] items-center gap-1 px-4 pt-6 text-[13px] xl:px-0">
-            <a className="cursor-pointer text-[var(--rc-brand)] hover:underline" href="#">Account Settings</a>
-            <ChevronsRight className="h-3.5 w-3.5 text-[var(--rc-text-medium)]" />
-            <span className="text-[var(--rc-text-black)]">Feature Controls</span>
+        {/* Sub-nav with search on the right */}
+        <div className="flex h-[52px] w-full items-center justify-between border-b border-[var(--rc-border)] bg-white px-10 text-[13px]">
+          <nav className="flex h-full items-center gap-9">
+            {[
+              ['Home', false],
+              ['Users', false],
+              ['Phone System', false],
+              ['AI', true],
+              ['Meetings', false],
+              ['Reports', true],
+              ['Account', true],
+            ].map(([label, hasChev]) => (
+              <button
+                key={label as string}
+                className="flex h-full items-center gap-1.5 text-[var(--rc-text)] hover:text-[var(--rc-blue)]"
+              >
+                <span>{label}</span>
+                {hasChev && <ChevronDown className="h-3.5 w-3.5" strokeWidth={2} />}
+              </button>
+            ))}
+            <button className="relative flex h-full items-center font-medium text-[var(--rc-blue)]">
+              <span>More</span>
+              <span className="absolute bottom-0 left-0 right-0 h-[3px] rounded-t-sm bg-[var(--rc-blue)]" />
+            </button>
+          </nav>
+
+          <div className="flex h-[34px] w-[300px] items-center rounded-[4px] border border-[var(--rc-border-strong)] bg-white px-3">
+            <input
+              type="text"
+              placeholder="Search settings, pages, or help articles"
+              className="w-full bg-transparent text-[12.5px] text-[var(--rc-text)] placeholder-[var(--rc-text-faint)] outline-none"
+            />
+            <Search className="ml-2 h-[14px] w-[14px] text-[var(--rc-text-muted)]" strokeWidth={2} />
           </div>
         </div>
       </div>
 
       {/* ============================================================ */}
-      {/* SCOPE 2 — INNER FEATURE PANEL (Spring Design System)          */}
+      {/* BODY — left chrome side panel + Spring content panel          */}
       {/* ============================================================ */}
-      <div className="spring-scope flex w-full justify-center bg-white pb-24 pt-6">
-        <div className="flex w-[1200px] items-start px-4 xl:px-0">
-          {/* Left side nav (240 wide) */}
-          <nav className="w-[240px] shrink-0 pr-[10px]">
-            <div className="mb-2 px-3 text-[11px] font-bold uppercase tracking-wider text-[var(--sui-colors-neutral-b2)]">
-              MORE
-            </div>
-            <ul className="flex flex-col gap-1 text-[14px] font-medium">
-              {[
-                { label: 'AI', icon: Sparkles, active: true },
-                { label: 'Phone', icon: Phone },
-                { label: 'Messaging', icon: MessageSquare },
-                { label: 'Meetings', icon: Video },
-                { label: 'Video', icon: Video },
-                { label: 'Webinar', icon: Megaphone },
-                { label: 'Events', icon: Calendar },
-                { label: 'SMS', icon: MessageCircle },
-                { label: 'Fax', icon: Printer },
-                { label: 'Contact center', icon: Headphones },
-                { label: 'Integrations', icon: PlugZap },
-                { label: 'Billing', icon: CreditCard },
-                { label: 'Analytics', icon: BarChart3 },
-              ].map((item) => (
-                <li key={item.label}>
-                  <button
-                    className={cn(
-                      'relative flex h-[40px] w-full items-center gap-2.5 rounded-full px-3 text-left transition-colors',
-                      item.active
-                        ? 'bg-[var(--sui-colors-neutral-b4)] text-[var(--sui-colors-primary-b)]'
-                        : 'bg-transparent text-[var(--sui-colors-neutral-b1)] hover:bg-[var(--sui-colors-neutral-b4)]',
-                    )}
-                  >
-                    {item.active && (
-                      <div className="absolute left-0 h-5 w-[2px] rounded-r-full bg-[var(--sui-colors-primary-b)]" />
-                    )}
-                    <item.icon className="h-4 w-4 shrink-0" />
-                    <span className="truncate">{item.label}</span>
-                  </button>
-                </li>
-              ))}
-            </ul>
-          </nav>
+      <div className="flex w-full justify-center bg-white px-10 pt-6">
+        <div className="flex w-full max-w-[1180px] gap-6">
+          {/* Side panel — chrome */}
+          <div className="swui-scope">
+            <SideNav />
+          </div>
 
-          {/* Page area (1000 wide minus 240 nav inside 1200, with gutter) */}
-          <main className="flex-1 pl-[20px]">
-            {/* Page title */}
-            <h1 className="mb-6 text-[20px] font-semibold leading-[28px] tracking-[-0.2px] text-[var(--sui-colors-neutral-b0)]">
-              AI Receptionist personality
+          {/* Content — Spring */}
+          <main className="spring-scope flex-1 pb-10">
+            <h1 className="mb-5 text-[22px] font-bold leading-[28px] text-[var(--sui-colors-neutral-b0)]">
+              Feature Settings
             </h1>
 
-            {/* Pill tabs */}
-            <div className="mb-8 flex gap-1">
-              {['General', 'Receptionist', 'Notes', 'Transcripts', 'Recaps', 'Writing'].map((tab, i) => (
-                <button
-                  key={tab}
-                  className={cn(
-                    'flex h-[32px] items-center justify-center rounded-full px-4 text-[14px] font-medium leading-[20px] transition-colors',
-                    i === 0
-                      ? 'bg-[var(--sui-colors-neutral-b1)] text-white'
-                      : 'bg-transparent text-[var(--sui-colors-neutral-b2)] hover:bg-[var(--sui-colors-neutral-b4)]',
-                  )}
-                >
-                  {tab}
-                </button>
-              ))}
+            <div className="mb-6 flex flex-wrap gap-2">
+              <PillTab label="General" />
+              <PillTab label="Phone" />
+              <PillTab label="AI" selected />
+              <PillTab label="SMS" />
+              <PillTab label="Fax" />
+              <PillTab label="Meetings" />
             </div>
 
-            {/* Master row */}
-            <div className="mb-8 border-b border-[var(--sui-colors-neutral-b4)] pb-8">
-              <div className="flex items-start justify-between gap-6">
-                <div className="flex gap-4">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[var(--sui-colors-neutral-b4)] text-[var(--sui-colors-primary-b)]">
-                    <Sparkles className="h-5 w-5" />
-                  </div>
-                  <div>
-                    <h2 className="text-[15px] font-bold leading-[20px] text-[var(--sui-colors-neutral-b0)]">AI features</h2>
-                    <p className="mt-1 max-w-[760px] text-[14px] leading-[20px] text-[var(--sui-colors-neutral-b2)]">
-                      Turn on AI support for calls, messages and video meetings. Deliver real-time answers, call notes, transcripts and meeting recaps to help teams stay focused and organized. Empower users to communicate clearly with built-in writing and polishing tools.{' '}
-                      <a href="#" className="font-medium text-[var(--sui-colors-primary-b)] hover:underline">
-                        Learn more
-                      </a>
-                    </p>
-                  </div>
-                </div>
-                <div className="mt-1 shrink-0">
-                  <SpringSwitch checked />
-                </div>
-              </div>
+            <div className="flex flex-col gap-4">
+              <SettingCard
+                title="AI features"
+                switchOn
+                description="Turn on AI support for calls, messages and video meetings. Deliver real-time answers, call notes, transcripts and meeting recaps to help teams stay focused and organized. Empower users to communicate clearly with built-in writing and polishing tools."
+              />
+
+              <SettingCard
+                title="AI Assistant"
+                switchOn
+                description="A personal assistant that helps you boost productivity."
+              >
+                <SubRow>
+                  <LabelWithInfo>AI notes and transcriptions retention period</LabelWithInfo>
+                  <SpringSelect value="365 days (Default)" width={200} />
+                </SubRow>
+                <UserDefaultsRow />
+                <UserPermissionsRow />
+              </SettingCard>
+
+              <SettingCard
+                title="Automatic call notes"
+                switchOn
+                description="Generate call notes automatically for all your devices."
+              >
+                <UserDefaultsRow />
+                <UserPermissionsRow />
+              </SettingCard>
             </div>
 
-            {/* User defaults */}
-            <div>
-              <div className="mb-4 flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <h3 className="text-[15px] font-bold leading-[20px] text-[var(--sui-colors-neutral-b0)]">User defaults</h3>
-                  <Info className="h-4 w-4 text-[var(--sui-colors-neutral-b2)]" />
-                </div>
-                <SpringPill>98/98 users using default</SpringPill>
-              </div>
+            {/* Footer actions */}
+            <div className="mt-8 flex justify-end gap-3">
+              <button className="h-[36px] rounded-[6px] border border-[var(--sui-colors-neutral-b3)] bg-white px-5 text-[14px] font-medium text-[var(--sui-colors-neutral-b1)] hover:bg-[var(--sui-colors-neutral-b4)]/40">
+                Cancel
+              </button>
+              <button
+                disabled
+                className="h-[36px] cursor-not-allowed rounded-[6px] bg-[var(--sui-colors-neutral-b4)] px-5 text-[14px] font-medium text-[var(--sui-colors-neutral-b3)]"
+              >
+                Save
+              </button>
+            </div>
 
-              <div className="flex flex-col gap-2">
-                {/* Child 1 — hover/focus state */}
-                <div className="flex min-h-[80px] items-start justify-between gap-4 rounded-[10px] bg-[var(--sui-colors-neutral-b4)]/40 p-4">
-                  <div className="max-w-[700px]">
-                    <h4 className="text-[15px] font-bold leading-[20px] text-[var(--sui-colors-neutral-b0)]">Real-time AI answers</h4>
-                    <p className="mt-1 text-[14px] leading-[20px] text-[var(--sui-colors-neutral-b2)]">
-                      Surface relevant answers and suggestions during live calls and meetings so reps stay confident without leaving the conversation.
-                    </p>
-                  </div>
-                  <div className="flex shrink-0 items-center">
-                    <SpringSwitch checked focused />
-                  </div>
-                </div>
-
-                {/* Child 2 — overridden */}
-                <div className="flex min-h-[80px] items-start justify-between gap-4 rounded-[10px] p-4 transition-colors hover:bg-[var(--sui-colors-neutral-b4)]/40">
-                  <div className="max-w-[700px]">
-                    <h4 className="text-[15px] font-bold leading-[20px] text-[var(--sui-colors-neutral-b0)]">Call notes</h4>
-                    <p className="mt-1 text-[14px] leading-[20px] text-[var(--sui-colors-neutral-b2)]">
-                      Automatically capture key moments and action items from every call so nothing falls through the cracks.
-                    </p>
-                  </div>
-                  <div className="flex shrink-0 items-center gap-3">
-                    <SpringPill>Overridden by 4 users</SpringPill>
-                    <SpringSwitch checked />
-                  </div>
-                </div>
-
-                {/* Child 3 — customizable */}
-                <div className="flex min-h-[80px] items-start justify-between gap-4 rounded-[10px] p-4 transition-colors hover:bg-[var(--sui-colors-neutral-b4)]/40">
-                  <div className="max-w-[700px]">
-                    <h4 className="text-[15px] font-bold leading-[20px] text-[var(--sui-colors-neutral-b0)]">Transcripts</h4>
-                    <p className="mt-1 text-[14px] leading-[20px] text-[var(--sui-colors-neutral-b2)]">
-                      Generate accurate transcripts for calls and meetings, with speaker labels and searchable history.
-                    </p>
-                    <button className="mt-1 text-[14px] font-medium leading-[20px] text-[var(--sui-colors-primary-b)] hover:underline">
-                      Customize
-                    </button>
-                  </div>
-                  <div className="flex shrink-0 items-center">
-                    <SpringSwitch checked />
-                  </div>
-                </div>
-
-                {/* Child 4 — OFF */}
-                <div className="flex min-h-[80px] items-start justify-between gap-4 rounded-[10px] p-4 transition-colors hover:bg-[var(--sui-colors-neutral-b4)]/40">
-                  <div className="max-w-[700px]">
-                    <h4 className="text-[15px] font-bold leading-[20px] text-[var(--sui-colors-neutral-b0)]">Writing assist</h4>
-                    <p className="mt-1 text-[14px] leading-[20px] text-[var(--sui-colors-neutral-b2)]">
-                      Help users draft clearer messages with built-in tone, polish and translation suggestions.
-                    </p>
-                  </div>
-                  <div className="flex shrink-0 items-center">
-                    <SpringSwitch checked={false} />
-                  </div>
-                </div>
-              </div>
+            {/* Legal footer (chrome typography but inside content area for layout) */}
+            <div className="swui-scope mt-10 text-[11px] leading-[16px] text-[var(--rc-text-faint)]">
+              <a href="#" className="text-[var(--rc-blue)] underline">Legal</a>
+              <a href="#" className="ml-1 text-[var(--rc-blue)] underline">Privacy</a>
+              <p className="mt-1">© 1999–2025 RingCentral Intellectual Property.</p>
+              <p>All rights reserved. RingCentral and the RingCentral logo are trademarks of RingCentral, Inc.</p>
             </div>
           </main>
         </div>
