@@ -293,9 +293,9 @@ export function Concept() {
       {/* ============================================================ */}
       {/* CHROME — Service Web UI Library                                */}
       {/* ============================================================ */}
-      <div className="swui-scope w-full">
+      <div className="swui-scope mx-auto w-full max-w-[1180px] px-4 sm:px-6 lg:px-10">
         {/* Masterhead */}
-        <header className="flex h-[64px] w-full min-w-0 items-center justify-between gap-4 bg-white px-4 sm:px-6 lg:px-10">
+        <header className="flex h-[64px] w-full min-w-0 items-center justify-between gap-4 bg-white">
           <div className="min-w-0 shrink">
             <RingCentralLogo />
           </div>
@@ -315,7 +315,7 @@ export function Concept() {
         </header>
 
         {/* Sub-nav with search on the right */}
-        <div className="flex h-[52px] w-full min-w-0 items-center justify-between gap-4 border-b border-[var(--rc-border)] bg-white px-4 text-[13px] sm:px-6 lg:px-10">
+        <div className="flex h-[52px] w-full min-w-0 items-center justify-between gap-4 border-b border-[var(--rc-border)] bg-white text-[13px]">
           <nav className="flex h-full min-w-0 flex-1 items-center gap-4 overflow-x-auto whitespace-nowrap lg:gap-9 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
             {[
               ['Home', false],
