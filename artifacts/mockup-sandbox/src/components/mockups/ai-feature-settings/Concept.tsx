@@ -312,7 +312,7 @@ function UserPermissionsRow() {
     <SubRow>
       <span className="text-[13px] text-[var(--sui-colors-neutral-b1)]">User permissions</span>
       <label className="flex cursor-pointer items-center gap-2 text-[13px] text-[var(--sui-colors-neutral-b1)]">
-        <span className="flex h-[18px] w-[18px] items-center justify-center rounded-[4px] bg-[var(--sui-colors-primary-b-high-contrast)]">
+        <span className="flex h-[18px] w-[18px] items-center justify-center rounded-[4px] bg-[var(--sui-colors-primary-b)]">
           <Check className="h-3 w-3 text-white" strokeWidth={3} />
         </span>
         Allow users to change this setting
