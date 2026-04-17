@@ -293,7 +293,7 @@ export function Concept() {
       {/* ============================================================ */}
       {/* CHROME — Service Web UI Library                                */}
       {/* ============================================================ */}
-      <div className="swui-scope mx-auto w-full max-w-[1180px] px-4 sm:px-6 lg:px-10">
+      <div className="swui-scope mx-auto w-[1200px] max-w-full px-4 sm:px-6 lg:px-10">
         {/* Masterhead */}
         <header className="flex h-[64px] w-full min-w-0 items-center justify-between gap-4 bg-white">
           <div className="min-w-0 shrink">
@@ -355,7 +355,7 @@ export function Concept() {
       {/* BODY — left chrome side panel + Spring content panel          */}
       {/* ============================================================ */}
       <div className="flex w-full justify-center bg-white px-4 pt-6 sm:px-6 lg:px-10">
-        <div className="flex w-full max-w-[1180px] gap-6">
+        <div className="flex w-[1200px] max-w-full gap-6">
           {/* Side panel — chrome */}
           <div className="swui-scope">
             <SideNav />
