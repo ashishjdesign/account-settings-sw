@@ -490,14 +490,18 @@ export function Concept() {
               </SettingCard>
             </div>
 
-            {/* Footer actions */}
-            <div className="mt-8 flex justify-end gap-3">
-              <button className="h-[36px] rounded-[6px] border border-[var(--sui-colors-neutral-b3)] bg-white px-5 text-[14px] font-medium text-[var(--sui-colors-neutral-b1)] hover:bg-[var(--sui-colors-neutral-b4)]/40">
+            {/* Footer actions — Spring DS Button (height 32, radius 10, padding-x 12, min-w 56) */}
+            <div className="mt-8 flex justify-end gap-2">
+              {/* Secondary / Outlined */}
+              <button
+                className="inline-flex h-[32px] min-w-[56px] items-center justify-center rounded-[10px] border border-black/20 bg-white px-3 text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b0)] transition-colors hover:bg-[var(--sui-colors-neutral-b4)]/40 active:bg-[var(--sui-colors-neutral-b4)]"
+              >
                 Cancel
               </button>
+              {/* Primary — disabled state from Figma footer (neutral-b3 bg, white text) */}
               <button
                 disabled
-                className="h-[36px] cursor-not-allowed rounded-[6px] bg-[var(--sui-colors-neutral-b4)] px-5 text-[14px] font-medium text-[var(--sui-colors-neutral-b3)]"
+                className="inline-flex h-[32px] min-w-[56px] cursor-not-allowed items-center justify-center rounded-[10px] bg-[var(--sui-colors-neutral-b3)] px-3 text-[14px] font-medium leading-[20px] text-white"
               >
                 Save
               </button>
