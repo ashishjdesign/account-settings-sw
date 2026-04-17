@@ -247,27 +247,27 @@ function SettingCard({
 }: React.PropsWithChildren<{ title: string; description: React.ReactNode; switchOn: boolean }>) {
   return (
     <section className="rounded-[10px] border border-[var(--sui-colors-neutral-b4)] bg-white">
-      <div className="flex items-start gap-4 p-4">
-        <img
-          src="/__mockup/figma-ref/icons/ai-stars.svg"
-          alt=""
-          aria-hidden="true"
-          width={20}
-          height={20}
-          className="mt-[6px] block h-5 w-5 shrink-0"
-        />
-        <div className="flex-1">
-          <h3 className="flex h-[32px] items-center text-[15px] font-bold leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+      <div className="p-4">
+        <div className="flex h-[32px] items-center gap-4">
+          <img
+            src="/__mockup/figma-ref/icons/ai-stars.svg"
+            alt=""
+            aria-hidden="true"
+            width={20}
+            height={20}
+            className="block h-5 w-5 shrink-0"
+          />
+          <h3 className="flex-1 text-[15px] font-bold leading-[20px] text-[var(--sui-colors-neutral-b1)]">
             {title}
           </h3>
-          <p className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
-            {description}{' '}
-            <a href="#" className="font-normal text-[var(--sui-colors-primary-b)] underline hover:text-[var(--sui-colors-primary-b-high-contrast)]">
-              Learn more
-            </a>
-          </p>
+          <SpringSwitch checked={switchOn} />
         </div>
-        <SpringSwitch checked={switchOn} className="mt-[10px]" />
+        <p className="ml-9 mt-1 text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+          {description}{' '}
+          <a href="#" className="font-normal text-[var(--sui-colors-primary-b)] underline hover:text-[var(--sui-colors-primary-b-high-contrast)]">
+            Learn more
+          </a>
+        </p>
       </div>
       {children && (
         <div className="border-t border-[var(--sui-colors-neutral-b4)]">
