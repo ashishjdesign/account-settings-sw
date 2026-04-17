@@ -4,7 +4,6 @@ import {
   ChevronRight,
   Search,
   LayoutGrid,
-  Monitor,
   Settings,
   ShieldCheck,
   AppWindow,
@@ -106,6 +105,24 @@ function PillTab({ label, selected }: { label: string; selected?: boolean }) {
 }
 
 /* -----------------------------------------------------------------------------
+ * Spring nav icons — inlined directly from Figma frame 1786:54562 SVG paths.
+ * --------------------------------------------------------------------------- */
+function ServiceConsoleIcon({ color = '#2F2F2F' }: { color?: string }) {
+  // Source: Figma asset for "Icon_Nav/Service console" (16x16 frame, path inset
+  // top 7.14% / bottom 14.29% so the path sits inside a 16x16 box).
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <g transform="translate(0 1.1424)">
+        <path
+          d="M15.3846 11.4286C15.7245 11.4286 16 11.6844 16 12C16 12.3156 15.7245 12.5714 15.3846 12.5714H0.615385C0.2755 12.5714 0 12.3156 0 12C0 11.6844 0.2755 11.4286 0.615385 11.4286H15.3846ZM13.7143 0C14.3455 0 14.8571 0.511654 14.8571 1.14285V9.14285C14.8571 9.77404 14.3455 10.2857 13.7143 10.2857H2.28569C1.6545 10.2857 1.14285 9.77404 1.14285 9.14285V1.14285C1.14285 0.511654 1.6545 0 2.28569 0H13.7143ZM13.7143 1.14288H2.28569V9.14288H13.7143V1.14288Z"
+          fill={color}
+        />
+      </g>
+    </svg>
+  );
+}
+
+/* -----------------------------------------------------------------------------
  * Left side panel — Service Web UI nav tree
  * --------------------------------------------------------------------------- */
 function Row({
@@ -156,7 +173,7 @@ function SideNav() {
       style={{ fontFamily: 'Helvetica, Arial, sans-serif' }}
     >
       {/* Service Console */}
-      <Row icon={<Monitor className="h-4 w-4 text-[#2F2F2F]" strokeWidth={1.6} />} label="Service Console" trailing="chev-right" />
+      <Row icon={<ServiceConsoleIcon />} label="Service Console" trailing="chev-right" />
 
       {/* Account Settings (expanded section header) */}
       <Row
