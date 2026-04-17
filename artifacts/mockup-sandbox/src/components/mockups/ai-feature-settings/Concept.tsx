@@ -3,7 +3,6 @@ import {
   ChevronDown,
   ChevronRight,
   Search,
-  LayoutGrid,
   Sparkles,
   Info,
   Check,
@@ -356,7 +355,7 @@ export function Concept() {
               <ChevronDown className="h-[13px] w-[13px]" strokeWidth={1.6} />
             </button>
             <button className="text-[var(--rc-text-muted)] hover:text-[var(--rc-blue)]">
-              <LayoutGrid className="h-[18px] w-[18px]" strokeWidth={1.5} />
+              <AppsResourcesIcon color="currentColor" />
             </button>
             <div className="relative ml-1 flex h-9 w-9 items-center justify-center rounded-full bg-[var(--rc-orange)] text-[12px] font-bold text-white">
               RC
