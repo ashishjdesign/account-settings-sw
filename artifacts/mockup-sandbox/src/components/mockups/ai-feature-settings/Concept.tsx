@@ -348,7 +348,7 @@ export function Concept() {
             ))}
             <button className="relative flex h-full shrink-0 items-center font-medium text-[var(--rc-blue)]">
               <span>More</span>
-              <span className="absolute bottom-0 left-0 right-0 h-[3px] rounded-t-sm bg-[var(--rc-blue)]" />
+              <span className="absolute bottom-0 left-0 right-0 h-[3px] bg-[var(--rc-blue)]" />
             </button>
           </nav>
 
