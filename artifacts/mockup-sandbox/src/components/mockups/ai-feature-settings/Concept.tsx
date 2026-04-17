@@ -315,7 +315,7 @@ export function Concept() {
         </header>
 
         {/* Sub-nav with search on the right */}
-        <div className="flex h-[52px] w-full min-w-0 items-center justify-between gap-4 border-b border-[var(--rc-border)] bg-white text-[13px]">
+        <div className="flex h-[52px] w-full min-w-0 items-center justify-between gap-4 bg-white text-[13px]">
           <nav className="flex h-full min-w-0 flex-1 items-center gap-4 overflow-x-auto whitespace-nowrap lg:gap-9 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
             {[
               ['Home', false],
@@ -350,6 +350,9 @@ export function Concept() {
           </div>
         </div>
       </div>
+
+      {/* Full-bleed separator under the sub-nav */}
+      <div className="w-full border-b border-[var(--rc-border)]" />
 
       {/* ============================================================ */}
       {/* BODY — left chrome side panel + Spring content panel          */}
