@@ -436,7 +436,7 @@ export function ConceptSummaryModal() {
   const [modal, setModal] = React.useState<ModalKey>(null);
 
   return (
-    <div className="relative min-h-[100dvh] w-full bg-white">
+    <div className="relative flex min-h-[960px] w-full flex-col bg-white">
       <style>{scopedTokens}</style>
 
       {/* CHROME */}
@@ -494,13 +494,13 @@ export function ConceptSummaryModal() {
       <div className="w-full border-b border-[#E2E2E2]" />
 
       {/* BODY */}
-      <div className="flex w-full justify-center bg-white px-4 pt-6 sm:px-6 lg:px-10">
+      <div className="flex w-full flex-1 justify-center bg-white px-4 pt-6 sm:px-6 lg:px-10">
         <div className="flex w-[1200px] max-w-full gap-[10px]">
           <div className="swui-scope">
             <SideNav />
           </div>
 
-          <main className="spring-scope flex-1 px-[16px] pb-10 pt-[10px]">
+          <main className="spring-scope flex flex-1 flex-col px-[16px] pb-10 pt-[10px]">
             <h1 className="mb-5 flex h-[40px] items-center text-[20px] font-semibold leading-[28px] tracking-[-0.2px] text-[var(--sui-colors-neutral-b1)]">
               Feature Settings
             </h1>
@@ -547,7 +547,7 @@ export function ConceptSummaryModal() {
               />
             </div>
 
-            <div className="swui-scope mt-10 text-[11px] leading-[16px] text-[var(--rc-text-faint)]">
+            <div className="swui-scope mt-auto pt-10 text-[11px] leading-[16px] text-[var(--rc-text-faint)]">
               <a href="#" className="text-[var(--rc-blue)] underline">Legal</a>
               <a href="#" className="ml-1 text-[var(--rc-blue)] underline">Privacy</a>
               <p className="mt-1">© 1999–2025 RingCentral Intellectual Property.</p>
