@@ -354,7 +354,7 @@ export function Concept() {
             </button>
           </nav>
 
-          <div className="flex h-[34px] w-full max-w-[300px] min-w-[160px] shrink-0 basis-[260px] items-center rounded-full border border-[var(--rc-border-strong)] bg-white px-4">
+          <div className="flex h-[34px] w-full max-w-[300px] min-w-[160px] shrink-0 basis-[260px] items-center rounded-[2px] border border-[var(--rc-border-strong)] bg-white px-3">
             <input
               type="text"
               placeholder="Search settings, pages, or help articles"
