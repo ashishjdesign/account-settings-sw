@@ -262,7 +262,7 @@ function SettingCard({
           </h3>
           <SpringSwitch checked={switchOn} />
         </div>
-        <p className="ml-9 mt-1 text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+        <p className="ml-9 mr-[56px] mt-1 text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b2)]">
           {description}{' '}
           <a href="#" className="font-normal text-[var(--sui-colors-primary-b)] underline hover:text-[var(--sui-colors-primary-b-high-contrast)]">
             Learn more
