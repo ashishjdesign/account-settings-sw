@@ -243,14 +243,20 @@ function SettingCard({
   title,
   description,
   switchOn,
+  icon = 'ai-stars',
   children,
-}: React.PropsWithChildren<{ title: string; description: React.ReactNode; switchOn: boolean }>) {
+}: React.PropsWithChildren<{
+  title: string;
+  description: React.ReactNode;
+  switchOn: boolean;
+  icon?: 'ai-stars' | 'ai-lightbulb' | 'ai-writer';
+}>) {
   return (
     <section className="rounded-[10px] border border-[var(--sui-colors-neutral-b4)] bg-white">
       <div className="p-4">
         <div className="flex h-[32px] items-center gap-4">
           <img
-            src="/__mockup/figma-ref/icons/ai-stars.svg"
+            src={`/__mockup/figma-ref/icons/${icon}.svg`}
             alt=""
             aria-hidden="true"
             width={20}
@@ -452,6 +458,7 @@ export function Concept() {
               <SettingCard
                 title="AI Assistant"
                 switchOn
+                icon="ai-lightbulb"
                 description="A personal assistant that helps you boost productivity."
               >
                 <SubRow>
@@ -465,6 +472,7 @@ export function Concept() {
               <SettingCard
                 title="Automatic call notes"
                 switchOn
+                icon="ai-writer"
                 description="Generate call notes automatically for all your devices."
               >
                 <UserDefaultsRow />
