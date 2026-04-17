@@ -146,9 +146,8 @@ function SideNav() {
 
       <div className="border-t border-[#E2E2E2]" />
 
-      {/* Account Settings — expanded section, accent bar spans the active group */}
-      <div className="relative">
-        <span className="absolute left-0 top-0 h-full w-[3px] bg-[var(--rc-blue)]" />
+      {/* Account Settings — expanded section */}
+      <div>
         <button className="flex w-full items-center gap-2 px-3 py-2.5 text-left">
           <Settings className="h-4 w-4 text-[var(--rc-blue)]" strokeWidth={1.6} />
           <span className="flex-1 font-medium text-[var(--rc-blue)]">Account Settings</span>
@@ -161,12 +160,15 @@ function SideNav() {
               <li key={label}>
                 <button
                   className={cn(
-                    'flex w-full items-center py-1.5 pr-3 pl-9 text-left',
+                    'relative flex w-full items-center py-1.5 pr-3 pl-9 text-left',
                     selected
                       ? 'bg-[#EAF4FA] font-medium text-[var(--rc-blue)]'
                       : 'text-[var(--rc-text)] hover:bg-[var(--rc-bg-fog)]',
                   )}
                 >
+                  {selected && (
+                    <span className="absolute left-0 top-0 h-full w-[3px] bg-[var(--rc-blue)]" />
+                  )}
                   {label}
                 </button>
               </li>
