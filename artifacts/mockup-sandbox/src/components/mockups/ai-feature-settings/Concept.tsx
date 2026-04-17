@@ -293,7 +293,7 @@ export function Concept() {
       {/* ============================================================ */}
       {/* CHROME — Service Web UI Library                                */}
       {/* ============================================================ */}
-      <div className="swui-scope mx-auto w-[1200px] max-w-full px-4 sm:px-6 lg:px-10">
+      <div className="swui-scope mx-auto w-[1200px] max-w-full">
         {/* Masterhead */}
         <header className="flex h-[64px] w-full min-w-0 items-center justify-between gap-4 bg-white">
           <div className="min-w-0 shrink">
