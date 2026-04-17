@@ -415,8 +415,8 @@ export function Concept() {
           </div>
 
           {/* Content — Spring */}
-          <main className="spring-scope flex-1 pb-10">
-            <h1 className="mb-5 text-[22px] font-bold leading-[28px] text-[var(--sui-colors-neutral-b0)]">
+          <main className="spring-scope flex-1 pb-10 pt-[10px]">
+            <h1 className="mb-5 flex h-[40px] items-center text-[20px] font-semibold leading-[28px] tracking-[-0.2px] text-[var(--sui-colors-neutral-b1)]">
               Feature Settings
             </h1>
 
