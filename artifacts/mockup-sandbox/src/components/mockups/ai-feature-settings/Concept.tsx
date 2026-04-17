@@ -31,8 +31,8 @@ const scopedTokens = `
     color: var(--rc-text);
   }
   .spring-scope {
-    --sui-colors-primary-b: #0040dd;
-    --sui-colors-primary-b-high-contrast: #022685;
+    --sui-colors-primary-b: #066fac;
+    --sui-colors-primary-b-high-contrast: #184d74;
     --sui-colors-neutral-base: #ffffff;
     --sui-colors-neutral-b0: #000000;
     --sui-colors-neutral-b1: #323439;
