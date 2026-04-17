@@ -108,90 +108,74 @@ function PillTab({ label, selected }: { label: string; selected?: boolean }) {
 /* -----------------------------------------------------------------------------
  * Left side panel — Service Web UI nav tree
  * --------------------------------------------------------------------------- */
-function SideNav() {
-  const topItems = [
-    { label: 'Service Console', icon: Monitor, hasChevron: true },
-  ];
-  const accountChildren = [
-    'Feature Settings',
-    'Appearance',
-    'App Integrations',
-    'Archiver Settings',
-    'Directory Integration',
-    'Headset Support',
-    'Microsoft Teams',
-    'Multi-Site Settings',
-    'Outbound Call Prefix',
-  ];
-  const bottomItems = [
-    { label: 'Security and Compliance', icon: ShieldCheck, hasChevron: false },
-    { label: 'Apps and Resources', icon: AppWindow, hasChevron: false },
-  ];
-
+function Row({
+  icon,
+  label,
+  labelColor,
+  trailing,
+  selected,
+}: {
+  icon?: React.ReactNode;
+  label: string;
+  labelColor?: string;
+  trailing?: 'chev-right' | 'chev-down';
+  selected?: boolean;
+}) {
+  // Per Figma: each row is 190px wide, 40px tall, bg #FBFBFB (or #F4F4F4 when selected),
+  // with left+right borders only, 10px horizontal padding, 5px gap, inner content 10px gap.
+  // Selected row: 4px blue bar replaces the left padding.
   return (
-    <aside className="w-[210px] shrink-0 overflow-hidden rounded-[6px] border border-[#E2E2E2] bg-white text-[13px] text-[var(--rc-text)]">
-      {/* Top group */}
-      <div>
-        {topItems.map((item) => (
-          <button
-            key={item.label}
-            className="flex w-full items-center gap-2 px-3 py-2.5 text-left hover:bg-[var(--rc-bg-fog)]"
-          >
-            <item.icon className="h-4 w-4 text-[var(--rc-text-muted)]" strokeWidth={1.6} />
-            <span className="flex-1">{item.label}</span>
-            <ChevronRight className="h-3.5 w-3.5 text-[var(--rc-text-faint)]" />
-          </button>
-        ))}
+    <div
+      className="flex h-[40px] w-[190px] shrink-0 items-center gap-[5px] border-l border-r border-[#E2E2E2]"
+      style={{
+        backgroundColor: selected ? '#F4F4F4' : '#FBFBFB',
+        paddingLeft: selected ? 0 : 10,
+        paddingRight: 10,
+      }}
+    >
+      {selected && <div className="h-[40px] w-[4px] shrink-0 bg-[#0679BA]" />}
+      <div className="flex min-w-0 flex-1 items-center gap-[10px]">
+        <div className="flex h-[16px] w-[16px] shrink-0 items-center justify-center">{icon}</div>
+        <p
+          className="min-w-0 flex-1 truncate text-[13px] leading-[1.54]"
+          style={{ color: labelColor || (selected ? '#0679BA' : '#2F2F2F') }}
+        >
+          {label}
+        </p>
       </div>
+      {trailing === 'chev-right' && <ChevronRight className="h-[13px] w-[13px] shrink-0 text-[#2F2F2F]" strokeWidth={1.6} />}
+      {trailing === 'chev-down' && <ChevronDown className="h-[13px] w-[13px] shrink-0 text-[#0679BA]" strokeWidth={1.6} />}
+    </div>
+  );
+}
 
-      <div className="border-t border-[#E2E2E2]" />
+function SideNav() {
+  return (
+    <aside
+      className="shrink-0 rounded-[4px] border border-[#E2E2E2] bg-[#FBFBFB] py-[10px]"
+      style={{ fontFamily: 'Helvetica, Arial, sans-serif' }}
+    >
+      {/* Service Console */}
+      <Row icon={<Monitor className="h-4 w-4 text-[#2F2F2F]" strokeWidth={1.6} />} label="Service Console" trailing="chev-right" />
 
-      {/* Account Settings — expanded section */}
-      <div>
-        <button className="flex w-full items-center gap-2 px-3 py-2.5 text-left">
-          <Settings className="h-4 w-4 text-[var(--rc-blue)]" strokeWidth={1.6} />
-          <span className="flex-1 font-medium text-[var(--rc-blue)]">Account Settings</span>
-          <ChevronDown className="h-3.5 w-3.5 text-[var(--rc-blue)]" />
-        </button>
-        <ul className="pb-1">
-          {accountChildren.map((label) => {
-            const selected = label === 'Feature Settings';
-            return (
-              <li key={label}>
-                <button
-                  className={cn(
-                    'relative flex w-full items-center py-1.5 pr-3 pl-9 text-left',
-                    selected
-                      ? 'bg-[#EAF4FA] font-medium text-[var(--rc-blue)]'
-                      : 'text-[var(--rc-text)] hover:bg-[var(--rc-bg-fog)]',
-                  )}
-                >
-                  {selected && (
-                    <span className="absolute left-0 top-0 h-full w-[3px] bg-[var(--rc-blue)]" />
-                  )}
-                  {label}
-                </button>
-              </li>
-            );
-          })}
-        </ul>
-      </div>
+      {/* Account Settings (expanded section header) */}
+      <Row
+        icon={<Settings className="h-4 w-4 text-[#0679BA]" strokeWidth={1.6} />}
+        label="Account Settings"
+        labelColor="#0679BA"
+        trailing="chev-down"
+      />
 
-      <div className="border-t border-[#E2E2E2]" />
+      {/* Account Settings — children (no icon, indented) */}
+      <Row label="Feature Settings" selected />
+      {['Appearance', 'App Integrations', 'Archiver Settings', 'Directory Integration', 'Headset Support', 'Microsoft Teams', 'Multi-Site Settings', 'Outbound Call Prefix'].map((l) => (
+        <Row key={l} label={l} />
+      ))}
 
-      {/* Bottom group */}
-      <div>
-        {bottomItems.map((item) => (
-          <button
-            key={item.label}
-            className="flex w-full items-center gap-2 px-3 py-2.5 text-left hover:bg-[var(--rc-bg-fog)]"
-          >
-            <item.icon className="h-4 w-4 text-[var(--rc-text-muted)]" strokeWidth={1.6} />
-            <span className="flex-1">{item.label}</span>
-            <ChevronRight className="h-3.5 w-3.5 text-[var(--rc-text-faint)]" />
-          </button>
-        ))}
-      </div>
+      {/* Security and Compliance */}
+      <Row icon={<ShieldCheck className="h-4 w-4 text-[#2F2F2F]" strokeWidth={1.6} />} label="Security and Compliance" trailing="chev-right" />
+      {/* Apps and Resources */}
+      <Row icon={<AppWindow className="h-4 w-4 text-[#2F2F2F]" strokeWidth={1.6} />} label="Apps and Resources" trailing="chev-right" />
     </aside>
   );
 }
