@@ -352,7 +352,7 @@ export function Concept() {
       </div>
 
       {/* Full-bleed separator under the sub-nav */}
-      <div className="w-full border-b border-[var(--rc-border)]" />
+      <div className="w-full border-b border-[#E2E2E2]" />
 
       {/* ============================================================ */}
       {/* BODY — left chrome side panel + Spring content panel          */}
