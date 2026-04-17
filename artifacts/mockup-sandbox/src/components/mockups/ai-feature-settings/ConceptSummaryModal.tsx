@@ -415,14 +415,8 @@ function RingCentralLogo() {
  * --------------------------------------------------------------------------- */
 type ModalKey = 'ai-assistant' | 'auto-call-notes' | null;
 
-function readInitialModalKey(): ModalKey {
-  if (typeof window === 'undefined') return null;
-  const v = new URLSearchParams(window.location.search).get('modal');
-  return v === 'ai-assistant' || v === 'auto-call-notes' ? v : null;
-}
-
 export function ConceptSummaryModal() {
-  const [modal, setModal] = React.useState<ModalKey>(() => readInitialModalKey());
+  const [modal, setModal] = React.useState<ModalKey>(null);
 
   return (
     <div className="relative min-h-[100dvh] w-full bg-white">
