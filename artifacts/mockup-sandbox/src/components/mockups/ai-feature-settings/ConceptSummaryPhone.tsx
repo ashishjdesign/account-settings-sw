@@ -344,7 +344,6 @@ export function ConceptSummaryPhone() {
               <PillTab label="AI" />
               <PillTab label="SMS" />
               <PillTab label="Fax" />
-              <PillTab label="Meetings" />
             </div>
 
             <div className="flex flex-col gap-4">

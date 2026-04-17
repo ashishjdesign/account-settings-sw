@@ -511,7 +511,6 @@ export function ConceptSummaryModal() {
               <PillTab label="AI" selected />
               <PillTab label="SMS" />
               <PillTab label="Fax" />
-              <PillTab label="Meetings" />
             </div>
 
             <div className="flex flex-col gap-4">

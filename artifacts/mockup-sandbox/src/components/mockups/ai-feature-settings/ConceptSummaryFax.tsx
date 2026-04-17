@@ -344,7 +344,6 @@ export function ConceptSummaryFax() {
               <PillTab label="AI" />
               <PillTab label="SMS" />
               <PillTab label="Fax" selected />
-              <PillTab label="Meetings" />
             </div>
 
             <div className="flex flex-col gap-4">
