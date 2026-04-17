@@ -408,14 +408,14 @@ export function Concept() {
       {/* BODY — left chrome side panel + Spring content panel          */}
       {/* ============================================================ */}
       <div className="flex w-full justify-center bg-white px-4 pt-6 sm:px-6 lg:px-10">
-        <div className="flex w-[1200px] max-w-full gap-6">
+        <div className="flex w-[1200px] max-w-full gap-[10px]">
           {/* Side panel — chrome */}
           <div className="swui-scope">
             <SideNav />
           </div>
 
           {/* Content — Spring */}
-          <main className="spring-scope flex-1 pb-10 pt-[10px]">
+          <main className="spring-scope flex-1 px-[16px] pb-10 pt-[10px]">
             <h1 className="mb-5 flex h-[40px] items-center text-[20px] font-semibold leading-[28px] tracking-[-0.2px] text-[var(--sui-colors-neutral-b1)]">
               Feature Settings
             </h1>
