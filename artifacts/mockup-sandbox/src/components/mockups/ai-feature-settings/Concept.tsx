@@ -126,18 +126,18 @@ function Row({
   // Selected row: 4px blue bar replaces the left padding.
   return (
     <div
-      className="flex h-[40px] w-[190px] shrink-0 items-center gap-[5px]"
+      className="flex min-h-[40px] w-[190px] shrink-0 items-center gap-[5px]"
       style={{
         backgroundColor: selected ? '#F4F4F4' : '#FBFBFB',
         paddingLeft: selected ? 0 : 10,
         paddingRight: 10,
       }}
     >
-      {selected && <div className="h-[40px] w-[4px] shrink-0 bg-[#0679BA]" />}
-      <div className="flex min-w-0 flex-1 items-center gap-[10px]">
+      {selected && <div className="w-[4px] shrink-0 self-stretch bg-[#0679BA]" />}
+      <div className="flex min-w-0 flex-1 items-center gap-[10px] py-[8px]">
         <div className="flex h-[16px] w-[16px] shrink-0 items-center justify-center">{icon}</div>
         <p
-          className="min-w-0 flex-1 truncate text-[13px] leading-[1.54]"
+          className="min-w-0 flex-1 text-[13px] leading-[1.54] [display:-webkit-box] [-webkit-line-clamp:2] [-webkit-box-orient:vertical] overflow-hidden"
           style={{ color: labelColor || (selected ? '#0679BA' : '#2F2F2F') }}
         >
           {label}
