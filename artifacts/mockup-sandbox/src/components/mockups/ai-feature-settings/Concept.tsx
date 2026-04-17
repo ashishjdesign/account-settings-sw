@@ -305,11 +305,24 @@ function SubRow({ children }: React.PropsWithChildren) {
   );
 }
 
+function InfoIcon() {
+  return (
+    <img
+      src="/__mockup/figma-ref/icons/info.svg"
+      alt=""
+      aria-hidden="true"
+      width={12}
+      height={12}
+      className="block h-3 w-3 shrink-0"
+    />
+  );
+}
+
 function LabelWithInfo({ children }: React.PropsWithChildren) {
   return (
     <div className="flex items-center gap-2 text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b1)]">
       <span>{children}</span>
-      <Info className="h-3 w-3 text-[var(--sui-colors-neutral-b2)]" strokeWidth={1.6} />
+      <InfoIcon />
     </div>
   );
 }
@@ -322,7 +335,7 @@ function UserDefaultsRow() {
         <span className="text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b1)]">
           User defaults
         </span>
-        <Info className="h-3 w-3 shrink-0 text-[var(--sui-colors-neutral-b2)]" strokeWidth={1.6} />
+        <InfoIcon />
         <span className="ml-1 flex items-center border-l border-[var(--sui-colors-neutral-b4)] pl-2 text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b2)]">
           <a href="#" className="text-[var(--sui-colors-primary-b)] underline hover:text-[var(--sui-colors-primary-b-high-contrast)]">
             72/98 users
