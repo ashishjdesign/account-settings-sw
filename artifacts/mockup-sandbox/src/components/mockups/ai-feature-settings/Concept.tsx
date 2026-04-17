@@ -317,15 +317,24 @@ function LabelWithInfo({ children }: React.PropsWithChildren) {
 function UserDefaultsRow() {
   return (
     <SubRow>
-      <LabelWithInfo>User defaults</LabelWithInfo>
-      <div className="flex items-center gap-3 text-[14px] leading-[20px] text-[var(--sui-colors-neutral-b1)]">
-        <span>
+      {/* Left: label + info + vertical separator + helper text */}
+      <div className="flex min-w-0 items-center gap-2">
+        <span className="text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+          User defaults
+        </span>
+        <Info className="h-3 w-3 shrink-0 text-[var(--sui-colors-neutral-b2)]" strokeWidth={1.6} />
+        <span className="ml-1 flex items-center border-l border-[var(--sui-colors-neutral-b4)] pl-2 text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b2)]">
           <a href="#" className="text-[var(--sui-colors-primary-b)] underline hover:text-[var(--sui-colors-primary-b-high-contrast)]">
             72/98 users
-          </a>{' '}
-          <span>are using the default</span>
+          </a>
+          <span>&nbsp;are using the default</span>
         </span>
-        <span className="ml-6">Set this setting for users</span>
+      </div>
+      {/* Right: helper label + select */}
+      <div className="flex shrink-0 items-center gap-3">
+        <span className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b2)]">
+          Set this setting for users
+        </span>
         <SpringSelect value="On" width={96} />
       </div>
     </SubRow>
