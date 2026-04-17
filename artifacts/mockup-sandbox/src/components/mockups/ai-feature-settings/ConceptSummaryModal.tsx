@@ -215,7 +215,13 @@ function LabelWithInfo({ children }: React.PropsWithChildren) {
 
 /* -----------------------------------------------------------------------------
  * Setting card with summary line + Manage CTA (collapsed sub-settings).
+ *
+ * Summary segments per Figma 1786:54673 — each segment is "Label: value"
+ * (label Inter Semibold 14/20, value Inter Regular 14/20) or plain text;
+ * segments separated by an 8px vertical divider in neutral-b4.
  * --------------------------------------------------------------------------- */
+type SummarySegment = { label?: string; value: string };
+
 function SettingCard({
   title, description, switchOn, icon = 'ai-stars', summary, onManage,
 }: {
@@ -223,7 +229,7 @@ function SettingCard({
   description: React.ReactNode;
   switchOn: boolean;
   icon?: 'ai-stars' | 'ai-lightbulb' | 'ai-writer';
-  summary?: string;
+  summary?: SummarySegment[];
   onManage?: () => void;
 }) {
   return (
@@ -256,16 +262,27 @@ function SettingCard({
           </a>
         </p>
 
-        {/* Summary + Manage row (only when sub-settings exist) */}
-        {summary && switchOn && (
-          <div className="mt-2 flex w-full items-center justify-between gap-4 border-t border-[var(--sui-colors-neutral-b4)] pt-3">
-            <p className="min-w-0 flex-1 text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b2)]">
-              {summary}
-            </p>
+        {/* Summary + Manage row (Figma 1786:54673) */}
+        {summary && summary.length > 0 && switchOn && (
+          <div className="flex w-full items-center justify-between gap-4 border-t border-[var(--sui-colors-neutral-b4)] pt-4">
+            <div className="flex min-w-0 flex-1 items-center text-[14px] leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+              {summary.map((seg, i) => (
+                <div
+                  key={i}
+                  className={cn(
+                    'flex items-center gap-2 whitespace-nowrap',
+                    i > 0 && 'ml-2 border-l border-[var(--sui-colors-neutral-b4)] pl-2',
+                  )}
+                >
+                  {seg.label && <span className="font-semibold">{seg.label}</span>}
+                  <span className="font-normal">{seg.value}</span>
+                </div>
+              ))}
+            </div>
             <button
               type="button"
               onClick={onManage}
-              className="inline-flex h-[32px] shrink-0 items-center justify-center rounded-[10px] px-3 text-[14px] font-medium leading-[20px] text-[var(--sui-colors-primary-b)] transition-colors hover:bg-[var(--sui-colors-primary-b)]/8 hover:text-[var(--sui-colors-primary-b-high-contrast)] focus:outline-none focus:ring-2 focus:ring-[var(--sui-colors-primary-b)]/30"
+              className="inline-flex h-[32px] shrink-0 items-center justify-center gap-1.5 rounded-[10px] px-1 text-[14px] font-medium leading-[20px] text-[var(--sui-colors-primary-b)] transition-colors hover:text-[var(--sui-colors-primary-b-high-contrast)] focus:outline-none focus:ring-2 focus:ring-[var(--sui-colors-primary-b)]/30"
             >
               Manage
             </button>
@@ -509,7 +526,11 @@ export function ConceptSummaryModal() {
                 switchOn
                 icon="ai-lightbulb"
                 description="A personal assistant that helps you boost productivity."
-                summary="Retention: 365 days · Default: On · Users can change this setting"
+                summary={[
+                  { label: 'Data retention period:', value: '365 days' },
+                  { label: 'User default:', value: 'On' },
+                  { value: 'Users can change this setting' },
+                ]}
                 onManage={() => setModal('ai-assistant')}
               />
 
@@ -518,7 +539,10 @@ export function ConceptSummaryModal() {
                 switchOn
                 icon="ai-writer"
                 description="Generate call notes automatically for all your devices."
-                summary="Default: On · Users can change this setting"
+                summary={[
+                  { label: 'User default:', value: 'On' },
+                  { value: 'Users can change this setting' },
+                ]}
                 onManage={() => setModal('auto-call-notes')}
               />
             </div>
