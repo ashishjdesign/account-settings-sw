@@ -375,18 +375,6 @@ export function ConceptSummaryPhone() {
               />
             </div>
 
-            <div className="mt-5 flex justify-end gap-2">
-              <button className="inline-flex h-[32px] min-w-[56px] items-center justify-center rounded-[10px] border border-black/20 bg-white px-3 text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b0)] transition-colors hover:bg-[var(--sui-colors-neutral-b4)]/40 active:bg-[var(--sui-colors-neutral-b4)]">
-                Cancel
-              </button>
-              <button
-                disabled
-                className="inline-flex h-[32px] min-w-[56px] cursor-not-allowed items-center justify-center rounded-[10px] bg-[var(--sui-colors-neutral-b3)] px-3 text-[14px] font-medium leading-[20px] text-white"
-              >
-                Save
-              </button>
-            </div>
-
             <div className="swui-scope mt-10 text-[11px] leading-[16px] text-[var(--rc-text-faint)]">
               <a href="#" className="text-[var(--rc-blue)] underline">Legal</a>
               <a href="#" className="ml-1 text-[var(--rc-blue)] underline">Privacy</a>
