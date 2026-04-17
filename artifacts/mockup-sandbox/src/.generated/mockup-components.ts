@@ -4,5 +4,6 @@ export const modules: ModuleMap = {
   "./components/mockups/ai-feature-settings/Concept.tsx": () => import("../components/mockups/ai-feature-settings/Concept.tsx"),
   "./components/mockups/ai-feature-settings/ConceptSummaryGeneral.tsx": () => import("../components/mockups/ai-feature-settings/ConceptSummaryGeneral.tsx"),
   "./components/mockups/ai-feature-settings/ConceptSummaryModal.tsx": () => import("../components/mockups/ai-feature-settings/ConceptSummaryModal.tsx"),
-  "./components/mockups/ai-feature-settings/ConceptSummaryPhone.tsx": () => import("../components/mockups/ai-feature-settings/ConceptSummaryPhone.tsx")
+  "./components/mockups/ai-feature-settings/ConceptSummaryPhone.tsx": () => import("../components/mockups/ai-feature-settings/ConceptSummaryPhone.tsx"),
+  "./components/mockups/ai-feature-settings/ConceptSummarySms.tsx": () => import("../components/mockups/ai-feature-settings/ConceptSummarySms.tsx")
 };
