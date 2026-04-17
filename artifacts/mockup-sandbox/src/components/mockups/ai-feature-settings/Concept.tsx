@@ -129,7 +129,7 @@ function SideNav() {
   ];
 
   return (
-    <aside className="w-[210px] shrink-0 bg-white text-[13px] text-[var(--rc-text)]">
+    <aside className="w-[210px] shrink-0 overflow-hidden rounded-[6px] border border-[#E2E2E2] bg-white text-[13px] text-[var(--rc-text)]">
       {/* Top group */}
       <div>
         {topItems.map((item) => (
@@ -146,12 +146,13 @@ function SideNav() {
 
       <div className="border-t border-[#E2E2E2]" />
 
-      {/* Account Settings — expanded; selected child carries the accent */}
-      <div>
+      {/* Account Settings — expanded section, accent bar spans the active group */}
+      <div className="relative">
+        <span className="absolute left-0 top-0 h-full w-[3px] bg-[var(--rc-blue)]" />
         <button className="flex w-full items-center gap-2 px-3 py-2.5 text-left">
           <Settings className="h-4 w-4 text-[var(--rc-blue)]" strokeWidth={1.6} />
-          <span className="flex-1 font-medium text-[var(--rc-text)]">Account Settings</span>
-          <ChevronDown className="h-3.5 w-3.5 text-[var(--rc-text-muted)]" />
+          <span className="flex-1 font-medium text-[var(--rc-blue)]">Account Settings</span>
+          <ChevronDown className="h-3.5 w-3.5 text-[var(--rc-blue)]" />
         </button>
         <ul className="pb-1">
           {accountChildren.map((label) => {
@@ -160,15 +161,12 @@ function SideNav() {
               <li key={label}>
                 <button
                   className={cn(
-                    'relative flex w-full items-center py-1.5 pr-3 pl-9 text-left',
+                    'flex w-full items-center py-1.5 pr-3 pl-9 text-left',
                     selected
                       ? 'bg-[#EAF4FA] font-medium text-[var(--rc-blue)]'
                       : 'text-[var(--rc-text)] hover:bg-[var(--rc-bg-fog)]',
                   )}
                 >
-                  {selected && (
-                    <span className="absolute left-0 top-0 h-full w-[3px] bg-[var(--rc-blue)]" />
-                  )}
                   {label}
                 </button>
               </li>
