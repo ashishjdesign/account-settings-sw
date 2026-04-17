@@ -86,13 +86,17 @@ function SpringSelect({ value, width = 180 }: { value: string; width?: number })
  * Spring outlined pill tab.
  * --------------------------------------------------------------------------- */
 function PillTab({ label, selected }: { label: string; selected?: boolean }) {
+  // Spring "Tabs / Color variants" — pill-shaped, 32px tall, 100px min-width,
+  // 12px horizontal padding, 14px medium label. Selected pill uses the
+  // primary-b background with white label; unselected uses a 1px neutral-b3
+  // border, white surface, and neutral-b1 label.
   return (
     <button
       className={cn(
-        'inline-flex h-[36px] items-center justify-center rounded-full border px-5 text-[14px] font-medium leading-[20px] transition-colors',
+        'inline-flex h-[32px] min-w-[100px] items-center justify-center rounded-full px-3 text-[14px] font-medium leading-[20px] transition-colors',
         selected
-          ? 'border-[var(--sui-colors-neutral-b3)] bg-[var(--sui-colors-neutral-b4)] text-[var(--sui-colors-neutral-b0)]'
-          : 'border-[var(--sui-colors-neutral-b4)] bg-white text-[var(--sui-colors-neutral-b1)] hover:bg-[var(--sui-colors-neutral-b4)]/30',
+          ? 'bg-[var(--sui-colors-primary-b)] text-white hover:bg-[var(--sui-colors-primary-b-high-contrast)]'
+          : 'border border-[var(--sui-colors-neutral-b3)] bg-white text-[var(--sui-colors-neutral-b1)] hover:bg-[var(--sui-colors-neutral-b4)]/30',
       )}
     >
       {label}
