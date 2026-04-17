@@ -126,7 +126,7 @@ function Row({
   // Selected row: 4px blue bar replaces the left padding.
   return (
     <div
-      className="flex h-[40px] w-[190px] shrink-0 items-center gap-[5px] border-l border-r border-[#E2E2E2]"
+      className="flex h-[40px] w-[190px] shrink-0 items-center gap-[5px]"
       style={{
         backgroundColor: selected ? '#F4F4F4' : '#FBFBFB',
         paddingLeft: selected ? 0 : 10,
