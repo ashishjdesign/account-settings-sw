@@ -247,18 +247,27 @@ function SettingCard({
 }: React.PropsWithChildren<{ title: string; description: React.ReactNode; switchOn: boolean }>) {
   return (
     <section className="rounded-[10px] border border-[var(--sui-colors-neutral-b4)] bg-white">
-      <div className="flex items-start gap-4 px-6 py-5">
-        <Sparkles className="mt-0.5 h-5 w-5 shrink-0 text-[var(--sui-colors-neutral-b1)]" strokeWidth={1.6} />
+      <div className="flex items-start gap-4 p-4">
+        <img
+          src="/__mockup/figma-ref/icons/ai-stars.svg"
+          alt=""
+          aria-hidden="true"
+          width={20}
+          height={20}
+          className="mt-[6px] block h-5 w-5 shrink-0"
+        />
         <div className="flex-1">
-          <h3 className="text-[15px] font-bold leading-[20px] text-[var(--sui-colors-neutral-b0)]">{title}</h3>
-          <p className="mt-1 max-w-[640px] text-[13px] leading-[19px] text-[var(--sui-colors-neutral-b2)]">
+          <h3 className="flex h-[32px] items-center text-[15px] font-bold leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+            {title}
+          </h3>
+          <p className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
             {description}{' '}
-            <a href="#" className="font-medium text-[var(--sui-colors-primary-b)] hover:underline">
+            <a href="#" className="font-normal text-[var(--sui-colors-primary-b)] underline hover:text-[var(--sui-colors-primary-b-high-contrast)]">
               Learn more
             </a>
           </p>
         </div>
-        <SpringSwitch checked={switchOn} />
+        <SpringSwitch checked={switchOn} className="mt-[10px]" />
       </div>
       {children && (
         <div className="border-t border-[var(--sui-colors-neutral-b4)]">
@@ -274,7 +283,7 @@ function SettingCard({
  * --------------------------------------------------------------------------- */
 function SubRow({ children }: React.PropsWithChildren) {
   return (
-    <div className="flex items-center justify-between gap-4 border-b border-[var(--sui-colors-neutral-b4)] px-6 py-3.5 last:border-b-0">
+    <div className="flex items-center justify-between gap-4 border-b border-[var(--sui-colors-neutral-b4)] px-4 py-2 last:border-b-0">
       {children}
     </div>
   );
@@ -282,9 +291,9 @@ function SubRow({ children }: React.PropsWithChildren) {
 
 function LabelWithInfo({ children }: React.PropsWithChildren) {
   return (
-    <div className="flex items-center gap-1.5 text-[13px] text-[var(--sui-colors-neutral-b1)]">
+    <div className="flex items-center gap-2 text-[14px] leading-[20px] text-[var(--sui-colors-neutral-b1)]">
       <span>{children}</span>
-      <Info className="h-3.5 w-3.5 text-[var(--sui-colors-neutral-b3)]" />
+      <Info className="h-3 w-3 text-[var(--sui-colors-neutral-b2)]" strokeWidth={1.6} />
     </div>
   );
 }
@@ -293,14 +302,14 @@ function UserDefaultsRow() {
   return (
     <SubRow>
       <LabelWithInfo>User defaults</LabelWithInfo>
-      <div className="flex items-center gap-3 text-[13px]">
+      <div className="flex items-center gap-3 text-[14px] leading-[20px] text-[var(--sui-colors-neutral-b1)]">
         <span>
-          <a href="#" className="font-medium text-[var(--sui-colors-primary-b)] hover:underline">
+          <a href="#" className="text-[var(--sui-colors-primary-b)] underline hover:text-[var(--sui-colors-primary-b-high-contrast)]">
             72/98 users
           </a>{' '}
-          <span className="text-[var(--sui-colors-neutral-b2)]">are using the default</span>
+          <span>are using the default</span>
         </span>
-        <span className="ml-6 text-[var(--sui-colors-neutral-b1)]">Set this setting for users</span>
+        <span className="ml-6">Set this setting for users</span>
         <SpringSelect value="On" width={96} />
       </div>
     </SubRow>
@@ -310,8 +319,8 @@ function UserDefaultsRow() {
 function UserPermissionsRow() {
   return (
     <SubRow>
-      <span className="text-[13px] text-[var(--sui-colors-neutral-b1)]">User permissions</span>
-      <label className="flex cursor-pointer items-center gap-2 text-[13px] text-[var(--sui-colors-neutral-b1)]">
+      <span className="text-[14px] leading-[20px] text-[var(--sui-colors-neutral-b1)]">User permissions</span>
+      <label className="flex cursor-pointer items-center gap-2 text-[14px] leading-[20px] text-[var(--sui-colors-neutral-b1)]">
         <span className="flex h-[18px] w-[18px] items-center justify-center rounded-[4px] bg-[var(--sui-colors-primary-b)]">
           <Check className="h-3 w-3 text-white" strokeWidth={3} />
         </span>
