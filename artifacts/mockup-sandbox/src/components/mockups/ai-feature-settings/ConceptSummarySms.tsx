@@ -49,6 +49,7 @@ const SpringSwitch = React.forwardRef<
       'peer inline-flex h-[24px] w-[40px] shrink-0 cursor-pointer items-center rounded-full transition-colors',
       'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sui-colors-primary-b-high-contrast)] focus-visible:ring-offset-2',
       'data-[state=checked]:bg-[var(--sui-colors-primary-b)] data-[state=unchecked]:bg-[var(--sui-colors-neutral-b3)]',
+      'disabled:cursor-not-allowed disabled:opacity-40',
       className,
     )}
     {...props}
@@ -170,8 +171,21 @@ type SummarySegment = { label?: string; value: string };
 
 type IconKey = 'user-activation' | 'resource-center' | 'tear-out-window' | 'active-call' | 'conference' | 'sms';
 
+function InfoIcon() {
+  return (
+    <img
+      src="/__mockup/figma-ref/icons/info.svg"
+      alt=""
+      aria-hidden="true"
+      width={16}
+      height={16}
+      className="block h-4 w-4 shrink-0"
+    />
+  );
+}
+
 function SettingCard({
-  title, description, switchOn, icon, summary, onManage,
+  title, description, switchOn, icon, summary, onManage, disabled, info, infoTooltip,
 }: {
   title: string;
   description: React.ReactNode;
@@ -179,6 +193,9 @@ function SettingCard({
   icon: IconKey;
   summary?: SummarySegment[];
   onManage?: () => void;
+  disabled?: boolean;
+  info?: boolean;
+  infoTooltip?: string;
 }) {
   return (
     <section className="flex items-start gap-4 rounded-[8px] border border-[var(--sui-colors-neutral-b4)] bg-white p-4">
@@ -198,7 +215,17 @@ function SettingCard({
           <h3 className="flex-1 truncate text-[15px] font-bold leading-[20px] text-[var(--sui-colors-neutral-b1)]">
             {title}
           </h3>
-          <SpringSwitch checked={switchOn} aria-label={title} />
+          {info && (
+            <button
+              type="button"
+              aria-label={infoTooltip ?? `More info about ${title}`}
+              title={infoTooltip}
+              className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[var(--sui-colors-neutral-b2)] transition-colors hover:text-[var(--sui-colors-neutral-b1)] focus:outline-none focus:ring-2 focus:ring-[var(--sui-colors-primary-b)]/30"
+            >
+              <InfoIcon />
+            </button>
+          )}
+          <SpringSwitch checked={switchOn} disabled={disabled} aria-label={title} />
         </div>
 
         <p className="pr-[130px] text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b2)]">
@@ -351,6 +378,9 @@ export function ConceptSummarySms() {
               <SettingCard
                 title="SMS Service"
                 switchOn
+                disabled
+                info
+                infoTooltip="SMS Service is enabled at the account level and cannot be turned off here. Contact your account team to change."
                 icon="sms"
                 description="Allow this account to access SMS Service."
               />
