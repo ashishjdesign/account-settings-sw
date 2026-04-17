@@ -252,34 +252,44 @@ function SettingCard({
   icon?: 'ai-stars' | 'ai-lightbulb' | 'ai-writer';
 }>) {
   return (
-    <section className="rounded-[10px] border border-[var(--sui-colors-neutral-b4)] bg-white">
-      <div className="p-4">
-        <div className="flex h-[32px] items-center gap-4">
-          <img
-            src={`/__mockup/figma-ref/icons/${icon}.svg`}
-            alt=""
-            aria-hidden="true"
-            width={20}
-            height={20}
-            className="block h-5 w-5 shrink-0"
-          />
-          <h3 className="flex-1 text-[15px] font-bold leading-[20px] text-[var(--sui-colors-neutral-b1)]">
-            {title}
-          </h3>
-          <SpringSwitch checked={switchOn} />
-        </div>
-        <p className="ml-9 mr-[56px] mt-1 text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b2)]">
-          {description}{' '}
-          <a href="#" className="font-normal text-[var(--sui-colors-primary-b)] underline hover:text-[var(--sui-colors-primary-b-high-contrast)]">
-            Learn more
-          </a>
-        </p>
+    <section className="flex items-start gap-4 rounded-[8px] border border-[var(--sui-colors-neutral-b4)] bg-white p-4">
+      {/* Icon column — fixed 32px-tall block to align with title row */}
+      <div className="flex h-[32px] items-center justify-center shrink-0">
+        <img
+          src={`/__mockup/figma-ref/icons/${icon}.svg`}
+          alt=""
+          aria-hidden="true"
+          width={20}
+          height={20}
+          className="block h-5 w-5 shrink-0"
+        />
       </div>
-      {children && (
-        <div className="border-t border-[var(--sui-colors-neutral-b4)]">
-          {children}
+
+      {/* Content column */}
+      <div className="flex min-w-0 flex-1 flex-col gap-4">
+        {/* Header: title + switch, then description */}
+        <div className="flex w-full flex-col gap-1">
+          <div className="flex min-h-[32px] w-full items-center gap-4">
+            <h3 className="flex-1 truncate text-[15px] font-bold leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+              {title}
+            </h3>
+            <SpringSwitch checked={switchOn} />
+          </div>
+          <p className="pr-[130px] text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b2)]">
+            {description}{' '}
+            <a href="#" className="font-normal text-[var(--sui-colors-primary-b)] underline hover:text-[var(--sui-colors-primary-b-high-contrast)]">
+              Learn more
+            </a>
+          </p>
         </div>
-      )}
+
+        {/* Sub-settings (indented under title, top border separates them) */}
+        {children && (
+          <div className="flex w-full flex-col border-t border-[var(--sui-colors-neutral-b4)] pt-4">
+            {children}
+          </div>
+        )}
+      </div>
     </section>
   );
 }
@@ -289,7 +299,7 @@ function SettingCard({
  * --------------------------------------------------------------------------- */
 function SubRow({ children }: React.PropsWithChildren) {
   return (
-    <div className="flex items-center justify-between gap-4 border-b border-[var(--sui-colors-neutral-b4)] px-4 py-2 last:border-b-0">
+    <div className="flex w-full items-center justify-between gap-4 border-b border-[var(--sui-colors-neutral-b4)] pb-4 pt-0 last:border-b-0 [&:not(:first-child)]:pt-4">
       {children}
     </div>
   );
@@ -297,7 +307,7 @@ function SubRow({ children }: React.PropsWithChildren) {
 
 function LabelWithInfo({ children }: React.PropsWithChildren) {
   return (
-    <div className="flex items-center gap-2 text-[14px] leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+    <div className="flex items-center gap-2 text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b1)]">
       <span>{children}</span>
       <Info className="h-3 w-3 text-[var(--sui-colors-neutral-b2)]" strokeWidth={1.6} />
     </div>
@@ -325,7 +335,7 @@ function UserDefaultsRow() {
 function UserPermissionsRow() {
   return (
     <SubRow>
-      <span className="text-[14px] leading-[20px] text-[var(--sui-colors-neutral-b1)]">User permissions</span>
+      <span className="text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b1)]">User permissions</span>
       <label className="flex cursor-pointer items-center gap-2 text-[14px] leading-[20px] text-[var(--sui-colors-neutral-b1)]">
         <span className="flex h-[18px] w-[18px] items-center justify-center rounded-[4px] bg-[var(--sui-colors-primary-b)]">
           <Check className="h-3 w-3 text-white" strokeWidth={3} />
