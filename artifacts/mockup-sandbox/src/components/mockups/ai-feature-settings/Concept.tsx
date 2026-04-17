@@ -353,7 +353,7 @@ export function Concept() {
           <div className="flex shrink-0 items-center gap-3 text-[13px] text-[var(--rc-text)] sm:gap-5">
             <button className="flex items-center gap-1.5 hover:text-[var(--rc-blue)]">
               <span className="hidden sm:inline">Admin Portal</span>
-              <ChevronDown className="h-3.5 w-3.5" strokeWidth={2} />
+              <ChevronDown className="h-[13px] w-[13px]" strokeWidth={1.6} />
             </button>
             <button className="text-[var(--rc-text-muted)] hover:text-[var(--rc-blue)]">
               <LayoutGrid className="h-[18px] w-[18px]" strokeWidth={1.5} />
@@ -382,7 +382,7 @@ export function Concept() {
                 className="flex h-full shrink-0 items-center gap-1.5 text-[var(--rc-text)] hover:text-[var(--rc-blue)]"
               >
                 <span>{label}</span>
-                {hasChev && <ChevronDown className="h-3.5 w-3.5" strokeWidth={2} />}
+                {hasChev && <ChevronDown className="h-[13px] w-[13px]" strokeWidth={1.6} />}
               </button>
             ))}
             <button className="relative flex h-full shrink-0 items-center font-medium text-[var(--rc-blue)]">
