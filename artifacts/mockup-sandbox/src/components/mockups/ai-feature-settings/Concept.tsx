@@ -70,14 +70,21 @@ SpringSwitch.displayName = 'SpringSwitch';
 /* -----------------------------------------------------------------------------
  * Spring dropdown trigger — looks like a Select control.
  * --------------------------------------------------------------------------- */
-function SpringSelect({ value, width = 180 }: { value: string; width?: number }) {
+function SpringSelect({ value, width = 200 }: { value: string; width?: number }) {
+  // Spring DS Select: height 32, radius 10, 1px border @ rgba(0,0,0,0.2),
+  // pl 10 / pr 6, label Inter Regular 14/20 in neutral-b0,
+  // trailing chevron inside a 24x24 round icon button.
   return (
     <button
       style={{ width }}
-      className="flex h-[36px] items-center justify-between rounded-[6px] border border-[var(--sui-colors-neutral-b4)] bg-white px-3 text-[14px] leading-[20px] text-[var(--sui-colors-neutral-b1)] hover:border-[var(--sui-colors-neutral-b3)] focus:outline-none focus:ring-2 focus:ring-[var(--sui-colors-primary-b-high-contrast)]"
+      className="flex h-[32px] items-center gap-1 rounded-[10px] border border-black/20 bg-white pl-[10px] pr-[6px] text-left transition-colors hover:border-black/40 focus:outline-none focus:ring-2 focus:ring-[var(--sui-colors-primary-b)]/30"
     >
-      <span>{value}</span>
-      <ChevronDown className="h-4 w-4 text-[var(--sui-colors-neutral-b2)]" />
+      <span className="min-w-0 flex-1 truncate text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b0)]">
+        {value}
+      </span>
+      <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[var(--sui-colors-neutral-b1)]">
+        <ChevronDown className="h-4 w-4" strokeWidth={1.6} />
+      </span>
     </button>
   );
 }
