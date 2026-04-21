@@ -543,22 +543,34 @@ function SpringUsersConfigDialog({
                 <span>{u.configuration}</span>
               </div>
             ))}
-            <div className="flex items-center justify-end gap-4 border-t border-black/20 px-4 py-3 text-[13px] leading-[18px] text-[var(--sui-colors-neutral-b1)]">
-              <span>Rows per page</span>
-              <button
-                type="button"
-                className="flex h-[28px] cursor-pointer items-center gap-1 rounded-[6px] border border-black/20 bg-white px-2 text-[13px] hover:border-black/40"
-              >
-                <span>10</span>
-                <SpringCaretDown className="text-[var(--sui-colors-neutral-b1)]" />
-              </button>
-              <span>1-10 of {count}</span>
-              <button type="button" className="flex h-[28px] w-[28px] cursor-pointer items-center justify-center rounded-[6px] hover:bg-[var(--sui-colors-neutral-b4)]/40">
-                <ChevronRight className="h-4 w-4 rotate-180 text-[var(--sui-colors-neutral-b1)]" strokeWidth={2} />
-              </button>
-              <button type="button" className="flex h-[28px] w-[28px] cursor-pointer items-center justify-center rounded-[6px] hover:bg-[var(--sui-colors-neutral-b4)]/40">
-                <ChevronRight className="h-4 w-4 text-[var(--sui-colors-neutral-b1)]" strokeWidth={2} />
-              </button>
+            <div className="flex items-center justify-end border-t border-black/20 pb-2 pl-[6px] pr-[14px] pt-2 text-[14px] leading-[20px] text-[var(--sui-colors-neutral-b0)]">
+              <div className="flex items-center gap-[20px]">
+                <div className="flex items-center gap-2">
+                  <span>Rows per page</span>
+                  <button
+                    type="button"
+                    className="flex h-[32px] w-[64px] cursor-pointer items-center rounded-[10px] border border-black/20 bg-white pl-[10px] pr-[6px] text-[14px] leading-[20px] text-[var(--sui-colors-neutral-b0)] hover:border-black/40"
+                  >
+                    <span className="flex-1 text-left">10</span>
+                    <span className="flex h-6 w-6 shrink-0 items-center justify-center">
+                      <SpringCaretDown className="text-[var(--sui-colors-neutral-b0)]" />
+                    </span>
+                  </button>
+                </div>
+                <div className="flex min-w-[72px] items-center justify-end gap-1">
+                  <span>1-10</span>
+                  <span>of</span>
+                  <span>{count}</span>
+                </div>
+                <div className="flex items-start gap-1">
+                  <button type="button" className="flex h-6 w-6 cursor-pointer items-center justify-center rounded-full hover:bg-[var(--sui-colors-neutral-b4)]/40">
+                    <ChevronRight className="h-4 w-4 rotate-180 text-[var(--sui-colors-neutral-b0)]" strokeWidth={2} />
+                  </button>
+                  <button type="button" className="flex h-6 w-6 cursor-pointer items-center justify-center rounded-full hover:bg-[var(--sui-colors-neutral-b4)]/40">
+                    <ChevronRight className="h-4 w-4 text-[var(--sui-colors-neutral-b0)]" strokeWidth={2} />
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
