@@ -279,16 +279,17 @@ function RingCentralLogo() {
  * permissions, then handling of users with custom settings.
  * --------------------------------------------------------------------------- */
 function SpringEnableDialog({
-  open, onCancel, onConfirm,
+  open, onCancel, onConfirm, initialUsersDialog = null,
 }: {
   open: boolean;
   onCancel: () => void;
   onConfirm: () => void;
+  initialUsersDialog?: 'default' | 'custom' | null;
 }) {
   const [defaultValue, setDefaultValue] = React.useState<'On' | 'Off'>('On');
   const [allowChange, setAllowChange] = React.useState(true);
   const [customAction, setCustomAction] = React.useState<'reset' | 'restore'>('reset');
-  const [usersDialog, setUsersDialog] = React.useState<'default' | 'custom' | null>(null);
+  const [usersDialog, setUsersDialog] = React.useState<'default' | 'custom' | null>(initialUsersDialog);
   if (!open) return null;
   return (
     <div className="absolute inset-0 z-50 flex items-start justify-center pt-16">
@@ -668,7 +669,15 @@ function SpringRadio({
  * Toggle starts ON. Clicking the switch opens "Turn off" modal.
  * Confirm flips switch to OFF; Cancel keeps it ON.
  * --------------------------------------------------------------------------- */
+export function ConceptGuidesUsersConfig() {
+  return <ConceptGuidesEnableImpl initialUsersDialog="default" />;
+}
+
 export function ConceptGuidesEnable() {
+  return <ConceptGuidesEnableImpl />;
+}
+
+function ConceptGuidesEnableImpl({ initialUsersDialog = null }: { initialUsersDialog?: 'default' | 'custom' | null }) {
   const [guidesOn, setGuidesOn] = React.useState(false);
   const [confirmOpen, setConfirmOpen] = React.useState(true);
 
@@ -788,6 +797,7 @@ export function ConceptGuidesEnable() {
       <div className="spring-scope">
         <SpringEnableDialog
           open={confirmOpen}
+          initialUsersDialog={initialUsersDialog}
           onCancel={() => setConfirmOpen(false)}
           onConfirm={() => {
             setGuidesOn(true);
