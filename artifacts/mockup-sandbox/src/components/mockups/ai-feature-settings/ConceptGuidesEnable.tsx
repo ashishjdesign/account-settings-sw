@@ -518,7 +518,7 @@ function SpringUsersConfigDialog({
           </div>
 
           {/* Table */}
-          <div className="flex flex-col overflow-hidden rounded-[8px] border border-[var(--sui-colors-neutral-b4)]">
+          <div className="flex flex-col overflow-hidden rounded-[8px] border border-black/20">
             <div className="grid grid-cols-[2fr_1fr_1.4fr_1.8fr_1.2fr] items-center gap-4 bg-[var(--sui-colors-neutral-b4)]/40 px-4 py-3 text-[13px] font-semibold leading-[18px] text-[var(--sui-colors-neutral-b1)]">
               <span>Name</span>
               <span>Ext</span>
@@ -531,7 +531,7 @@ function SpringUsersConfigDialog({
                 key={u.ext}
                 className={cn(
                   'grid grid-cols-[2fr_1fr_1.4fr_1.8fr_1.2fr] items-center gap-4 px-4 py-3 text-[14px] leading-[20px] text-[var(--sui-colors-neutral-b1)]',
-                  i !== rows.length - 1 && 'border-b border-[var(--sui-colors-neutral-b4)]/70',
+                  i !== rows.length - 1 && 'border-b border-black/20',
                 )}
               >
                 <a href="#" className="cursor-pointer text-[var(--sui-colors-primary-b)] underline hover:text-[var(--sui-colors-primary-b-high-contrast)]">
@@ -543,11 +543,11 @@ function SpringUsersConfigDialog({
                 <span>{u.configuration}</span>
               </div>
             ))}
-            <div className="flex items-center justify-end gap-4 border-t border-[var(--sui-colors-neutral-b4)] px-4 py-3 text-[13px] leading-[18px] text-[var(--sui-colors-neutral-b1)]">
+            <div className="flex items-center justify-end gap-4 border-t border-black/20 px-4 py-3 text-[13px] leading-[18px] text-[var(--sui-colors-neutral-b1)]">
               <span>Rows per page</span>
               <button
                 type="button"
-                className="flex h-[28px] cursor-pointer items-center gap-1 rounded-[6px] border border-[var(--sui-colors-neutral-b4)] bg-white px-2 text-[13px] hover:border-[var(--sui-colors-neutral-b3)]"
+                className="flex h-[28px] cursor-pointer items-center gap-1 rounded-[6px] border border-black/20 bg-white px-2 text-[13px] hover:border-black/40"
               >
                 <span>10</span>
                 <SpringCaretDown className="text-[var(--sui-colors-neutral-b1)]" />
