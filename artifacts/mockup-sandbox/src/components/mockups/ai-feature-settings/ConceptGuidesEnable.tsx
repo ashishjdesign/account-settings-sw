@@ -624,36 +624,36 @@ export function SpringManageDialogV2({
           </p>
 
           <div className="flex flex-col rounded-[10px] border border-[var(--sui-colors-neutral-b4)] bg-white">
-            <div className="flex min-h-[56px] items-center justify-between gap-4 px-4 py-3">
-              <span className="flex flex-col gap-0.5">
-                <span className="text-[14px] font-semibold leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+            <div className="flex flex-col gap-2 p-4">
+              <div className="flex min-h-[32px] w-full items-center gap-4">
+                <h3 className="flex-1 text-[15px] font-bold leading-[20px] text-[var(--sui-colors-neutral-b1)]">
                   Default state for users
-                </span>
-                <span className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b2)]">
-                  What new and default-config users see in their settings.
-                </span>
-              </span>
-              <SpringSelect
-                value={defaultValue}
-                options={['On', 'Off']}
-                onChange={(v) => setDefaultValue(v as 'On' | 'Off')}
-                width={84}
-              />
+                </h3>
+                <SpringSelect
+                  value={defaultValue}
+                  options={['On', 'Off']}
+                  onChange={(v) => setDefaultValue(v as 'On' | 'Off')}
+                  width={84}
+                />
+              </div>
+              <p className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b2)]">
+                What new and default-config users see in their settings.
+              </p>
             </div>
             <div className="mx-4 border-t border-[var(--sui-colors-neutral-b4)]/70" />
-            <label className="flex min-h-[56px] cursor-pointer items-center justify-between gap-4 px-4 py-3">
-              <span className="flex flex-col gap-0.5">
-                <span className="text-[14px] font-semibold leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+            <label className="flex cursor-pointer flex-col gap-2 p-4">
+              <div className="flex min-h-[32px] w-full items-center gap-4">
+                <h3 className="flex-1 text-[15px] font-bold leading-[20px] text-[var(--sui-colors-neutral-b1)]">
                   Allow users to change this setting themselves
-                </span>
-                <span className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b2)]">
-                  When off, only admins can turn this on or off for users.
-                </span>
-              </span>
-              <SpringSwitch
-                checked={allowChange}
-                onCheckedChange={setAllowChange}
-              />
+                </h3>
+                <SpringSwitch
+                  checked={allowChange}
+                  onCheckedChange={setAllowChange}
+                />
+              </div>
+              <p className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b2)]">
+                When off, only admins can turn this on or off for users.
+              </p>
             </label>
           </div>
 
