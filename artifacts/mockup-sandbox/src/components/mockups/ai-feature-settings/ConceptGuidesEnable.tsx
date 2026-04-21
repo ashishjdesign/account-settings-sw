@@ -374,7 +374,7 @@ export function SpringEnableDialog({
           </div>
 
           {/* Custom users summary — outside the frame */}
-          <p className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+          <p className="mt-3 text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
             <a
               href="#"
               onClick={(e) => { e.preventDefault(); setUsersDialog('custom'); }}
