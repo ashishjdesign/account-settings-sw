@@ -373,22 +373,22 @@ export function SpringEnableDialog({
             </label>
           </div>
 
+          {/* Custom users summary — outside the frame */}
+          <p className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+            <a
+              href="#"
+              onClick={(e) => { e.preventDefault(); setUsersDialog('custom'); }}
+              className="cursor-pointer font-normal text-[var(--sui-colors-primary-b)] underline hover:text-[var(--sui-colors-primary-b-high-contrast)]"
+            >
+              26/98 users
+            </a>{' '}
+            are on a <span className="font-semibold">custom</span> user configuration.
+          </p>
+
           {/* Custom users group */}
           <div className="flex flex-col gap-2 rounded-[10px] border border-[var(--sui-colors-neutral-b4)] bg-[var(--sui-colors-neutral-b5)]/40 p-4">
-            <div className="flex min-h-[32px] w-full items-center gap-4">
-              <h3 className="flex-1 text-[15px] font-bold leading-[20px] text-[var(--sui-colors-neutral-b1)]">
-                Users on a custom configuration
-              </h3>
-            </div>
             <p className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b2)]">
-              <a
-                href="#"
-                onClick={(e) => { e.preventDefault(); setUsersDialog('custom'); }}
-                className="cursor-pointer font-normal text-[var(--sui-colors-primary-b)] underline hover:text-[var(--sui-colors-primary-b-high-contrast)]"
-              >
-                26/98 users
-              </a>{' '}
-              are on a <span className="font-semibold">custom</span> user configuration. What would you like to do with them?
+              What would you like to do with them?
             </p>
             <div className="mt-1 flex items-center gap-8">
               <SpringRadio
