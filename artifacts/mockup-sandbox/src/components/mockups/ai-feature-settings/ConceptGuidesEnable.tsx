@@ -481,15 +481,7 @@ export function SpringManageDialog({
               >
                 72/98 users
               </a>{' '}
-              are using the <span className="font-semibold">default</span> user configuration.{' '}
-              <a
-                href="#"
-                onClick={(e) => { e.preventDefault(); setUsersDialog('custom'); }}
-                className="cursor-pointer font-normal text-[var(--sui-colors-primary-b)] underline hover:text-[var(--sui-colors-primary-b-high-contrast)]"
-              >
-                26/98 users
-              </a>{' '}
-              are using a <span className="font-semibold">custom</span> configuration.
+              are using the <span className="font-semibold">default</span> user configuration.
             </p>
             <p className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
               Admins can manage this setting for users from their detail pages or apply them in bulk through{' '}
