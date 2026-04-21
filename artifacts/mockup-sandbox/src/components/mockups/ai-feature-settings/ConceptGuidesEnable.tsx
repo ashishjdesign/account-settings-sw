@@ -388,7 +388,7 @@ export function SpringEnableDialog({
           {/* Custom users group */}
           <div className="flex flex-col gap-2 rounded-[10px] border border-[var(--sui-colors-neutral-b4)] bg-[var(--sui-colors-neutral-b5)]/40 p-4">
             <p className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
-              What would you like to do these users?
+              What would you like to do with these users?
             </p>
             <div className="mt-1 flex items-center gap-8">
               <SpringRadio
