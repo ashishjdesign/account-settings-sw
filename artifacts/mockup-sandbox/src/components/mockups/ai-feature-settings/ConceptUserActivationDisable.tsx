@@ -295,7 +295,7 @@ function SpringConfirmDialog({
         aria-modal="true"
         className="relative z-10 flex w-[600px] max-w-[calc(100%-32px)] flex-col rounded-[12px] bg-white shadow-[0_12px_32px_rgba(0,0,0,0.18),0_2px_6px_rgba(0,0,0,0.08)]"
       >
-        <div className="flex flex-col gap-3 px-6 pb-10 pt-6">
+        <div className="flex flex-col gap-8 px-6 pb-10 pt-6">
           <h2 className="text-[24px] font-normal leading-[32px] text-[var(--sui-colors-neutral-b1)]">
             {title}
           </h2>
