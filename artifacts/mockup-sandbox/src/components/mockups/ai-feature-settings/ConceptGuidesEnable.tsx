@@ -638,7 +638,7 @@ function FilterPill({ label }: { label: string }) {
   return (
     <button
       type="button"
-      className="flex h-[36px] w-full cursor-pointer items-center justify-between gap-2 rounded-[10px] border border-black/20 bg-white pl-3 pr-2 text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)] hover:border-black/40"
+      className="flex h-[36px] w-full cursor-pointer items-center justify-between gap-2 rounded-[10px] border border-black/20 bg-white pl-3 pr-2 text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b2)] hover:border-black/40"
     >
       <span>{label}</span>
       <span className="flex h-6 w-6 shrink-0 items-center justify-center">
