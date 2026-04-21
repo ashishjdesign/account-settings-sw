@@ -431,6 +431,99 @@ export function SpringEnableDialog({
 }
 
 /* -----------------------------------------------------------------------------
+ * Spring manage dialog — for the On state. Same visual treatment as the
+ * re-enable dialog, but only the User defaults + User permissions controls
+ * (no enable copy, no user-count summary, no custom-users handling).
+ * --------------------------------------------------------------------------- */
+export type SpringManageDialogResult = {
+  defaultValue: 'On' | 'Off';
+  allowChange: boolean;
+};
+
+export function SpringManageDialog({
+  open, initialDefaultValue = 'On', initialAllowChange = true, onCancel, onSave,
+}: {
+  open: boolean;
+  initialDefaultValue?: 'On' | 'Off';
+  initialAllowChange?: boolean;
+  onCancel: () => void;
+  onSave: (result: SpringManageDialogResult) => void;
+}) {
+  const [defaultValue, setDefaultValue] = React.useState<'On' | 'Off'>(initialDefaultValue);
+  const [allowChange, setAllowChange] = React.useState(initialAllowChange);
+  React.useEffect(() => {
+    if (open) {
+      setDefaultValue(initialDefaultValue);
+      setAllowChange(initialAllowChange);
+    }
+  }, [open, initialDefaultValue, initialAllowChange]);
+  if (!open) return null;
+  return (
+    <div className="absolute inset-0 z-50 flex items-start justify-center pt-16">
+      <div className="absolute inset-0 bg-black/40" onClick={onCancel} aria-hidden="true" />
+      <div
+        role="dialog"
+        aria-modal="true"
+        className="relative z-10 flex w-[620px] max-w-[calc(100%-32px)] flex-col rounded-[12px] bg-white shadow-[0_12px_32px_rgba(0,0,0,0.18),0_2px_6px_rgba(0,0,0,0.08)]"
+      >
+        <div className="flex flex-col gap-6 px-6 pb-10 pt-6">
+          <h2 className="py-3 text-[24px] font-normal leading-[32px] text-[var(--sui-colors-neutral-b1)]">
+            Manage Guides, tutorials &amp; announcements
+          </h2>
+
+          <div className="flex flex-col rounded-[10px] border border-[var(--sui-colors-neutral-b4)] bg-white">
+            <div className="flex min-h-[64px] items-center justify-between gap-4 px-4 py-3">
+              <span className="text-[14px] font-semibold leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                User defaults
+              </span>
+              <div className="flex items-center gap-3">
+                <span className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                  Set this setting for users
+                </span>
+                <SpringSelect
+                  value={defaultValue}
+                  options={['On', 'Off']}
+                  onChange={(v) => setDefaultValue(v as 'On' | 'Off')}
+                  width={84}
+                />
+              </div>
+            </div>
+            <div className="mx-4 border-t border-[var(--sui-colors-neutral-b4)]/70" />
+            <div className="flex min-h-[64px] items-center justify-between gap-4 px-4 py-3">
+              <span className="text-[14px] font-semibold leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                User permissions
+              </span>
+              <label className="flex cursor-pointer items-center gap-2 text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                <SpringCheckbox checked={allowChange} onChange={setAllowChange} />
+                Allow users to change this setting
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div className="border-t border-[#DDDFE5]/50" />
+        <div className="flex justify-end gap-2 px-6 py-4">
+          <button
+            type="button"
+            onClick={onCancel}
+            className="inline-flex h-[32px] min-w-[64px] cursor-pointer items-center justify-center rounded-[10px] border border-black/20 bg-white px-3 text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b0)] transition-colors hover:bg-[var(--sui-colors-neutral-b4)]/40"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={() => onSave({ defaultValue, allowChange })}
+            className="inline-flex h-[32px] min-w-[64px] cursor-pointer items-center justify-center rounded-[10px] bg-[var(--sui-colors-primary-b)] px-3 text-[14px] font-medium leading-[20px] text-white transition-colors hover:bg-[var(--sui-colors-primary-b-high-contrast)]"
+          >
+            Save
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* -----------------------------------------------------------------------------
  * Users config dialog — list of users on default/custom configuration
  * --------------------------------------------------------------------------- */
 type UserRow = { name: string; ext: string; department: string; site: string; configuration: 'Default' | 'Custom' };
@@ -806,9 +899,19 @@ export function ConceptGuidesEnable() {
   return <ConceptGuidesEnableImpl />;
 }
 
-function ConceptGuidesEnableImpl({ initialUsersDialog = null }: { initialUsersDialog?: 'default' | 'custom' | 'all' | null }) {
-  const [guidesOn, setGuidesOn] = React.useState(false);
-  const [confirmOpen, setConfirmOpen] = React.useState(true);
+export function ConceptGuidesManage() {
+  return <ConceptGuidesEnableImpl mode="manage" />;
+}
+
+function ConceptGuidesEnableImpl({
+  initialUsersDialog = null, mode = 'enable',
+}: {
+  initialUsersDialog?: 'default' | 'custom' | 'all' | null;
+  mode?: 'enable' | 'manage';
+}) {
+  const [guidesOn, setGuidesOn] = React.useState(mode === 'manage');
+  const [confirmOpen, setConfirmOpen] = React.useState(mode === 'enable');
+  const [manageOpen, setManageOpen] = React.useState(mode === 'manage');
 
   return (
     <div className="relative flex min-h-[960px] w-full flex-col bg-white">
@@ -908,8 +1011,8 @@ function ConceptGuidesEnableImpl({ initialUsersDialog = null }: { initialUsersDi
                   { value: '72 of 98 users use this default' },
                   { value: 'Users can change this setting' },
                 ]}
-                onManage={() => {}}
-                onSwitchClick={() => setConfirmOpen(true)}
+                onManage={() => setManageOpen(true)}
+                onSwitchClick={() => (mode === 'manage' ? setManageOpen(true) : setConfirmOpen(true))}
               />
             </div>
 
@@ -932,6 +1035,11 @@ function ConceptGuidesEnableImpl({ initialUsersDialog = null }: { initialUsersDi
             setGuidesOn(true);
             setConfirmOpen(false);
           }}
+        />
+        <SpringManageDialog
+          open={manageOpen}
+          onCancel={() => setManageOpen(false)}
+          onSave={() => setManageOpen(false)}
         />
       </div>
     </div>
