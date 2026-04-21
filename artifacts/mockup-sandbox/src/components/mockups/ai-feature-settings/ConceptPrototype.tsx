@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import * as SwitchPrimitives from '@radix-ui/react-switch';
 import { cn } from '@/lib/utils';
+import { SpringEnableDialog } from './ConceptGuidesEnable';
 
 /* -----------------------------------------------------------------------------
  * Scoped tokens — Service Web UI Library (chrome) and Spring DS (content panel)
@@ -477,9 +478,13 @@ function SectionHeading({ children }: React.PropsWithChildren) {
 function GeneralPanel({
   userActivationOn,
   onUserActivationClick,
+  guidesOn,
+  onGuidesClick,
 }: {
   userActivationOn: boolean;
   onUserActivationClick: () => void;
+  guidesOn: boolean;
+  onGuidesClick: () => void;
 }) {
   return (
     <div className="flex flex-col gap-4">
@@ -493,14 +498,19 @@ function GeneralPanel({
       <SectionHeading>In-app notification</SectionHeading>
       <SettingCard
         title="Guides, tutorials & announcements"
-        switchOn
+        switchOn={guidesOn}
         icon="resource-center"
         description="Displays helpful guides, tutorials, important company-wide updates, and service promotions directly to your users."
-        summary={[
-          { label: 'User default:', value: 'On' },
-          { value: 'Users can change this setting' },
-        ]}
+        summary={
+          guidesOn
+            ? [
+                { label: 'User default:', value: 'On' },
+                { value: 'Users can change this setting' },
+              ]
+            : undefined
+        }
         onManage={() => {}}
+        onSwitchClick={onGuidesClick}
       />
     </div>
   );
@@ -630,6 +640,9 @@ export function ConceptPrototype() {
   const [modal, setModal] = React.useState<ModalKey>(null);
   const [userActivationOn, setUserActivationOn] = React.useState(false);
   const [uaConfirmOpen, setUaConfirmOpen] = React.useState(false);
+  const [guidesOn, setGuidesOn] = React.useState(true);
+  const [guidesDisableConfirmOpen, setGuidesDisableConfirmOpen] = React.useState(false);
+  const [guidesEnableConfirmOpen, setGuidesEnableConfirmOpen] = React.useState(false);
   const [toastOpen, setToastOpen] = React.useState(false);
   const toastTimerRef = React.useRef<number | null>(null);
 
@@ -728,6 +741,12 @@ export function ConceptPrototype() {
               <GeneralPanel
                 userActivationOn={userActivationOn}
                 onUserActivationClick={() => setUaConfirmOpen(true)}
+                guidesOn={guidesOn}
+                onGuidesClick={() =>
+                  guidesOn
+                    ? setGuidesDisableConfirmOpen(true)
+                    : setGuidesEnableConfirmOpen(true)
+                }
               />
             )}
             {tab === 'phone' && <PhonePanel />}
@@ -768,6 +787,28 @@ export function ConceptPrototype() {
           <UserDefaultsRow />
           <UserPermissionsRow />
         </SpringDialog>
+
+        <SpringConfirmDialog
+          open={guidesDisableConfirmOpen}
+          title="Turn off Guides, tutorials & announcements for your organization?"
+          body="This will hide guides, tutorials, company-wide updates, and service promotions from all users in your organization."
+          onCancel={() => setGuidesDisableConfirmOpen(false)}
+          onConfirm={() => {
+            setGuidesOn(false);
+            setGuidesDisableConfirmOpen(false);
+            showToast();
+          }}
+        />
+
+        <SpringEnableDialog
+          open={guidesEnableConfirmOpen}
+          onCancel={() => setGuidesEnableConfirmOpen(false)}
+          onConfirm={() => {
+            setGuidesOn(true);
+            setGuidesEnableConfirmOpen(false);
+            showToast();
+          }}
+        />
 
         <SpringConfirmDialog
           open={uaConfirmOpen}

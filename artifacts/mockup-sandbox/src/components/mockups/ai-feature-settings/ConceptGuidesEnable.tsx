@@ -293,7 +293,7 @@ function RingCentralLogo() {
  * Spring re-enable dialog — title, summary, configurable user defaults &
  * permissions, then handling of users with custom settings.
  * --------------------------------------------------------------------------- */
-function SpringEnableDialog({
+export function SpringEnableDialog({
   open, onCancel, onConfirm, initialUsersDialog = null,
 }: {
   open: boolean;
