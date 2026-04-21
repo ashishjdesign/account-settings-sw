@@ -288,6 +288,7 @@ function SpringEnableDialog({
   const [defaultValue, setDefaultValue] = React.useState<'On' | 'Off'>('On');
   const [allowChange, setAllowChange] = React.useState(true);
   const [customAction, setCustomAction] = React.useState<'reset' | 'restore'>('reset');
+  const [usersDialog, setUsersDialog] = React.useState<'default' | 'custom' | null>(null);
   if (!open) return null;
   return (
     <div className="absolute inset-0 z-50 flex items-start justify-center pt-16">
@@ -309,7 +310,11 @@ function SpringEnableDialog({
           {/* Default users group */}
           <div className="mb-2 flex flex-col gap-3">
             <p className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
-              <a href="#" className="font-normal text-[var(--sui-colors-primary-b)] underline hover:text-[var(--sui-colors-primary-b-high-contrast)]">
+              <a
+                href="#"
+                onClick={(e) => { e.preventDefault(); setUsersDialog('default'); }}
+                className="cursor-pointer font-normal text-[var(--sui-colors-primary-b)] underline hover:text-[var(--sui-colors-primary-b-high-contrast)]"
+              >
                 72/98 users
               </a>{' '}
               will use the <span className="font-semibold">default</span> user configuration.
@@ -348,7 +353,11 @@ function SpringEnableDialog({
           {/* Custom users group */}
           <div className="flex flex-col gap-3">
             <p className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
-              <a href="#" className="font-normal text-[var(--sui-colors-primary-b)] underline hover:text-[var(--sui-colors-primary-b-high-contrast)]">
+              <a
+                href="#"
+                onClick={(e) => { e.preventDefault(); setUsersDialog('custom'); }}
+                className="cursor-pointer font-normal text-[var(--sui-colors-primary-b)] underline hover:text-[var(--sui-colors-primary-b-high-contrast)]"
+              >
                 26/98 users
               </a>{' '}
               will use the <span className="font-semibold">custom</span> user configuration.
@@ -389,7 +398,168 @@ function SpringEnableDialog({
           </button>
         </div>
       </div>
+
+      {usersDialog && (
+        <SpringUsersConfigDialog
+          variant={usersDialog}
+          onClose={() => setUsersDialog(null)}
+        />
+      )}
     </div>
+  );
+}
+
+/* -----------------------------------------------------------------------------
+ * Users config dialog — list of users on default/custom configuration
+ * --------------------------------------------------------------------------- */
+type UserRow = { name: string; ext: string; department: string; site: string; configuration: 'Default' | 'Custom' };
+
+const MOCK_DEFAULT_USERS: UserRow[] = [
+  { name: 'Emily Davis',    ext: '10012', department: 'Sales',   site: 'CA - San Francisco', configuration: 'Default' },
+  { name: 'Chris Walker',   ext: '10013', department: 'Support', site: 'CA - San Francisco', configuration: 'Default' },
+  { name: 'Jordan Lee',     ext: '10014', department: 'Sales',   site: 'CA - Los Angeles',   configuration: 'Default' },
+  { name: 'Casey White',    ext: '10015', department: 'IT',      site: 'CA - San Francisco', configuration: 'Default' },
+  { name: 'Taylor Adams',   ext: '10016', department: 'Sales',   site: 'CA - Los Angeles',   configuration: 'Default' },
+  { name: 'Amanda Clark',   ext: '10017', department: 'Sales',   site: 'CA - San Francisco', configuration: 'Default' },
+  { name: 'Mike Johnson',   ext: '10018', department: 'Support', site: 'CA - San Francisco', configuration: 'Default' },
+  { name: 'Tom Anderson',   ext: '10019', department: 'IT',      site: 'CA - San Francisco', configuration: 'Default' },
+  { name: 'Patrick Colins', ext: '10020', department: 'Sales',   site: 'CA - Los Angeles',   configuration: 'Default' },
+  { name: 'Adam Smith',     ext: '10021', department: 'IT',      site: 'CA - Los Angeles',   configuration: 'Default' },
+];
+
+const MOCK_CUSTOM_USERS: UserRow[] = [
+  { name: 'Olivia Brown',   ext: '10101', department: 'Marketing', site: 'NY - New York',     configuration: 'Custom' },
+  { name: 'Liam Garcia',    ext: '10102', department: 'Engineering', site: 'NY - New York',   configuration: 'Custom' },
+  { name: 'Sophia Wilson',  ext: '10103', department: 'Sales',    site: 'TX - Austin',        configuration: 'Custom' },
+  { name: 'Noah Martinez',  ext: '10104', department: 'IT',       site: 'TX - Austin',        configuration: 'Custom' },
+  { name: 'Ava Robinson',   ext: '10105', department: 'Support',  site: 'NY - New York',      configuration: 'Custom' },
+  { name: 'Ethan Clark',    ext: '10106', department: 'Marketing', site: 'WA - Seattle',      configuration: 'Custom' },
+  { name: 'Mia Lewis',      ext: '10107', department: 'Engineering', site: 'WA - Seattle',    configuration: 'Custom' },
+  { name: 'Lucas Hall',     ext: '10108', department: 'Sales',    site: 'TX - Austin',        configuration: 'Custom' },
+  { name: 'Isabella Young', ext: '10109', department: 'IT',       site: 'NY - New York',      configuration: 'Custom' },
+  { name: 'Mason King',     ext: '10110', department: 'Support',  site: 'WA - Seattle',       configuration: 'Custom' },
+];
+
+function SpringUsersConfigDialog({
+  variant, onClose,
+}: { variant: 'default' | 'custom'; onClose: () => void }) {
+  const isDefault = variant === 'default';
+  const count = isDefault ? 72 : 26;
+  const total = 98;
+  const rows = isDefault ? MOCK_DEFAULT_USERS : MOCK_CUSTOM_USERS;
+  const configLabel = isDefault ? 'Default' : 'Custom';
+
+  return (
+    <div className="absolute inset-0 z-[60] flex items-start justify-center pt-12">
+      <div className="absolute inset-0 bg-black/40" onClick={onClose} aria-hidden="true" />
+      <div
+        role="dialog"
+        aria-modal="true"
+        className="relative z-10 flex w-[1024px] max-w-[calc(100%-32px)] flex-col rounded-[12px] bg-white shadow-[0_12px_32px_rgba(0,0,0,0.18),0_2px_6px_rgba(0,0,0,0.08)]"
+      >
+        <div className="flex flex-col gap-5 px-9 pb-6 pt-8">
+          <h2 className="py-3 text-[24px] font-normal leading-[32px] text-[var(--sui-colors-neutral-b1)]">
+            User configuration for Guides, tutorials &amp; announcements
+          </h2>
+
+          <div className="flex flex-col gap-1">
+            <p className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+              <span className="font-semibold">{count}/{total} users</span> are using the{' '}
+              <span className="font-semibold">{isDefault ? 'default' : 'custom'}</span> user configuration.
+            </p>
+            <p className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+              Admins can manage this setting for users from their detail pages or apply them in bulk through{' '}
+              <a href="#" className="cursor-pointer text-[var(--sui-colors-primary-b)] underline hover:text-[var(--sui-colors-primary-b-high-contrast)]">
+                User Templates
+              </a>.
+            </p>
+          </div>
+
+          {/* Filters */}
+          <div className="flex items-center gap-3">
+            <div className="flex h-[36px] flex-1 items-center gap-2 rounded-[18px] border border-[var(--sui-colors-neutral-b4)] bg-white px-3">
+              <Search className="h-4 w-4 text-[var(--sui-colors-neutral-b3)]" strokeWidth={2} />
+              <input
+                type="text"
+                placeholder="Search"
+                className="w-full bg-transparent text-[14px] leading-[20px] text-[var(--sui-colors-neutral-b1)] placeholder-[var(--sui-colors-neutral-b3)] outline-none"
+              />
+            </div>
+            <FilterPill label="Department" />
+            <FilterPill label="Sites" />
+            <FilterPill label={`Configuration: ${configLabel}`} />
+          </div>
+
+          {/* Table */}
+          <div className="flex flex-col overflow-hidden rounded-[8px] border border-[var(--sui-colors-neutral-b4)]">
+            <div className="grid grid-cols-[2fr_1fr_1.4fr_1.8fr_1.2fr] items-center gap-4 bg-[var(--sui-colors-neutral-b4)]/40 px-4 py-3 text-[13px] font-semibold leading-[18px] text-[var(--sui-colors-neutral-b1)]">
+              <span>Name</span>
+              <span>Ext</span>
+              <span>Department</span>
+              <span>Site</span>
+              <span>Configuration</span>
+            </div>
+            {rows.map((u, i) => (
+              <div
+                key={u.ext}
+                className={cn(
+                  'grid grid-cols-[2fr_1fr_1.4fr_1.8fr_1.2fr] items-center gap-4 px-4 py-3 text-[14px] leading-[20px] text-[var(--sui-colors-neutral-b1)]',
+                  i !== rows.length - 1 && 'border-b border-[var(--sui-colors-neutral-b4)]/70',
+                )}
+              >
+                <a href="#" className="cursor-pointer text-[var(--sui-colors-primary-b)] underline hover:text-[var(--sui-colors-primary-b-high-contrast)]">
+                  {u.name}
+                </a>
+                <span>{u.ext}</span>
+                <span>{u.department}</span>
+                <span>{u.site}</span>
+                <span>{u.configuration}</span>
+              </div>
+            ))}
+            <div className="flex items-center justify-end gap-4 px-4 py-3 text-[13px] leading-[18px] text-[var(--sui-colors-neutral-b1)]">
+              <span>Rows per page</span>
+              <button
+                type="button"
+                className="flex h-[28px] cursor-pointer items-center gap-1 rounded-[6px] border border-[var(--sui-colors-neutral-b4)] bg-white px-2 text-[13px] hover:border-[var(--sui-colors-neutral-b3)]"
+              >
+                <span>10</span>
+                <ChevronDown className="h-3 w-3 text-[var(--sui-colors-neutral-b2)]" strokeWidth={2} />
+              </button>
+              <span>1-10 of {count}</span>
+              <button type="button" className="flex h-[28px] w-[28px] cursor-pointer items-center justify-center rounded-[6px] hover:bg-[var(--sui-colors-neutral-b4)]/40">
+                <ChevronRight className="h-4 w-4 rotate-180 text-[var(--sui-colors-neutral-b1)]" strokeWidth={2} />
+              </button>
+              <button type="button" className="flex h-[28px] w-[28px] cursor-pointer items-center justify-center rounded-[6px] hover:bg-[var(--sui-colors-neutral-b4)]/40">
+                <ChevronRight className="h-4 w-4 text-[var(--sui-colors-neutral-b1)]" strokeWidth={2} />
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div className="border-t border-[#DDDFE5]/50" />
+        <div className="flex justify-end gap-2 px-6 py-4">
+          <button
+            type="button"
+            onClick={onClose}
+            className="inline-flex h-[32px] min-w-[64px] cursor-pointer items-center justify-center rounded-[10px] border border-black/20 bg-white px-3 text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b0)] transition-colors hover:bg-[var(--sui-colors-neutral-b4)]/40"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function FilterPill({ label }: { label: string }) {
+  return (
+    <button
+      type="button"
+      className="flex h-[36px] cursor-pointer items-center gap-2 rounded-[18px] border border-[var(--sui-colors-neutral-b4)] bg-white px-4 text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)] hover:border-[var(--sui-colors-neutral-b3)]"
+    >
+      <span>{label}</span>
+      <ChevronDown className="h-3 w-3 text-[var(--sui-colors-neutral-b2)]" strokeWidth={2} />
+    </button>
   );
 }
 
