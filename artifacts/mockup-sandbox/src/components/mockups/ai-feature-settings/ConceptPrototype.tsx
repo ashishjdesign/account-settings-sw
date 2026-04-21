@@ -235,7 +235,7 @@ type IconKey =
   | 'sms' | 'fax' | 'email-to-fax';
 
 function SettingCard({
-  title, description, switchOn, icon, summary, onManage, disabled, info, infoTooltip,
+  title, description, switchOn, icon, summary, onManage, disabled, info, infoTooltip, onSwitchClick,
 }: {
   title: string;
   description: React.ReactNode;
