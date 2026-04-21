@@ -521,7 +521,7 @@ function SpringUsersConfigDialog({
 
           {/* Table */}
           <div className="flex flex-col overflow-hidden rounded-[8px] border border-black/20">
-            <div className="grid grid-cols-[2fr_1fr_1.4fr_1.8fr_1.2fr] items-center gap-4 bg-[var(--sui-colors-neutral-b4)]/40 px-4 py-3 text-[13px] font-semibold leading-[18px] text-[var(--sui-colors-neutral-b1)]">
+            <div className="grid grid-cols-[2fr_1fr_1.4fr_1.8fr_1.2fr] items-center gap-4 border-b border-black/20 bg-[var(--sui-colors-neutral-b4)]/40 px-4 py-3 text-[13px] font-semibold leading-[18px] text-[var(--sui-colors-neutral-b1)]">
               <span>Name</span>
               <span>Ext</span>
               <span>Department</span>
