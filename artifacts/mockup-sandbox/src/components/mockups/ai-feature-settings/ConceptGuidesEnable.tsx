@@ -445,10 +445,16 @@ function SpringUsersConfigDialog({
   variant, onClose,
 }: { variant: 'default' | 'custom'; onClose: () => void }) {
   const isDefault = variant === 'default';
-  const count = isDefault ? 72 : 26;
   const total = 98;
-  const rows = isDefault ? MOCK_DEFAULT_USERS : MOCK_CUSTOM_USERS;
-  const configLabel = isDefault ? 'Default' : 'Custom';
+  const initialFilter: 'All' | 'Default' | 'Custom' = isDefault ? 'Default' : 'Custom';
+  const [configFilter, setConfigFilter] = React.useState<'All' | 'Default' | 'Custom'>(initialFilter);
+  const allRows = React.useMemo(() => [...MOCK_DEFAULT_USERS, ...MOCK_CUSTOM_USERS], []);
+  const rows = React.useMemo(() => {
+    if (configFilter === 'All') return allRows;
+    if (configFilter === 'Default') return MOCK_DEFAULT_USERS;
+    return MOCK_CUSTOM_USERS;
+  }, [configFilter, allRows]);
+  const count = configFilter === 'All' ? total : configFilter === 'Default' ? 72 : 26;
 
   return (
     <div className="absolute inset-0 z-[60] flex items-start justify-center pt-12">
@@ -488,7 +494,12 @@ function SpringUsersConfigDialog({
             </div>
             <FilterPill label="Department" />
             <FilterPill label="Sites" />
-            <FilterPill label={`Configuration: ${configLabel}`} />
+            <FilterDropdown
+              label="Configuration"
+              value={configFilter}
+              options={['All', 'Default', 'Custom']}
+              onChange={(v) => setConfigFilter(v as 'All' | 'Default' | 'Custom')}
+            />
           </div>
 
           {/* Table */}
@@ -548,6 +559,60 @@ function SpringUsersConfigDialog({
           </button>
         </div>
       </div>
+    </div>
+  );
+}
+
+function FilterDropdown({
+  label, value, options, onChange,
+}: { label: string; value: string; options: string[]; onChange: (v: string) => void }) {
+  const [open, setOpen] = React.useState(false);
+  const ref = React.useRef<HTMLDivElement>(null);
+  React.useEffect(() => {
+    function handler(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    }
+    if (open) document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [open]);
+  return (
+    <div className="relative w-full" ref={ref}>
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className="flex h-[36px] w-full cursor-pointer items-center justify-between gap-2 rounded-[8px] border border-[var(--sui-colors-neutral-b4)] bg-white px-3 text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)] hover:border-[var(--sui-colors-neutral-b3)]"
+      >
+        <span className="truncate">{label}: {value}</span>
+        <ChevronDown className="h-3 w-3 shrink-0 text-[var(--sui-colors-neutral-b2)]" strokeWidth={2} />
+      </button>
+      {open && (
+        <ul className="absolute left-0 right-0 top-[40px] z-30 overflow-hidden rounded-[4px] bg-white py-1 shadow-[0_2px_4px_rgba(0,0,0,0.08),0_8px_24px_rgba(0,0,0,0.12)] ring-1 ring-black/5">
+          {options.map((opt) => {
+            const selected = opt === value;
+            return (
+              <li key={opt}>
+                <button
+                  type="button"
+                  onClick={() => { onChange(opt); setOpen(false); }}
+                  className={cn(
+                    'flex h-[32px] w-full cursor-pointer items-center justify-between gap-2 px-3 text-left text-[14px] font-normal leading-[20px] transition-colors',
+                    selected
+                      ? 'bg-[var(--sui-colors-primary-b)]/10 text-[var(--sui-colors-primary-b)]'
+                      : 'text-[var(--sui-colors-neutral-b1)] hover:bg-[var(--sui-colors-neutral-b4)]/50',
+                  )}
+                >
+                  <span>{opt}</span>
+                  {selected && (
+                    <svg viewBox="0 0 14 14" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M3 7.5l3 3 5-6" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  )}
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      )}
     </div>
   );
 }
