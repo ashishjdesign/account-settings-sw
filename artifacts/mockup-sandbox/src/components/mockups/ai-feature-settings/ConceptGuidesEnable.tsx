@@ -298,7 +298,7 @@ function SpringEnableDialog({
         className="relative z-10 flex w-[620px] max-w-[calc(100%-32px)] flex-col rounded-[12px] bg-white shadow-[0_12px_32px_rgba(0,0,0,0.18),0_2px_6px_rgba(0,0,0,0.08)]"
       >
         <div className="flex flex-col gap-6 px-6 pb-10 pt-6">
-          <h2 className="text-[24px] font-normal leading-[32px] text-[var(--sui-colors-neutral-b1)]">
+          <h2 className="py-3 text-[24px] font-normal leading-[32px] text-[var(--sui-colors-neutral-b1)]">
             Turn on Guides, tutorials &amp; announcements for your organization?
           </h2>
 
