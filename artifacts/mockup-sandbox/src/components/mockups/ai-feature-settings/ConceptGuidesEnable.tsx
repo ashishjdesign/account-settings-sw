@@ -316,7 +316,7 @@ function SpringEnableDialog({
             </p>
 
             <div className="flex flex-col rounded-[10px] border border-[var(--sui-colors-neutral-b4)] bg-white">
-              <div className="flex items-center justify-between gap-4 px-4 py-4">
+              <div className="flex min-h-[64px] items-center justify-between gap-4 px-4 py-3">
                 <span className="text-[14px] font-semibold leading-[20px] text-[var(--sui-colors-neutral-b1)]">
                   User defaults
                 </span>
@@ -332,8 +332,8 @@ function SpringEnableDialog({
                   />
                 </div>
               </div>
-              <div className="border-t border-[var(--sui-colors-neutral-b4)]/60" />
-              <div className="flex items-center justify-between gap-4 px-4 py-4">
+              <div className="mx-4 border-t border-[var(--sui-colors-neutral-b4)]/70" />
+              <div className="flex min-h-[64px] items-center justify-between gap-4 px-4 py-3">
                 <span className="text-[14px] font-semibold leading-[20px] text-[var(--sui-colors-neutral-b1)]">
                   User permissions
                 </span>
