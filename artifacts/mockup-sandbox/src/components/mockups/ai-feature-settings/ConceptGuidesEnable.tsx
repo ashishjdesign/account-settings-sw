@@ -290,8 +290,9 @@ function SpringEnableDialog({
   const [customAction, setCustomAction] = React.useState<'reset' | 'restore'>('reset');
   if (!open) return null;
   return (
-    <div className="absolute inset-0 z-50 flex items-start justify-center pt-16">
+    <div className="absolute inset-0 z-50">
       <div className="absolute inset-0 bg-black/40" onClick={onCancel} aria-hidden="true" />
+      <div className="relative z-10 mx-auto flex w-[1200px] max-w-full px-4 pt-16 sm:px-6 lg:px-10">
       <div
         role="dialog"
         aria-modal="true"
@@ -388,6 +389,7 @@ function SpringEnableDialog({
             Confirm
           </button>
         </div>
+      </div>
       </div>
     </div>
   );
