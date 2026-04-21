@@ -530,7 +530,7 @@ function SpringUsersConfigDialog({
               <div
                 key={u.ext}
                 className={cn(
-                  'grid grid-cols-[2fr_1fr_1.4fr_1.8fr_1.2fr] items-center gap-4 px-4 py-3 text-[12px] leading-[18px] text-[var(--sui-colors-neutral-b1)]',
+                  'grid h-[40px] grid-cols-[2fr_1fr_1.4fr_1.8fr_1.2fr] items-center gap-4 px-4 text-[12px] leading-[18px] text-[var(--sui-colors-neutral-b1)]',
                   i !== rows.length - 1 && 'border-b border-black/20',
                 )}
               >
