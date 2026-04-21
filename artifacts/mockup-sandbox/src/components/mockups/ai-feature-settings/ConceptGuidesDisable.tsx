@@ -454,6 +454,7 @@ export function ConceptGuidesDisable() {
           body={
             <>
               Feature will be disabled globally on entire account and hidden from all users.
+              <br />
               When re-enabled, users&rsquo; previous settings will return.
             </>
           }
