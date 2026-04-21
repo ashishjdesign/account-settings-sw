@@ -543,7 +543,7 @@ function SpringUsersConfigDialog({
                 <span>{u.configuration}</span>
               </div>
             ))}
-            <div className="flex items-center justify-end gap-4 px-4 py-3 text-[13px] leading-[18px] text-[var(--sui-colors-neutral-b1)]">
+            <div className="flex items-center justify-end gap-4 border-t border-[var(--sui-colors-neutral-b4)] px-4 py-3 text-[13px] leading-[18px] text-[var(--sui-colors-neutral-b1)]">
               <span>Rows per page</span>
               <button
                 type="button"
