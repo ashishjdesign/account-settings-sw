@@ -641,7 +641,7 @@ function SpringSelect({
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="flex h-[32px] w-full cursor-pointer items-center justify-between gap-2 rounded-[8px] border border-[var(--sui-colors-neutral-b3)] bg-white px-3 text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)] hover:border-[var(--sui-colors-neutral-b2)]"
+        className="flex h-[32px] w-full cursor-pointer items-center justify-between gap-2 rounded-[8px] border border-black/20 bg-white px-3 text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)] hover:border-black/40"
       >
         <span>{value}</span>
         <ChevronDown className="h-3 w-3 text-[var(--sui-colors-neutral-b2)]" strokeWidth={2} />
