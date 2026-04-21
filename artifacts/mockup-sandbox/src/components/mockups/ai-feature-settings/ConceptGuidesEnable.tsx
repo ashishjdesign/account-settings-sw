@@ -606,28 +606,15 @@ export function SpringManageDialogV2({
             <h2 className="text-[22px] font-normal leading-[30px] text-[var(--sui-colors-neutral-b1)]">
               Manage user permissions for Guides, tutorials &amp; announcements
             </h2>
-            <p className="text-[13px] font-normal leading-[18px] text-[var(--sui-colors-neutral-b2)]">
+            <p className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
               <a
                 href="#"
                 onClick={(e) => { e.preventDefault(); setUsersDialog('default'); }}
-                className="cursor-pointer font-semibold text-[var(--sui-colors-primary-b)] underline hover:text-[var(--sui-colors-primary-b-high-contrast)]"
+                className="cursor-pointer font-normal text-[var(--sui-colors-primary-b)] underline hover:text-[var(--sui-colors-primary-b-high-contrast)]"
               >
                 {defaultUsersCount}/{totalUsersCount} users
               </a>{' '}
-              are on the default configuration
-              {hasCustomUsers && (
-                <>
-                  {' '}·{' '}
-                  <a
-                    href="#"
-                    onClick={(e) => { e.preventDefault(); setUsersDialog('custom'); }}
-                    className="cursor-pointer font-semibold text-[var(--sui-colors-primary-b)] underline hover:text-[var(--sui-colors-primary-b-high-contrast)]"
-                  >
-                    {customUsersCount}/{totalUsersCount} users
-                  </a>{' '}
-                  have custom settings
-                </>
-              )}
+              are using the <span className="font-semibold">default</span> user configuration.
             </p>
           </div>
 
