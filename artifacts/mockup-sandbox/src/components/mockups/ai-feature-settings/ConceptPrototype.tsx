@@ -468,14 +468,21 @@ function SectionHeading({ children }: React.PropsWithChildren) {
 /* -----------------------------------------------------------------------------
  * Tab content panels
  * --------------------------------------------------------------------------- */
-function GeneralPanel() {
+function GeneralPanel({
+  userActivationOn,
+  onUserActivationClick,
+}: {
+  userActivationOn: boolean;
+  onUserActivationClick: () => void;
+}) {
   return (
     <div className="flex flex-col gap-4">
       <SettingCard
         title="User activation"
-        switchOn={false}
+        switchOn={userActivationOn}
         icon="user-activation"
         description="Let users re-generate an activation email if it's been less than 30 days since the last one was sent."
+        onSwitchClick={onUserActivationClick}
       />
       <SectionHeading>In-app notification</SectionHeading>
       <SettingCard
@@ -615,6 +622,20 @@ const TABS: { key: TabKey; label: string }[] = [
 export function ConceptPrototype() {
   const [tab, setTab] = React.useState<TabKey>('general');
   const [modal, setModal] = React.useState<ModalKey>(null);
+  const [userActivationOn, setUserActivationOn] = React.useState(false);
+  const [uaConfirmOpen, setUaConfirmOpen] = React.useState(false);
+  const [toastOpen, setToastOpen] = React.useState(false);
+  const toastTimerRef = React.useRef<number | null>(null);
+
+  const showToast = React.useCallback(() => {
+    setToastOpen(true);
+    if (toastTimerRef.current) window.clearTimeout(toastTimerRef.current);
+    toastTimerRef.current = window.setTimeout(() => setToastOpen(false), 3000);
+  }, []);
+
+  React.useEffect(() => () => {
+    if (toastTimerRef.current) window.clearTimeout(toastTimerRef.current);
+  }, []);
 
   return (
     <div className="relative flex min-h-[960px] w-full flex-col bg-white">
@@ -697,7 +718,12 @@ export function ConceptPrototype() {
               ))}
             </div>
 
-            {tab === 'general' && <GeneralPanel />}
+            {tab === 'general' && (
+              <GeneralPanel
+                userActivationOn={userActivationOn}
+                onUserActivationClick={() => setUaConfirmOpen(true)}
+              />
+            )}
             {tab === 'phone' && <PhonePanel />}
             {tab === 'ai' && <AiPanel onManage={(k) => setModal(k)} />}
             {tab === 'sms' && <SmsPanel />}
@@ -736,6 +762,116 @@ export function ConceptPrototype() {
           <UserDefaultsRow />
           <UserPermissionsRow />
         </SpringDialog>
+
+        <SpringConfirmDialog
+          open={uaConfirmOpen}
+          title={
+            userActivationOn
+              ? 'Turn off User activation for your organization?'
+              : 'Turn on User activation for your organization?'
+          }
+          body={
+            userActivationOn
+              ? 'This will prevent users in your organization from re-generating their activation email.'
+              : 'This will allow all users in your organization to re-generate their activation email.'
+          }
+          onCancel={() => setUaConfirmOpen(false)}
+          onConfirm={() => {
+            setUserActivationOn((v) => !v);
+            setUaConfirmOpen(false);
+            showToast();
+          }}
+        />
+      </div>
+
+      {/* Success toast (Service Web style) */}
+      <SuccessToast open={toastOpen} message="Settings were updated." />
+    </div>
+  );
+}
+
+/* -----------------------------------------------------------------------------
+ * Spring confirmation dialog — Cancel + Confirm, no close X
+ * --------------------------------------------------------------------------- */
+function SpringConfirmDialog({
+  open, title, body, onCancel, onConfirm,
+}: {
+  open: boolean;
+  title: React.ReactNode;
+  body: React.ReactNode;
+  onCancel: () => void;
+  onConfirm: () => void;
+}) {
+  if (!open) return null;
+  return (
+    <div className="absolute inset-0 z-50 flex items-start justify-center pt-24">
+      <div className="absolute inset-0 bg-black/40" onClick={onCancel} aria-hidden="true" />
+      <div
+        role="dialog"
+        aria-modal="true"
+        className="relative z-10 flex w-[600px] max-w-[calc(100%-32px)] flex-col rounded-[12px] bg-white shadow-[0_12px_32px_rgba(0,0,0,0.18),0_2px_6px_rgba(0,0,0,0.08)]"
+      >
+        <div className="flex flex-col gap-8 px-6 pb-10 pt-6">
+          <h2 className="text-[24px] font-normal leading-[32px] text-[var(--sui-colors-neutral-b1)]">
+            {title}
+          </h2>
+          <p className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+            {body}
+          </p>
+        </div>
+        <div className="border-t border-[#DDDFE5]/50" />
+        <div className="flex justify-end gap-2 px-6 py-4">
+          <button
+            type="button"
+            onClick={onCancel}
+            className="inline-flex h-[32px] min-w-[64px] items-center justify-center rounded-[10px] border border-black/20 bg-white px-3 text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b0)] transition-colors hover:bg-[var(--sui-colors-neutral-b4)]/40"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={onConfirm}
+            className="inline-flex h-[32px] min-w-[64px] items-center justify-center rounded-[10px] bg-[var(--sui-colors-primary-b)] px-3 text-[14px] font-medium leading-[20px] text-white transition-colors hover:bg-[var(--sui-colors-primary-b-high-contrast)]"
+          >
+            Confirm
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* -----------------------------------------------------------------------------
+ * Service Web success toast — green pill at top of viewport
+ * Spec from Figma: bg #1a8517, radius 3px, Helvetica 13/20 white, padding 7/10
+ * --------------------------------------------------------------------------- */
+function SuccessToast({ open, message }: { open: boolean; message: string }) {
+  return (
+    <div
+      className={cn(
+        'swui-scope pointer-events-none absolute left-1/2 top-6 z-[60] -translate-x-1/2 transition-all duration-200',
+        open ? 'opacity-100 translate-y-0' : 'pointer-events-none -translate-y-2 opacity-0',
+      )}
+      role="status"
+      aria-live="polite"
+    >
+      <div
+        className="flex items-center justify-between gap-2 rounded-[3px] bg-[#1A8517] px-[10px] py-[7px] shadow-[0_2px_6px_rgba(0,0,0,0.15)]"
+        style={{ fontFamily: 'Helvetica, Arial, sans-serif' }}
+      >
+        <span className="h-[13px] w-[13px] shrink-0" aria-hidden="true" />
+        <p className="min-w-[400px] text-center text-[13px] leading-[20px] text-white">
+          {message}
+        </p>
+        <button
+          type="button"
+          aria-label="Close"
+          className="flex h-[13px] w-[13px] shrink-0 items-center justify-center text-white/90 hover:text-white"
+        >
+          <svg viewBox="0 0 13 13" width="9" height="9" fill="none" stroke="currentColor" strokeWidth="1.5">
+            <path d="M2 2l9 9M11 2l-9 9" strokeLinecap="round" />
+          </svg>
+        </button>
       </div>
     </div>
   );
