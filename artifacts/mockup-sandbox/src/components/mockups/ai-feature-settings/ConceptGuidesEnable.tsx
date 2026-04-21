@@ -693,6 +693,9 @@ export function SpringManageDialogV2({
       {usersDialog && (
         <SpringUsersConfigDialog
           variant={usersDialog}
+          defaultUsersCount={defaultUsersCount}
+          customUsersCount={customUsersCount}
+          totalUsersCount={totalUsersCount}
           onClose={() => setUsersDialog(null)}
         />
       )}
@@ -746,17 +749,26 @@ const MOCK_ALL_USERS: UserRow[] = [
 
 function SpringUsersConfigDialog({
   variant, onClose,
-}: { variant: 'default' | 'custom' | 'all'; onClose: () => void }) {
-  const total = 98;
+  defaultUsersCount = 72,
+  customUsersCount = 26,
+  totalUsersCount = 98,
+}: {
+  variant: 'default' | 'custom' | 'all';
+  onClose: () => void;
+  defaultUsersCount?: number;
+  customUsersCount?: number;
+  totalUsersCount?: number;
+}) {
+  const total = totalUsersCount;
   const initialFilter: 'All' | 'Default' | 'Custom' =
     variant === 'all' ? 'All' : variant === 'default' ? 'Default' : 'Custom';
   const [configFilter, setConfigFilter] = React.useState<'All' | 'Default' | 'Custom'>(initialFilter);
   const rows = React.useMemo(() => {
-    if (configFilter === 'All') return MOCK_ALL_USERS;
+    if (configFilter === 'Custom') return customUsersCount === 0 ? [] : MOCK_CUSTOM_USERS;
     if (configFilter === 'Default') return MOCK_DEFAULT_USERS;
-    return MOCK_CUSTOM_USERS;
-  }, [configFilter]);
-  const count = configFilter === 'All' ? total : configFilter === 'Default' ? 72 : 26;
+    return customUsersCount === 0 ? MOCK_DEFAULT_USERS : MOCK_ALL_USERS;
+  }, [configFilter, customUsersCount]);
+  const count = configFilter === 'All' ? total : configFilter === 'Default' ? defaultUsersCount : customUsersCount;
 
   return (
     <div className="absolute inset-0 z-[60] flex items-start justify-center pt-12">
@@ -773,7 +785,7 @@ function SpringUsersConfigDialog({
 
           <div className="flex flex-col gap-1">
             <p className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
-              <span className="font-semibold">72/{total} users</span> are using the{' '}
+              <span className="font-semibold">{defaultUsersCount}/{total} users</span> are using the{' '}
               <span className="font-semibold">default</span> user configuration.
             </p>
             <p className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
@@ -815,7 +827,16 @@ function SpringUsersConfigDialog({
               <span>Site</span>
               <span>Configuration</span>
             </div>
-            {rows.map((u, i) => (
+            {rows.length === 0 ? (
+              <div className="flex flex-col items-center justify-center gap-1 px-4 py-12 text-center">
+                <p className="text-[14px] font-semibold leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                  No users found
+                </p>
+                <p className="text-[13px] font-normal leading-[18px] text-[var(--sui-colors-neutral-b2)]">
+                  No users are currently using a custom configuration.
+                </p>
+              </div>
+            ) : rows.map((u, i) => (
               <div
                 key={u.ext}
                 className={cn(
@@ -847,7 +868,7 @@ function SpringUsersConfigDialog({
                   </button>
                 </div>
                 <div className="flex min-w-[72px] items-center justify-end gap-1">
-                  <span>1-10</span>
+                  <span>{count === 0 ? '0-0' : `1-${Math.min(10, count)}`}</span>
                   <span>of</span>
                   <span>{count}</span>
                 </div>
