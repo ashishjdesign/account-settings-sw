@@ -654,6 +654,7 @@ export function ConceptPrototype() {
   const [guidesDefault, setGuidesDefault] = React.useState<'On' | 'Off'>('On');
   const [guidesAllowChange, setGuidesAllowChange] = React.useState(true);
   const [guidesDefaultCount, setGuidesDefaultCount] = React.useState(72);
+  const [guidesCustomCount, setGuidesCustomCount] = React.useState(26);
   const [guidesDisableConfirmOpen, setGuidesDisableConfirmOpen] = React.useState(false);
   const [guidesEnableConfirmOpen, setGuidesEnableConfirmOpen] = React.useState(false);
   const [guidesManageOpen, setGuidesManageOpen] = React.useState(false);
@@ -824,6 +825,7 @@ export function ConceptPrototype() {
             setGuidesDefault(defaultValue);
             setGuidesAllowChange(allowChange);
             setGuidesDefaultCount(customAction === 'reset' ? 98 : 72);
+            setGuidesCustomCount(customAction === 'reset' ? 0 : 26);
             setGuidesOn(true);
             setGuidesEnableConfirmOpen(false);
             showToast();
@@ -835,6 +837,7 @@ export function ConceptPrototype() {
           initialDefaultValue={guidesDefault}
           initialAllowChange={guidesAllowChange}
           defaultUsersCount={guidesDefaultCount}
+          customUsersCount={guidesCustomCount}
           onCancel={() => setGuidesManageOpen(false)}
           onSave={({ defaultValue, allowChange }) => {
             setGuidesDefault(defaultValue);
