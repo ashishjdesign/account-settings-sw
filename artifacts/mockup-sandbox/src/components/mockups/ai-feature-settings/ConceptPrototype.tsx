@@ -246,6 +246,7 @@ function SettingCard({
   disabled?: boolean;
   info?: boolean;
   infoTooltip?: string;
+  onSwitchClick?: () => void;
 }) {
   return (
     <section className="flex items-start gap-4 rounded-[8px] border border-[var(--sui-colors-neutral-b4)] bg-white p-4">
@@ -278,7 +279,12 @@ function SettingCard({
               <InfoIcon />
             </button>
           )}
-          <SpringSwitch checked={switchOn} disabled={disabled} aria-label={title} />
+          <SpringSwitch
+            checked={switchOn}
+            disabled={disabled}
+            aria-label={title}
+            onClick={onSwitchClick ? (e) => { e.preventDefault(); onSwitchClick(); } : undefined}
+          />
         </div>
 
         {/* Description */}
