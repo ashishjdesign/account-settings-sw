@@ -472,24 +472,16 @@ export function SpringManageDialog({
             Manage Guides, tutorials &amp; announcements
           </h2>
 
-          <div className="flex flex-col gap-1">
-            <p className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
-              <a
-                href="#"
-                onClick={(e) => { e.preventDefault(); setUsersDialog('default'); }}
-                className="cursor-pointer font-normal text-[var(--sui-colors-primary-b)] underline hover:text-[var(--sui-colors-primary-b-high-contrast)]"
-              >
-                72/98 users
-              </a>{' '}
-              are using the <span className="font-semibold">default</span> user configuration.
-            </p>
-            <p className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
-              Admins can manage this setting for users from their detail pages or apply them in bulk through{' '}
-              <a href="#" className="cursor-pointer text-[var(--sui-colors-primary-b)] underline hover:text-[var(--sui-colors-primary-b-high-contrast)]">
-                User Templates
-              </a>.
-            </p>
-          </div>
+          <p className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+            <a
+              href="#"
+              onClick={(e) => { e.preventDefault(); setUsersDialog('default'); }}
+              className="cursor-pointer font-normal text-[var(--sui-colors-primary-b)] underline hover:text-[var(--sui-colors-primary-b-high-contrast)]"
+            >
+              72/98 users
+            </a>{' '}
+            are using the <span className="font-semibold">default</span> user configuration.
+          </p>
 
           <div className="flex flex-col rounded-[10px] border border-[var(--sui-colors-neutral-b4)] bg-white">
             <div className="flex min-h-[64px] items-center justify-between gap-4 px-4 py-3">
@@ -519,6 +511,13 @@ export function SpringManageDialog({
               </label>
             </div>
           </div>
+
+          <p className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b2)]">
+            Admins can manage this setting for users from their detail pages or apply them in bulk through{' '}
+            <a href="#" className="cursor-pointer text-[var(--sui-colors-primary-b)] underline hover:text-[var(--sui-colors-primary-b-high-contrast)]">
+              User Templates
+            </a>.
+          </p>
         </div>
 
         <div className="border-t border-[#DDDFE5]/50" />
