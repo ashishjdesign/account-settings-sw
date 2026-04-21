@@ -499,12 +499,12 @@ function SpringUsersConfigDialog({
 
           {/* Filters */}
           <div className="grid grid-cols-4 items-center gap-3">
-            <div className="flex h-[36px] w-full items-center gap-2 rounded-[4px] border border-black/20 bg-white px-3">
-              <Search className="h-4 w-4 text-[var(--sui-colors-neutral-b3)]" strokeWidth={2} />
+            <div className="flex h-[36px] w-full items-center gap-2 rounded-[10px] border border-black/20 bg-white pl-3 pr-2">
+              <Search className="h-4 w-4 text-[var(--sui-colors-neutral-b2)]" strokeWidth={2} />
               <input
                 type="text"
                 placeholder="Search"
-                className="w-full bg-transparent text-[14px] leading-[20px] text-[var(--sui-colors-neutral-b1)] placeholder-[var(--sui-colors-neutral-b3)] outline-none"
+                className="w-full bg-transparent text-[14px] leading-[20px] text-[var(--sui-colors-neutral-b1)] placeholder-[var(--sui-colors-neutral-b2)] outline-none"
               />
             </div>
             <FilterPill label="Department" />
@@ -595,7 +595,7 @@ function FilterDropdown({
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="flex h-[36px] w-full cursor-pointer items-center justify-between gap-2 rounded-[4px] border border-black/20 bg-white px-3 text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)] hover:border-black/40"
+        className="flex h-[36px] w-full cursor-pointer items-center justify-between gap-2 rounded-[10px] border border-black/20 bg-white pl-3 pr-2 text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)] hover:border-black/40"
       >
         <span className="truncate">{label}: {value}</span>
         <SpringCaretDown className="text-[var(--sui-colors-neutral-b1)]" />
@@ -636,7 +636,7 @@ function FilterPill({ label }: { label: string }) {
   return (
     <button
       type="button"
-      className="flex h-[36px] w-full cursor-pointer items-center justify-between gap-2 rounded-[4px] border border-black/20 bg-white px-3 text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)] hover:border-black/40"
+      className="flex h-[36px] w-full cursor-pointer items-center justify-between gap-2 rounded-[10px] border border-black/20 bg-white pl-3 pr-2 text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)] hover:border-black/40"
     >
       <span>{label}</span>
       <SpringCaretDown className="text-[var(--sui-colors-neutral-b1)]" />
