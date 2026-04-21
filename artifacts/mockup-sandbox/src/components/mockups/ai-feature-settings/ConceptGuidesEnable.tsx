@@ -649,10 +649,7 @@ export function SpringManageDialogV2({
               />
             </div>
             <div className="mx-4 border-t border-[var(--sui-colors-neutral-b4)]/70" />
-            <label className="flex min-h-[56px] cursor-pointer items-start gap-3 px-4 py-3">
-              <span className="mt-0.5">
-                <SpringCheckbox checked={allowChange} onChange={setAllowChange} />
-              </span>
+            <label className="flex min-h-[56px] cursor-pointer items-center justify-between gap-4 px-4 py-3">
               <span className="flex flex-col gap-0.5">
                 <span className="text-[14px] font-semibold leading-[20px] text-[var(--sui-colors-neutral-b1)]">
                   Allow users to change this setting themselves
@@ -661,6 +658,10 @@ export function SpringManageDialogV2({
                   When off, only admins can turn this on or off for users.
                 </span>
               </span>
+              <SpringSwitch
+                checked={allowChange}
+                onCheckedChange={setAllowChange}
+              />
             </label>
           </div>
 
