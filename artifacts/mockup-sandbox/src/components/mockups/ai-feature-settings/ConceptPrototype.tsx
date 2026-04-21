@@ -479,11 +479,15 @@ function GeneralPanel({
   userActivationOn,
   onUserActivationClick,
   guidesOn,
+  guidesDefault,
+  guidesAllowChange,
   onGuidesClick,
 }: {
   userActivationOn: boolean;
   onUserActivationClick: () => void;
   guidesOn: boolean;
+  guidesDefault: 'On' | 'Off';
+  guidesAllowChange: boolean;
   onGuidesClick: () => void;
 }) {
   return (
@@ -504,8 +508,12 @@ function GeneralPanel({
         summary={
           guidesOn
             ? [
-                { label: 'User default:', value: 'On' },
-                { value: 'Users can change this setting' },
+                { label: 'User default:', value: guidesDefault },
+                {
+                  value: guidesAllowChange
+                    ? 'Users can change this setting'
+                    : 'Users cannot change this setting',
+                },
               ]
             : undefined
         }
@@ -641,6 +649,8 @@ export function ConceptPrototype() {
   const [userActivationOn, setUserActivationOn] = React.useState(false);
   const [uaConfirmOpen, setUaConfirmOpen] = React.useState(false);
   const [guidesOn, setGuidesOn] = React.useState(true);
+  const [guidesDefault, setGuidesDefault] = React.useState<'On' | 'Off'>('On');
+  const [guidesAllowChange, setGuidesAllowChange] = React.useState(true);
   const [guidesDisableConfirmOpen, setGuidesDisableConfirmOpen] = React.useState(false);
   const [guidesEnableConfirmOpen, setGuidesEnableConfirmOpen] = React.useState(false);
   const [toastOpen, setToastOpen] = React.useState(false);
@@ -742,6 +752,8 @@ export function ConceptPrototype() {
                 userActivationOn={userActivationOn}
                 onUserActivationClick={() => setUaConfirmOpen(true)}
                 guidesOn={guidesOn}
+                guidesDefault={guidesDefault}
+                guidesAllowChange={guidesAllowChange}
                 onGuidesClick={() =>
                   guidesOn
                     ? setGuidesDisableConfirmOpen(true)
@@ -803,7 +815,9 @@ export function ConceptPrototype() {
         <SpringEnableDialog
           open={guidesEnableConfirmOpen}
           onCancel={() => setGuidesEnableConfirmOpen(false)}
-          onConfirm={() => {
+          onConfirm={({ defaultValue, allowChange }) => {
+            setGuidesDefault(defaultValue);
+            setGuidesAllowChange(allowChange);
             setGuidesOn(true);
             setGuidesEnableConfirmOpen(false);
             showToast();

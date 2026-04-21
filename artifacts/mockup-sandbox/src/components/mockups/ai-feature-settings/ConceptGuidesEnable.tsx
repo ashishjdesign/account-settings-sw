@@ -293,12 +293,17 @@ function RingCentralLogo() {
  * Spring re-enable dialog — title, summary, configurable user defaults &
  * permissions, then handling of users with custom settings.
  * --------------------------------------------------------------------------- */
+export type SpringEnableDialogResult = {
+  defaultValue: 'On' | 'Off';
+  allowChange: boolean;
+};
+
 export function SpringEnableDialog({
   open, onCancel, onConfirm, initialUsersDialog = null,
 }: {
   open: boolean;
   onCancel: () => void;
-  onConfirm: () => void;
+  onConfirm: (result: SpringEnableDialogResult) => void;
   initialUsersDialog?: 'default' | 'custom' | 'all' | null;
 }) {
   const [defaultValue, setDefaultValue] = React.useState<'On' | 'Off'>('On');
@@ -407,7 +412,7 @@ export function SpringEnableDialog({
           </button>
           <button
             type="button"
-            onClick={onConfirm}
+            onClick={() => onConfirm({ defaultValue, allowChange })}
             className="inline-flex h-[32px] min-w-[64px] cursor-pointer items-center justify-center rounded-[10px] bg-[var(--sui-colors-primary-b)] px-3 text-[14px] font-medium leading-[20px] text-white transition-colors hover:bg-[var(--sui-colors-primary-b-high-contrast)]"
           >
             Confirm
