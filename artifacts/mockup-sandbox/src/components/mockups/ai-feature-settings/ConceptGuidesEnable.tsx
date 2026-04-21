@@ -555,11 +555,13 @@ export function SpringManageDialog({
  * single-line summary that links to both default and custom user lists.
  * --------------------------------------------------------------------------- */
 export type SpringManageDialogV2Result = {
+  defaultValue: 'On' | 'Off';
   allowChange: boolean;
 };
 
 export function SpringManageDialogV2({
   open,
+  initialDefaultValue = 'On',
   initialAllowChange = true,
   defaultUsersCount = 72,
   customUsersCount = 26,
@@ -568,6 +570,7 @@ export function SpringManageDialogV2({
   onSave,
 }: {
   open: boolean;
+  initialDefaultValue?: 'On' | 'Off';
   initialAllowChange?: boolean;
   defaultUsersCount?: number;
   customUsersCount?: number;
@@ -575,12 +578,16 @@ export function SpringManageDialogV2({
   onCancel: () => void;
   onSave: (result: SpringManageDialogV2Result) => void;
 }) {
+  const [defaultValue, setDefaultValue] = React.useState<'On' | 'Off'>(initialDefaultValue);
   const [allowChange, setAllowChange] = React.useState(initialAllowChange);
   const [usersDialog, setUsersDialog] = React.useState<'default' | 'custom' | 'all' | null>(null);
 
   React.useEffect(() => {
-    if (open) setAllowChange(initialAllowChange);
-  }, [open, initialAllowChange]);
+    if (open) {
+      setDefaultValue(initialDefaultValue);
+      setAllowChange(initialAllowChange);
+    }
+  }, [open, initialDefaultValue, initialAllowChange]);
 
   if (!open) return null;
 
@@ -625,6 +632,23 @@ export function SpringManageDialogV2({
           </div>
 
           <div className="flex flex-col rounded-[10px] border border-[var(--sui-colors-neutral-b4)] bg-white">
+            <div className="flex min-h-[56px] items-center justify-between gap-4 px-4 py-3">
+              <span className="flex flex-col gap-0.5">
+                <span className="text-[14px] font-semibold leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                  Default state for users
+                </span>
+                <span className="text-[12px] font-normal leading-[16px] text-[var(--sui-colors-neutral-b2)]">
+                  What new and default-config users see in their settings.
+                </span>
+              </span>
+              <SpringSelect
+                value={defaultValue}
+                options={['On', 'Off']}
+                onChange={(v) => setDefaultValue(v as 'On' | 'Off')}
+                width={84}
+              />
+            </div>
+            <div className="mx-4 border-t border-[var(--sui-colors-neutral-b4)]/70" />
             <label className="flex min-h-[56px] cursor-pointer items-start gap-3 px-4 py-3">
               <span className="mt-0.5">
                 <SpringCheckbox checked={allowChange} onChange={setAllowChange} />
