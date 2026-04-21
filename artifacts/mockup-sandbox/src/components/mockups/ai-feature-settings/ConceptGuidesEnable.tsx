@@ -325,7 +325,10 @@ export function SpringEnableDialog({
           </h2>
 
           <p className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
-            This feature will be enabled for the entire account and visible to all users.{' '}
+            This feature will be enabled for the entire account and visible to all users.
+          </p>
+
+          <p className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
             <a
               href="#"
               onClick={(e) => { e.preventDefault(); setUsersDialog('default'); }}
