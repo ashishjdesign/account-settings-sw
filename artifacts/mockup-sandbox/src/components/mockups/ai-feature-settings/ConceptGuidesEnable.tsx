@@ -296,6 +296,7 @@ function RingCentralLogo() {
 export type SpringEnableDialogResult = {
   defaultValue: 'On' | 'Off';
   allowChange: boolean;
+  customAction: 'reset' | 'restore';
 };
 
 export function SpringEnableDialog({
@@ -423,7 +424,7 @@ export function SpringEnableDialog({
           </button>
           <button
             type="button"
-            onClick={() => onConfirm({ defaultValue, allowChange })}
+            onClick={() => onConfirm({ defaultValue, allowChange, customAction })}
             className="inline-flex h-[32px] min-w-[64px] cursor-pointer items-center justify-center rounded-[10px] bg-[var(--sui-colors-primary-b)] px-3 text-[14px] font-medium leading-[20px] text-white transition-colors hover:bg-[var(--sui-colors-primary-b-high-contrast)]"
           >
             Confirm

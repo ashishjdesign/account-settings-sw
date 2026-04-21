@@ -653,6 +653,7 @@ export function ConceptPrototype() {
   const [guidesOn, setGuidesOn] = React.useState(true);
   const [guidesDefault, setGuidesDefault] = React.useState<'On' | 'Off'>('On');
   const [guidesAllowChange, setGuidesAllowChange] = React.useState(true);
+  const [guidesDefaultCount, setGuidesDefaultCount] = React.useState(72);
   const [guidesDisableConfirmOpen, setGuidesDisableConfirmOpen] = React.useState(false);
   const [guidesEnableConfirmOpen, setGuidesEnableConfirmOpen] = React.useState(false);
   const [guidesManageOpen, setGuidesManageOpen] = React.useState(false);
@@ -819,9 +820,10 @@ export function ConceptPrototype() {
         <SpringEnableDialog
           open={guidesEnableConfirmOpen}
           onCancel={() => setGuidesEnableConfirmOpen(false)}
-          onConfirm={({ defaultValue, allowChange }) => {
+          onConfirm={({ defaultValue, allowChange, customAction }) => {
             setGuidesDefault(defaultValue);
             setGuidesAllowChange(allowChange);
+            setGuidesDefaultCount(customAction === 'reset' ? 98 : 72);
             setGuidesOn(true);
             setGuidesEnableConfirmOpen(false);
             showToast();
@@ -832,6 +834,7 @@ export function ConceptPrototype() {
           open={guidesManageOpen}
           initialDefaultValue={guidesDefault}
           initialAllowChange={guidesAllowChange}
+          defaultUsersCount={guidesDefaultCount}
           onCancel={() => setGuidesManageOpen(false)}
           onSave={({ defaultValue, allowChange }) => {
             setGuidesDefault(defaultValue);
