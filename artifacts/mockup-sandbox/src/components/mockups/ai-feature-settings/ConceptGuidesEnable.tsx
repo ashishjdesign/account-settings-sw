@@ -307,7 +307,7 @@ function SpringEnableDialog({
           </p>
 
           {/* Default users group */}
-          <div className="flex flex-col gap-3">
+          <div className="mb-2 flex flex-col gap-3">
             <p className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
               <a href="#" className="font-normal text-[var(--sui-colors-primary-b)] underline hover:text-[var(--sui-colors-primary-b-high-contrast)]">
                 72/98 users
