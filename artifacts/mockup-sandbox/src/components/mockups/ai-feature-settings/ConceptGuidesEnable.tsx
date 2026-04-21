@@ -345,7 +345,7 @@ export function SpringEnableDialog({
                 <span className="text-[14px] font-semibold leading-[20px] text-[var(--sui-colors-neutral-b1)]">
                   Default state for users
                 </span>
-                <span className="text-[12px] font-normal leading-[16px] text-[var(--sui-colors-neutral-b2)]">
+                <span className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b2)]">
                   What new and default-config users see in their settings.
                 </span>
               </span>
@@ -362,7 +362,7 @@ export function SpringEnableDialog({
                 <span className="text-[14px] font-semibold leading-[20px] text-[var(--sui-colors-neutral-b1)]">
                   Allow users to change this setting themselves
                 </span>
-                <span className="text-[12px] font-normal leading-[16px] text-[var(--sui-colors-neutral-b2)]">
+                <span className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b2)]">
                   When off, only admins can turn this on or off for users.
                 </span>
               </span>
@@ -399,7 +399,7 @@ export function SpringEnableDialog({
             </div>
           </div>
 
-          <p className="text-[13px] font-normal leading-[18px] text-[var(--sui-colors-neutral-b2)]">
+          <p className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b2)]">
             Admins can manage this setting for individual users from their detail pages or apply it in bulk through{' '}
             <a href="#" className="cursor-pointer text-[var(--sui-colors-primary-b)] underline hover:text-[var(--sui-colors-primary-b-high-contrast)]">
               User Templates
@@ -629,7 +629,7 @@ export function SpringManageDialogV2({
                 <span className="text-[14px] font-semibold leading-[20px] text-[var(--sui-colors-neutral-b1)]">
                   Default state for users
                 </span>
-                <span className="text-[12px] font-normal leading-[16px] text-[var(--sui-colors-neutral-b2)]">
+                <span className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b2)]">
                   What new and default-config users see in their settings.
                 </span>
               </span>
@@ -646,7 +646,7 @@ export function SpringManageDialogV2({
                 <span className="text-[14px] font-semibold leading-[20px] text-[var(--sui-colors-neutral-b1)]">
                   Allow users to change this setting themselves
                 </span>
-                <span className="text-[12px] font-normal leading-[16px] text-[var(--sui-colors-neutral-b2)]">
+                <span className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b2)]">
                   When off, only admins can turn this on or off for users.
                 </span>
               </span>
@@ -657,7 +657,7 @@ export function SpringManageDialogV2({
             </label>
           </div>
 
-          <p className="text-[13px] font-normal leading-[18px] text-[var(--sui-colors-neutral-b2)]">
+          <p className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b2)]">
             Admins can manage this setting for individual users from their detail pages or apply it in bulk through{' '}
             <a href="#" className="cursor-pointer text-[var(--sui-colors-primary-b)] underline hover:text-[var(--sui-colors-primary-b-high-contrast)]">
               User Templates
