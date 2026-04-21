@@ -478,7 +478,7 @@ function SpringUsersConfigDialog({
 
           {/* Filters */}
           <div className="flex items-center gap-3">
-            <div className="flex h-[36px] flex-1 items-center gap-2 rounded-[18px] border border-[var(--sui-colors-neutral-b4)] bg-white px-3">
+            <div className="flex h-[36px] flex-1 items-center gap-2 rounded-[8px] border border-[var(--sui-colors-neutral-b4)] bg-white px-3">
               <Search className="h-4 w-4 text-[var(--sui-colors-neutral-b3)]" strokeWidth={2} />
               <input
                 type="text"
@@ -556,7 +556,7 @@ function FilterPill({ label }: { label: string }) {
   return (
     <button
       type="button"
-      className="flex h-[36px] cursor-pointer items-center gap-2 rounded-[18px] border border-[var(--sui-colors-neutral-b4)] bg-white px-4 text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)] hover:border-[var(--sui-colors-neutral-b3)]"
+      className="flex h-[36px] cursor-pointer items-center gap-2 rounded-[8px] border border-[var(--sui-colors-neutral-b4)] bg-white px-3 text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)] hover:border-[var(--sui-colors-neutral-b3)]"
     >
       <span>{label}</span>
       <ChevronDown className="h-3 w-3 text-[var(--sui-colors-neutral-b2)]" strokeWidth={2} />
