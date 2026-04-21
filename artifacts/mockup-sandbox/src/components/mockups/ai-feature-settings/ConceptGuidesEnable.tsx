@@ -550,6 +550,200 @@ export function SpringManageDialog({
 }
 
 /* -----------------------------------------------------------------------------
+ * SpringManageDialogV2 — alternative Manage dialog that:
+ *   - Has a tighter, scoped title (defaults-only).
+ *   - Shows a single-line user-count summary with two clickable links.
+ *   - Collapses redundant labels in the controls card.
+ *   - Adds a "custom users" handling radio group.
+ *   - Shows a live impact line above the footer.
+ * --------------------------------------------------------------------------- */
+export type SpringManageDialogV2Result = {
+  defaultValue: 'On' | 'Off';
+  allowChange: boolean;
+  customAction: 'keep' | 'reset';
+};
+
+export function SpringManageDialogV2({
+  open,
+  initialDefaultValue = 'On',
+  initialAllowChange = true,
+  defaultUsersCount = 72,
+  customUsersCount = 26,
+  totalUsersCount = 98,
+  onCancel,
+  onSave,
+}: {
+  open: boolean;
+  initialDefaultValue?: 'On' | 'Off';
+  initialAllowChange?: boolean;
+  defaultUsersCount?: number;
+  customUsersCount?: number;
+  totalUsersCount?: number;
+  onCancel: () => void;
+  onSave: (result: SpringManageDialogV2Result) => void;
+}) {
+  const [defaultValue, setDefaultValue] = React.useState<'On' | 'Off'>(initialDefaultValue);
+  const [allowChange, setAllowChange] = React.useState(initialAllowChange);
+  const [customAction, setCustomAction] = React.useState<'keep' | 'reset'>('keep');
+  const [usersDialog, setUsersDialog] = React.useState<'default' | 'custom' | 'all' | null>(null);
+
+  React.useEffect(() => {
+    if (open) {
+      setDefaultValue(initialDefaultValue);
+      setAllowChange(initialAllowChange);
+      setCustomAction('keep');
+    }
+  }, [open, initialDefaultValue, initialAllowChange]);
+
+  if (!open) return null;
+
+  const hasCustomUsers = customUsersCount > 0;
+  const impactCount = customAction === 'reset' ? totalUsersCount : defaultUsersCount;
+  const impactScope =
+    customAction === 'reset'
+      ? 'all users in this account'
+      : 'users on the default configuration';
+
+  return (
+    <div className="absolute inset-0 z-50 flex items-start justify-center pt-12">
+      <div className="absolute inset-0 bg-black/40" onClick={onCancel} aria-hidden="true" />
+      <div
+        role="dialog"
+        aria-modal="true"
+        className="relative z-10 flex w-[640px] max-w-[calc(100%-32px)] flex-col rounded-[12px] bg-white shadow-[0_12px_32px_rgba(0,0,0,0.18),0_2px_6px_rgba(0,0,0,0.08)]"
+      >
+        <div className="flex flex-col gap-5 px-6 pb-8 pt-6">
+          <div className="flex flex-col gap-2">
+            <h2 className="text-[22px] font-normal leading-[30px] text-[var(--sui-colors-neutral-b1)]">
+              Manage default user settings for Guides, tutorials &amp; announcements
+            </h2>
+            <p className="text-[13px] font-normal leading-[18px] text-[var(--sui-colors-neutral-b2)]">
+              <a
+                href="#"
+                onClick={(e) => { e.preventDefault(); setUsersDialog('default'); }}
+                className="cursor-pointer font-semibold text-[var(--sui-colors-primary-b)] underline hover:text-[var(--sui-colors-primary-b-high-contrast)]"
+              >
+                {defaultUsersCount}/{totalUsersCount} users
+              </a>{' '}
+              are on the default configuration
+              {hasCustomUsers && (
+                <>
+                  {' '}·{' '}
+                  <a
+                    href="#"
+                    onClick={(e) => { e.preventDefault(); setUsersDialog('custom'); }}
+                    className="cursor-pointer font-semibold text-[var(--sui-colors-primary-b)] underline hover:text-[var(--sui-colors-primary-b-high-contrast)]"
+                  >
+                    {customUsersCount}/{totalUsersCount} users
+                  </a>{' '}
+                  have custom settings
+                </>
+              )}
+            </p>
+          </div>
+
+          {/* Controls card — collapsed labels */}
+          <div className="flex flex-col rounded-[10px] border border-[var(--sui-colors-neutral-b4)] bg-white">
+            <div className="flex min-h-[56px] items-center justify-between gap-4 px-4 py-3">
+              <span className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                Default for users on this configuration
+              </span>
+              <SpringSelect
+                value={defaultValue}
+                options={['On', 'Off']}
+                onChange={(v) => setDefaultValue(v as 'On' | 'Off')}
+                width={84}
+              />
+            </div>
+            <div className="mx-4 border-t border-[var(--sui-colors-neutral-b4)]/70" />
+            <label className="flex min-h-[56px] cursor-pointer items-center gap-3 px-4 py-3">
+              <SpringCheckbox checked={allowChange} onChange={setAllowChange} />
+              <span className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                Allow users to change this setting themselves
+              </span>
+            </label>
+          </div>
+
+          {/* Apply-to-custom-users group */}
+          <div
+            className={cn(
+              'flex flex-col gap-3 rounded-[10px] border bg-white px-4 py-3',
+              hasCustomUsers
+                ? 'border-[var(--sui-colors-neutral-b4)]'
+                : 'border-[var(--sui-colors-neutral-b4)]/50 opacity-60',
+            )}
+          >
+            <div className="flex flex-col gap-0.5">
+              <span className="text-[14px] font-semibold leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                Apply to users with custom settings
+              </span>
+              <span className="text-[12px] font-normal leading-[16px] text-[var(--sui-colors-neutral-b2)]">
+                {hasCustomUsers
+                  ? `${customUsersCount} users have overridden the default for this setting.`
+                  : 'No users currently have custom settings for this feature.'}
+              </span>
+            </div>
+            <div className="flex flex-col gap-2 pl-1">
+              <SpringRadio
+                checked={customAction === 'keep'}
+                onChange={() => hasCustomUsers && setCustomAction('keep')}
+                label="Keep their custom settings"
+              />
+              <SpringRadio
+                checked={customAction === 'reset'}
+                onChange={() => hasCustomUsers && setCustomAction('reset')}
+                label="Reset them to the new default"
+              />
+            </div>
+          </div>
+
+          <p className="text-[13px] font-normal leading-[18px] text-[var(--sui-colors-neutral-b2)]">
+            Admins can manage this setting for users from their detail pages or apply them in bulk through{' '}
+            <a href="#" className="cursor-pointer text-[var(--sui-colors-primary-b)] underline hover:text-[var(--sui-colors-primary-b-high-contrast)]">
+              User Templates
+            </a>.
+          </p>
+        </div>
+
+        <div className="border-t border-[#DDDFE5]/50" />
+        <div className="flex items-center justify-between gap-4 px-6 py-4">
+          <p className="text-[13px] font-normal leading-[18px] text-[var(--sui-colors-neutral-b2)]">
+            Saving will update{' '}
+            <span className="font-semibold text-[var(--sui-colors-neutral-b1)]">
+              {impactCount} {impactCount === 1 ? 'user' : 'users'}
+            </span>{' '}
+            — {impactScope}.
+          </p>
+          <div className="flex shrink-0 items-center gap-2">
+            <button
+              type="button"
+              onClick={onCancel}
+              className="inline-flex h-[32px] min-w-[64px] cursor-pointer items-center justify-center rounded-[10px] border border-black/20 bg-white px-3 text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b0)] transition-colors hover:bg-[var(--sui-colors-neutral-b4)]/40"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={() => onSave({ defaultValue, allowChange, customAction })}
+              className="inline-flex h-[32px] min-w-[64px] cursor-pointer items-center justify-center rounded-[10px] bg-[var(--sui-colors-primary-b)] px-3 text-[14px] font-medium leading-[20px] text-white transition-colors hover:bg-[var(--sui-colors-primary-b-high-contrast)]"
+            >
+              Save
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {usersDialog && (
+        <SpringUsersConfigDialog
+          variant={usersDialog}
+          onClose={() => setUsersDialog(null)}
+        />
+      )}
+    </div>
+  );
+}
+
+/* -----------------------------------------------------------------------------
  * Users config dialog — list of users on default/custom configuration
  * --------------------------------------------------------------------------- */
 type UserRow = { name: string; ext: string; department: string; site: string; configuration: 'Default' | 'Custom' };
@@ -929,15 +1123,21 @@ export function ConceptGuidesManage() {
   return <ConceptGuidesEnableImpl mode="manage" />;
 }
 
+export function ConceptGuidesManageV2() {
+  return <ConceptGuidesEnableImpl mode="manage-v2" />;
+}
+
 function ConceptGuidesEnableImpl({
   initialUsersDialog = null, mode = 'enable',
 }: {
   initialUsersDialog?: 'default' | 'custom' | 'all' | null;
-  mode?: 'enable' | 'manage';
+  mode?: 'enable' | 'manage' | 'manage-v2';
 }) {
-  const [guidesOn, setGuidesOn] = React.useState(mode === 'manage');
+  const isManageMode = mode === 'manage' || mode === 'manage-v2';
+  const [guidesOn, setGuidesOn] = React.useState(isManageMode);
   const [confirmOpen, setConfirmOpen] = React.useState(mode === 'enable');
   const [manageOpen, setManageOpen] = React.useState(mode === 'manage');
+  const [manageV2Open, setManageV2Open] = React.useState(mode === 'manage-v2');
 
   return (
     <div className="relative flex min-h-[960px] w-full flex-col bg-white">
@@ -1037,8 +1237,14 @@ function ConceptGuidesEnableImpl({
                   { value: '72 of 98 users use this default' },
                   { value: 'Users can change this setting' },
                 ]}
-                onManage={() => setManageOpen(true)}
-                onSwitchClick={() => (mode === 'manage' ? setManageOpen(true) : setConfirmOpen(true))}
+                onManage={() =>
+                  mode === 'manage-v2' ? setManageV2Open(true) : setManageOpen(true)
+                }
+                onSwitchClick={() => {
+                  if (mode === 'manage-v2') setManageV2Open(true);
+                  else if (mode === 'manage') setManageOpen(true);
+                  else setConfirmOpen(true);
+                }}
               />
             </div>
 
@@ -1066,6 +1272,11 @@ function ConceptGuidesEnableImpl({
           open={manageOpen}
           onCancel={() => setManageOpen(false)}
           onSave={() => setManageOpen(false)}
+        />
+        <SpringManageDialogV2
+          open={manageV2Open}
+          onCancel={() => setManageV2Open(false)}
+          onSave={() => setManageV2Open(false)}
         />
       </div>
     </div>
