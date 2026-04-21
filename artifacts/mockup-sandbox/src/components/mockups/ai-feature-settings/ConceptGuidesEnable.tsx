@@ -3,6 +3,21 @@ import { ChevronDown, ChevronRight, Search } from 'lucide-react';
 import * as SwitchPrimitives from '@radix-ui/react-switch';
 import { cn } from '@/lib/utils';
 
+/* Spring caret-down (CaretDownMD from Spring DS, node 1852-29581) — solid filled caret */
+function SpringCaretDown({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 9.341 5.5505"
+      xmlns="http://www.w3.org/2000/svg"
+      fill="currentColor"
+      aria-hidden="true"
+      className={cn('h-[6px] w-[10px] shrink-0', className)}
+    >
+      <path d="M4.6705 5.5505L0 0.8505L0.8505 0.000999928L4.6705 3.82L8.4905 0L9.341 0.8505L4.6705 5.5505Z" />
+    </svg>
+  );
+}
+
 /* -----------------------------------------------------------------------------
  * Scoped tokens — Service Web UI Library (chrome) and Spring DS (content)
  * --------------------------------------------------------------------------- */
@@ -535,7 +550,7 @@ function SpringUsersConfigDialog({
                 className="flex h-[28px] cursor-pointer items-center gap-1 rounded-[6px] border border-[var(--sui-colors-neutral-b4)] bg-white px-2 text-[13px] hover:border-[var(--sui-colors-neutral-b3)]"
               >
                 <span>10</span>
-                <ChevronDown className="h-3 w-3 text-[var(--sui-colors-neutral-b2)]" strokeWidth={2} />
+                <SpringCaretDown className="text-[var(--sui-colors-neutral-b1)]" />
               </button>
               <span>1-10 of {count}</span>
               <button type="button" className="flex h-[28px] w-[28px] cursor-pointer items-center justify-center rounded-[6px] hover:bg-[var(--sui-colors-neutral-b4)]/40">
@@ -583,7 +598,7 @@ function FilterDropdown({
         className="flex h-[36px] w-full cursor-pointer items-center justify-between gap-2 rounded-[4px] border border-black/20 bg-white px-3 text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)] hover:border-black/40"
       >
         <span className="truncate">{label}: {value}</span>
-        <ChevronDown className="h-3 w-3 shrink-0 text-[var(--sui-colors-neutral-b2)]" strokeWidth={2} />
+        <SpringCaretDown className="text-[var(--sui-colors-neutral-b1)]" />
       </button>
       {open && (
         <ul className="absolute left-0 right-0 top-[40px] z-30 overflow-hidden rounded-[4px] bg-white py-1 shadow-[0_2px_4px_rgba(0,0,0,0.08),0_8px_24px_rgba(0,0,0,0.12)] ring-1 ring-black/5">
@@ -624,7 +639,7 @@ function FilterPill({ label }: { label: string }) {
       className="flex h-[36px] w-full cursor-pointer items-center justify-between gap-2 rounded-[4px] border border-black/20 bg-white px-3 text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)] hover:border-black/40"
     >
       <span>{label}</span>
-      <ChevronDown className="h-3 w-3 text-[var(--sui-colors-neutral-b2)]" strokeWidth={2} />
+      <SpringCaretDown className="text-[var(--sui-colors-neutral-b1)]" />
     </button>
   );
 }
@@ -644,7 +659,7 @@ function SpringSelect({
         className="flex h-[32px] w-full cursor-pointer items-center justify-between gap-2 rounded-[8px] border border-black/20 bg-white px-3 text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)] hover:border-black/40"
       >
         <span>{value}</span>
-        <ChevronDown className="h-3 w-3 text-[var(--sui-colors-neutral-b2)]" strokeWidth={2} />
+        <SpringCaretDown className="text-[var(--sui-colors-neutral-b1)]" />
       </button>
       {open && (
         <ul className="absolute right-0 top-[36px] z-20 min-w-full overflow-hidden rounded-[4px] bg-white py-1 shadow-[0_2px_4px_rgba(0,0,0,0.08),0_8px_24px_rgba(0,0,0,0.12)] ring-1 ring-black/5">
