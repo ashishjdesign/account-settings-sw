@@ -598,7 +598,9 @@ function FilterDropdown({
         className="flex h-[36px] w-full cursor-pointer items-center justify-between gap-2 rounded-[10px] border border-black/20 bg-white pl-3 pr-2 text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)] hover:border-black/40"
       >
         <span className="truncate">{label}: {value}</span>
-        <SpringCaretDown className="text-[var(--sui-colors-neutral-b1)]" />
+        <span className="flex h-6 w-6 shrink-0 items-center justify-center">
+          <SpringCaretDown className="text-[var(--sui-colors-neutral-b1)]" />
+        </span>
       </button>
       {open && (
         <ul className="absolute left-0 right-0 top-[40px] z-30 overflow-hidden rounded-[4px] bg-white py-1 shadow-[0_2px_4px_rgba(0,0,0,0.08),0_8px_24px_rgba(0,0,0,0.12)] ring-1 ring-black/5">
@@ -639,7 +641,9 @@ function FilterPill({ label }: { label: string }) {
       className="flex h-[36px] w-full cursor-pointer items-center justify-between gap-2 rounded-[10px] border border-black/20 bg-white pl-3 pr-2 text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)] hover:border-black/40"
     >
       <span>{label}</span>
-      <SpringCaretDown className="text-[var(--sui-colors-neutral-b1)]" />
+      <span className="flex h-6 w-6 shrink-0 items-center justify-center">
+        <SpringCaretDown className="text-[var(--sui-colors-neutral-b1)]" />
+      </span>
     </button>
   );
 }
