@@ -368,7 +368,7 @@ export function SpringEnableDialog({
                 />
               </div>
               <p className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b2)]">
-                When off, only admins can turn this on or off for users.
+                When off, only admins can change this setting for users.
               </p>
             </label>
           </div>
@@ -657,7 +657,7 @@ export function SpringManageDialogV2({
                 />
               </div>
               <p className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b2)]">
-                When off, only admins can turn this on or off for users.
+                When off, only admins can change this setting for users.
               </p>
             </label>
           </div>
