@@ -7,5 +7,7 @@ export const modules: ModuleMap = {
   "./components/mockups/ai-feature-settings/ConceptSummaryGeneral.tsx": () => import("../components/mockups/ai-feature-settings/ConceptSummaryGeneral.tsx"),
   "./components/mockups/ai-feature-settings/ConceptSummaryModal.tsx": () => import("../components/mockups/ai-feature-settings/ConceptSummaryModal.tsx"),
   "./components/mockups/ai-feature-settings/ConceptSummaryPhone.tsx": () => import("../components/mockups/ai-feature-settings/ConceptSummaryPhone.tsx"),
-  "./components/mockups/ai-feature-settings/ConceptSummarySms.tsx": () => import("../components/mockups/ai-feature-settings/ConceptSummarySms.tsx")
+  "./components/mockups/ai-feature-settings/ConceptSummarySms.tsx": () => import("../components/mockups/ai-feature-settings/ConceptSummarySms.tsx"),
+  "./components/mockups/ai-feature-settings/ConceptUserActivationDisable.tsx": () => import("../components/mockups/ai-feature-settings/ConceptUserActivationDisable.tsx"),
+  "./components/mockups/ai-feature-settings/ConceptUserActivationEnable.tsx": () => import("../components/mockups/ai-feature-settings/ConceptUserActivationEnable.tsx")
 };
