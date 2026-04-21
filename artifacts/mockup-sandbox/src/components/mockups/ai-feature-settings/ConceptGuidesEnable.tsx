@@ -451,6 +451,7 @@ export function SpringManageDialog({
 }) {
   const [defaultValue, setDefaultValue] = React.useState<'On' | 'Off'>(initialDefaultValue);
   const [allowChange, setAllowChange] = React.useState(initialAllowChange);
+  const [usersDialog, setUsersDialog] = React.useState<'default' | 'custom' | 'all' | null>(null);
   React.useEffect(() => {
     if (open) {
       setDefaultValue(initialDefaultValue);
@@ -470,6 +471,25 @@ export function SpringManageDialog({
           <h2 className="py-3 text-[24px] font-normal leading-[32px] text-[var(--sui-colors-neutral-b1)]">
             Manage Guides, tutorials &amp; announcements
           </h2>
+
+          <p className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+            <a
+              href="#"
+              onClick={(e) => { e.preventDefault(); setUsersDialog('default'); }}
+              className="cursor-pointer font-normal text-[var(--sui-colors-primary-b)] underline hover:text-[var(--sui-colors-primary-b-high-contrast)]"
+            >
+              72/98 users
+            </a>{' '}
+            are using the <span className="font-semibold">default</span> user configuration.{' '}
+            <a
+              href="#"
+              onClick={(e) => { e.preventDefault(); setUsersDialog('custom'); }}
+              className="cursor-pointer font-normal text-[var(--sui-colors-primary-b)] underline hover:text-[var(--sui-colors-primary-b-high-contrast)]"
+            >
+              26/98 users
+            </a>{' '}
+            are using a <span className="font-semibold">custom</span> configuration.
+          </p>
 
           <div className="flex flex-col rounded-[10px] border border-[var(--sui-colors-neutral-b4)] bg-white">
             <div className="flex min-h-[64px] items-center justify-between gap-4 px-4 py-3">
@@ -519,6 +539,13 @@ export function SpringManageDialog({
           </button>
         </div>
       </div>
+
+      {usersDialog && (
+        <SpringUsersConfigDialog
+          variant={usersDialog}
+          onClose={() => setUsersDialog(null)}
+        />
+      )}
     </div>
   );
 }
