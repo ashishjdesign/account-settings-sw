@@ -321,7 +321,7 @@ function SpringEnableDialog({
                   User defaults
                 </span>
                 <div className="flex items-center gap-3">
-                  <span className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b2)]">
+                  <span className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
                     Set this setting for users
                   </span>
                   <SpringSelect
