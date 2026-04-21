@@ -303,7 +303,7 @@ function SpringConfirmDialog({
             {body}
           </p>
         </div>
-        <div className="border-t border-black/[0.08]" />
+        <div className="border-t border-[#DDDFE5]/50" />
         <div className="flex justify-end gap-2 px-6 py-4">
           <button
             type="button"
