@@ -499,12 +499,14 @@ function SpringUsersConfigDialog({
 
           {/* Filters */}
           <div className="grid grid-cols-4 items-center gap-3">
-            <div className="flex h-[36px] w-full items-center gap-2 rounded-[10px] border border-black/20 bg-white pl-3 pr-2">
-              <Search className="h-4 w-4 text-[var(--sui-colors-neutral-b2)]" strokeWidth={2} />
+            <div className="flex h-[32px] w-full items-center rounded-[10px] border border-black/20 bg-white px-[10px]">
+              <span className="flex shrink-0 items-start pr-1">
+                <Search className="h-4 w-4 text-[var(--sui-colors-neutral-b1)]" strokeWidth={2} />
+              </span>
               <input
                 type="text"
                 placeholder="Search"
-                className="w-full bg-transparent text-[14px] leading-[20px] text-[var(--sui-colors-neutral-b1)] placeholder-[var(--sui-colors-neutral-b2)] outline-none"
+                className="w-full bg-transparent text-[14px] leading-[20px] text-[var(--sui-colors-neutral-b0)] placeholder-[var(--sui-colors-neutral-b2)] outline-none"
               />
             </div>
             <FilterPill label="Department" />
