@@ -484,7 +484,7 @@ function SpringUsersConfigDialog({
 
           {/* Filters */}
           <div className="grid grid-cols-4 items-center gap-3">
-            <div className="flex h-[36px] w-full items-center gap-2 rounded-[8px] border border-[var(--sui-colors-neutral-b4)] bg-white px-3">
+            <div className="flex h-[36px] w-full items-center gap-2 rounded-[4px] border border-black/20 bg-white px-3">
               <Search className="h-4 w-4 text-[var(--sui-colors-neutral-b3)]" strokeWidth={2} />
               <input
                 type="text"
@@ -580,7 +580,7 @@ function FilterDropdown({
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="flex h-[36px] w-full cursor-pointer items-center justify-between gap-2 rounded-[8px] border border-[var(--sui-colors-neutral-b4)] bg-white px-3 text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)] hover:border-[var(--sui-colors-neutral-b3)]"
+        className="flex h-[36px] w-full cursor-pointer items-center justify-between gap-2 rounded-[4px] border border-black/20 bg-white px-3 text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)] hover:border-black/40"
       >
         <span className="truncate">{label}: {value}</span>
         <ChevronDown className="h-3 w-3 shrink-0 text-[var(--sui-colors-neutral-b2)]" strokeWidth={2} />
@@ -621,7 +621,7 @@ function FilterPill({ label }: { label: string }) {
   return (
     <button
       type="button"
-      className="flex h-[36px] w-full cursor-pointer items-center justify-between gap-2 rounded-[8px] border border-[var(--sui-colors-neutral-b4)] bg-white px-3 text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)] hover:border-[var(--sui-colors-neutral-b3)]"
+      className="flex h-[36px] w-full cursor-pointer items-center justify-between gap-2 rounded-[4px] border border-black/20 bg-white px-3 text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)] hover:border-black/40"
     >
       <span>{label}</span>
       <ChevronDown className="h-3 w-3 text-[var(--sui-colors-neutral-b2)]" strokeWidth={2} />
