@@ -411,21 +411,31 @@ function SpringSelect({
         <ChevronDown className="h-3 w-3 text-[var(--sui-colors-neutral-b2)]" strokeWidth={2} />
       </button>
       {open && (
-        <ul className="absolute right-0 top-[34px] z-10 min-w-full overflow-hidden rounded-[8px] border border-[var(--sui-colors-neutral-b4)] bg-white py-1 shadow-md">
-          {options.map((opt) => (
-            <li key={opt}>
-              <button
-                type="button"
-                onClick={() => { onChange(opt); setOpen(false); }}
-                className={cn(
-                  'flex w-full cursor-pointer items-center px-3 py-1.5 text-left text-[14px] leading-[20px] hover:bg-[var(--sui-colors-neutral-b4)]/40',
-                  opt === value ? 'font-semibold text-[var(--sui-colors-neutral-b1)]' : 'text-[var(--sui-colors-neutral-b1)]',
-                )}
-              >
-                {opt}
-              </button>
-            </li>
-          ))}
+        <ul className="absolute right-0 top-[36px] z-20 min-w-full overflow-hidden rounded-[4px] bg-white py-1 shadow-[0_2px_4px_rgba(0,0,0,0.08),0_8px_24px_rgba(0,0,0,0.12)] ring-1 ring-black/5">
+          {options.map((opt) => {
+            const selected = opt === value;
+            return (
+              <li key={opt}>
+                <button
+                  type="button"
+                  onClick={() => { onChange(opt); setOpen(false); }}
+                  className={cn(
+                    'flex h-[32px] w-full cursor-pointer items-center justify-between gap-2 px-3 text-left text-[14px] font-normal leading-[20px] transition-colors',
+                    selected
+                      ? 'bg-[var(--sui-colors-primary-b)]/10 text-[var(--sui-colors-primary-b)]'
+                      : 'text-[var(--sui-colors-neutral-b1)] hover:bg-[var(--sui-colors-neutral-b4)]/50',
+                  )}
+                >
+                  <span>{opt}</span>
+                  {selected && (
+                    <svg viewBox="0 0 14 14" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M3 7.5l3 3 5-6" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  )}
+                </button>
+              </li>
+            );
+          })}
         </ul>
       )}
     </div>
