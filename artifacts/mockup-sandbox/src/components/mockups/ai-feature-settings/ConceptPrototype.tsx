@@ -8,7 +8,7 @@ import {
 } from 'lucide-react';
 import * as SwitchPrimitives from '@radix-ui/react-switch';
 import { cn } from '@/lib/utils';
-import { SpringEnableDialog } from './ConceptGuidesEnable';
+import { SpringEnableDialog, SpringManageDialogV2 } from './ConceptGuidesEnable';
 
 /* -----------------------------------------------------------------------------
  * Scoped tokens — Service Web UI Library (chrome) and Spring DS (content panel)
@@ -482,6 +482,7 @@ function GeneralPanel({
   guidesDefault,
   guidesAllowChange,
   onGuidesClick,
+  onGuidesManage,
 }: {
   userActivationOn: boolean;
   onUserActivationClick: () => void;
@@ -489,6 +490,7 @@ function GeneralPanel({
   guidesDefault: 'On' | 'Off';
   guidesAllowChange: boolean;
   onGuidesClick: () => void;
+  onGuidesManage: () => void;
 }) {
   return (
     <div className="flex flex-col gap-4">
@@ -517,7 +519,7 @@ function GeneralPanel({
               ]
             : undefined
         }
-        onManage={() => {}}
+        onManage={onGuidesManage}
         onSwitchClick={onGuidesClick}
       />
     </div>
@@ -653,6 +655,7 @@ export function ConceptPrototype() {
   const [guidesAllowChange, setGuidesAllowChange] = React.useState(true);
   const [guidesDisableConfirmOpen, setGuidesDisableConfirmOpen] = React.useState(false);
   const [guidesEnableConfirmOpen, setGuidesEnableConfirmOpen] = React.useState(false);
+  const [guidesManageOpen, setGuidesManageOpen] = React.useState(false);
   const [toastOpen, setToastOpen] = React.useState(false);
   const toastTimerRef = React.useRef<number | null>(null);
 
@@ -759,6 +762,7 @@ export function ConceptPrototype() {
                     ? setGuidesDisableConfirmOpen(true)
                     : setGuidesEnableConfirmOpen(true)
                 }
+                onGuidesManage={() => setGuidesManageOpen(true)}
               />
             )}
             {tab === 'phone' && <PhonePanel />}
@@ -820,6 +824,19 @@ export function ConceptPrototype() {
             setGuidesAllowChange(allowChange);
             setGuidesOn(true);
             setGuidesEnableConfirmOpen(false);
+            showToast();
+          }}
+        />
+
+        <SpringManageDialogV2
+          open={guidesManageOpen}
+          initialDefaultValue={guidesDefault}
+          initialAllowChange={guidesAllowChange}
+          onCancel={() => setGuidesManageOpen(false)}
+          onSave={({ defaultValue, allowChange }) => {
+            setGuidesDefault(defaultValue);
+            setGuidesAllowChange(allowChange);
+            setGuidesManageOpen(false);
             showToast();
           }}
         />
