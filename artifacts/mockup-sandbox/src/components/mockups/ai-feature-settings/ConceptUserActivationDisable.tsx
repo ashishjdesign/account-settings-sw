@@ -299,7 +299,7 @@ function SpringConfirmDialog({
           <h2 className="text-[20px] font-semibold leading-[28px] tracking-[-0.2px] text-[var(--sui-colors-neutral-b1)]">
             {title}
           </h2>
-          <p className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b2)]">
+          <p className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
             {body}
           </p>
         </div>
