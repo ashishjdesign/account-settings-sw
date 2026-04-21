@@ -299,12 +299,12 @@ function SpringEnableDialog({
   open: boolean;
   onCancel: () => void;
   onConfirm: () => void;
-  initialUsersDialog?: 'default' | 'custom' | null;
+  initialUsersDialog?: 'default' | 'custom' | 'all' | null;
 }) {
   const [defaultValue, setDefaultValue] = React.useState<'On' | 'Off'>('On');
   const [allowChange, setAllowChange] = React.useState(true);
   const [customAction, setCustomAction] = React.useState<'reset' | 'restore'>('reset');
-  const [usersDialog, setUsersDialog] = React.useState<'default' | 'custom' | null>(initialUsersDialog);
+  const [usersDialog, setUsersDialog] = React.useState<'default' | 'custom' | 'all' | null>(initialUsersDialog);
   if (!open) return null;
   return (
     <div className="absolute inset-0 z-50 flex items-start justify-center pt-16">
@@ -456,19 +456,31 @@ const MOCK_CUSTOM_USERS: UserRow[] = [
   { name: 'Mason King',     ext: '10110', department: 'Support',  site: 'WA - Seattle',       configuration: 'Custom' },
 ];
 
+const MOCK_ALL_USERS: UserRow[] = [
+  { name: 'Emily Davis',     ext: '10012', department: 'Sales',       site: 'CA - San Francisco', configuration: 'Default' },
+  { name: 'Olivia Brown',    ext: '10101', department: 'Marketing',   site: 'NY - New York',      configuration: 'Custom' },
+  { name: 'Chris Walker',    ext: '10013', department: 'Support',     site: 'CA - San Francisco', configuration: 'Default' },
+  { name: 'Liam Garcia',     ext: '10102', department: 'Engineering', site: 'NY - New York',      configuration: 'Custom' },
+  { name: 'Jordan Lee',      ext: '10014', department: 'Sales',       site: 'CA - Los Angeles',   configuration: 'Default' },
+  { name: 'Sophia Wilson',   ext: '10103', department: 'Sales',       site: 'TX - Austin',        configuration: 'Custom' },
+  { name: 'Casey White',     ext: '10015', department: 'IT',          site: 'CA - San Francisco', configuration: 'Default' },
+  { name: 'Noah Martinez',   ext: '10104', department: 'IT',          site: 'TX - Austin',        configuration: 'Custom' },
+  { name: 'Taylor Adams',    ext: '10016', department: 'Sales',       site: 'CA - Los Angeles',   configuration: 'Default' },
+  { name: 'Ava Robinson',    ext: '10105', department: 'Support',     site: 'NY - New York',      configuration: 'Custom' },
+];
+
 function SpringUsersConfigDialog({
   variant, onClose,
-}: { variant: 'default' | 'custom'; onClose: () => void }) {
-  const isDefault = variant === 'default';
+}: { variant: 'default' | 'custom' | 'all'; onClose: () => void }) {
   const total = 98;
-  const initialFilter: 'All' | 'Default' | 'Custom' = isDefault ? 'Default' : 'Custom';
+  const initialFilter: 'All' | 'Default' | 'Custom' =
+    variant === 'all' ? 'All' : variant === 'default' ? 'Default' : 'Custom';
   const [configFilter, setConfigFilter] = React.useState<'All' | 'Default' | 'Custom'>(initialFilter);
-  const allRows = React.useMemo(() => [...MOCK_DEFAULT_USERS, ...MOCK_CUSTOM_USERS], []);
   const rows = React.useMemo(() => {
-    if (configFilter === 'All') return allRows;
+    if (configFilter === 'All') return MOCK_ALL_USERS;
     if (configFilter === 'Default') return MOCK_DEFAULT_USERS;
     return MOCK_CUSTOM_USERS;
-  }, [configFilter, allRows]);
+  }, [configFilter]);
   const count = configFilter === 'All' ? total : configFilter === 'Default' ? 72 : 26;
 
   return (
@@ -486,8 +498,14 @@ function SpringUsersConfigDialog({
 
           <div className="flex flex-col gap-1">
             <p className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
-              <span className="font-semibold">{count}/{total} users</span> are using the{' '}
-              <span className="font-semibold">{isDefault ? 'default' : 'custom'}</span> user configuration.
+              {variant === 'all' ? (
+                <>Showing all <span className="font-semibold">{total} users</span> across default and custom configurations.</>
+              ) : (
+                <>
+                  <span className="font-semibold">{count}/{total} users</span> are using the{' '}
+                  <span className="font-semibold">{variant === 'default' ? 'default' : 'custom'}</span> user configuration.
+                </>
+              )}
             </p>
             <p className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
               Admins can manage this setting for users from their detail pages or apply them in bulk through{' '}
@@ -771,11 +789,19 @@ export function ConceptGuidesUsersConfig() {
   return <ConceptGuidesEnableImpl initialUsersDialog="default" />;
 }
 
+export function ConceptGuidesUsersConfigAll() {
+  return <ConceptGuidesEnableImpl initialUsersDialog="all" />;
+}
+
+export function ConceptGuidesUsersConfigCustom() {
+  return <ConceptGuidesEnableImpl initialUsersDialog="custom" />;
+}
+
 export function ConceptGuidesEnable() {
   return <ConceptGuidesEnableImpl />;
 }
 
-function ConceptGuidesEnableImpl({ initialUsersDialog = null }: { initialUsersDialog?: 'default' | 'custom' | null }) {
+function ConceptGuidesEnableImpl({ initialUsersDialog = null }: { initialUsersDialog?: 'default' | 'custom' | 'all' | null }) {
   const [guidesOn, setGuidesOn] = React.useState(false);
   const [confirmOpen, setConfirmOpen] = React.useState(true);
 
