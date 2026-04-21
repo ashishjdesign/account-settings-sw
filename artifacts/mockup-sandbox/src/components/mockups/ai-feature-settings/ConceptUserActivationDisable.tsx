@@ -449,7 +449,7 @@ export function ConceptUserActivationDisable() {
       <div className="spring-scope">
         <SpringConfirmDialog
           open={confirmOpen}
-          title={<>Turn off <span className="font-bold">User activation</span> for your organization?</>}
+          title="Turn off User activation for your organization?"
           body="This will prevent users in your organization from re-generating their activation email."
           onCancel={() => setConfirmOpen(false)}
           onConfirm={() => {
