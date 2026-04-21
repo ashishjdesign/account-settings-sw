@@ -772,14 +772,8 @@ function SpringUsersConfigDialog({
 
           <div className="flex flex-col gap-1">
             <p className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
-              {variant === 'all' ? (
-                <>Showing all <span className="font-semibold">{total} users</span> across default and custom configurations.</>
-              ) : (
-                <>
-                  <span className="font-semibold">{count}/{total} users</span> are using the{' '}
-                  <span className="font-semibold">{variant === 'default' ? 'default' : 'custom'}</span> user configuration.
-                </>
-              )}
+              <span className="font-semibold">72/{total} users</span> are using the{' '}
+              <span className="font-semibold">default</span> user configuration.
             </p>
             <p className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
               Admins can manage this setting for users from their detail pages or apply them in bulk through{' '}
