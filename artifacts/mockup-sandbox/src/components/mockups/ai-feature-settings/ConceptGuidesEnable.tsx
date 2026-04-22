@@ -615,7 +615,7 @@ export function SpringManageDialogV2({
       >
         <div className="flex flex-col gap-5 px-6 pb-8 pt-6">
           <h2 className="py-3 text-[22px] font-normal leading-[30px] text-[var(--sui-colors-neutral-b1)]">
-            Manage user permissions for Guides, tutorials &amp; announcements
+            Manage Guides, tutorials &amp; announcements settings
           </h2>
 
           <p className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
