@@ -805,40 +805,6 @@ export function SpringManageDialogV3({
             </div>
           </div>
 
-          {/* Section 2: Feature settings */}
-          <div className="flex flex-col gap-3">
-            <div className="flex flex-col gap-1">
-              <h3 className="text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b2)]">
-                Feature settings
-              </h3>
-              <p className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b2)]">
-                Choose what users see in the in-app guidance panel.
-              </p>
-            </div>
-
-            <div className="flex flex-col rounded-[10px] border border-[var(--sui-colors-neutral-b4)] bg-white">
-              <label className="flex min-h-[56px] cursor-pointer items-center gap-4 p-4">
-                <h4 className="flex-1 text-[15px] font-bold leading-[20px] text-[var(--sui-colors-neutral-b1)]">
-                  Product tutorials
-                </h4>
-                <SpringSwitch checked={showTutorials} onCheckedChange={setShowTutorials} />
-              </label>
-              <div className="mx-4 border-t border-[var(--sui-colors-neutral-b4)]/70" />
-              <label className="flex min-h-[56px] cursor-pointer items-center gap-4 p-4">
-                <h4 className="flex-1 text-[15px] font-bold leading-[20px] text-[var(--sui-colors-neutral-b1)]">
-                  Company announcements
-                </h4>
-                <SpringSwitch checked={showAnnouncements} onCheckedChange={setShowAnnouncements} />
-              </label>
-              <div className="mx-4 border-t border-[var(--sui-colors-neutral-b4)]/70" />
-              <label className="flex min-h-[56px] cursor-pointer items-center gap-4 p-4">
-                <h4 className="flex-1 text-[15px] font-bold leading-[20px] text-[var(--sui-colors-neutral-b1)]">
-                  Service promotions
-                </h4>
-                <SpringSwitch checked={showPromotions} onCheckedChange={setShowPromotions} />
-              </label>
-            </div>
-          </div>
         </div>
 
         <div className="border-t border-[#DDDFE5]/50" />
