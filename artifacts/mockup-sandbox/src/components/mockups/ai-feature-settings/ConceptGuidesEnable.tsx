@@ -768,7 +768,7 @@ export function SpringManageDialogV3({
           {/* Section 1: User deployment */}
           <div className="flex flex-col gap-3">
             <div className="flex flex-col gap-1">
-              <h3 className="text-[13px] font-bold uppercase leading-[18px] tracking-[0.4px] text-[var(--sui-colors-neutral-b2)]">
+              <h3 className="text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b2)]">
                 User deployment
               </h3>
               <p className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b2)]">
@@ -808,7 +808,7 @@ export function SpringManageDialogV3({
           {/* Section 2: Feature settings */}
           <div className="flex flex-col gap-3">
             <div className="flex flex-col gap-1">
-              <h3 className="text-[13px] font-bold uppercase leading-[18px] tracking-[0.4px] text-[var(--sui-colors-neutral-b2)]">
+              <h3 className="text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b2)]">
                 Feature settings
               </h3>
               <p className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b2)]">
