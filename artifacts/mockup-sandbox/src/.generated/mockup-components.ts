@@ -7,6 +7,7 @@ export const modules: ModuleMap = {
   "./components/mockups/ai-feature-settings/ConceptGuidesEnable.tsx": () => import("../components/mockups/ai-feature-settings/ConceptGuidesEnable.tsx"),
   "./components/mockups/ai-feature-settings/ConceptGuidesManage.tsx": () => import("../components/mockups/ai-feature-settings/ConceptGuidesManage.tsx"),
   "./components/mockups/ai-feature-settings/ConceptGuidesManageV2.tsx": () => import("../components/mockups/ai-feature-settings/ConceptGuidesManageV2.tsx"),
+  "./components/mockups/ai-feature-settings/ConceptGuidesManageV3.tsx": () => import("../components/mockups/ai-feature-settings/ConceptGuidesManageV3.tsx"),
   "./components/mockups/ai-feature-settings/ConceptGuidesUsersConfig.tsx": () => import("../components/mockups/ai-feature-settings/ConceptGuidesUsersConfig.tsx"),
   "./components/mockups/ai-feature-settings/ConceptGuidesUsersConfigAll.tsx": () => import("../components/mockups/ai-feature-settings/ConceptGuidesUsersConfigAll.tsx"),
   "./components/mockups/ai-feature-settings/ConceptGuidesUsersConfigCustom.tsx": () => import("../components/mockups/ai-feature-settings/ConceptGuidesUsersConfigCustom.tsx"),
