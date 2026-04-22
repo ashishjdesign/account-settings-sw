@@ -2,7 +2,6 @@ import React from 'react';
 import * as SwitchPrimitives from '@radix-ui/react-switch';
 import { cn } from '@/lib/utils';
 
-/* Spring caret-down (CaretDownMD) */
 function SpringCaretDown({ className }: { className?: string }) {
   return (
     <svg
@@ -39,7 +38,6 @@ const SpringSwitch = React.forwardRef<
     ref={ref}
     className={cn(
       'peer inline-flex h-[24px] w-[40px] shrink-0 cursor-pointer items-center rounded-full transition-colors',
-      'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sui-colors-primary-b-high-contrast)] focus-visible:ring-offset-2',
       'data-[state=checked]:bg-[var(--sui-colors-primary-b)] data-[state=unchecked]:bg-[var(--sui-colors-neutral-b3)]',
       className,
     )}
@@ -69,7 +67,7 @@ function InlineSelect({
         onClick={() => setOpen((v) => !v)}
         className="flex h-[28px] w-full cursor-pointer items-center justify-between gap-2 rounded-[8px] border border-black/20 bg-white px-2 text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b1)] hover:border-black/40"
       >
-        <span className="truncate">{value}</span>
+        <span>{value}</span>
         <SpringCaretDown className="text-[var(--sui-colors-neutral-b1)]" />
       </button>
       {open && (
@@ -101,26 +99,31 @@ function InlineSelect({
   );
 }
 
-function SpringCheckbox({ checked, onChange }: { checked: boolean; onChange: (v: boolean) => void }) {
+function Segmented({
+  value, options, onChange,
+}: { value: string; options: string[]; onChange: (v: string) => void }) {
   return (
-    <button
-      type="button"
-      role="checkbox"
-      aria-checked={checked}
-      onClick={() => onChange(!checked)}
-      className={cn(
-        'mt-[2px] flex h-[16px] w-[16px] shrink-0 cursor-pointer items-center justify-center rounded-[3px] border transition-colors',
-        checked
-          ? 'border-[var(--sui-colors-primary-b)] bg-[var(--sui-colors-primary-b)]'
-          : 'border-[var(--sui-colors-neutral-b3)] bg-white hover:border-[var(--sui-colors-neutral-b2)]',
-      )}
-    >
-      {checked && (
-        <svg viewBox="0 0 14 14" width="11" height="11" fill="none" stroke="white" strokeWidth="2.5">
-          <path d="M3 7.5l3 3 5-6" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
-      )}
-    </button>
+    <div className="inline-flex h-[28px] overflow-hidden rounded-[8px] border border-black/20 bg-white">
+      {options.map((opt, i) => {
+        const selected = opt === value;
+        return (
+          <button
+            key={opt}
+            type="button"
+            onClick={() => onChange(opt)}
+            className={cn(
+              'cursor-pointer px-3 text-[13px] font-medium leading-[20px] transition-colors',
+              i > 0 && 'border-l border-black/20',
+              selected
+                ? 'bg-[var(--sui-colors-primary-b)] text-white'
+                : 'bg-white text-[var(--sui-colors-neutral-b1)] hover:bg-[var(--sui-colors-neutral-b4)]/40',
+            )}
+          >
+            {opt}
+          </button>
+        );
+      })}
+    </div>
   );
 }
 
@@ -133,7 +136,7 @@ function VariantFrame({
   return (
     <div className="spring-scope relative flex min-h-[960px] w-full items-center justify-center bg-[#F4F5F7] p-6">
       <style>{scopedTokens}</style>
-      <div className="flex w-full max-w-[680px] flex-col gap-3">
+      <div className="flex w-full max-w-[560px] flex-col gap-3">
         <p className="text-[12px] font-semibold uppercase leading-[16px] tracking-[0.4px] text-[var(--sui-colors-neutral-b2)]">
           {caption}
         </p>
@@ -166,51 +169,42 @@ function VariantFrame({
 }
 
 /* -----------------------------------------------------------------------------
- * V4 — Default state + explicit reset action for existing custom users
+ * V4 — Two single-line rows, label + dropdown
  * --------------------------------------------------------------------------- */
 export function ConceptGuidesManageV4() {
   const [defaultValue, setDefaultValue] = React.useState<'On' | 'Off'>('On');
-  const [resetCustom, setResetCustom] = React.useState(false);
+  const [allowChange, setAllowChange] = React.useState<'Yes' | 'No'>('Yes');
+  return (
+    <VariantFrame caption="V4 — Two dropdowns">
+      <div className="flex flex-col gap-3">
+        <div className="flex items-center justify-between gap-4">
+          <span className="text-[14px] leading-[20px] text-[var(--sui-colors-neutral-b1)]">Default</span>
+          <InlineSelect value={defaultValue} options={['On', 'Off']} onChange={(v) => setDefaultValue(v as 'On' | 'Off')} />
+        </div>
+        <div className="flex items-center justify-between gap-4">
+          <span className="text-[14px] leading-[20px] text-[var(--sui-colors-neutral-b1)]">Users can change</span>
+          <InlineSelect value={allowChange} options={['Yes', 'No']} onChange={(v) => setAllowChange(v as 'Yes' | 'No')} />
+        </div>
+      </div>
+    </VariantFrame>
+  );
+}
+
+/* -----------------------------------------------------------------------------
+ * V5 — Segmented control + switch
+ * --------------------------------------------------------------------------- */
+export function ConceptGuidesManageV5() {
+  const [defaultValue, setDefaultValue] = React.useState<'On' | 'Off'>('On');
   const [allowChange, setAllowChange] = React.useState(true);
   return (
-    <VariantFrame caption="V4 — Default + reset existing">
-      <div className="flex flex-col gap-4">
+    <VariantFrame caption="V5 — Segmented + switch">
+      <div className="flex flex-col gap-3">
         <div className="flex items-center justify-between gap-4">
-          <div className="flex flex-col">
-            <span className="text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b1)]">
-              Default for all users
-            </span>
-            <span className="text-[13px] font-normal leading-[18px] text-[var(--sui-colors-neutral-b2)]">
-              Applies to anyone who hasn't customized this setting.
-            </span>
-          </div>
-          <InlineSelect
-            value={defaultValue}
-            options={['On', 'Off']}
-            onChange={(v) => setDefaultValue(v as 'On' | 'Off')}
-          />
+          <span className="text-[14px] leading-[20px] text-[var(--sui-colors-neutral-b1)]">Default</span>
+          <Segmented value={defaultValue} options={['On', 'Off']} onChange={(v) => setDefaultValue(v as 'On' | 'Off')} />
         </div>
-
-        <div className="border-t border-[var(--sui-colors-neutral-b4)]/70" />
-
-        <label className="flex cursor-pointer items-start gap-3">
-          <SpringCheckbox checked={resetCustom} onChange={setResetCustom} />
-          <span className="flex flex-col">
-            <span className="text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b1)]">
-              Also reset 26 users with custom settings
-            </span>
-            <span className="text-[13px] font-normal leading-[18px] text-[var(--sui-colors-neutral-b2)]">
-              Their individual overrides will be cleared and replaced with the default.
-            </span>
-          </span>
-        </label>
-
-        <div className="border-t border-[var(--sui-colors-neutral-b4)]/70" />
-
         <div className="flex items-center justify-between gap-4">
-          <span className="text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b1)]">
-            Let users change this themselves
-          </span>
+          <span className="text-[14px] leading-[20px] text-[var(--sui-colors-neutral-b1)]">Users can change</span>
           <SpringSwitch checked={allowChange} onCheckedChange={setAllowChange} />
         </div>
       </div>
@@ -219,112 +213,21 @@ export function ConceptGuidesManageV4() {
 }
 
 /* -----------------------------------------------------------------------------
- * V5 — Scoped inline sentence (default state + apply-to scope picker)
- * --------------------------------------------------------------------------- */
-type V5Scope = 'All users (replaces customizations)' | 'Users without customizations' | 'Only new users going forward';
-export function ConceptGuidesManageV5() {
-  const [defaultValue, setDefaultValue] = React.useState<'On' | 'Off'>('On');
-  const [scope, setScope] = React.useState<V5Scope>('Users without customizations');
-  const [allowChange, setAllowChange] = React.useState(true);
-  const scopeNote: Record<V5Scope, string> = {
-    'All users (replaces customizations)': 'Will overwrite the 26 users with custom settings.',
-    'Users without customizations':         '26 users with custom settings keep their overrides.',
-    'Only new users going forward':         'All 98 existing users keep their current settings.',
-  };
-  return (
-    <VariantFrame caption="V5 — Scoped sentence">
-      <div className="flex flex-col gap-4">
-        <div className="flex flex-wrap items-center gap-x-2 gap-y-3 text-[15px] leading-[28px] text-[var(--sui-colors-neutral-b1)]">
-          <span>Set this to</span>
-          <InlineSelect
-            value={defaultValue}
-            options={['On', 'Off']}
-            onChange={(v) => setDefaultValue(v as 'On' | 'Off')}
-          />
-          <span>for</span>
-          <InlineSelect
-            value={scope}
-            options={[
-              'All users (replaces customizations)',
-              'Users without customizations',
-              'Only new users going forward',
-            ]}
-            onChange={(v) => setScope(v as V5Scope)}
-            width={300}
-          />
-          <span>.</span>
-        </div>
-        <p className="text-[13px] font-normal leading-[18px] text-[var(--sui-colors-neutral-b2)]">
-          {scopeNote[scope]}
-        </p>
-        <div className="border-t border-[var(--sui-colors-neutral-b4)]/70" />
-        <label className="flex cursor-pointer items-center gap-2">
-          <SpringCheckbox checked={allowChange} onChange={setAllowChange} />
-          <span className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
-            Let users change this themselves going forward
-          </span>
-        </label>
-      </div>
-    </VariantFrame>
-  );
-}
-
-/* -----------------------------------------------------------------------------
- * V6 — Status snapshot + change/reset actions
+ * V6 — Single inline row, both controls together
  * --------------------------------------------------------------------------- */
 export function ConceptGuidesManageV6() {
   const [defaultValue, setDefaultValue] = React.useState<'On' | 'Off'>('On');
-  const [resetCustom, setResetCustom] = React.useState(false);
   const [allowChange, setAllowChange] = React.useState(true);
   return (
-    <VariantFrame caption="V6 — Status snapshot">
-      <div className="flex flex-col gap-4">
-        {/* Distribution snapshot */}
-        <div className="flex flex-col gap-2 rounded-[10px] bg-[var(--sui-colors-primary-b)]/[0.04] p-4">
-          <p className="text-[13px] font-semibold uppercase leading-[16px] tracking-[0.4px] text-[var(--sui-colors-neutral-b2)]">
-            Current state
-          </p>
-          <div className="flex h-[8px] w-full overflow-hidden rounded-full bg-[var(--sui-colors-neutral-b4)]">
-            <div className="h-full bg-[var(--sui-colors-primary-b)]" style={{ width: '73.5%' }} />
-            <div className="h-full bg-[var(--sui-colors-primary-b)]/40" style={{ width: '26.5%' }} />
-          </div>
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[13px] leading-[18px] text-[var(--sui-colors-neutral-b1)]">
-            <span className="flex items-center gap-1.5">
-              <span className="h-[8px] w-[8px] rounded-full bg-[var(--sui-colors-primary-b)]" />
-              <span><span className="font-semibold">72</span> on default (On)</span>
-            </span>
-            <span className="flex items-center gap-1.5">
-              <span className="h-[8px] w-[8px] rounded-full bg-[var(--sui-colors-primary-b)]/40" />
-              <span><span className="font-semibold">26</span> with custom settings</span>
-            </span>
-          </div>
+    <VariantFrame caption="V6 — One inline row">
+      <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
+        <div className="flex items-center gap-2">
+          <span className="text-[14px] leading-[20px] text-[var(--sui-colors-neutral-b1)]">Default</span>
+          <Segmented value={defaultValue} options={['On', 'Off']} onChange={(v) => setDefaultValue(v as 'On' | 'Off')} />
         </div>
-
-        <div className="flex items-center justify-between gap-4">
-          <span className="text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b1)]">
-            Change default to
-          </span>
-          <InlineSelect
-            value={defaultValue}
-            options={['On', 'Off']}
-            onChange={(v) => setDefaultValue(v as 'On' | 'Off')}
-          />
-        </div>
-
-        <label className="flex cursor-pointer items-start gap-3">
-          <SpringCheckbox checked={resetCustom} onChange={setResetCustom} />
-          <span className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
-            Also reset the 26 users with custom settings to the default
-          </span>
-        </label>
-
-        <div className="border-t border-[var(--sui-colors-neutral-b4)]/70" />
-
-        <div className="flex items-center justify-between gap-4">
-          <span className="text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b1)]">
-            Let users change this themselves
-          </span>
+        <div className="flex items-center gap-2">
           <SpringSwitch checked={allowChange} onCheckedChange={setAllowChange} />
+          <span className="text-[14px] leading-[20px] text-[var(--sui-colors-neutral-b1)]">Users can change</span>
         </div>
       </div>
     </VariantFrame>
