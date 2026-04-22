@@ -809,7 +809,13 @@ export function ConceptPrototype() {
         <SpringConfirmDialog
           open={guidesDisableConfirmOpen}
           title="Turn off Guides, tutorials & announcements for your organization?"
-          body="This will hide guides, tutorials, company-wide updates, and service promotions from all users in your organization."
+          body={
+            <>
+              Feature will be disabled globally on entire account and hidden from all users.
+              <br />
+              When re-enabled, users&rsquo; previous settings will return.
+            </>
+          }
           onCancel={() => setGuidesDisableConfirmOpen(false)}
           onConfirm={() => {
             setGuidesOn(false);
