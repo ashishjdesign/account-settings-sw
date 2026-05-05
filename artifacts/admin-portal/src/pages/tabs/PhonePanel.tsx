@@ -18,14 +18,9 @@ export default function PhonePanel() {
 
   const handleSaveManage = () => {
     if (state.simulateError) return;
-    dispatch({ type: 'SNAPSHOT' });
     dispatch({
-      type: 'UPDATE_FEATURE',
-      payload: {
-        tab: 'phone',
-        feature: 'autoAnswer',
-        data: { defaultVal: editDefault, allowChange: editAllow },
-      },
+      type: 'PATCH_PHONE_AUTO_ANSWER',
+      payload: { defaultVal: editDefault, allowChange: editAllow },
     });
     setManageOpen(false);
     showToast('Settings were updated.', () => dispatch({ type: 'UNDO' }));
@@ -38,12 +33,7 @@ export default function PhonePanel() {
         switchOn={externalAppOn}
         icon="tear-out-window"
         description="Have incoming calls open an external app or website, like a CRM system or online database."
-        onSwitchClick={() =>
-          dispatch({
-            type: 'UPDATE_FEATURE',
-            payload: { tab: 'phone', feature: 'externalAppOn', data: !externalAppOn },
-          })
-        }
+        onSwitchClick={() => dispatch({ type: 'SET_PHONE_EXTERNAL_APP', payload: !externalAppOn })}
       />
       <SettingCard
         title="Auto-answer calls"
@@ -56,10 +46,7 @@ export default function PhonePanel() {
         ]}
         onManage={openManage}
         onSwitchClick={() =>
-          dispatch({
-            type: 'UPDATE_FEATURE',
-            payload: { tab: 'phone', feature: 'autoAnswer', data: { on: !autoAnswer.on } },
-          })
+          dispatch({ type: 'PATCH_PHONE_AUTO_ANSWER', payload: { on: !autoAnswer.on } })
         }
       />
       <SettingCard
@@ -67,12 +54,7 @@ export default function PhonePanel() {
         switchOn={conferenceCallsOn}
         icon="conference"
         description="Allow hosts to leave conference call without ending them."
-        onSwitchClick={() =>
-          dispatch({
-            type: 'UPDATE_FEATURE',
-            payload: { tab: 'phone', feature: 'conferenceCallsOn', data: !conferenceCallsOn },
-          })
-        }
+        onSwitchClick={() => dispatch({ type: 'SET_PHONE_CONFERENCE', payload: !conferenceCallsOn })}
       />
 
       <SpringDialog

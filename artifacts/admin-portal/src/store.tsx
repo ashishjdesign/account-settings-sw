@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useReducer, useCallback } from 'react';
+import React, { createContext, useContext, useReducer } from 'react';
 
 export type FeatureConfig = {
   on: boolean;
@@ -10,31 +10,47 @@ export type FeatureConfig = {
 export type FaxConfig = {
   international: boolean;
   coverPage: 'None' | 'Standard' | 'Branded';
-  retention: '30 days' | '90 days' | '365 days';
+  retention: '' | '30 days' | '90 days' | '365 days';
+};
+
+export type AiAssistantCustomize = {
+  transcriptLanguage: 'English' | 'Spanish' | 'French';
+  transcriptRetention: '' | '30 days' | '90 days' | '365 days';
+  shareWithManagers: boolean;
+};
+
+export type GeneralState = {
+  userActivationOn: boolean;
+  guides: FeatureConfig;
+};
+
+export type PhoneState = {
+  externalAppOn: boolean;
+  autoAnswer: FeatureConfig;
+  conferenceCallsOn: boolean;
+};
+
+export type AiState = {
+  masterOn: boolean;
+  aiAssistant: FeatureConfig & { customize: AiAssistantCustomize };
+  autoCallNotes: FeatureConfig;
+};
+
+export type SmsState = {
+  smsOn: boolean;
+};
+
+export type FaxState = {
+  fax: FeatureConfig & { customize: FaxConfig };
+  emailToFaxOn: boolean;
 };
 
 export type AppState = {
-  general: {
-    userActivationOn: boolean;
-    guides: FeatureConfig;
-  };
-  phone: {
-    externalAppOn: boolean;
-    autoAnswer: FeatureConfig;
-    conferenceCallsOn: boolean;
-  };
-  ai: {
-    masterOn: boolean;
-    aiAssistant: FeatureConfig;
-    autoCallNotes: FeatureConfig;
-  };
-  sms: {
-    smsOn: boolean;
-  };
-  fax: {
-    fax: FeatureConfig & { customize: FaxConfig };
-    emailToFaxOn: boolean;
-  };
+  general: GeneralState;
+  phone: PhoneState;
+  ai: AiState;
+  sms: SmsState;
+  fax: FaxState;
   simulateError: boolean;
   undoSnapshot: AppState | null;
 };
@@ -51,19 +67,27 @@ const initialState: AppState = {
   },
   ai: {
     masterOn: true,
-    aiAssistant: { on: true, defaultVal: 'On', allowChange: true, customUsers: 26 },
+    aiAssistant: {
+      on: true,
+      defaultVal: 'On',
+      allowChange: true,
+      customUsers: 26,
+      customize: {
+        transcriptLanguage: 'English',
+        transcriptRetention: '365 days',
+        shareWithManagers: false,
+      },
+    },
     autoCallNotes: { on: true, defaultVal: 'On', allowChange: true, customUsers: 0 },
   },
-  sms: {
-    smsOn: true,
-  },
+  sms: { smsOn: true },
   fax: {
-    fax: { 
-      on: true, 
-      defaultVal: 'On', 
-      allowChange: true, 
+    fax: {
+      on: true,
+      defaultVal: 'On',
+      allowChange: true,
       customUsers: 0,
-      customize: { international: false, coverPage: 'Standard', retention: '90 days' } 
+      customize: { international: false, coverPage: 'Standard', retention: '90 days' },
     },
     emailToFaxOn: false,
   },
@@ -72,80 +96,119 @@ const initialState: AppState = {
 };
 
 type Action =
-  | { type: 'TOGGLE_MASTER_AI'; payload: boolean }
-  | { type: 'UPDATE_FEATURE'; payload: { tab: keyof AppState; feature: string; data: Partial<FeatureConfig> | boolean } }
-  | { type: 'UPDATE_FAX_CUSTOMIZE'; payload: Partial<FaxConfig> }
-  | { type: 'RESET_OVERRIDES'; payload: { tab: keyof AppState; feature: string } }
+  | { type: 'SNAPSHOT' }
   | { type: 'UNDO' }
   | { type: 'TOGGLE_SIMULATE_ERROR' }
-  | { type: 'SNAPSHOT' };
+  | { type: 'TOGGLE_MASTER_AI'; payload: boolean }
+  | { type: 'PATCH_GENERAL_GUIDES'; payload: Partial<FeatureConfig> }
+  | { type: 'SET_GENERAL_USER_ACTIVATION'; payload: boolean }
+  | { type: 'SET_PHONE_EXTERNAL_APP'; payload: boolean }
+  | { type: 'SET_PHONE_CONFERENCE'; payload: boolean }
+  | { type: 'PATCH_PHONE_AUTO_ANSWER'; payload: Partial<FeatureConfig> }
+  | { type: 'PATCH_AI_ASSISTANT'; payload: Partial<FeatureConfig> }
+  | { type: 'PATCH_AI_AUTO_NOTES'; payload: Partial<FeatureConfig> }
+  | { type: 'PATCH_AI_ASSISTANT_CUSTOMIZE'; payload: Partial<AiAssistantCustomize> }
+  | { type: 'SET_SMS'; payload: boolean }
+  | { type: 'PATCH_FAX'; payload: Partial<FeatureConfig> }
+  | { type: 'SET_EMAIL_TO_FAX'; payload: boolean }
+  | { type: 'PATCH_FAX_CUSTOMIZE'; payload: Partial<FaxConfig> }
+  | { type: 'RESET_OVERRIDES_AI'; payload: 'aiAssistant' | 'autoCallNotes' };
+
+function withSnapshot(state: AppState): AppState {
+  return { ...state, undoSnapshot: { ...state, undoSnapshot: null } };
+}
 
 function reducer(state: AppState, action: Action): AppState {
   switch (action.type) {
     case 'SNAPSHOT':
-      return { ...state, undoSnapshot: { ...state, undoSnapshot: null } };
-    case 'TOGGLE_MASTER_AI': {
-      const on = action.payload;
+      return withSnapshot(state);
+    case 'UNDO':
+      return state.undoSnapshot
+        ? { ...state.undoSnapshot, undoSnapshot: null, simulateError: state.simulateError }
+        : state;
+    case 'TOGGLE_SIMULATE_ERROR':
+      return { ...state, simulateError: !state.simulateError };
+    case 'TOGGLE_MASTER_AI':
+      return { ...withSnapshot(state), ai: { ...state.ai, masterOn: action.payload } };
+    case 'PATCH_GENERAL_GUIDES':
       return {
-        ...state,
-        undoSnapshot: { ...state, undoSnapshot: null },
+        ...withSnapshot(state),
+        general: { ...state.general, guides: { ...state.general.guides, ...action.payload } },
+      };
+    case 'SET_GENERAL_USER_ACTIVATION':
+      return {
+        ...withSnapshot(state),
+        general: { ...state.general, userActivationOn: action.payload },
+      };
+    case 'SET_PHONE_EXTERNAL_APP':
+      return { ...withSnapshot(state), phone: { ...state.phone, externalAppOn: action.payload } };
+    case 'SET_PHONE_CONFERENCE':
+      return { ...withSnapshot(state), phone: { ...state.phone, conferenceCallsOn: action.payload } };
+    case 'PATCH_PHONE_AUTO_ANSWER':
+      return {
+        ...withSnapshot(state),
+        phone: {
+          ...state.phone,
+          autoAnswer: { ...state.phone.autoAnswer, ...action.payload },
+        },
+      };
+    case 'PATCH_AI_ASSISTANT':
+      return {
+        ...withSnapshot(state),
         ai: {
           ...state.ai,
-          masterOn: on,
-        }
+          aiAssistant: { ...state.ai.aiAssistant, ...action.payload },
+        },
       };
-    }
-    case 'UPDATE_FEATURE': {
-      const { tab, feature, data } = action.payload;
-      const tabState = state[tab as keyof AppState] as any;
-      const currentFeature = tabState[feature];
-      
-      const newFeatureState = typeof currentFeature === 'boolean' 
-        ? data 
-        : { ...currentFeature, ...(data as any) };
-
+    case 'PATCH_AI_AUTO_NOTES':
       return {
-        ...state,
-        undoSnapshot: { ...state, undoSnapshot: null },
-        [tab]: {
-          ...tabState,
-          [feature]: newFeatureState,
-        }
+        ...withSnapshot(state),
+        ai: {
+          ...state.ai,
+          autoCallNotes: { ...state.ai.autoCallNotes, ...action.payload },
+        },
       };
-    }
-    case 'UPDATE_FAX_CUSTOMIZE': {
+    case 'PATCH_AI_ASSISTANT_CUSTOMIZE':
       return {
-        ...state,
-        undoSnapshot: { ...state, undoSnapshot: null },
+        ...withSnapshot(state),
+        ai: {
+          ...state.ai,
+          aiAssistant: {
+            ...state.ai.aiAssistant,
+            customize: { ...state.ai.aiAssistant.customize, ...action.payload },
+          },
+        },
+      };
+    case 'SET_SMS':
+      return { ...withSnapshot(state), sms: { smsOn: action.payload } };
+    case 'PATCH_FAX':
+      return {
+        ...withSnapshot(state),
+        fax: { ...state.fax, fax: { ...state.fax.fax, ...action.payload } },
+      };
+    case 'SET_EMAIL_TO_FAX':
+      return { ...withSnapshot(state), fax: { ...state.fax, emailToFaxOn: action.payload } };
+    case 'PATCH_FAX_CUSTOMIZE':
+      return {
+        ...withSnapshot(state),
         fax: {
           ...state.fax,
           fax: {
             ...state.fax.fax,
-            customize: { ...state.fax.fax.customize, ...action.payload }
-          }
-        }
+            customize: { ...state.fax.fax.customize, ...action.payload },
+          },
+        },
       };
-    }
-    case 'RESET_OVERRIDES': {
-      const { tab, feature } = action.payload;
-      const tabState = state[tab as keyof AppState] as any;
+    case 'RESET_OVERRIDES_AI': {
+      const key = action.payload;
       return {
-        ...state,
-        undoSnapshot: { ...state, undoSnapshot: null },
-        [tab]: {
-          ...tabState,
-          [feature]: { ...tabState[feature], customUsers: 0 }
-        }
+        ...withSnapshot(state),
+        ai: {
+          ...state.ai,
+          [key]: { ...state.ai[key], customUsers: 0 },
+        },
       };
     }
-    case 'UNDO': {
-      if (state.undoSnapshot) {
-        return { ...state.undoSnapshot, undoSnapshot: null, simulateError: state.simulateError };
-      }
-      return state;
-    }
-    case 'TOGGLE_SIMULATE_ERROR':
-      return { ...state, simulateError: !state.simulateError };
     default:
       return state;
   }
