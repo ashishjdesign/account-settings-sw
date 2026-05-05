@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from "wouter";
-import { PillTab, showToast, SpringConfirmDialog, SettingCard, SpringDialog, UserDefaultsRow } from '../components/shared';
-import { useSettings } from '../store';
-import { Skeleton } from "@/components/ui/skeleton";
+import { PillTab } from '../components/shared';
 import GeneralPanel from "./tabs/GeneralPanel";
 import PhonePanel from "./tabs/PhonePanel";
 import AiPanel from "./tabs/AiPanel";
@@ -21,7 +19,6 @@ const TABS: { key: TabKey; label: string }[] = [
 
 export default function FeatureSettings({ tab }: { tab: string }) {
   const [, setLocation] = useLocation();
-  const { state, dispatch } = useSettings();
   const [loading, setLoading] = useState(true);
 
   // Load effect
@@ -56,9 +53,9 @@ export default function FeatureSettings({ tab }: { tab: string }) {
 
       {loading ? (
         <div className="flex flex-col gap-4 animate-in fade-in duration-300">
-          <Skeleton className="h-[120px] w-full rounded-[8px] bg-slate-100" />
-          <Skeleton className="h-[120px] w-full rounded-[8px] bg-slate-100" />
-          <Skeleton className="h-[120px] w-full rounded-[8px] bg-slate-100" />
+          <div className="h-[120px] w-full animate-pulse rounded-[8px] bg-slate-100" />
+          <div className="h-[120px] w-full animate-pulse rounded-[8px] bg-slate-100" />
+          <div className="h-[120px] w-full animate-pulse rounded-[8px] bg-slate-100" />
         </div>
       ) : (
         <div className="animate-in fade-in duration-300">

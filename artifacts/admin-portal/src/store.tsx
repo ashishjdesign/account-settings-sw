@@ -34,6 +34,9 @@ export type AiState = {
   masterOn: boolean;
   aiAssistant: FeatureConfig & { customize: AiAssistantCustomize };
   autoCallNotes: FeatureConfig;
+  realTimeAnswers: FeatureConfig;
+  transcripts: FeatureConfig;
+  writingAssist: FeatureConfig;
 };
 
 export type SmsState = {
@@ -79,6 +82,9 @@ const initialState: AppState = {
       },
     },
     autoCallNotes: { on: true, defaultVal: 'On', allowChange: true, customUsers: 0 },
+    realTimeAnswers: { on: true, defaultVal: 'On', allowChange: true, customUsers: 12 },
+    transcripts: { on: true, defaultVal: 'On', allowChange: false, customUsers: 0 },
+    writingAssist: { on: false, defaultVal: 'Off', allowChange: true, customUsers: 8 },
   },
   sms: { smsOn: true },
   fax: {
@@ -108,11 +114,15 @@ type Action =
   | { type: 'PATCH_AI_ASSISTANT'; payload: Partial<FeatureConfig> }
   | { type: 'PATCH_AI_AUTO_NOTES'; payload: Partial<FeatureConfig> }
   | { type: 'PATCH_AI_ASSISTANT_CUSTOMIZE'; payload: Partial<AiAssistantCustomize> }
+  | { type: 'PATCH_AI_REAL_TIME_ANSWERS'; payload: Partial<FeatureConfig> }
+  | { type: 'PATCH_AI_TRANSCRIPTS'; payload: Partial<FeatureConfig> }
+  | { type: 'PATCH_AI_WRITING_ASSIST'; payload: Partial<FeatureConfig> }
+  | { type: 'RESET_OVERRIDES_AI_RT'; payload: 'realTimeAnswers' | 'transcripts' | 'writingAssist' }
   | { type: 'SET_SMS'; payload: boolean }
   | { type: 'PATCH_FAX'; payload: Partial<FeatureConfig> }
   | { type: 'SET_EMAIL_TO_FAX'; payload: boolean }
   | { type: 'PATCH_FAX_CUSTOMIZE'; payload: Partial<FaxConfig> }
-  | { type: 'RESET_OVERRIDES_AI'; payload: 'aiAssistant' | 'autoCallNotes' };
+  | { type: 'RESET_OVERRIDES_AI'; payload: 'aiAssistant' | 'autoCallNotes' | 'realTimeAnswers' | 'transcripts' | 'writingAssist' };
 
 const TOTAL_USERS = 98;
 
@@ -184,6 +194,28 @@ function reducer(state: AppState, action: Action): AppState {
           autoCallNotes: applyFeaturePatch(state.ai.autoCallNotes, action.payload),
         },
       };
+    case 'PATCH_AI_REAL_TIME_ANSWERS':
+      return {
+        ...withSnapshot(state),
+        ai: { ...state.ai, realTimeAnswers: applyFeaturePatch(state.ai.realTimeAnswers, action.payload) },
+      };
+    case 'PATCH_AI_TRANSCRIPTS':
+      return {
+        ...withSnapshot(state),
+        ai: { ...state.ai, transcripts: applyFeaturePatch(state.ai.transcripts, action.payload) },
+      };
+    case 'PATCH_AI_WRITING_ASSIST':
+      return {
+        ...withSnapshot(state),
+        ai: { ...state.ai, writingAssist: applyFeaturePatch(state.ai.writingAssist, action.payload) },
+      };
+    case 'RESET_OVERRIDES_AI_RT': {
+      const k = action.payload;
+      return {
+        ...withSnapshot(state),
+        ai: { ...state.ai, [k]: { ...state.ai[k], customUsers: 0 } },
+      };
+    }
     case 'PATCH_AI_ASSISTANT_CUSTOMIZE':
       return {
         ...withSnapshot(state),

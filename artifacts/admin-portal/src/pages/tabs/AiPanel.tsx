@@ -17,11 +17,28 @@ const LANGUAGE_OPTIONS = ['English', 'Spanish', 'French'] as const;
 
 export default function AiPanel() {
   const { state, dispatch } = useSettings();
-  const { masterOn, aiAssistant, autoCallNotes } = state.ai;
+  const { masterOn, aiAssistant, autoCallNotes, realTimeAnswers, transcripts, writingAssist } = state.ai;
 
+  type AiKey = 'aiAssistant' | 'autoCallNotes' | 'realTimeAnswers' | 'transcripts' | 'writingAssist';
   const [masterConfirmOpen, setMasterConfirmOpen] = useState(false);
-  const [resetConfirmOpen, setResetConfirmOpen] = useState<'aiAssistant' | 'autoCallNotes' | null>(null);
-  const [manageModal, setManageModal] = useState<'aiAssistant' | 'autoCallNotes' | null>(null);
+  const [resetConfirmOpen, setResetConfirmOpen] = useState<AiKey | null>(null);
+  const [manageModal, setManageModal] = useState<AiKey | null>(null);
+
+  const dispatchPatch = (key: AiKey, payload: Partial<typeof aiAssistant>) => {
+    if (key === 'aiAssistant') dispatch({ type: 'PATCH_AI_ASSISTANT', payload });
+    else if (key === 'autoCallNotes') dispatch({ type: 'PATCH_AI_AUTO_NOTES', payload });
+    else if (key === 'realTimeAnswers') dispatch({ type: 'PATCH_AI_REAL_TIME_ANSWERS', payload });
+    else if (key === 'transcripts') dispatch({ type: 'PATCH_AI_TRANSCRIPTS', payload });
+    else if (key === 'writingAssist') dispatch({ type: 'PATCH_AI_WRITING_ASSIST', payload });
+  };
+
+  const featureLabels: Record<AiKey, string> = {
+    aiAssistant: 'AI Assistant',
+    autoCallNotes: 'Automatic call notes',
+    realTimeAnswers: 'Real-time answers',
+    transcripts: 'Transcripts',
+    writingAssist: 'Writing assist',
+  };
 
   const [editDefault, setEditDefault] = useState<'On' | 'Off'>('On');
   const [editAllow, setEditAllow] = useState(true);
@@ -60,7 +77,7 @@ export default function AiPanel() {
     showToast('AI Assistant customized.', () => dispatch({ type: 'UNDO' }));
   };
 
-  const openManage = (feature: 'aiAssistant' | 'autoCallNotes') => {
+  const openManage = (feature: AiKey) => {
     const featState = state.ai[feature];
     setEditDefault(featState.defaultVal);
     setEditAllow(featState.allowChange);
@@ -73,17 +90,7 @@ export default function AiPanel() {
       dispatch({ type: 'TOGGLE_SIMULATE_ERROR' });
       return;
     }
-    if (manageModal === 'aiAssistant') {
-      dispatch({
-        type: 'PATCH_AI_ASSISTANT',
-        payload: { defaultVal: editDefault, allowChange: editAllow },
-      });
-    } else {
-      dispatch({
-        type: 'PATCH_AI_AUTO_NOTES',
-        payload: { defaultVal: editDefault, allowChange: editAllow },
-      });
-    }
+    dispatchPatch(manageModal, { defaultVal: editDefault, allowChange: editAllow });
     setManageModal(null);
     showToast('Settings were updated.', () => dispatch({ type: 'UNDO' }));
   };
@@ -111,18 +118,11 @@ export default function AiPanel() {
     showToast(`Reset ${count} user overrides`, () => dispatch({ type: 'UNDO' }));
   };
 
-  const toggleAiAssistant = () => {
+  const toggleChild = (key: AiKey) => {
     if (!masterOn) return;
-    dispatch({ type: 'PATCH_AI_ASSISTANT', payload: { on: !aiAssistant.on } });
-    showToast(`AI Assistant turned ${aiAssistant.on ? 'off' : 'on'}`, () => dispatch({ type: 'UNDO' }));
-  };
-
-  const toggleAutoCallNotes = () => {
-    if (!masterOn) return;
-    dispatch({ type: 'PATCH_AI_AUTO_NOTES', payload: { on: !autoCallNotes.on } });
-    showToast(`Automatic call notes turned ${autoCallNotes.on ? 'off' : 'on'}`, () =>
-      dispatch({ type: 'UNDO' }),
-    );
+    const cur = state.ai[key].on;
+    dispatchPatch(key, { on: !cur });
+    showToast(`${featureLabels[key]} turned ${cur ? 'off' : 'on'}`, () => dispatch({ type: 'UNDO' }));
   };
 
   return (
@@ -152,9 +152,24 @@ export default function AiPanel() {
         ]}
         onManage={() => openManage('aiAssistant')}
         onCustomize={masterOn ? openCustomize : undefined}
-        onSwitchClick={toggleAiAssistant}
+        onSwitchClick={() => toggleChild('aiAssistant')}
         customUsersCount={aiAssistant.customUsers > 0 ? aiAssistant.customUsers : undefined}
         onResetOverrides={() => setResetConfirmOpen('aiAssistant')}
+      />
+      <SettingCard
+        title="Real-time answers"
+        switchOn={realTimeAnswers.on && masterOn}
+        disabled={!masterOn}
+        icon="ai-stars"
+        description="Surface relevant suggestions and answers during live calls and meetings."
+        summary={[
+          { label: 'User default:', value: realTimeAnswers.defaultVal },
+          { value: realTimeAnswers.allowChange ? 'Users can change this setting' : 'Users cannot change this setting' },
+        ]}
+        onManage={() => openManage('realTimeAnswers')}
+        onSwitchClick={() => toggleChild('realTimeAnswers')}
+        customUsersCount={realTimeAnswers.customUsers > 0 ? realTimeAnswers.customUsers : undefined}
+        onResetOverrides={() => setResetConfirmOpen('realTimeAnswers')}
       />
       <SettingCard
         title="Automatic call notes"
@@ -171,9 +186,39 @@ export default function AiPanel() {
           },
         ]}
         onManage={() => openManage('autoCallNotes')}
-        onSwitchClick={toggleAutoCallNotes}
+        onSwitchClick={() => toggleChild('autoCallNotes')}
         customUsersCount={autoCallNotes.customUsers > 0 ? autoCallNotes.customUsers : undefined}
         onResetOverrides={() => setResetConfirmOpen('autoCallNotes')}
+      />
+      <SettingCard
+        title="Transcripts"
+        switchOn={transcripts.on && masterOn}
+        disabled={!masterOn}
+        icon="ai-lightbulb"
+        description="Generate written transcripts for calls and meetings."
+        summary={[
+          { label: 'User default:', value: transcripts.defaultVal },
+          { value: transcripts.allowChange ? 'Users can change this setting' : 'Users cannot change this setting' },
+        ]}
+        onManage={() => openManage('transcripts')}
+        onSwitchClick={() => toggleChild('transcripts')}
+        customUsersCount={transcripts.customUsers > 0 ? transcripts.customUsers : undefined}
+        onResetOverrides={() => setResetConfirmOpen('transcripts')}
+      />
+      <SettingCard
+        title="Writing assist"
+        switchOn={writingAssist.on && masterOn}
+        disabled={!masterOn}
+        icon="ai-writer"
+        description="Help users compose, polish and rephrase messages with AI suggestions."
+        summary={[
+          { label: 'User default:', value: writingAssist.defaultVal },
+          { value: writingAssist.allowChange ? 'Users can change this setting' : 'Users cannot change this setting' },
+        ]}
+        onManage={() => openManage('writingAssist')}
+        onSwitchClick={() => toggleChild('writingAssist')}
+        customUsersCount={writingAssist.customUsers > 0 ? writingAssist.customUsers : undefined}
+        onResetOverrides={() => setResetConfirmOpen('writingAssist')}
       />
 
       <SpringConfirmDialog
@@ -194,7 +239,7 @@ export default function AiPanel() {
 
       <SpringDialog
         open={!!manageModal}
-        title={`Manage ${manageModal === 'aiAssistant' ? 'AI Assistant' : 'Automatic call notes'}`}
+        title={`Manage ${manageModal ? featureLabels[manageModal] : ''}`}
         onClose={() => setManageModal(null)}
         onSave={handleSaveManage}
         error={state.simulateError}
