@@ -171,8 +171,8 @@ export default function AiPanel() {
 
       <SpringConfirmDialog
         open={masterConfirmOpen}
-        title="Turn off AI features for 98 users? Continue?"
-        body="This will turn off AI features for 98 users. Continue? AI Assistant, Automatic call notes, and all AI capabilities will be disabled for everyone in your account. Users will lose access immediately."
+        title="Turn off AI features?"
+        body="This will turn off AI features for 98 users. Continue?"
         onCancel={() => setMasterConfirmOpen(false)}
         onConfirm={confirmMasterOff}
       />
