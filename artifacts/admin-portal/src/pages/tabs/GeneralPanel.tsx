@@ -13,7 +13,10 @@ export default function GeneralPanel() {
   const [editAllow, setEditAllow] = useState(guides.allowChange);
 
   const handleSaveGuides = () => {
-    if (state.simulateError) return;
+    if (state.simulateError) {
+      dispatch({ type: 'TOGGLE_SIMULATE_ERROR' });
+      return;
+    }
     dispatch({
       type: 'PATCH_GENERAL_GUIDES',
       payload: { defaultVal: editDefault, allowChange: editAllow },

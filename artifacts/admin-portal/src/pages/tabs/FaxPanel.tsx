@@ -24,7 +24,10 @@ export default function FaxPanel() {
   const retentionInvalid = custDraft.retention === '';
 
   const handleSaveManage = () => {
-    if (state.simulateError) return;
+    if (state.simulateError) {
+      dispatch({ type: 'TOGGLE_SIMULATE_ERROR' });
+      return;
+    }
     dispatch({
       type: 'PATCH_FAX',
       payload: { defaultVal: editDefault, allowChange: editAllow },
@@ -50,7 +53,10 @@ export default function FaxPanel() {
       setShowRetentionError(true);
       return;
     }
-    if (state.simulateError) return;
+    if (state.simulateError) {
+      dispatch({ type: 'TOGGLE_SIMULATE_ERROR' });
+      return;
+    }
     dispatch({ type: 'PATCH_FAX_CUSTOMIZE', payload: custDraft });
     setCustomizeOpen(false);
     showToast('Fax settings customized.', () => dispatch({ type: 'UNDO' }));

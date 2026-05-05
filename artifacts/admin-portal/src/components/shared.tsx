@@ -424,7 +424,7 @@ export function UserDefaultsRow({
 }) {
   const [usersDialogOpen, setUsersDialogOpen] = useState(false);
   const total = 98;
-  const defaultCount = total - (customCount || 0);
+  const defaultCount = Math.max(0, total - (customCount || 0));
 
   return (
     <>

@@ -51,7 +51,10 @@ export default function AiPanel() {
       setShowRetentionError(true);
       return;
     }
-    if (state.simulateError) return;
+    if (state.simulateError) {
+      dispatch({ type: 'TOGGLE_SIMULATE_ERROR' });
+      return;
+    }
     dispatch({ type: 'PATCH_AI_ASSISTANT_CUSTOMIZE', payload: custDraft });
     setCustomizeOpen(false);
     showToast('AI Assistant customized.', () => dispatch({ type: 'UNDO' }));
@@ -65,7 +68,11 @@ export default function AiPanel() {
   };
 
   const handleSaveManage = () => {
-    if (!manageModal || state.simulateError) return;
+    if (!manageModal) return;
+    if (state.simulateError) {
+      dispatch({ type: 'TOGGLE_SIMULATE_ERROR' });
+      return;
+    }
     if (manageModal === 'aiAssistant') {
       dispatch({
         type: 'PATCH_AI_ASSISTANT',

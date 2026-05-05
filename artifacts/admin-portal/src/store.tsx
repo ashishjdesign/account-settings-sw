@@ -114,8 +114,21 @@ type Action =
   | { type: 'PATCH_FAX_CUSTOMIZE'; payload: Partial<FaxConfig> }
   | { type: 'RESET_OVERRIDES_AI'; payload: 'aiAssistant' | 'autoCallNotes' };
 
+const TOTAL_USERS = 98;
+
 function withSnapshot(state: AppState): AppState {
   return { ...state, undoSnapshot: { ...state, undoSnapshot: null } };
+}
+
+function applyFeaturePatch(current: FeatureConfig, patch: Partial<FeatureConfig>): FeatureConfig {
+  const next: FeatureConfig = { ...current, ...patch };
+  // When the admin flips the default, users previously on the default are now
+  // on a non-default value (and vice versa) — swap the override count so the
+  // X/Y "users using default" metric updates live.
+  if (patch.defaultVal !== undefined && patch.defaultVal !== current.defaultVal) {
+    next.customUsers = Math.max(0, TOTAL_USERS - current.customUsers);
+  }
+  return next;
 }
 
 function reducer(state: AppState, action: Action): AppState {
@@ -133,7 +146,7 @@ function reducer(state: AppState, action: Action): AppState {
     case 'PATCH_GENERAL_GUIDES':
       return {
         ...withSnapshot(state),
-        general: { ...state.general, guides: { ...state.general.guides, ...action.payload } },
+        general: { ...state.general, guides: applyFeaturePatch(state.general.guides, action.payload) },
       };
     case 'SET_GENERAL_USER_ACTIVATION':
       return {
@@ -149,7 +162,7 @@ function reducer(state: AppState, action: Action): AppState {
         ...withSnapshot(state),
         phone: {
           ...state.phone,
-          autoAnswer: { ...state.phone.autoAnswer, ...action.payload },
+          autoAnswer: applyFeaturePatch(state.phone.autoAnswer, action.payload),
         },
       };
     case 'PATCH_AI_ASSISTANT':
@@ -157,7 +170,10 @@ function reducer(state: AppState, action: Action): AppState {
         ...withSnapshot(state),
         ai: {
           ...state.ai,
-          aiAssistant: { ...state.ai.aiAssistant, ...action.payload },
+          aiAssistant: {
+            ...applyFeaturePatch(state.ai.aiAssistant, action.payload),
+            customize: state.ai.aiAssistant.customize,
+          },
         },
       };
     case 'PATCH_AI_AUTO_NOTES':
@@ -165,7 +181,7 @@ function reducer(state: AppState, action: Action): AppState {
         ...withSnapshot(state),
         ai: {
           ...state.ai,
-          autoCallNotes: { ...state.ai.autoCallNotes, ...action.payload },
+          autoCallNotes: applyFeaturePatch(state.ai.autoCallNotes, action.payload),
         },
       };
     case 'PATCH_AI_ASSISTANT_CUSTOMIZE':
@@ -184,7 +200,13 @@ function reducer(state: AppState, action: Action): AppState {
     case 'PATCH_FAX':
       return {
         ...withSnapshot(state),
-        fax: { ...state.fax, fax: { ...state.fax.fax, ...action.payload } },
+        fax: {
+          ...state.fax,
+          fax: {
+            ...applyFeaturePatch(state.fax.fax, action.payload),
+            customize: state.fax.fax.customize,
+          },
+        },
       };
     case 'SET_EMAIL_TO_FAX':
       return { ...withSnapshot(state), fax: { ...state.fax, emailToFaxOn: action.payload } };

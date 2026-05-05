@@ -17,7 +17,10 @@ export default function PhonePanel() {
   };
 
   const handleSaveManage = () => {
-    if (state.simulateError) return;
+    if (state.simulateError) {
+      dispatch({ type: 'TOGGLE_SIMULATE_ERROR' });
+      return;
+    }
     dispatch({
       type: 'PATCH_PHONE_AUTO_ANSWER',
       payload: { defaultVal: editDefault, allowChange: editAllow },
