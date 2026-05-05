@@ -142,3 +142,30 @@
     @apply font-sans antialiased bg-background text-foreground;
   }
 }
+
+/* RingCentral icon font (subset of rc-font v1.0) */
+@font-face {
+  font-family: "rc-font";
+  src: url("./fonts/rc-font.woff2") format("woff2"),
+       url("./fonts/rc-font.woff") format("woff");
+  font-weight: normal;
+  font-style: normal;
+  font-display: block;
+}
+.rc-ico {
+  font-family: "rc-font" !important;
+  speak: never;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  display: inline-block;
+}
+.rc-ico-service-console:before { content: "\eb06"; }
+.rc-ico-account-settings:before { content: "\eb40"; }
+.rc-ico-security-compliance:before { content: "\eb08"; }
+.rc-ico-apps-resources:before { content: "\eb42"; }
+

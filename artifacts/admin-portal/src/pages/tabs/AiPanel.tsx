@@ -279,7 +279,7 @@ export default function AiPanel() {
               {!aiAssistant.on || !masterOn ? (
                 <div className="flex h-full flex-col items-center justify-center gap-4 text-center text-[var(--sui-colors-neutral-b2)]">
                   <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gray-100">
-                    <img src="/figma-ref/icons/ai-lightbulb.svg" className="h-8 w-8 opacity-40" alt="" />
+                    <img src={`${import.meta.env.BASE_URL}figma-ref/icons/ai-lightbulb.svg`} className="h-8 w-8 opacity-40" alt="" />
                   </div>
                   <p className="max-w-[260px] text-[14px]">
                     AI Assistant is currently turned off. Turn it on to customize transcript and sharing settings.

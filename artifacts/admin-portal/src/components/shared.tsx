@@ -59,7 +59,7 @@ export function NavSettingsIcon({ color = '#0679BA' }: { color?: string }) {
 export function InfoIcon() {
   return (
     <img
-      src="/figma-ref/icons/info.svg"
+      src={`${import.meta.env.BASE_URL}figma-ref/icons/info.svg`}
       alt=""
       aria-hidden="true"
       width={12}
@@ -294,7 +294,7 @@ export function SettingCard({
       {icon && (
         <div className="flex h-[32px] items-center justify-center shrink-0">
           <img
-            src={`/figma-ref/icons/${icon}.svg`}
+            src={`${import.meta.env.BASE_URL}figma-ref/icons/${icon}.svg`}
             alt=""
             aria-hidden="true"
             width={20}
