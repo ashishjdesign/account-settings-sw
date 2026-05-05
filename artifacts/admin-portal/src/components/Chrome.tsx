@@ -1,10 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from "wouter";
-import { RingCentralLogo, AppsResourcesIcon } from './shared';
-
-function RcIcon({ name }: { name: 'service-console' | 'account-settings' | 'security-compliance' | 'apps-resources' }) {
-  return <i aria-hidden="true" className={`rc-ico rc-ico-${name} text-[16px] leading-none`} />;
-}
+import { RingCentralLogo, AppsResourcesIcon, NavSettingsIcon, SecurityComplianceIcon, ServiceConsoleIcon } from './shared';
 import { ChevronDown, ChevronRight, Search } from 'lucide-react';
 import { useSettings } from '../store';
 
@@ -51,21 +47,19 @@ function SideNav() {
       className="shrink-0 rounded-[4px] border border-[#E2E2E2] bg-[#FBFBFB] py-[10px]"
       style={{ fontFamily: 'Helvetica, Arial, sans-serif' }}
     >
-      <Row icon={<RcIcon name="service-console" />} label="Service Console" trailing="chev-right" href="/service-console" />
-      <Row icon={<RcIcon name="account-settings" />} label="Account Settings" labelColor="#0679BA" trailing="chev-down" href="/account-settings" />
+      <Row icon={<ServiceConsoleIcon />} label="Service Console" trailing="chev-right" href="/service-console" />
+      <Row icon={<NavSettingsIcon />} label="Account Settings" labelColor="#0679BA" trailing="chev-down" href="/account-settings" />
       <Row label="Feature Settings" selected={isFeatureSettings} href="/feature-settings/general" />
       {['Appearance', 'App Integrations', 'Archiver Settings', 'Directory Integration', 'Headset Support', 'Microsoft Teams', 'Multi-Site Settings', 'Outbound Call Prefix'].map((l) => (
         <Row key={l} label={l} href={`/${l.toLowerCase().replace(/\s+/g, '-')}`} />
       ))}
-      <Row icon={<RcIcon name="security-compliance" />} label="Security and Compliance" trailing="chev-right" href="/security" />
-      <Row icon={<RcIcon name="apps-resources" />} label="Apps and Resources" trailing="chev-right" href="/apps" />
+      <Row icon={<SecurityComplianceIcon />} label="Security and Compliance" trailing="chev-right" href="/security" />
+      <Row icon={<AppsResourcesIcon />} label="Apps and Resources" trailing="chev-right" href="/apps" />
     </aside>
   );
 }
 
 export default function Chrome({ children }: { children: React.ReactNode }) {
-  const { state, dispatch } = useSettings();
-
   return (
     <div className="relative flex min-h-[960px] w-full flex-col bg-white">
       {/* CHROME — Service Web UI Library */}
@@ -85,15 +79,6 @@ export default function Chrome({ children }: { children: React.ReactNode }) {
             <button className="text-[var(--rc-text-muted)] hover:text-[var(--rc-blue)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--rc-blue)] rounded-sm p-1">
               <AppsResourcesIcon color="currentColor" />
             </button>
-            
-            <button 
-              onClick={() => dispatch({ type: 'TOGGLE_SIMULATE_ERROR' })}
-              className="text-[12px] font-mono p-1 border rounded opacity-50 hover:opacity-100"
-              title="Toggle simulate save failure"
-            >
-              {state.simulateError ? 'Err: ON' : 'Err: OFF'}
-            </button>
-
             <button className="relative ml-1 flex h-9 w-9 items-center justify-center rounded-full bg-[var(--rc-orange)] text-[12px] font-bold text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--rc-blue)]">
               RC
               <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full border-2 border-white bg-[var(--rc-success)]" />

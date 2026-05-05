@@ -36,15 +36,6 @@ export default function FeatureSettings({ tab }: { tab: string }) {
 
   return (
     <>
-      <nav aria-label="Breadcrumb" className="mb-2 flex items-center gap-1.5 text-[12px] text-[var(--sui-colors-neutral-b2)]">
-        <span>Account Settings</span>
-        <span className="text-[var(--sui-colors-neutral-b3)]">/</span>
-        <span>Feature Settings</span>
-        <span className="text-[var(--sui-colors-neutral-b3)]">/</span>
-        <span className="font-medium text-[var(--sui-colors-neutral-b1)]">
-          {TABS.find(t => t.key === activeTab)?.label}
-        </span>
-      </nav>
       <h1 className="mb-5 flex h-[40px] items-center text-[20px] font-semibold leading-[28px] tracking-[-0.2px] text-[var(--sui-colors-neutral-b1)]">
         Feature Settings
       </h1>
