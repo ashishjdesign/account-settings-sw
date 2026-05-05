@@ -10,13 +10,13 @@ import { cn } from '../lib/utils';
 
 export function RingCentralLogo() {
   return (
-    <img
-      src="/figma-ref/ringcentral-logo.svg"
-      alt="RingCentral"
-      width={172}
-      height={26}
-      className="block h-[26px] w-auto"
-    />
+    <div className="flex items-center gap-2" aria-label="RingCentral">
+      <svg width="26" height="26" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <circle cx="13" cy="13" r="13" fill="#FF7A00" />
+        <path d="M9 7h4.5a4.5 4.5 0 0 1 2.4 8.31L19 20h-3.2l-2.9-4.4H11V20H9V7zm2 2v4.6h2.5a2.3 2.3 0 1 0 0-4.6H11z" fill="white" />
+      </svg>
+      <span className="text-[18px] font-semibold tracking-tight text-[#2F2F2F]">RingCentral</span>
+    </div>
   );
 }
 
