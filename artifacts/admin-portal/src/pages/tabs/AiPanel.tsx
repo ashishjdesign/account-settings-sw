@@ -231,6 +231,16 @@ export default function AiPanel() {
             </div>
 
             <div className="flex-1 overflow-y-auto px-6 py-6">
+              {!aiAssistant.on || !masterOn ? (
+                <div className="flex h-full flex-col items-center justify-center gap-4 text-center text-[var(--sui-colors-neutral-b2)]">
+                  <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gray-100">
+                    <img src="/figma-ref/icons/ai-lightbulb.svg" className="h-8 w-8 opacity-40" alt="" />
+                  </div>
+                  <p className="max-w-[260px] text-[14px]">
+                    AI Assistant is currently turned off. Turn it on to customize transcript and sharing settings.
+                  </p>
+                </div>
+              ) : (
               <div className="flex flex-col gap-6">
                 {state.simulateError && (
                   <div className="flex items-center gap-2 rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-800">
@@ -298,6 +308,7 @@ export default function AiPanel() {
                   )}
                 </div>
               </div>
+              )}
             </div>
 
             <div className="flex justify-end gap-2 border-t border-[var(--sui-colors-neutral-b4)] bg-[var(--sui-colors-neutral-b5)]/20 p-4">
@@ -311,6 +322,7 @@ export default function AiPanel() {
               <button
                 type="button"
                 onClick={handleSaveCustomize}
+                disabled={!masterOn || !aiAssistant.on}
                 className="inline-flex h-[32px] min-w-[56px] items-center justify-center rounded-[10px] bg-[var(--sui-colors-primary-b)] px-3 text-[14px] font-medium leading-[20px] text-white transition-colors hover:bg-[var(--sui-colors-primary-b-high-contrast)] focus:outline-none focus:ring-2 focus:ring-[var(--sui-colors-primary-b)]/30 disabled:opacity-50"
               >
                 {state.simulateError ? 'Retry' : 'Save'}
