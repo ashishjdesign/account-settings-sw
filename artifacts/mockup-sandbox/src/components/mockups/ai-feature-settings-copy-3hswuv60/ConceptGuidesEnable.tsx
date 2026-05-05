@@ -45,7 +45,7 @@ const scopedTokens = `
   .rc-ico-service-console::before { content: "\\ea4a"; }
   .rc-ico-account-settings::before { content: "\\e987"; }
   .rc-ico-security-compliance::before { content: "\\ea4c"; }
-  .rc-ico-apps-resources::before { content: "\\eb42"; }
+  .rc-ico-apps-resources::before { content: "\\ea53"; }
   .swui-scope {
     --rc-blue: #0679BA;
     --rc-orange: #FF8800;
