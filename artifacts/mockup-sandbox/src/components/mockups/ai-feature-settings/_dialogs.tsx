@@ -156,15 +156,102 @@ export function SpringFirstEnableDialog({
   );
 }
 
+/* Figma node 1981:38965 — Reference parameters table shown when the
+ * "Show reference parameters" link is expanded. */
+function ReferenceParametersTable() {
+  const rowText = 'text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]';
+  const codeCell = 'w-[120px] shrink-0 px-4 py-3 text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]';
+  const usageCell = 'flex-1 px-4 py-3';
+  return (
+    <div className="overflow-hidden rounded-[8px] border border-[var(--sui-colors-neutral-b4)]">
+      {/* Header */}
+      <div className="flex bg-[var(--sui-colors-neutral-b5)]">
+        <div className="w-[120px] shrink-0 px-4 py-2 text-[14px] font-semibold leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+          Parameter
+        </div>
+        <div className="flex-1 px-4 py-2 text-[14px] font-semibold leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+          Usage
+        </div>
+      </div>
+
+      {/* Simple rows */}
+      {[
+        { p: '%N', u: 'Full name' },
+        { p: '%F', u: 'First name' },
+        { p: '%L', u: 'Last name' },
+        { p: '%D', u: 'Called number' },
+      ].map((r) => (
+        <div key={r.p} className="flex border-t border-[var(--sui-colors-neutral-b4)]">
+          <div className={codeCell}>{r.p}</div>
+          <div className={`${usageCell} ${rowText}`}>{r.u}</div>
+        </div>
+      ))}
+
+      {/* %P — rich row with examples */}
+      <div className="flex border-t border-[var(--sui-colors-neutral-b4)]">
+        <div className={codeCell}>%P</div>
+        <div className={`${usageCell} flex flex-col gap-3`}>
+          <p className={rowText}>Formatted phone number: (650) 555-4092</p>
+          <div className="flex flex-col gap-2">
+            <p className={rowText}>Examples:</p>
+
+            <div className="flex flex-col gap-1 pl-4">
+              <p className={`${rowText} relative before:absolute before:-left-3 before:content-['•']`}>
+                Launch URL
+              </p>
+              <div className="flex h-[32px] items-center rounded-[10px] border border-black/20 bg-white px-2.5">
+                <span className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                  http://www.mysite.com/myintegration.htm?number=%P
+                </span>
+              </div>
+              <p className="text-[13px] font-normal leading-[18px] text-[var(--sui-colors-neutral-b2)]">
+                This example launches a browser, opens a webpage, and passes the caller&apos;s phone number details.
+              </p>
+            </div>
+
+            <div className="flex flex-col gap-1 pl-4">
+              <p className={`${rowText} relative before:absolute before:-left-3 before:content-['•']`}>
+                Launch app
+              </p>
+              <div className="flex h-[32px] items-center rounded-[10px] border border-black/20 bg-white px-2.5">
+                <span className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                  /myfolder/myapp &quot;%P&quot; &quot;%N&quot;
+                </span>
+              </div>
+              <p className="text-[13px] font-normal leading-[18px] text-[var(--sui-colors-neutral-b2)]">
+                This example opens an application on your computer and passes the caller&apos;s phone number and full name to the app.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {[
+        { p: '%C', u: 'Full canonical format: +1 (650) 555-4092' },
+        { p: '%E', u: 'E164 phone number: +16505554092' },
+        { p: '%%', u: '%symbol' },
+      ].map((r) => (
+        <div key={r.p} className="flex border-t border-[var(--sui-colors-neutral-b4)]">
+          <div className={codeCell}>{r.p}</div>
+          <div className={`${usageCell} ${rowText}`}>{r.u}</div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 /* Figma node 1980:37906 — Set up feature settings for external apps or URLs */
 export function ExtAppFeatureSettingsDialog({
-  open, onCancel, onSkip, onSave,
+  open, onCancel, onSkip, onSave, initialExpanded = false,
 }: {
   open: boolean;
   onCancel?: () => void;
   onSkip?: () => void;
   onSave?: () => void;
+  initialExpanded?: boolean;
 }) {
+  const [expanded, setExpanded] = React.useState(initialExpanded);
+  React.useEffect(() => { if (open) setExpanded(initialExpanded); }, [open, initialExpanded]);
   if (!open) return null;
   return (
     <div className="absolute inset-0 z-50 flex items-start justify-center bg-black/40 pt-[60px]">
@@ -235,10 +322,13 @@ export function ExtAppFeatureSettingsDialog({
 
               <button
                 type="button"
+                onClick={() => setExpanded((v) => !v)}
                 className="self-start rounded-[4px] px-1 py-0.5 text-[12px] font-medium leading-[17px] text-[var(--sui-colors-primary-b)] hover:underline"
               >
-                Show reference parameters
+                {expanded ? 'Hide reference parameters' : 'Show reference parameters'}
               </button>
+
+              {expanded && <ReferenceParametersTable />}
             </div>
           </div>
         </div>
