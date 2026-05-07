@@ -455,8 +455,8 @@ export function ConceptGuidesDisabled() {
           title="Turn off Guides, tutorials & announcements for your organization?"
           body={
             <>
-              Feature will be disabled globally on entire account and hidden from all users.
-              When re-enabled, users&rsquo; previous settings will return.
+              This feature will be turned off for your account and no longer available to users.
+              When turned back on, previous user settings can be restored.
             </>
           }
           onCancel={() => setConfirmOpen(false)}
