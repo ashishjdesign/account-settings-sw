@@ -25,9 +25,10 @@ export type GeneralState = {
 };
 
 export type PhoneState = {
-  externalAppOn: boolean;
-  autoAnswer: FeatureConfig;
-  conferenceCallsOn: boolean;
+  callQueue: { on: boolean; overflow: 'Voicemail' | 'Hang up' | 'Forward'; waitTimeSec: number };
+  callerId: { on: boolean; defaultVal: 'Direct number' | 'Main number' | 'Blocked'; allowChange: boolean };
+  voicemail: { on: boolean; greeting: 'Default' | 'Custom'; emailNotifications: boolean };
+  autoRecording: { on: boolean };
 };
 
 export type AiState = {
@@ -64,9 +65,10 @@ const initialState: AppState = {
     guides: { on: true, defaultVal: 'On', allowChange: true, customUsers: 26 },
   },
   phone: {
-    externalAppOn: false,
-    autoAnswer: { on: true, defaultVal: 'Off', allowChange: true, customUsers: 0 },
-    conferenceCallsOn: false,
+    callQueue: { on: true, overflow: 'Voicemail', waitTimeSec: 30 },
+    callerId: { on: true, defaultVal: 'Direct number', allowChange: true },
+    voicemail: { on: true, greeting: 'Default', emailNotifications: true },
+    autoRecording: { on: false },
   },
   ai: {
     masterOn: true,
@@ -108,9 +110,10 @@ type Action =
   | { type: 'TOGGLE_MASTER_AI'; payload: boolean }
   | { type: 'PATCH_GENERAL_GUIDES'; payload: Partial<FeatureConfig> }
   | { type: 'SET_GENERAL_USER_ACTIVATION'; payload: boolean }
-  | { type: 'SET_PHONE_EXTERNAL_APP'; payload: boolean }
-  | { type: 'SET_PHONE_CONFERENCE'; payload: boolean }
-  | { type: 'PATCH_PHONE_AUTO_ANSWER'; payload: Partial<FeatureConfig> }
+  | { type: 'SET_PHONE_CALL_QUEUE'; payload: boolean }
+  | { type: 'SET_PHONE_CALLER_ID'; payload: boolean }
+  | { type: 'SET_PHONE_VOICEMAIL'; payload: boolean }
+  | { type: 'SET_PHONE_AUTO_RECORDING'; payload: boolean }
   | { type: 'PATCH_AI_ASSISTANT'; payload: Partial<FeatureConfig> }
   | { type: 'PATCH_AI_AUTO_NOTES'; payload: Partial<FeatureConfig> }
   | { type: 'PATCH_AI_ASSISTANT_CUSTOMIZE'; payload: Partial<AiAssistantCustomize> }
@@ -163,18 +166,14 @@ function reducer(state: AppState, action: Action): AppState {
         ...withSnapshot(state),
         general: { ...state.general, userActivationOn: action.payload },
       };
-    case 'SET_PHONE_EXTERNAL_APP':
-      return { ...withSnapshot(state), phone: { ...state.phone, externalAppOn: action.payload } };
-    case 'SET_PHONE_CONFERENCE':
-      return { ...withSnapshot(state), phone: { ...state.phone, conferenceCallsOn: action.payload } };
-    case 'PATCH_PHONE_AUTO_ANSWER':
-      return {
-        ...withSnapshot(state),
-        phone: {
-          ...state.phone,
-          autoAnswer: applyFeaturePatch(state.phone.autoAnswer, action.payload),
-        },
-      };
+    case 'SET_PHONE_CALL_QUEUE':
+      return { ...withSnapshot(state), phone: { ...state.phone, callQueue: { ...state.phone.callQueue, on: action.payload } } };
+    case 'SET_PHONE_CALLER_ID':
+      return { ...withSnapshot(state), phone: { ...state.phone, callerId: { ...state.phone.callerId, on: action.payload } } };
+    case 'SET_PHONE_VOICEMAIL':
+      return { ...withSnapshot(state), phone: { ...state.phone, voicemail: { ...state.phone.voicemail, on: action.payload } } };
+    case 'SET_PHONE_AUTO_RECORDING':
+      return { ...withSnapshot(state), phone: { ...state.phone, autoRecording: { on: action.payload } } };
     case 'PATCH_AI_ASSISTANT':
       return {
         ...withSnapshot(state),

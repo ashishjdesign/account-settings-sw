@@ -259,7 +259,7 @@ export function SettingCard({
   title: string;
   description: React.ReactNode;
   switchOn: boolean;
-  icon?: string;
+  icon?: string | React.ReactNode;
   summary?: SummarySegment[];
   onManage?: () => void;
   disabled?: boolean;
@@ -273,15 +273,21 @@ export function SettingCard({
   return (
     <section className={cn("flex items-start gap-4 rounded-[8px] border border-[var(--sui-colors-neutral-b4)] bg-white p-4 transition-opacity", (!switchOn && summary) && "opacity-50")}>
       {icon && (
-        <div className="flex h-[32px] items-center justify-center shrink-0">
-          <img
-            src={`${import.meta.env.BASE_URL}figma-ref/icons/${icon}.svg`}
-            alt=""
-            aria-hidden="true"
-            width={20}
-            height={20}
-            className="block h-5 w-5 shrink-0"
-          />
+        <div className="flex h-[32px] items-center justify-center shrink-0 text-[var(--sui-colors-neutral-b1)]">
+          {typeof icon === 'string' ? (
+            <img
+              src={`${import.meta.env.BASE_URL}figma-ref/icons/${icon}.svg`}
+              alt=""
+              aria-hidden="true"
+              width={20}
+              height={20}
+              className="block h-5 w-5 shrink-0"
+            />
+          ) : (
+            <div className="flex h-5 w-5 items-center justify-center shrink-0" aria-hidden="true">
+              {icon}
+            </div>
+          )}
         </div>
       )}
 
@@ -380,6 +386,14 @@ export function SettingCard({
         )}
       </div>
     </section>
+  );
+}
+
+export function SectionHeading({ children }: React.PropsWithChildren) {
+  return (
+    <h2 className="mt-2 text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b2)]">
+      {children}
+    </h2>
   );
 }
 
