@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useSettings } from '../../store';
-import { SettingCard, SpringConfirmDialog, SpringDialog, UserDefaultsRow, showToast } from '../../components/shared';
+import { SettingCard, SpringConfirmDialog, SpringGuidesManageDialog, showToast } from '../../components/shared';
 
 export default function GeneralPanel() {
   const { state, dispatch } = useSettings();
@@ -9,27 +9,20 @@ export default function GeneralPanel() {
   const [uaConfirmOpen, setUaConfirmOpen] = useState(false);
   const [guidesManageOpen, setGuidesManageOpen] = useState(false);
 
-  const [editDefault, setEditDefault] = useState<'On' | 'Off'>(guides.defaultVal);
-  const [editAllow, setEditAllow] = useState(guides.allowChange);
-
-  const handleSaveGuides = () => {
+  const handleSaveGuides = (result: { defaultVal: 'On' | 'Off'; allowChange: boolean }) => {
     if (state.simulateError) {
       dispatch({ type: 'TOGGLE_SIMULATE_ERROR' });
       return;
     }
     dispatch({
       type: 'PATCH_GENERAL_GUIDES',
-      payload: { defaultVal: editDefault, allowChange: editAllow },
+      payload: { defaultVal: result.defaultVal, allowChange: result.allowChange },
     });
     setGuidesManageOpen(false);
     showToast('Settings were updated.', () => dispatch({ type: 'UNDO' }));
   };
 
-  const openManage = () => {
-    setEditDefault(guides.defaultVal);
-    setEditAllow(guides.allowChange);
-    setGuidesManageOpen(true);
-  };
+  const openManage = () => setGuidesManageOpen(true);
 
   return (
     <div className="flex flex-col gap-4">
@@ -84,21 +77,15 @@ export default function GeneralPanel() {
         }}
       />
 
-      <SpringDialog
+      <SpringGuidesManageDialog
         open={guidesManageOpen}
-        title="Manage Guides, tutorials & announcements"
-        onClose={() => setGuidesManageOpen(false)}
-        onSave={handleSaveGuides}
+        defaultVal={guides.defaultVal}
+        allowChange={guides.allowChange}
+        customCount={guides.customUsers}
+        onCancel={() => setGuidesManageOpen(false)}
+        onConfirm={handleSaveGuides}
         error={state.simulateError}
-      >
-        <UserDefaultsRow
-          defaultVal={editDefault}
-          allowChange={editAllow}
-          onDefaultChange={setEditDefault}
-          onAllowChangeChange={setEditAllow}
-          customCount={guides.customUsers}
-        />
-      </SpringDialog>
+      />
     </div>
   );
 }

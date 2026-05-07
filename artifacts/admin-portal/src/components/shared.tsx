@@ -390,6 +390,178 @@ export function SubRow({ children }: React.PropsWithChildren) {
   );
 }
 
+function SpringRadio({
+  checked, onChange, label,
+}: { checked: boolean; onChange: () => void; label: string }) {
+  return (
+    <label className="flex cursor-pointer items-center gap-2 text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b0)]">
+      <button
+        type="button"
+        role="radio"
+        aria-checked={checked}
+        onClick={onChange}
+        className={cn(
+          'flex h-[20px] w-[20px] shrink-0 cursor-pointer items-center justify-center rounded-full border-[1.2px] transition-colors',
+          checked
+            ? 'border-[var(--sui-colors-primary-b)]'
+            : 'border-[var(--sui-colors-neutral-b3)] hover:border-[var(--sui-colors-neutral-b2)]',
+        )}
+      >
+        {checked && (
+          <span className="h-[12px] w-[12px] rounded-full bg-[var(--sui-colors-primary-b)]" />
+        )}
+      </button>
+      {label}
+    </label>
+  );
+}
+
+export function SpringGuidesManageDialog({
+  open,
+  defaultVal,
+  allowChange,
+  customCount = 0,
+  onCancel,
+  onConfirm,
+  error,
+}: {
+  open: boolean;
+  defaultVal: 'On' | 'Off';
+  allowChange: boolean;
+  customCount?: number;
+  onCancel: () => void;
+  onConfirm: (result: { defaultVal: 'On' | 'Off'; allowChange: boolean }) => void;
+  error?: boolean;
+}) {
+  const [value, setValue] = useState<'On' | 'Off'>(defaultVal);
+  const [allow, setAllow] = useState(allowChange);
+  const total = 98;
+  const defaultCount = Math.max(0, total - (customCount || 0));
+
+  useEffect(() => {
+    if (open) {
+      setValue(defaultVal);
+      setAllow(allowChange);
+    }
+  }, [open, defaultVal, allowChange]);
+
+  return (
+    <DialogPrimitives.Root open={open} onOpenChange={(o) => !o && onCancel()}>
+      <DialogPrimitives.Portal>
+        <DialogPrimitives.Overlay className="fixed inset-0 z-50 bg-black/40 pt-16 flex justify-center items-start data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0">
+          <DialogPrimitives.Content
+            aria-label="Manage Guides, tutorials & announcements settings"
+            className="relative z-10 flex w-[820px] max-w-[calc(100%-32px)] flex-col rounded-[10px] bg-white shadow-[0_10px_10px_rgba(0,0,0,0.2)] data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95"
+          >
+            <div className="flex flex-col gap-8 px-6 pb-10 pt-9">
+              <div className="flex flex-col gap-6">
+                <div className="py-3">
+                  <DialogPrimitives.Title className="text-[24px] font-normal leading-[32px] text-[var(--sui-colors-neutral-b0)]">
+                    Manage Guides, tutorials &amp; announcements settings
+                  </DialogPrimitives.Title>
+                </div>
+
+                {/* Section: User deployment */}
+                <div className="flex flex-col gap-2">
+                  <h3 className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b2)]">
+                    User deployment
+                  </h3>
+
+                  <div className="flex flex-col gap-4 rounded-[10px] border border-[#9E9FA4]/35 bg-white p-4">
+                    {/* Default in user settings row */}
+                    <div className="flex w-full items-center justify-between gap-4">
+                      <div className="flex h-[32px] items-center gap-4 pr-4">
+                        <span className="text-[14px] font-semibold leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                          Default in user settings:
+                        </span>
+                        <div className="flex items-center gap-5">
+                          <SpringRadio
+                            checked={value === 'On'}
+                            onChange={() => setValue('On')}
+                            label="On"
+                          />
+                          <SpringRadio
+                            checked={value === 'Off'}
+                            onChange={() => setValue('Off')}
+                            label="Off"
+                          />
+                        </div>
+                      </div>
+                      <div className="flex h-[32px] items-center rounded-[10px] bg-[var(--sui-colors-neutral-b5)] px-3">
+                        <p className="whitespace-nowrap text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                          <a
+                            href="#"
+                            onClick={(e) => e.preventDefault()}
+                            className="cursor-pointer text-[var(--sui-colors-primary-b)] underline hover:text-[var(--sui-colors-primary-b-high-contrast)]"
+                          >
+                            {defaultCount}/{total} users
+                          </a>{' '}
+                          are using the default
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="border-t border-[var(--sui-colors-neutral-b4)]" />
+
+                    {/* User access row */}
+                    <div className="flex h-[32px] items-center gap-4">
+                      <span className="text-[14px] font-semibold leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                        User access:
+                      </span>
+                      <label className="flex cursor-pointer items-center gap-2">
+                        <div className="relative flex h-[18px] w-[18px] items-center justify-center">
+                          <input
+                            type="checkbox"
+                            className="peer sr-only"
+                            checked={allow}
+                            onChange={(e) => setAllow(e.target.checked)}
+                          />
+                          <div className="absolute inset-0 rounded-[4px] border border-[var(--sui-colors-neutral-b3)] bg-white peer-focus-visible:ring-2 peer-focus-visible:ring-[var(--sui-colors-primary-b)]/30 peer-checked:bg-[var(--sui-colors-primary-b)] peer-checked:border-[var(--sui-colors-primary-b)] flex items-center justify-center transition-colors">
+                            {allow && <Check className="h-3 w-3 text-white" strokeWidth={3} />}
+                          </div>
+                        </div>
+                        <span className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                          Allow users to change this setting
+                        </span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                {error && (
+                  <div className="rounded-md bg-red-50 p-3 flex items-center gap-2 text-sm text-red-800 border border-red-200">
+                    <Info className="h-4 w-4 text-red-600 shrink-0" />
+                    <span>Couldn't save settings. Try again.</span>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="border-t border-[var(--sui-colors-neutral-b4)]/50" />
+            <div className="flex justify-end gap-2 px-6 pt-5 pb-5">
+              <DialogPrimitives.Close asChild>
+                <button
+                  type="button"
+                  className="inline-flex h-[36px] min-w-[60px] cursor-pointer items-center justify-center rounded-[10px] border border-[var(--sui-colors-neutral-b4)] bg-white px-[18px] text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b0)] transition-colors hover:bg-[var(--sui-colors-neutral-b4)]/40 focus:outline-none focus:ring-2 focus:ring-[var(--sui-colors-primary-b)]/30"
+                >
+                  Cancel
+                </button>
+              </DialogPrimitives.Close>
+              <button
+                type="button"
+                onClick={() => onConfirm({ defaultVal: value, allowChange: allow })}
+                className="inline-flex h-[36px] min-w-[60px] cursor-pointer items-center justify-center rounded-[10px] bg-[var(--sui-colors-primary-b)] px-[18px] text-[14px] font-medium leading-[20px] text-white transition-colors hover:bg-[var(--sui-colors-primary-b-high-contrast)] focus:outline-none focus:ring-2 focus:ring-[var(--sui-colors-primary-b)]/30"
+              >
+                {error ? 'Retry' : 'Confirm'}
+              </button>
+            </div>
+          </DialogPrimitives.Content>
+        </DialogPrimitives.Overlay>
+      </DialogPrimitives.Portal>
+    </DialogPrimitives.Root>
+  );
+}
+
 export function UserDefaultsRow({
   defaultVal, allowChange, onDefaultChange, onAllowChangeChange, customCount
 }: {
