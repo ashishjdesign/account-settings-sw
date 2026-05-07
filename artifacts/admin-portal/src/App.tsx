@@ -13,8 +13,8 @@ function App() {
           position="top-center"
           offset={16}
           className="swui-scope"
-          style={{ '--width': '640px' } as React.CSSProperties}
-          toastOptions={{ unstyled: true, classNames: { toast: '' } }}
+          style={{ '--width': '1200px' } as React.CSSProperties}
+          toastOptions={{ unstyled: true, classNames: { toast: 'w-[1200px] max-w-[calc(100vw-32px)] mx-auto' } }}
         />
         <Chrome>
           <Switch>
