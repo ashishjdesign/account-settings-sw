@@ -161,7 +161,7 @@ function SpringDialog({
 /* -----------------------------------------------------------------------------
  * MAIN
  * --------------------------------------------------------------------------- */
-type ModalKey = 'ai-assistant' | 'auto-call-notes' | null;
+type ModalKey = 'ai-features' | 'ai-assistant' | 'auto-call-notes' | null;
 
 export function ConceptSummaryModal() {
   const [modal, setModal] = React.useState<ModalKey>(null);
@@ -173,14 +173,21 @@ export function ConceptSummaryModal() {
       after={
         <div className="spring-scope">
           <SpringDialog
-            open={modal === 'ai-assistant'}
-            title="Manage AI Assistant"
+            open={modal === 'ai-features'}
+            title="Manage AI features"
             onClose={() => setModal(null)}
           >
             <SubRow>
               <LabelWithInfo>AI notes and transcriptions retention period</LabelWithInfo>
               <SpringSelect value="365 days (Default)" width={200} />
             </SubRow>
+          </SpringDialog>
+
+          <SpringDialog
+            open={modal === 'ai-assistant'}
+            title="Manage AI Assistant"
+            onClose={() => setModal(null)}
+          >
             <UserDefaultsRow />
             <UserPermissionsRow />
           </SpringDialog>
@@ -209,6 +216,10 @@ export function ConceptSummaryModal() {
           title="AI features"
           switchOn
           description="Turn on AI support for calls, messages and video meetings. Deliver real-time answers, call notes, transcripts and meeting recaps to help teams stay focused and organized. Empower users to communicate clearly with built-in writing and polishing tools."
+          summary={[
+            { label: 'Data retention period:', value: '365 days' },
+          ]}
+          onManage={() => setModal('ai-features')}
         />
 
         <SettingCard

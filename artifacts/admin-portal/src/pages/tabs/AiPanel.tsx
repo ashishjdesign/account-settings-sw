@@ -18,10 +18,12 @@ export default function AiPanel() {
   const { masterOn, aiAssistant, autoCallNotes } = state.ai;
 
   type AiKey = 'aiAssistant' | 'autoCallNotes';
+  type ManageKey = 'aiFeatures' | AiKey;
   const [masterConfirmOpen, setMasterConfirmOpen] = useState(false);
-  const [manageModal, setManageModal] = useState<AiKey | null>(null);
+  const [manageModal, setManageModal] = useState<ManageKey | null>(null);
 
-  const featureLabels: Record<AiKey, string> = {
+  const manageLabels: Record<ManageKey, string> = {
+    aiFeatures: 'AI features',
     aiAssistant: 'AI Assistant',
     autoCallNotes: 'Automatic call notes',
   };
@@ -35,15 +37,16 @@ export default function AiPanel() {
   const [editAllow, setEditAllow] = useState(true);
   const [editRetention, setEditRetention] = useState<'30 days' | '90 days' | '365 days'>('365 days');
 
-  const openManage = (feature: AiKey) => {
-    const featState = state.ai[feature];
-    setEditDefault(featState.defaultVal);
-    setEditAllow(featState.allowChange);
-    if (feature === 'aiAssistant') {
+  const openManage = (key: ManageKey) => {
+    if (key === 'aiFeatures') {
       const r = aiAssistant.customize.transcriptRetention;
       setEditRetention(r === '' ? '365 days' : r);
+    } else {
+      const featState = state.ai[key];
+      setEditDefault(featState.defaultVal);
+      setEditAllow(featState.allowChange);
     }
-    setManageModal(feature);
+    setManageModal(key);
   };
 
   const handleSaveManage = () => {
@@ -52,12 +55,13 @@ export default function AiPanel() {
       dispatch({ type: 'TOGGLE_SIMULATE_ERROR' });
       return;
     }
-    dispatchPatch(manageModal, { defaultVal: editDefault, allowChange: editAllow });
-    if (manageModal === 'aiAssistant') {
+    if (manageModal === 'aiFeatures') {
       dispatch({
         type: 'PATCH_AI_ASSISTANT_CUSTOMIZE',
         payload: { transcriptRetention: editRetention },
       });
+    } else {
+      dispatchPatch(manageModal, { defaultVal: editDefault, allowChange: editAllow });
     }
     setManageModal(null);
     showToast('Settings were updated.', () => dispatch({ type: 'UNDO' }));
@@ -92,6 +96,10 @@ export default function AiPanel() {
         switchOn={masterOn}
         icon="ai-stars"
         description="Turn on AI support for calls, messages and video meetings. Deliver real-time answers, call notes, transcripts and meeting recaps to help teams stay focused and organized. Empower users to communicate clearly with built-in writing and polishing tools."
+        summary={[
+          { label: 'Data retention period:', value: aiAssistant.customize.transcriptRetention || '365 days' },
+        ]}
+        onManage={() => openManage('aiFeatures')}
         onSwitchClick={handleMasterToggle}
       />
       <SettingCard
@@ -131,12 +139,12 @@ export default function AiPanel() {
 
       <SpringDialog
         open={!!manageModal}
-        title={`Manage ${manageModal ? featureLabels[manageModal] : ''}`}
+        title={`Manage ${manageModal ? manageLabels[manageModal] : ''}`}
         onClose={() => setManageModal(null)}
         onSave={handleSaveManage}
         error={state.simulateError}
       >
-        {manageModal === 'aiAssistant' && (
+        {manageModal === 'aiFeatures' ? (
           <SubRow>
             <LabelWithInfo>AI notes and transcriptions retention period</LabelWithInfo>
             <SpringSelect
@@ -149,14 +157,15 @@ export default function AiPanel() {
               width={200}
             />
           </SubRow>
-        )}
-        <UserDefaultsRow
-          defaultVal={editDefault}
-          allowChange={editAllow}
-          onDefaultChange={setEditDefault}
-          onAllowChangeChange={setEditAllow}
-          customCount={manageModal ? state.ai[manageModal].customUsers : 0}
-        />
+        ) : manageModal ? (
+          <UserDefaultsRow
+            defaultVal={editDefault}
+            allowChange={editAllow}
+            onDefaultChange={setEditDefault}
+            onAllowChangeChange={setEditAllow}
+            customCount={state.ai[manageModal].customUsers}
+          />
+        ) : null}
       </SpringDialog>
     </div>
   );
