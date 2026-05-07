@@ -100,7 +100,7 @@ export function FeatureSettingsLayout({
   selectedTab, children,
 }: React.PropsWithChildren<{ selectedTab: TabKey }>) {
   return (
-    <FeatureSettingsShell showFooterActions={false}>
+    <FeatureSettingsShell showFooterActions={false} flexLayout>
       <PillTabs selected={selectedTab} />
       <div className="flex flex-col gap-4">{children}</div>
     </FeatureSettingsShell>
