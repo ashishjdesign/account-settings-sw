@@ -568,7 +568,7 @@ export function SpringManageDialog({
                 type="button"
                 onClick={() => onSave({ defaultValue, allowChange })}
                 disabled={!dirty}
-                className="inline-flex h-[36px] min-w-[60px] items-center justify-center rounded-[10px] bg-[var(--sui-colors-primary-b)] px-[18px] text-[14px] font-medium leading-[20px] text-white transition-colors hover:bg-[var(--sui-colors-primary-b-high-contrast)] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-[var(--sui-colors-primary-b)] enabled:cursor-pointer"
+                className="inline-flex h-[36px] min-w-[60px] items-center justify-center rounded-[10px] bg-[var(--sui-colors-primary-b)] px-[18px] text-[14px] font-medium leading-[20px] text-white transition-colors hover:bg-[var(--sui-colors-primary-b-high-contrast)] disabled:cursor-not-allowed disabled:bg-[var(--sui-colors-neutral-b3)] disabled:hover:bg-[var(--sui-colors-neutral-b3)] enabled:cursor-pointer"
               >
                 Save
               </button>
@@ -713,7 +713,7 @@ export function SpringManageDialogV2({
                 type="button"
                 onClick={() => onSave({ defaultValue, allowChange })}
                 disabled={!dirty}
-                className="inline-flex h-[32px] min-w-[64px] items-center justify-center rounded-[10px] bg-[var(--sui-colors-primary-b)] px-3 text-[14px] font-medium leading-[20px] text-white transition-colors hover:bg-[var(--sui-colors-primary-b-high-contrast)] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-[var(--sui-colors-primary-b)] enabled:cursor-pointer"
+                className="inline-flex h-[32px] min-w-[64px] items-center justify-center rounded-[10px] bg-[var(--sui-colors-primary-b)] px-3 text-[14px] font-medium leading-[20px] text-white transition-colors hover:bg-[var(--sui-colors-primary-b-high-contrast)] disabled:cursor-not-allowed disabled:bg-[var(--sui-colors-neutral-b3)] disabled:hover:bg-[var(--sui-colors-neutral-b3)] enabled:cursor-pointer"
               >
                 Save
               </button>
@@ -855,7 +855,7 @@ export function SpringManageDialogV3({
                 type="button"
                 onClick={() => onSave({ defaultValue, allowChange, showTutorials, showPromotions, showAnnouncements })}
                 disabled={!dirty}
-                className="inline-flex h-[32px] min-w-[64px] items-center justify-center rounded-[10px] bg-[var(--sui-colors-primary-b)] px-3 text-[14px] font-medium leading-[20px] text-white transition-colors hover:bg-[var(--sui-colors-primary-b-high-contrast)] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-[var(--sui-colors-primary-b)] enabled:cursor-pointer"
+                className="inline-flex h-[32px] min-w-[64px] items-center justify-center rounded-[10px] bg-[var(--sui-colors-primary-b)] px-3 text-[14px] font-medium leading-[20px] text-white transition-colors hover:bg-[var(--sui-colors-primary-b-high-contrast)] disabled:cursor-not-allowed disabled:bg-[var(--sui-colors-neutral-b3)] disabled:hover:bg-[var(--sui-colors-neutral-b3)] enabled:cursor-pointer"
               >
                 Save
               </button>
