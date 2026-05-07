@@ -440,6 +440,7 @@ export function SpringFeatureManageDialog({
 }) {
   const [value, setValue] = useState<'On' | 'Off'>(defaultVal);
   const [allow, setAllow] = useState(allowChange);
+  const [usersOpen, setUsersOpen] = useState(false);
   const total = totalUsers;
   const defaultCount = Math.max(0, total - (customCount || 0));
 
@@ -494,13 +495,13 @@ export function SpringFeatureManageDialog({
                       </div>
                       <div className="flex h-[32px] items-center rounded-[10px] bg-[var(--sui-colors-neutral-b5)] px-3">
                         <p className="whitespace-nowrap text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
-                          <a
-                            href="#"
-                            onClick={(e) => e.preventDefault()}
-                            className="cursor-pointer text-[var(--sui-colors-primary-b)] underline hover:text-[var(--sui-colors-primary-b-high-contrast)]"
+                          <button
+                            type="button"
+                            onClick={() => setUsersOpen(true)}
+                            className="cursor-pointer text-[var(--sui-colors-primary-b)] underline hover:text-[var(--sui-colors-primary-b-high-contrast)] focus:outline-none focus:ring-2 focus:ring-[var(--sui-colors-primary-b)]/30 rounded-sm"
                           >
                             {defaultCount}/{total} users
-                          </a>{' '}
+                          </button>{' '}
                           are using the default
                         </p>
                       </div>
@@ -570,7 +571,233 @@ export function SpringFeatureManageDialog({
           </DialogPrimitives.Content>
         </DialogPrimitives.Overlay>
       </DialogPrimitives.Portal>
+      <SpringUsersConfigDialog
+        open={usersOpen}
+        featureLabel={title.replace(/^Manage\s+/, '').replace(/\s+settings$/, '')}
+        variant="default"
+        onClose={() => setUsersOpen(false)}
+        defaultUsersCount={defaultCount}
+        customUsersCount={customCount}
+        totalUsersCount={total}
+      />
     </DialogPrimitives.Root>
+  );
+}
+
+type UserRow = { name: string; ext: string; department: string; site: string; configuration: 'Default' | 'Custom' };
+const MOCK_DEFAULT_USERS: UserRow[] = [
+  { name: 'Alex Morgan',     ext: '10001', department: 'Engineering', site: 'CA - San Mateo',     configuration: 'Default' },
+  { name: 'Jamie Chen',      ext: '10002', department: 'Engineering', site: 'CA - San Mateo',     configuration: 'Default' },
+  { name: 'Priya Patel',     ext: '10003', department: 'Product',     site: 'NY - New York',      configuration: 'Default' },
+  { name: 'Diego Hernandez', ext: '10004', department: 'Sales',       site: 'TX - Austin',        configuration: 'Default' },
+  { name: 'Sara Kim',        ext: '10005', department: 'Marketing',   site: 'CA - San Francisco', configuration: 'Default' },
+  { name: 'Liam O\'Brien',   ext: '10006', department: 'Support',     site: 'IL - Chicago',       configuration: 'Default' },
+  { name: 'Mei Tanaka',      ext: '10007', department: 'Engineering', site: 'WA - Seattle',       configuration: 'Default' },
+  { name: 'Noah Williams',   ext: '10008', department: 'Operations',  site: 'CO - Denver',        configuration: 'Default' },
+  { name: 'Olivia Brown',    ext: '10009', department: 'HR',          site: 'CA - San Mateo',     configuration: 'Default' },
+  { name: 'Ethan Davis',     ext: '10010', department: 'Engineering', site: 'NY - New York',      configuration: 'Default' },
+];
+const MOCK_CUSTOM_USERS: UserRow[] = [
+  { name: 'Sophia Garcia',   ext: '10011', department: 'Sales',       site: 'TX - Austin',        configuration: 'Custom' },
+  { name: 'Mason Lee',       ext: '10012', department: 'Support',     site: 'IL - Chicago',       configuration: 'Custom' },
+  { name: 'Isabella Martin', ext: '10013', department: 'Engineering', site: 'CA - San Mateo',     configuration: 'Custom' },
+  { name: 'Lucas Anderson',  ext: '10014', department: 'Product',     site: 'WA - Seattle',       configuration: 'Custom' },
+  { name: 'Mia Thompson',    ext: '10015', department: 'Marketing',   site: 'CA - San Francisco', configuration: 'Custom' },
+  { name: 'Taylor Adams',    ext: '10016', department: 'Sales',       site: 'CA - Los Angeles',   configuration: 'Custom' },
+  { name: 'Ava Robinson',    ext: '10017', department: 'Support',     site: 'NY - New York',      configuration: 'Custom' },
+];
+
+export function SpringUsersConfigDialog({
+  open, featureLabel, variant = 'default', onClose,
+  defaultUsersCount = 72, customUsersCount = 26, totalUsersCount = 98,
+}: {
+  open: boolean;
+  featureLabel: string;
+  variant?: 'default' | 'custom' | 'all';
+  onClose: () => void;
+  defaultUsersCount?: number;
+  customUsersCount?: number;
+  totalUsersCount?: number;
+}) {
+  const initialFilter: 'All' | 'Default' | 'Custom' =
+    variant === 'all' ? 'All' : variant === 'default' ? 'Default' : 'Custom';
+  const [configFilter, setConfigFilter] = useState<'All' | 'Default' | 'Custom'>(initialFilter);
+  useEffect(() => { if (open) setConfigFilter(initialFilter); }, [open, initialFilter]);
+  const total = totalUsersCount;
+  const rows: UserRow[] = configFilter === 'Custom'
+    ? MOCK_CUSTOM_USERS
+    : configFilter === 'Default'
+      ? MOCK_DEFAULT_USERS
+      : [...MOCK_DEFAULT_USERS, ...MOCK_CUSTOM_USERS];
+  const count = configFilter === 'All' ? total : configFilter === 'Default' ? defaultUsersCount : customUsersCount;
+
+  return (
+    <DialogPrimitives.Root open={open} onOpenChange={(o) => !o && onClose()}>
+      <DialogPrimitives.Portal>
+        <DialogPrimitives.Overlay className="fixed inset-0 z-[60] bg-black/40 pt-12 flex justify-center items-start data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0">
+          <DialogPrimitives.Content
+            aria-label={`User configuration for ${featureLabel}`}
+            className="relative z-10 flex w-[1024px] max-w-[calc(100%-32px)] flex-col rounded-[12px] bg-white shadow-[0_12px_32px_rgba(0,0,0,0.18),0_2px_6px_rgba(0,0,0,0.08)] data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95"
+          >
+            <div className="flex flex-col gap-5 px-9 pb-6 pt-8">
+              <DialogPrimitives.Title className="py-3 text-[24px] font-normal leading-[32px] text-[var(--sui-colors-neutral-b1)]">
+                User configuration for {featureLabel}
+              </DialogPrimitives.Title>
+
+              <div className="flex flex-col gap-1">
+                <p className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                  <span className="font-semibold">{defaultUsersCount}/{total} users</span> are using the{' '}
+                  <span className="font-semibold">default</span> user configuration.
+                </p>
+                <p className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                  Admins can manage this setting for users from their detail pages or apply them in bulk through{' '}
+                  <a href="#" onClick={(e) => e.preventDefault()} className="cursor-pointer text-[var(--sui-colors-primary-b)] underline hover:text-[var(--sui-colors-primary-b-high-contrast)]">
+                    User Templates
+                  </a>.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-4 items-center gap-3">
+                <div className="flex h-[36px] w-full items-center rounded-[10px] border border-black/20 bg-white px-[10px]">
+                  <Search className="h-4 w-4 shrink-0 text-[var(--sui-colors-neutral-b1)]" strokeWidth={2} />
+                  <input
+                    type="text"
+                    placeholder="Search"
+                    className="ml-1 w-full bg-transparent text-[14px] leading-[20px] text-[var(--sui-colors-neutral-b0)] placeholder-[var(--sui-colors-neutral-b2)] outline-none"
+                  />
+                </div>
+                <UsersFilterPill label="Department" />
+                <UsersFilterPill label="Sites" />
+                <UsersFilterDropdown
+                  label="Configuration"
+                  value={configFilter}
+                  options={['All', 'Default', 'Custom']}
+                  onChange={(v) => setConfigFilter(v as 'All' | 'Default' | 'Custom')}
+                />
+              </div>
+
+              <div className="flex flex-col overflow-hidden rounded-[8px] border border-black/20">
+                <div className="grid grid-cols-[2fr_1fr_1.4fr_1.8fr_1.2fr] items-center gap-4 border-b border-black/20 bg-[var(--sui-colors-neutral-b4)]/40 px-4 py-3 text-[13px] font-semibold leading-[18px] text-[var(--sui-colors-neutral-b1)]">
+                  <span>Name</span><span>Ext</span><span>Department</span><span>Site</span><span>Configuration</span>
+                </div>
+                {rows.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center gap-1 px-4 py-12 text-center">
+                    <p className="text-[14px] font-semibold leading-[20px] text-[var(--sui-colors-neutral-b1)]">No users found</p>
+                  </div>
+                ) : rows.slice(0, 10).map((u, i, arr) => (
+                  <div
+                    key={u.ext}
+                    className={cn(
+                      'grid h-[40px] grid-cols-[2fr_1fr_1.4fr_1.8fr_1.2fr] items-center gap-4 px-4 text-[12px] leading-[18px] text-[var(--sui-colors-neutral-b1)]',
+                      i !== arr.length - 1 && 'border-b border-black/20',
+                    )}
+                  >
+                    <a href="#" onClick={(e) => e.preventDefault()} className="cursor-pointer text-[var(--sui-colors-primary-b)] underline hover:text-[var(--sui-colors-primary-b-high-contrast)]">
+                      {u.name}
+                    </a>
+                    <span>{u.ext}</span>
+                    <span>{u.department}</span>
+                    <span>{u.site}</span>
+                    <span>{u.configuration}</span>
+                  </div>
+                ))}
+                <div className="flex items-center justify-end border-t border-black/20 px-3 py-2 text-[14px] leading-[20px] text-[var(--sui-colors-neutral-b0)]">
+                  <div className="flex items-center gap-5">
+                    <div className="flex items-center gap-2">
+                      <span>Rows per page</span>
+                      <span className="flex h-[32px] w-[64px] items-center rounded-[10px] border border-black/20 bg-white px-3 text-[14px]">10</span>
+                    </div>
+                    <span>{count === 0 ? '0-0' : `1-${Math.min(10, count)}`} of {count}</span>
+                    <div className="flex items-center gap-1">
+                      <button type="button" className="flex h-6 w-6 cursor-pointer items-center justify-center rounded-full hover:bg-[var(--sui-colors-neutral-b4)]/40">
+                        <ChevronRight className="h-4 w-4 rotate-180 text-[var(--sui-colors-neutral-b0)]" strokeWidth={2} />
+                      </button>
+                      <button type="button" className="flex h-6 w-6 cursor-pointer items-center justify-center rounded-full hover:bg-[var(--sui-colors-neutral-b4)]/40">
+                        <ChevronRight className="h-4 w-4 text-[var(--sui-colors-neutral-b0)]" strokeWidth={2} />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="border-t border-[var(--sui-colors-neutral-b4)]/50" />
+            <div className="flex justify-end gap-2 px-6 py-4">
+              <DialogPrimitives.Close asChild>
+                <button
+                  type="button"
+                  className="inline-flex h-[32px] min-w-[64px] cursor-pointer items-center justify-center rounded-[10px] border border-black/20 bg-white px-3 text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b0)] transition-colors hover:bg-[var(--sui-colors-neutral-b4)]/40"
+                >
+                  Close
+                </button>
+              </DialogPrimitives.Close>
+            </div>
+          </DialogPrimitives.Content>
+        </DialogPrimitives.Overlay>
+      </DialogPrimitives.Portal>
+    </DialogPrimitives.Root>
+  );
+}
+
+function UsersFilterPill({ label }: { label: string }) {
+  return (
+    <button
+      type="button"
+      className="flex h-[36px] w-full cursor-pointer items-center justify-between gap-2 rounded-[10px] border border-black/20 bg-white pl-3 pr-2 text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b2)] hover:border-black/40"
+    >
+      <span>{label}</span>
+      <ChevronDown className="h-4 w-4 text-[var(--sui-colors-neutral-b1)]" strokeWidth={2} />
+    </button>
+  );
+}
+
+function UsersFilterDropdown({
+  label, value, options, onChange,
+}: { label: string; value: string; options: string[]; onChange: (v: string) => void }) {
+  const [open, setOpen] = useState(false);
+  const ref = React.useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    function handler(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    }
+    if (open) document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [open]);
+  return (
+    <div className="relative w-full" ref={ref}>
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className="flex h-[36px] w-full cursor-pointer items-center justify-between gap-2 rounded-[10px] border border-black/20 bg-white pl-3 pr-2 text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)] hover:border-black/40"
+      >
+        <span className="truncate">{label}: {value}</span>
+        <ChevronDown className="h-4 w-4 text-[var(--sui-colors-neutral-b1)]" strokeWidth={2} />
+      </button>
+      {open && (
+        <ul className="absolute left-0 right-0 top-[40px] z-30 overflow-hidden rounded-[4px] bg-white py-1 shadow-[0_2px_4px_rgba(0,0,0,0.08),0_8px_24px_rgba(0,0,0,0.12)] ring-1 ring-black/5">
+          {options.map((opt) => {
+            const selected = opt === value;
+            return (
+              <li key={opt}>
+                <button
+                  type="button"
+                  onClick={() => { onChange(opt); setOpen(false); }}
+                  className={cn(
+                    'flex h-[32px] w-full cursor-pointer items-center justify-between gap-2 px-3 text-left text-[14px] font-normal leading-[20px] transition-colors',
+                    selected
+                      ? 'bg-[var(--sui-colors-primary-b)]/10 text-[var(--sui-colors-primary-b)]'
+                      : 'text-[var(--sui-colors-neutral-b1)] hover:bg-[var(--sui-colors-neutral-b4)]/50',
+                  )}
+                >
+                  <span>{opt}</span>
+                  {selected && <Check className="h-3 w-3" strokeWidth={3} />}
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+    </div>
   );
 }
 
@@ -592,6 +819,7 @@ export function SpringFeatureEnableDialog({
   const [value, setValue] = useState<'On' | 'Off'>('On');
   const [allow, setAllow] = useState(true);
   const [customAction, setCustomAction] = useState<'reset' | 'restore'>('reset');
+  const [usersOpen, setUsersOpen] = useState<null | 'default' | 'custom'>(null);
   const total = totalUsers;
   const defaultCount = Math.max(0, total - (customCount || 0));
 
@@ -641,13 +869,13 @@ export function SpringFeatureEnableDialog({
                       </div>
                       <div className="flex h-[32px] items-center rounded-[10px] bg-[var(--sui-colors-neutral-b5)] px-3">
                         <p className="whitespace-nowrap text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
-                          <a
-                            href="#"
-                            onClick={(e) => e.preventDefault()}
-                            className="cursor-pointer text-[var(--sui-colors-primary-b)] underline hover:text-[var(--sui-colors-primary-b-high-contrast)]"
+                          <button
+                            type="button"
+                            onClick={() => setUsersOpen(true)}
+                            className="cursor-pointer text-[var(--sui-colors-primary-b)] underline hover:text-[var(--sui-colors-primary-b-high-contrast)] focus:outline-none focus:ring-2 focus:ring-[var(--sui-colors-primary-b)]/30 rounded-sm"
                           >
                             {defaultCount}/{total} users
-                          </a>{' '}
+                          </button>{' '}
                           are using the default
                         </p>
                       </div>
@@ -682,13 +910,13 @@ export function SpringFeatureEnableDialog({
                 {customCount > 0 && (
                   <div className="flex flex-col gap-3">
                     <p className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
-                      <a
-                        href="#"
-                        onClick={(e) => e.preventDefault()}
-                        className="cursor-pointer text-[var(--sui-colors-primary-b)] underline hover:text-[var(--sui-colors-primary-b-high-contrast)]"
+                      <button
+                        type="button"
+                        onClick={() => setUsersOpen('custom')}
+                        className="cursor-pointer text-[var(--sui-colors-primary-b)] underline hover:text-[var(--sui-colors-primary-b-high-contrast)] focus:outline-none focus:ring-2 focus:ring-[var(--sui-colors-primary-b)]/30 rounded-sm"
                       >
                         {customCount}/{total} users
-                      </a>{' '}
+                      </button>{' '}
                       have custom settings for this feature. What would you like to do with these users?
                     </p>
                     <div className="flex items-center gap-8">
@@ -729,6 +957,15 @@ export function SpringFeatureEnableDialog({
           </DialogPrimitives.Content>
         </DialogPrimitives.Overlay>
       </DialogPrimitives.Portal>
+      <SpringUsersConfigDialog
+        open={usersOpen !== null}
+        featureLabel={title.replace(/^Turn on\s+/, '').replace(/\s+for your organization\?$/, '')}
+        variant={usersOpen ?? 'default'}
+        onClose={() => setUsersOpen(null)}
+        defaultUsersCount={defaultCount}
+        customUsersCount={customCount}
+        totalUsersCount={total}
+      />
     </DialogPrimitives.Root>
   );
 }
