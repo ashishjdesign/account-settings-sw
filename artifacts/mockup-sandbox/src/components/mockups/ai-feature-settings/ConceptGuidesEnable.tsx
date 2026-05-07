@@ -1211,14 +1211,14 @@ function SpringRadio({
         aria-checked={checked}
         onClick={onChange}
         className={cn(
-          'flex h-[18px] w-[18px] shrink-0 cursor-pointer items-center justify-center rounded-full border transition-colors',
+          'flex h-[20px] w-[20px] shrink-0 cursor-pointer items-center justify-center rounded-full border-[1.2px] transition-colors',
           checked
             ? 'border-[var(--sui-colors-primary-b)]'
             : 'border-[var(--sui-colors-neutral-b3)] hover:border-[var(--sui-colors-neutral-b2)]',
         )}
       >
         {checked && (
-          <span className="h-[10px] w-[10px] rounded-full bg-[var(--sui-colors-primary-b)]" />
+          <span className="h-[12px] w-[12px] rounded-full bg-[var(--sui-colors-primary-b)]" />
         )}
       </button>
       {label}
