@@ -1,6 +1,6 @@
 import React from 'react';
 import { FeatureSettingsLayout, SettingCard } from './_chrome';
-import { SpringConfirmDialog } from './_dialogs';
+import { SpringFirstEnableDialog } from './_dialogs';
 
 const Icon = ({ name }: { name: string }) => (
   <img
@@ -48,11 +48,10 @@ export function ConceptPhoneExtAppEnable() {
       </FeatureSettingsLayout>
 
       <div className="spring-scope">
-        <SpringConfirmDialog
+        <SpringFirstEnableDialog
           open={confirmOpen}
           title="Turn on Launch an external app for incoming calls?"
-          body="This will allow incoming calls to open an external app or website, like a CRM system or online database, for users in your organization."
-          confirmLabel="Turn on"
+          body="This feature will be enabled for your account. Configure how it should be deployed to users below."
           onCancel={() => setConfirmOpen(false)}
           onConfirm={() => {
             setExtAppOn(true);

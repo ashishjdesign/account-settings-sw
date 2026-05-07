@@ -9,32 +9,132 @@ const Icon = ({ name, className }: { name: string; className?: string }) => (
   />
 );
 
-export function SpringConfirmDialog({
-  open, title, body, confirmLabel, onCancel, onConfirm,
+function SpringRadio({ checked, onChange, label }: {
+  checked: boolean; onChange: () => void; label: string;
+}) {
+  return (
+    <label className="flex cursor-pointer items-center gap-2">
+      <button
+        type="button"
+        onClick={onChange}
+        aria-pressed={checked}
+        className="relative flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-full border border-[var(--sui-colors-neutral-b2)] bg-white"
+      >
+        {checked && (
+          <span className="absolute inset-[3px] rounded-full bg-[var(--sui-colors-primary-b)]" />
+        )}
+      </button>
+      <span className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+        {label}
+      </span>
+    </label>
+  );
+}
+
+function SpringCheckbox({ checked, onChange }: {
+  checked: boolean; onChange: (v: boolean) => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={() => onChange(!checked)}
+      aria-pressed={checked}
+      className={`flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-[4px] border ${
+        checked
+          ? 'border-[var(--sui-colors-primary-b)] bg-[var(--sui-colors-primary-b)]'
+          : 'border-[var(--sui-colors-neutral-b2)] bg-white'
+      }`}
+    >
+      {checked && (
+        <svg viewBox="0 0 12 12" className="h-3 w-3 text-white" fill="none" stroke="currentColor" strokeWidth="3">
+          <path d="M2 6l3 3 5-6" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      )}
+    </button>
+  );
+}
+
+/* First-time enablement dialog — same pattern as the Guides "Turn on"
+ * dialog (User deployment section with Default + User access), but
+ * without the user-count links and custom-users section since the
+ * feature has never been deployed yet. The admin only picks the
+ * default and whether users can change it. */
+export function SpringFirstEnableDialog({
+  open, title, body, onCancel, onConfirm,
 }: {
   open: boolean;
   title: string;
-  body: React.ReactNode;
-  confirmLabel: string;
+  body?: React.ReactNode;
   onCancel?: () => void;
-  onConfirm?: () => void;
+  onConfirm?: (result: { defaultValue: 'On' | 'Off'; allowChange: boolean }) => void;
 }) {
+  const [defaultValue, setDefaultValue] = React.useState<'On' | 'Off'>('On');
+  const [allowChange, setAllowChange] = React.useState(true);
   if (!open) return null;
   return (
-    <div className="absolute inset-0 z-50 flex items-start justify-center bg-black/40 pt-[120px]">
+    <div className="absolute inset-0 z-50 flex items-start justify-center pt-16">
+      <div className="absolute inset-0 bg-black/40" onClick={onCancel} aria-hidden="true" />
       <div
-        className="flex w-[480px] flex-col rounded-[12px] bg-white shadow-xl"
+        role="dialog"
+        aria-modal="true"
+        className="relative z-10 flex w-[640px] max-w-[calc(100%-32px)] flex-col rounded-[10px] bg-white"
         style={{ boxShadow: '0 10px 30px rgba(0,0,0,0.2)' }}
       >
-        <div className="flex flex-col gap-6 px-6 pb-8 pt-6">
-          <h2 className="py-3 text-[24px] font-normal leading-[32px] text-[var(--sui-colors-neutral-b1)]">
-            {title}
-          </h2>
-          <p className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
-            {body}
-          </p>
+        <div className="flex flex-col gap-6 px-6 pb-10 pt-9">
+          <div className="py-3">
+            <h2 className="text-[24px] font-normal leading-[32px] text-[var(--sui-colors-neutral-b0)]">
+              {title}
+            </h2>
+          </div>
+
+          {body && (
+            <p className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+              {body}
+            </p>
+          )}
+
+          <div className="flex flex-col gap-2">
+            <h3 className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b2)]">
+              User deployment
+            </h3>
+
+            <div className="flex flex-col gap-4 rounded-[10px] border border-[#9E9FA4]/35 bg-white p-4">
+              <div className="flex h-[32px] items-center gap-4">
+                <span className="text-[14px] font-semibold leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                  Default in user settings:
+                </span>
+                <div className="flex items-center gap-5">
+                  <SpringRadio
+                    checked={defaultValue === 'On'}
+                    onChange={() => setDefaultValue('On')}
+                    label="On"
+                  />
+                  <SpringRadio
+                    checked={defaultValue === 'Off'}
+                    onChange={() => setDefaultValue('Off')}
+                    label="Off"
+                  />
+                </div>
+              </div>
+
+              <div className="border-t border-[var(--sui-colors-neutral-b4)]" />
+
+              <div className="flex h-[32px] items-center gap-4">
+                <span className="text-[14px] font-semibold leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                  User access:
+                </span>
+                <label className="flex cursor-pointer items-center gap-2">
+                  <SpringCheckbox checked={allowChange} onChange={setAllowChange} />
+                  <span className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                    Allow users to change this setting
+                  </span>
+                </label>
+              </div>
+            </div>
+          </div>
         </div>
-        <div className="border-t border-[#DDDFE5]/50" />
+
+        <div className="border-t border-[var(--sui-colors-neutral-b4)]" />
         <div className="flex justify-end gap-2 px-6 py-4">
           <button
             type="button"
@@ -45,10 +145,10 @@ export function SpringConfirmDialog({
           </button>
           <button
             type="button"
-            onClick={onConfirm}
+            onClick={() => onConfirm?.({ defaultValue, allowChange })}
             className="inline-flex h-[32px] min-w-[64px] cursor-pointer items-center justify-center rounded-[10px] bg-[var(--sui-colors-primary-b)] px-3 text-[14px] font-medium leading-[20px] text-white transition-colors hover:bg-[var(--sui-colors-primary-b-high-contrast)]"
           >
-            {confirmLabel}
+            Turn on
           </button>
         </div>
       </div>
