@@ -71,7 +71,7 @@ export default function FaxPanel() {
         description="Allow this account to access fax settings."
         summary={[
           { label: 'User default:', value: fax.defaultVal },
-          { value: fax.allowChange ? 'Users can change this setting' : 'Users cannot change this setting' },
+          { label: 'User access:', value: fax.allowChange ? 'Allowed' : 'Restricted' },
         ]}
         onManage={() => {
           setEditDefault(fax.defaultVal);

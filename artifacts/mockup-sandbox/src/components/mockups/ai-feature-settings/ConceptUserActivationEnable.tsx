@@ -434,7 +434,7 @@ export function ConceptUserActivationEnable() {
                 description="Displays helpful guides, tutorials, important company-wide updates, and service promotions directly to your users."
                 summary={[
                   { label: 'User default:', value: 'On' },
-                  { value: 'Users can change this setting' },
+                  { label: 'User access:', value: 'Allowed' },
                 ]}
                 onManage={() => {}}
               />

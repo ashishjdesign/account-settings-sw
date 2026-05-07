@@ -1352,7 +1352,7 @@ function ConceptGuidesEnableImpl({
                 summary={[
                   { label: 'User default:', value: 'On' },
                   { value: '72 of 98 users use this default' },
-                  { value: 'Users can change this setting' },
+                  { label: 'User access:', value: 'Allowed' },
                 ]}
                 onManage={() => {
                   if (mode === 'manage-v3') setManageV3Open(true);

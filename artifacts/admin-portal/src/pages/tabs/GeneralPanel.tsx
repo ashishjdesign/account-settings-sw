@@ -54,11 +54,7 @@ export default function GeneralPanel() {
           guides.on
             ? [
                 { label: 'User default:', value: guides.defaultVal },
-                {
-                  value: guides.allowChange
-                    ? 'Users can change this setting'
-                    : 'Users cannot change this setting',
-                },
+                { label: 'User access:', value: guides.allowChange ? 'Allowed' : 'Restricted' },
               ]
             : undefined
         }

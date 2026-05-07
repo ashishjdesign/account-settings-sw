@@ -515,11 +515,7 @@ function GeneralPanel({
           guidesOn
             ? [
                 { label: 'User default:', value: guidesDefault },
-                {
-                  value: guidesAllowChange
-                    ? 'Users can change this setting'
-                    : 'Users cannot change this setting',
-                },
+                { label: 'User access:', value: guidesAllowChange ? 'Allowed' : 'Restricted' },
               ]
             : undefined
         }
@@ -546,7 +542,7 @@ function PhonePanel() {
         description="Allow users to turn on Auto-Answer for incoming calls in the RingCentral desktop app."
         summary={[
           { label: 'User default:', value: 'Off' },
-          { value: 'Users can change this setting' },
+          { label: 'User access:', value: 'Allowed' },
         ]}
         onManage={() => {}}
       />
@@ -575,9 +571,8 @@ function AiPanel({ onManage }: { onManage: (k: 'ai-assistant' | 'auto-call-notes
         icon="ai-lightbulb"
         description="A personal assistant that helps you boost productivity."
         summary={[
-          { label: 'Data retention period:', value: '365 days' },
           { label: 'User default:', value: 'On' },
-          { value: 'Users can change this setting' },
+          { label: 'User access:', value: 'Allowed' },
         ]}
         onManage={() => onManage('ai-assistant')}
       />
@@ -588,7 +583,7 @@ function AiPanel({ onManage }: { onManage: (k: 'ai-assistant' | 'auto-call-notes
         description="Generate call notes automatically for all your devices."
         summary={[
           { label: 'User default:', value: 'On' },
-          { value: 'Users can change this setting' },
+          { label: 'User access:', value: 'Allowed' },
         ]}
         onManage={() => onManage('auto-call-notes')}
       />
@@ -622,7 +617,7 @@ function FaxPanel() {
         description="Allow this account to access fax settings."
         summary={[
           { label: 'User default:', value: 'On' },
-          { value: 'Users can change this setting' },
+          { label: 'User access:', value: 'Allowed' },
         ]}
         onManage={() => {}}
       />

@@ -45,7 +45,7 @@ export default function PhonePanel() {
         description="Allow users to turn on Auto-Answer for incoming calls in the RingCentral desktop app."
         summary={[
           { label: 'User default:', value: autoAnswer.defaultVal },
-          { value: autoAnswer.allowChange ? 'Users can change this setting' : 'Users cannot change this setting' },
+          { label: 'User access:', value: autoAnswer.allowChange ? 'Allowed' : 'Restricted' },
         ]}
         onManage={openManage}
         onSwitchClick={() =>

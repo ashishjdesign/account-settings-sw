@@ -101,13 +101,8 @@ export default function AiPanel() {
         icon="ai-lightbulb"
         description="A personal assistant that helps you boost productivity."
         summary={[
-          { label: 'Data retention period:', value: aiAssistant.customize.transcriptRetention || '365 days' },
           { label: 'User default:', value: aiAssistant.defaultVal },
-          {
-            value: aiAssistant.allowChange
-              ? 'Users can change this setting'
-              : 'Users cannot change this setting',
-          },
+          { label: 'User access:', value: aiAssistant.allowChange ? 'Allowed' : 'Restricted' },
         ]}
         onManage={() => openManage('aiAssistant')}
         onSwitchClick={() => toggleChild('aiAssistant')}
@@ -120,11 +115,7 @@ export default function AiPanel() {
         description="Generate call notes automatically for all your devices."
         summary={[
           { label: 'User default:', value: autoCallNotes.defaultVal },
-          {
-            value: autoCallNotes.allowChange
-              ? 'Users can change this setting'
-              : 'Users cannot change this setting',
-          },
+          { label: 'User access:', value: autoCallNotes.allowChange ? 'Allowed' : 'Restricted' },
         ]}
         onManage={() => openManage('autoCallNotes')}
         onSwitchClick={() => toggleChild('autoCallNotes')}
