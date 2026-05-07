@@ -280,13 +280,14 @@ function RingCentralLogo() {
  * Spring confirmation dialog — Cancel + Confirm, no close X
  * --------------------------------------------------------------------------- */
 function SpringConfirmDialog({
-  open, title, body, onCancel, onConfirm,
+  open, title, body, onCancel, onConfirm, confirmLabel = 'Confirm',
 }: {
   open: boolean;
   title: React.ReactNode;
   body: React.ReactNode;
   onCancel: () => void;
   onConfirm: () => void;
+  confirmLabel?: string;
 }) {
   if (!open) return null;
   return (
@@ -319,7 +320,7 @@ function SpringConfirmDialog({
             onClick={onConfirm}
             className="inline-flex h-[32px] min-w-[64px] cursor-pointer items-center justify-center rounded-[10px] bg-[var(--sui-colors-primary-b)] px-3 text-[14px] font-medium leading-[20px] text-white transition-colors hover:bg-[var(--sui-colors-primary-b-high-contrast)]"
           >
-            Confirm
+            {confirmLabel}
           </button>
         </div>
       </div>
@@ -451,6 +452,7 @@ export function ConceptUserActivationDisable() {
       <div className="spring-scope">
         <SpringConfirmDialog
           open={confirmOpen}
+          confirmLabel="Turn off"
           title="Turn off User activation for your organization?"
           body="This will prevent users in your organization from re-generating their activation email."
           onCancel={() => setConfirmOpen(false)}

@@ -7,6 +7,7 @@ export default function GeneralPanel() {
   const { userActivationOn, guides } = state.general;
 
   const [uaConfirmOpen, setUaConfirmOpen] = useState(false);
+  const [guidesDisableConfirmOpen, setGuidesDisableConfirmOpen] = useState(false);
   const [guidesManageOpen, setGuidesManageOpen] = useState(false);
 
   const handleSaveGuides = (result: { defaultVal: 'On' | 'Off'; allowChange: boolean }) => {
@@ -53,7 +54,12 @@ export default function GeneralPanel() {
         }
         onManage={openManage}
         onSwitchClick={() => {
-          dispatch({ type: 'PATCH_GENERAL_GUIDES', payload: { on: !guides.on } });
+          if (guides.on) {
+            setGuidesDisableConfirmOpen(true);
+          } else {
+            dispatch({ type: 'PATCH_GENERAL_GUIDES', payload: { on: true } });
+            showToast('Settings were updated.', () => dispatch({ type: 'UNDO' }));
+          }
         }}
       />
 
@@ -69,10 +75,30 @@ export default function GeneralPanel() {
             ? 'This will prevent users in your organization from re-generating their activation email.'
             : 'This will allow all users in your organization to re-generate their activation email.'
         }
+        confirmLabel={userActivationOn ? 'Turn off' : 'Turn on'}
         onCancel={() => setUaConfirmOpen(false)}
         onConfirm={() => {
           dispatch({ type: 'SET_GENERAL_USER_ACTIVATION', payload: !userActivationOn });
           setUaConfirmOpen(false);
+          showToast('Settings were updated.', () => dispatch({ type: 'UNDO' }));
+        }}
+      />
+
+      <SpringConfirmDialog
+        open={guidesDisableConfirmOpen}
+        title="Turn off Guides, tutorials & announcements for your organization?"
+        body={
+          <>
+            Feature will be disabled globally on entire account and hidden from all users.
+            <br />
+            When re-enabled, users&rsquo; previous settings will return.
+          </>
+        }
+        confirmLabel="Turn off"
+        onCancel={() => setGuidesDisableConfirmOpen(false)}
+        onConfirm={() => {
+          dispatch({ type: 'PATCH_GENERAL_GUIDES', payload: { on: false } });
+          setGuidesDisableConfirmOpen(false);
           showToast('Settings were updated.', () => dispatch({ type: 'UNDO' }));
         }}
       />

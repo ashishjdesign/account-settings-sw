@@ -194,7 +194,7 @@ export function SpringDialog({
 }
 
 export function SpringConfirmDialog({
-  open, title, body, onCancel, onConfirm, error
+  open, title, body, onCancel, onConfirm, error, confirmLabel = 'Confirm'
 }: {
   open: boolean;
   title: React.ReactNode;
@@ -202,6 +202,7 @@ export function SpringConfirmDialog({
   onCancel: () => void;
   onConfirm: () => void;
   error?: boolean;
+  confirmLabel?: string;
 }) {
   return (
     <DialogPrimitives.Root open={open} onOpenChange={(o) => !o && onCancel()}>
@@ -240,7 +241,7 @@ export function SpringConfirmDialog({
                 onClick={onConfirm}
                 className="inline-flex h-[32px] min-w-[64px] cursor-pointer items-center justify-center rounded-[10px] bg-[var(--sui-colors-primary-b)] px-3 text-[14px] font-medium leading-[20px] text-white transition-colors hover:bg-[var(--sui-colors-primary-b-high-contrast)] focus:outline-none focus:ring-2 focus:ring-[var(--sui-colors-primary-b)]/30"
               >
-                Confirm
+                {confirmLabel}
               </button>
             </div>
           </DialogPrimitives.Content>
