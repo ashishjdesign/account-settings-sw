@@ -1204,7 +1204,7 @@ function SpringRadio({
   checked, onChange, label,
 }: { checked: boolean; onChange: () => void; label: string }) {
   return (
-    <label className="flex cursor-pointer items-center gap-2 text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+    <label className="flex cursor-pointer items-center gap-2 text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b0)]">
       <button
         type="button"
         role="radio"
