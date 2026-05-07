@@ -637,29 +637,15 @@ export function UserDefaultsRow({
   );
 }
 
-export function showToast(message: string, onUndo?: () => void) {
+export function showToast(message: string, _onUndo?: () => void) {
   toast.custom(
     (id) => (
       <div
         role="status"
-        className="flex w-[640px] max-w-[calc(100vw-32px)] items-center justify-between gap-2 rounded-[3px] bg-[#1A8517] px-[7px] py-[10px] font-['Helvetica',sans-serif] text-[13px] leading-[1.54] text-white shadow-[0_2px_8px_rgba(0,0,0,0.15)]"
+        className="flex w-full items-center justify-between gap-2 rounded-[3px] bg-[#1A8517] px-[7px] py-[10px] font-['Helvetica',sans-serif] text-[13px] leading-[1.54] text-white shadow-[0_2px_8px_rgba(0,0,0,0.15)]"
       >
         <span className="h-[13px] w-[13px] shrink-0 opacity-0" aria-hidden="true" />
-        <p className="flex-1 text-center">
-          {message}
-          {onUndo && (
-            <>
-              {' '}
-              <button
-                type="button"
-                onClick={() => { onUndo(); toast.dismiss(id); }}
-                className="cursor-pointer underline focus:outline-none"
-              >
-                Undo
-              </button>
-            </>
-          )}
-        </p>
+        <p className="flex-1 text-center">{message}</p>
         <button
           type="button"
           onClick={() => toast.dismiss(id)}
@@ -670,6 +656,6 @@ export function showToast(message: string, onUndo?: () => void) {
         </button>
       </div>
     ),
-    { duration: onUndo ? 8000 : 4000 },
+    { duration: 4000 },
   );
 }

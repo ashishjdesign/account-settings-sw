@@ -13,6 +13,7 @@ function App() {
           position="top-center"
           offset={16}
           className="swui-scope"
+          style={{ '--width': '640px' } as React.CSSProperties}
           toastOptions={{ unstyled: true, classNames: { toast: '' } }}
         />
         <Chrome>
