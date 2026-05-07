@@ -320,102 +320,106 @@ export function SpringEnableDialog({
       <div
         role="dialog"
         aria-modal="true"
-        className="relative z-10 flex w-[800px] max-w-[calc(100%-32px)] flex-col rounded-[12px] bg-white shadow-[0_12px_32px_rgba(0,0,0,0.18),0_2px_6px_rgba(0,0,0,0.08)]"
+        className="relative z-10 flex w-[820px] max-w-[calc(100%-32px)] flex-col rounded-[10px] bg-white shadow-[0_10px_10px_rgba(0,0,0,0.2)]"
       >
-        <div className="flex flex-col gap-5 px-6 pb-8 pt-6">
-          <h2 className="py-3 text-[22px] font-normal leading-[30px] text-[var(--sui-colors-neutral-b1)]">
-            Turn on Guides, tutorials &amp; announcements for your organization?
-          </h2>
-
-          <p className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
-            This feature will be enabled for the entire account and visible to all users.
-          </p>
-
-          <p className="mt-3 text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
-            <a
-              href="#"
-              onClick={(e) => { e.preventDefault(); setUsersDialog('default'); }}
-              className="cursor-pointer font-normal text-[var(--sui-colors-primary-b)] underline hover:text-[var(--sui-colors-primary-b-high-contrast)]"
-            >
-              72/98 users
-            </a>{' '}
-            will use the <span className="font-semibold">default</span> user configuration.
-          </p>
-
-          <div className="flex flex-col rounded-[10px] border border-[var(--sui-colors-neutral-b4)] bg-white">
-            <div className="flex flex-col gap-2 p-4">
-              <div className="flex min-h-[32px] w-full items-center gap-4">
-                <h3 className="flex-1 text-[15px] font-bold leading-[20px] text-[var(--sui-colors-neutral-b1)]">
-                  Default state for users
-                </h3>
-                <SpringSelect
-                  value={defaultValue}
-                  options={['On', 'Off']}
-                  onChange={(v) => setDefaultValue(v as 'On' | 'Off')}
-                  width={84}
-                />
-              </div>
-              <p className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b2)]">
-                What new and default-config users see in their settings.
-              </p>
+        <div className="flex flex-col gap-8 px-6 pb-10 pt-9">
+          <div className="flex flex-col gap-6">
+            <div className="py-3">
+              <h2 className="text-[24px] font-normal leading-[32px] text-[var(--sui-colors-neutral-b0)]">
+                Turn on Guides, tutorials &amp; announcements or your organization?
+              </h2>
             </div>
-            <div className="mx-4 border-t border-[var(--sui-colors-neutral-b4)]/70" />
-            <label className="flex cursor-pointer flex-col gap-2 p-4">
-              <div className="flex min-h-[32px] w-full items-center gap-4">
-                <h3 className="flex-1 text-[15px] font-bold leading-[20px] text-[var(--sui-colors-neutral-b1)]">
-                  Allow users to change this setting themselves
-                </h3>
-                <SpringSwitch
-                  checked={allowChange}
-                  onCheckedChange={setAllowChange}
-                />
-              </div>
-              <p className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b2)]">
-                When off, only admins can change this setting for users.
-              </p>
-            </label>
-          </div>
 
-          {/* Custom users summary — outside the frame */}
-          <p className="mt-3 text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
-            <a
-              href="#"
-              onClick={(e) => { e.preventDefault(); setUsersDialog('custom'); }}
-              className="cursor-pointer font-normal text-[var(--sui-colors-primary-b)] underline hover:text-[var(--sui-colors-primary-b-high-contrast)]"
-            >
-              26/98 users
-            </a>{' '}
-            are on a <span className="font-semibold">custom</span> user configuration.
-          </p>
-
-          {/* Custom users group */}
-          <div className="flex flex-col gap-2 rounded-[10px] border border-[var(--sui-colors-neutral-b4)] bg-[var(--sui-colors-neutral-b5)]/40 p-4">
             <p className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
-              What would you like to do with these users?
+              This feature will be enabled for your account. Configure how it should be deployed to users below.
             </p>
-            <div className="mt-1 flex items-center gap-8">
-              <SpringRadio
-                checked={customAction === 'reset'}
-                onChange={() => setCustomAction('reset')}
-                label="Reset them to default"
-              />
-              <SpringRadio
-                checked={customAction === 'restore'}
-                onChange={() => setCustomAction('restore')}
-                label="Keep their custom settings"
-              />
+
+            {/* Section: User deployment */}
+            <div className="flex flex-col gap-2">
+              <h3 className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b2)]">
+                User deployment
+              </h3>
+
+              <div className="flex flex-col gap-4 rounded-[10px] border border-[#9E9FA4]/35 bg-white p-4">
+                {/* Default in user settings row */}
+                <div className="flex w-full items-center justify-between gap-4">
+                  <div className="flex h-[32px] items-center gap-4 pr-4">
+                    <span className="text-[14px] font-semibold leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                      Default in user settings:
+                    </span>
+                    <div className="flex items-center gap-5">
+                      <SpringRadio
+                        checked={defaultValue === 'On'}
+                        onChange={() => setDefaultValue('On')}
+                        label="On"
+                      />
+                      <SpringRadio
+                        checked={defaultValue === 'Off'}
+                        onChange={() => setDefaultValue('Off')}
+                        label="Off"
+                      />
+                    </div>
+                  </div>
+                  <div className="flex h-[32px] items-center rounded-[10px] bg-[var(--sui-colors-neutral-b5)] px-3">
+                    <p className="whitespace-nowrap text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                      <a
+                        href="#"
+                        onClick={(e) => { e.preventDefault(); setUsersDialog('default'); }}
+                        className="cursor-pointer text-[var(--sui-colors-primary-b)] underline hover:text-[var(--sui-colors-primary-b-high-contrast)]"
+                      >
+                        72/98 users
+                      </a>{' '}
+                      are using the default
+                    </p>
+                  </div>
+                </div>
+
+                <div className="border-t border-[var(--sui-colors-neutral-b4)]" />
+
+                {/* User access row */}
+                <div className="flex h-[32px] items-center gap-4">
+                  <span className="text-[14px] font-semibold leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                    User access:
+                  </span>
+                  <label className="flex cursor-pointer items-center gap-2">
+                    <SpringCheckbox checked={allowChange} onChange={setAllowChange} />
+                    <span className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                      Allow users to change this setting
+                    </span>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            {/* Custom users — plain text + horizontal radios */}
+            <div className="flex flex-col gap-3">
+              <p className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                <a
+                  href="#"
+                  onClick={(e) => { e.preventDefault(); setUsersDialog('custom'); }}
+                  className="cursor-pointer text-[var(--sui-colors-primary-b)] underline hover:text-[var(--sui-colors-primary-b-high-contrast)]"
+                >
+                  26/98 users
+                </a>{' '}
+                have custom settings for this feature. What would you like to do with these users?
+              </p>
+              <div className="flex items-center gap-8">
+                <SpringRadio
+                  checked={customAction === 'reset'}
+                  onChange={() => setCustomAction('reset')}
+                  label="Reset all to default"
+                />
+                <SpringRadio
+                  checked={customAction === 'restore'}
+                  onChange={() => setCustomAction('restore')}
+                  label="Restore their custom settings"
+                />
+              </div>
             </div>
           </div>
-
-          <p className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b2)]">
-            Admins can manage this setting for individual users from their detail pages or apply it in bulk through{' '}
-            <a href="#" className="cursor-pointer whitespace-nowrap text-[var(--sui-colors-primary-b)] underline hover:text-[var(--sui-colors-primary-b-high-contrast)]">
-              User Templates
-            </a>.
-          </p>
         </div>
 
-        <div className="border-t border-[#DDDFE5]/50" />
+        <div className="border-t border-[var(--sui-colors-neutral-b4)]" />
         <div className="flex justify-end gap-2 px-6 py-4">
           <button
             type="button"
@@ -429,7 +433,7 @@ export function SpringEnableDialog({
             onClick={() => onConfirm({ defaultValue, allowChange, customAction })}
             className="inline-flex h-[32px] min-w-[64px] cursor-pointer items-center justify-center rounded-[10px] bg-[var(--sui-colors-primary-b)] px-3 text-[14px] font-medium leading-[20px] text-white transition-colors hover:bg-[var(--sui-colors-primary-b-high-contrast)]"
           >
-            Confirm
+            Turn on
           </button>
         </div>
       </div>
