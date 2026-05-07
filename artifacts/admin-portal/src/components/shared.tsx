@@ -552,13 +552,20 @@ export function SpringFeatureManageDialog({
                   Cancel
                 </button>
               </DialogPrimitives.Close>
-              <button
-                type="button"
-                onClick={() => onConfirm({ defaultVal: value, allowChange: allow })}
-                className="inline-flex h-[36px] min-w-[60px] cursor-pointer items-center justify-center rounded-[10px] bg-[var(--sui-colors-primary-b)] px-[18px] text-[14px] font-medium leading-[20px] text-white transition-colors hover:bg-[var(--sui-colors-primary-b-high-contrast)] focus:outline-none focus:ring-2 focus:ring-[var(--sui-colors-primary-b)]/30"
-              >
-                {error ? 'Retry' : 'Confirm'}
-              </button>
+              {(() => {
+                const dirty = value !== defaultVal || allow !== allowChange;
+                const disabled = !dirty && !error;
+                return (
+                  <button
+                    type="button"
+                    onClick={() => onConfirm({ defaultVal: value, allowChange: allow })}
+                    disabled={disabled}
+                    className="inline-flex h-[36px] min-w-[60px] items-center justify-center rounded-[10px] bg-[var(--sui-colors-primary-b)] px-[18px] text-[14px] font-medium leading-[20px] text-white transition-colors hover:bg-[var(--sui-colors-primary-b-high-contrast)] focus:outline-none focus:ring-2 focus:ring-[var(--sui-colors-primary-b)]/30 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-[var(--sui-colors-primary-b)] enabled:cursor-pointer"
+                  >
+                    {error ? 'Retry' : 'Save'}
+                  </button>
+                );
+              })()}
             </div>
           </DialogPrimitives.Content>
         </DialogPrimitives.Overlay>
