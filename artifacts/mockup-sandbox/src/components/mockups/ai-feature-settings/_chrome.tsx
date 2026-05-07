@@ -59,15 +59,12 @@ export function SettingCard({
         </p>
 
         {summary && summary.length > 0 && switchOn && (
-          <div className="flex w-full items-center justify-between gap-4 border-t border-[var(--sui-colors-neutral-b4)] pt-4">
-            <div className="flex min-w-0 flex-1 items-center text-[14px] leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+          <div className="mt-2 flex w-full items-center justify-between gap-4 border-t border-[var(--sui-colors-neutral-b4)] pt-4">
+            <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
               {summary.map((seg, i) => (
                 <div
                   key={i}
-                  className={cn(
-                    'flex items-center gap-2 whitespace-nowrap',
-                    i > 0 && 'ml-2 border-l border-[var(--sui-colors-neutral-b4)] pl-2',
-                  )}
+                  className="flex h-[32px] items-center gap-2 whitespace-nowrap rounded-[10px] bg-[var(--sui-colors-neutral-b5)] px-3 text-[14px] leading-[20px] text-[var(--sui-colors-neutral-b1)]"
                 >
                   {seg.label && <span className="font-semibold">{seg.label}</span>}
                   <span className="font-normal">{seg.value}</span>
@@ -77,7 +74,7 @@ export function SettingCard({
             <button
               type="button"
               onClick={onManage}
-              className="inline-flex h-[32px] shrink-0 items-center justify-center gap-1.5 rounded-[10px] px-1 text-[14px] font-medium leading-[20px] text-[var(--sui-colors-primary-b)] transition-colors hover:text-[var(--sui-colors-primary-b-high-contrast)] focus:outline-none focus:ring-2 focus:ring-[var(--sui-colors-primary-b)]/30"
+              className="inline-flex h-[32px] shrink-0 cursor-pointer items-center justify-center gap-1.5 rounded-[10px] px-1 text-[14px] font-medium leading-[20px] text-[var(--sui-colors-primary-b)] transition-colors hover:text-[var(--sui-colors-primary-b-high-contrast)] focus:outline-none focus:ring-2 focus:ring-[var(--sui-colors-primary-b)]/30"
             >
               Manage
             </button>
