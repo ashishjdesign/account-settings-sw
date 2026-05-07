@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useSettings } from '../../store';
-import { SettingCard, SpringConfirmDialog, SpringFeatureManageDialog, showToast } from '../../components/shared';
+import { SettingCard, SpringConfirmDialog, SpringFeatureManageDialog, SpringFeatureEnableDialog, showToast } from '../../components/shared';
 
 export default function GeneralPanel() {
   const { state, dispatch } = useSettings();
@@ -8,6 +8,7 @@ export default function GeneralPanel() {
 
   const [uaConfirmOpen, setUaConfirmOpen] = useState(false);
   const [guidesDisableConfirmOpen, setGuidesDisableConfirmOpen] = useState(false);
+  const [guidesEnableOpen, setGuidesEnableOpen] = useState(false);
   const [guidesManageOpen, setGuidesManageOpen] = useState(false);
 
   const handleSaveGuides = (result: { defaultVal: 'On' | 'Off'; allowChange: boolean }) => {
@@ -57,8 +58,7 @@ export default function GeneralPanel() {
           if (guides.on) {
             setGuidesDisableConfirmOpen(true);
           } else {
-            dispatch({ type: 'PATCH_GENERAL_GUIDES', payload: { on: true } });
-            showToast('Settings were updated.', () => dispatch({ type: 'UNDO' }));
+            setGuidesEnableOpen(true);
           }
         }}
       />
@@ -99,6 +99,21 @@ export default function GeneralPanel() {
         onConfirm={() => {
           dispatch({ type: 'PATCH_GENERAL_GUIDES', payload: { on: false } });
           setGuidesDisableConfirmOpen(false);
+          showToast('Settings were updated.', () => dispatch({ type: 'UNDO' }));
+        }}
+      />
+
+      <SpringFeatureEnableDialog
+        open={guidesEnableOpen}
+        title="Turn on Guides, tutorials & announcements for your organization?"
+        customCount={guides.customUsers}
+        onCancel={() => setGuidesEnableOpen(false)}
+        onConfirm={(result) => {
+          dispatch({
+            type: 'PATCH_GENERAL_GUIDES',
+            payload: { on: true, defaultVal: result.defaultVal, allowChange: result.allowChange },
+          });
+          setGuidesEnableOpen(false);
           showToast('Settings were updated.', () => dispatch({ type: 'UNDO' }));
         }}
       />
