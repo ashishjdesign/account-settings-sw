@@ -11,10 +11,10 @@ function App() {
       <Router base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
         <Toaster
           position="top-center"
-          offset={16}
+          offset={15}
           className="swui-scope"
-          style={{ '--width': '1200px' } as React.CSSProperties}
-          toastOptions={{ unstyled: true, classNames: { toast: 'w-[1200px] max-w-[calc(100vw-32px)] mx-auto' } }}
+          style={{ '--width': '880px' } as React.CSSProperties}
+          toastOptions={{ unstyled: true, classNames: { toast: 'w-[880px] max-w-[calc(100vw-380px)] mx-auto' } }}
         />
         <Chrome>
           <Switch>
