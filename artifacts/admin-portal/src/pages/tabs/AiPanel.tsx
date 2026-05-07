@@ -4,10 +4,10 @@ import {
   SettingCard,
   SpringConfirmDialog,
   SpringDialog,
+  SpringFeatureManageDialog,
   SpringSelect,
   SubRow,
   LabelWithInfo,
-  UserDefaultsRow,
   showToast,
 } from '../../components/shared';
 
@@ -33,36 +33,38 @@ export default function AiPanel() {
     else if (key === 'autoCallNotes') dispatch({ type: 'PATCH_AI_AUTO_NOTES', payload });
   };
 
-  const [editDefault, setEditDefault] = useState<'On' | 'Off'>('On');
-  const [editAllow, setEditAllow] = useState(true);
   const [editRetention, setEditRetention] = useState<'30 days' | '90 days' | '365 days'>('365 days');
 
   const openManage = (key: ManageKey) => {
     if (key === 'aiFeatures') {
       const r = aiAssistant.customize.transcriptRetention;
       setEditRetention(r === '' ? '365 days' : r);
-    } else {
-      const featState = state.ai[key];
-      setEditDefault(featState.defaultVal);
-      setEditAllow(featState.allowChange);
     }
     setManageModal(key);
   };
 
-  const handleSaveManage = () => {
-    if (!manageModal) return;
+  const handleSaveAiFeatures = () => {
     if (state.simulateError) {
       dispatch({ type: 'TOGGLE_SIMULATE_ERROR' });
       return;
     }
-    if (manageModal === 'aiFeatures') {
-      dispatch({
-        type: 'PATCH_AI_ASSISTANT_CUSTOMIZE',
-        payload: { transcriptRetention: editRetention },
-      });
-    } else {
-      dispatchPatch(manageModal, { defaultVal: editDefault, allowChange: editAllow });
+    dispatch({
+      type: 'PATCH_AI_ASSISTANT_CUSTOMIZE',
+      payload: { transcriptRetention: editRetention },
+    });
+    setManageModal(null);
+    showToast('Settings were updated.', () => dispatch({ type: 'UNDO' }));
+  };
+
+  const handleSaveFeatureManage = (
+    key: AiKey,
+    result: { defaultVal: 'On' | 'Off'; allowChange: boolean },
+  ) => {
+    if (state.simulateError) {
+      dispatch({ type: 'TOGGLE_SIMULATE_ERROR' });
+      return;
     }
+    dispatchPatch(key, { defaultVal: result.defaultVal, allowChange: result.allowChange });
     setManageModal(null);
     showToast('Settings were updated.', () => dispatch({ type: 'UNDO' }));
   };
@@ -86,7 +88,7 @@ export default function AiPanel() {
     if (!masterOn) return;
     const cur = state.ai[key].on;
     dispatchPatch(key, { on: !cur });
-    showToast(`${featureLabels[key]} turned ${cur ? 'off' : 'on'}`, () => dispatch({ type: 'UNDO' }));
+    showToast(`${manageLabels[key]} turned ${cur ? 'off' : 'on'}`, () => dispatch({ type: 'UNDO' }));
   };
 
   return (
@@ -138,35 +140,47 @@ export default function AiPanel() {
       />
 
       <SpringDialog
-        open={!!manageModal}
-        title={`Manage ${manageModal ? manageLabels[manageModal] : ''}`}
+        open={manageModal === 'aiFeatures'}
+        title="Manage AI features"
         onClose={() => setManageModal(null)}
-        onSave={handleSaveManage}
+        onSave={handleSaveAiFeatures}
         error={state.simulateError}
       >
-        {manageModal === 'aiFeatures' ? (
-          <SubRow>
-            <LabelWithInfo>AI notes and transcriptions retention period</LabelWithInfo>
-            <SpringSelect
-              value={editRetention}
-              options={[...RETENTION_OPTIONS]}
-              onChange={(v) => {
-                const next = RETENTION_OPTIONS.find((o) => o === v);
-                if (next) setEditRetention(next);
-              }}
-              width={200}
-            />
-          </SubRow>
-        ) : manageModal ? (
-          <UserDefaultsRow
-            defaultVal={editDefault}
-            allowChange={editAllow}
-            onDefaultChange={setEditDefault}
-            onAllowChangeChange={setEditAllow}
-            customCount={state.ai[manageModal].customUsers}
+        <SubRow>
+          <LabelWithInfo>AI notes and transcriptions retention period</LabelWithInfo>
+          <SpringSelect
+            value={editRetention}
+            options={[...RETENTION_OPTIONS]}
+            onChange={(v) => {
+              const next = RETENTION_OPTIONS.find((o) => o === v);
+              if (next) setEditRetention(next);
+            }}
+            width={200}
           />
-        ) : null}
+        </SubRow>
       </SpringDialog>
+
+      <SpringFeatureManageDialog
+        open={manageModal === 'aiAssistant'}
+        title={`Manage ${manageLabels.aiAssistant} settings`}
+        defaultVal={aiAssistant.defaultVal}
+        allowChange={aiAssistant.allowChange}
+        customCount={aiAssistant.customUsers}
+        onCancel={() => setManageModal(null)}
+        onConfirm={(r) => handleSaveFeatureManage('aiAssistant', r)}
+        error={state.simulateError}
+      />
+
+      <SpringFeatureManageDialog
+        open={manageModal === 'autoCallNotes'}
+        title={`Manage ${manageLabels.autoCallNotes} settings`}
+        defaultVal={autoCallNotes.defaultVal}
+        allowChange={autoCallNotes.allowChange}
+        customCount={autoCallNotes.customUsers}
+        onCancel={() => setManageModal(null)}
+        onConfirm={(r) => handleSaveFeatureManage('autoCallNotes', r)}
+        error={state.simulateError}
+      />
     </div>
   );
 }

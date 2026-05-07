@@ -416,26 +416,30 @@ function SpringRadio({
   );
 }
 
-export function SpringGuidesManageDialog({
+export function SpringFeatureManageDialog({
   open,
+  title,
   defaultVal,
   allowChange,
   customCount = 0,
+  totalUsers = 98,
   onCancel,
   onConfirm,
   error,
 }: {
   open: boolean;
+  title: string;
   defaultVal: 'On' | 'Off';
   allowChange: boolean;
   customCount?: number;
+  totalUsers?: number;
   onCancel: () => void;
   onConfirm: (result: { defaultVal: 'On' | 'Off'; allowChange: boolean }) => void;
   error?: boolean;
 }) {
   const [value, setValue] = useState<'On' | 'Off'>(defaultVal);
   const [allow, setAllow] = useState(allowChange);
-  const total = 98;
+  const total = totalUsers;
   const defaultCount = Math.max(0, total - (customCount || 0));
 
   useEffect(() => {
@@ -450,14 +454,14 @@ export function SpringGuidesManageDialog({
       <DialogPrimitives.Portal>
         <DialogPrimitives.Overlay className="fixed inset-0 z-50 bg-black/40 pt-16 flex justify-center items-start data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0">
           <DialogPrimitives.Content
-            aria-label="Manage Guides, tutorials & announcements settings"
+            aria-label={title}
             className="relative z-10 flex w-[820px] max-w-[calc(100%-32px)] flex-col rounded-[10px] bg-white shadow-[0_10px_10px_rgba(0,0,0,0.2)] data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95"
           >
             <div className="flex flex-col gap-8 px-6 pb-10 pt-9">
               <div className="flex flex-col gap-6">
                 <div className="py-3">
                   <DialogPrimitives.Title className="text-[24px] font-normal leading-[32px] text-[var(--sui-colors-neutral-b0)]">
-                    Manage Guides, tutorials &amp; announcements settings
+                    {title}
                   </DialogPrimitives.Title>
                 </div>
 

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useSettings } from '../../store';
-import { SettingCard, SpringConfirmDialog, SpringGuidesManageDialog, showToast } from '../../components/shared';
+import { SettingCard, SpringConfirmDialog, SpringFeatureManageDialog, showToast } from '../../components/shared';
 
 export default function GeneralPanel() {
   const { state, dispatch } = useSettings();
@@ -77,8 +77,9 @@ export default function GeneralPanel() {
         }}
       />
 
-      <SpringGuidesManageDialog
+      <SpringFeatureManageDialog
         open={guidesManageOpen}
+        title="Manage Guides, tutorials & announcements settings"
         defaultVal={guides.defaultVal}
         allowChange={guides.allowChange}
         customCount={guides.customUsers}

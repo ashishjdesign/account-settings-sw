@@ -1,29 +1,21 @@
 import React, { useState } from 'react';
 import { useSettings } from '../../store';
-import { SettingCard, SpringDialog, UserDefaultsRow, showToast } from '../../components/shared';
+import { SettingCard, SpringFeatureManageDialog, showToast } from '../../components/shared';
 
 export default function PhonePanel() {
   const { state, dispatch } = useSettings();
   const { externalAppOn, autoAnswer, conferenceCallsOn } = state.phone;
 
   const [manageOpen, setManageOpen] = useState(false);
-  const [editDefault, setEditDefault] = useState<'On' | 'Off'>(autoAnswer.defaultVal);
-  const [editAllow, setEditAllow] = useState(autoAnswer.allowChange);
 
-  const openManage = () => {
-    setEditDefault(autoAnswer.defaultVal);
-    setEditAllow(autoAnswer.allowChange);
-    setManageOpen(true);
-  };
-
-  const handleSaveManage = () => {
+  const handleSaveManage = (result: { defaultVal: 'On' | 'Off'; allowChange: boolean }) => {
     if (state.simulateError) {
       dispatch({ type: 'TOGGLE_SIMULATE_ERROR' });
       return;
     }
     dispatch({
       type: 'PATCH_PHONE_AUTO_ANSWER',
-      payload: { defaultVal: editDefault, allowChange: editAllow },
+      payload: { defaultVal: result.defaultVal, allowChange: result.allowChange },
     });
     setManageOpen(false);
     showToast('Settings were updated.', () => dispatch({ type: 'UNDO' }));
@@ -47,7 +39,7 @@ export default function PhonePanel() {
           { label: 'User default:', value: autoAnswer.defaultVal },
           { label: 'User access:', value: autoAnswer.allowChange ? 'Allowed' : 'Restricted' },
         ]}
-        onManage={openManage}
+        onManage={() => setManageOpen(true)}
         onSwitchClick={() =>
           dispatch({ type: 'PATCH_PHONE_AUTO_ANSWER', payload: { on: !autoAnswer.on } })
         }
@@ -60,21 +52,16 @@ export default function PhonePanel() {
         onSwitchClick={() => dispatch({ type: 'SET_PHONE_CONFERENCE', payload: !conferenceCallsOn })}
       />
 
-      <SpringDialog
+      <SpringFeatureManageDialog
         open={manageOpen}
-        title="Manage Auto-answer calls"
-        onClose={() => setManageOpen(false)}
-        onSave={handleSaveManage}
+        title="Manage Auto-answer calls settings"
+        defaultVal={autoAnswer.defaultVal}
+        allowChange={autoAnswer.allowChange}
+        customCount={autoAnswer.customUsers}
+        onCancel={() => setManageOpen(false)}
+        onConfirm={handleSaveManage}
         error={state.simulateError}
-      >
-        <UserDefaultsRow
-          defaultVal={editDefault}
-          allowChange={editAllow}
-          onDefaultChange={setEditDefault}
-          onAllowChangeChange={setEditAllow}
-          customCount={autoAnswer.customUsers}
-        />
-      </SpringDialog>
+      />
     </div>
   );
 }

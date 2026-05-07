@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useSettings, FaxConfig } from '../../store';
-import { SettingCard, SpringDialog, UserDefaultsRow, SpringSelect, showToast, SpringSwitch } from '../../components/shared';
+import { SettingCard, SpringFeatureManageDialog, SpringSelect, showToast, SpringSwitch } from '../../components/shared';
 import * as DialogPrimitives from '@radix-ui/react-dialog';
 import { X, Info } from 'lucide-react';
 
@@ -14,23 +14,20 @@ export default function FaxPanel() {
   const [manageOpen, setManageOpen] = useState(false);
   const [customizeOpen, setCustomizeOpen] = useState(false);
 
-  const [editDefault, setEditDefault] = useState<'On' | 'Off'>(fax.defaultVal);
-  const [editAllow, setEditAllow] = useState(fax.allowChange);
-
   const [custDraft, setCustDraft] = useState<FaxConfig>(fax.customize);
   const [unsavedGuardOpen, setUnsavedGuardOpen] = useState(false);
   const [showRetentionError, setShowRetentionError] = useState(false);
 
   const retentionInvalid = custDraft.retention === '';
 
-  const handleSaveManage = () => {
+  const handleSaveManage = (result: { defaultVal: 'On' | 'Off'; allowChange: boolean }) => {
     if (state.simulateError) {
       dispatch({ type: 'TOGGLE_SIMULATE_ERROR' });
       return;
     }
     dispatch({
       type: 'PATCH_FAX',
-      payload: { defaultVal: editDefault, allowChange: editAllow },
+      payload: { defaultVal: result.defaultVal, allowChange: result.allowChange },
     });
     setManageOpen(false);
     showToast('Settings were updated.', () => dispatch({ type: 'UNDO' }));
@@ -73,11 +70,7 @@ export default function FaxPanel() {
           { label: 'User default:', value: fax.defaultVal },
           { label: 'User access:', value: fax.allowChange ? 'Allowed' : 'Restricted' },
         ]}
-        onManage={() => {
-          setEditDefault(fax.defaultVal);
-          setEditAllow(fax.allowChange);
-          setManageOpen(true);
-        }}
+        onManage={() => setManageOpen(true)}
         onSwitchClick={() => dispatch({ type: 'PATCH_FAX', payload: { on: !fax.on } })}
       />
       <SettingCard
@@ -89,21 +82,16 @@ export default function FaxPanel() {
         onSwitchClick={() => dispatch({ type: 'SET_EMAIL_TO_FAX', payload: !emailToFaxOn })}
       />
 
-      <SpringDialog
+      <SpringFeatureManageDialog
         open={manageOpen}
-        title="Manage Fax"
-        onClose={() => setManageOpen(false)}
-        onSave={handleSaveManage}
+        title="Manage Fax settings"
+        defaultVal={fax.defaultVal}
+        allowChange={fax.allowChange}
+        customCount={fax.customUsers}
+        onCancel={() => setManageOpen(false)}
+        onConfirm={handleSaveManage}
         error={state.simulateError}
-      >
-        <UserDefaultsRow
-          defaultVal={editDefault}
-          allowChange={editAllow}
-          onDefaultChange={setEditDefault}
-          onAllowChangeChange={setEditAllow}
-          customCount={fax.customUsers}
-        />
-      </SpringDialog>
+      />
 
       <DialogPrimitives.Root open={customizeOpen} onOpenChange={(o) => !o && handleCloseCustomize()}>
         <DialogPrimitives.Portal>
