@@ -54,6 +54,7 @@ const scopedTokens = `
     --sui-colors-neutral-b2: #72757a;
     --sui-colors-neutral-b3: #9e9fa4;
     --sui-colors-neutral-b4: #dddfe5;
+    --sui-colors-neutral-b5: #f5f6f9;
     --sui-radius-sm: 10px;
     font-family: Inter, system-ui, sans-serif;
     color: var(--sui-colors-neutral-b1);
