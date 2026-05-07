@@ -638,19 +638,38 @@ export function UserDefaultsRow({
 }
 
 export function showToast(message: string, onUndo?: () => void) {
-  toast.success(message, {
-    action: onUndo ? {
-      label: "Undo",
-      onClick: onUndo,
-    } : undefined,
-    className: "bg-[#1A8517] text-white border-none rounded-[3px] px-[10px] py-[7px] text-[13px] font-sans !font-normal font-['Helvetica']",
-    actionButtonStyle: {
-      backgroundColor: 'transparent',
-      color: 'white',
-      textDecoration: 'underline',
-      fontWeight: 'normal',
-      padding: 0
-    },
-    duration: onUndo ? 8000 : 4000,
-  });
+  toast.custom(
+    (id) => (
+      <div
+        role="status"
+        className="flex w-[640px] max-w-[calc(100vw-32px)] items-center justify-between gap-2 rounded-[3px] bg-[#1A8517] px-[7px] py-[10px] font-['Helvetica',sans-serif] text-[13px] leading-[1.54] text-white shadow-[0_2px_8px_rgba(0,0,0,0.15)]"
+      >
+        <span className="h-[13px] w-[13px] shrink-0 opacity-0" aria-hidden="true" />
+        <p className="flex-1 text-center">
+          {message}
+          {onUndo && (
+            <>
+              {' '}
+              <button
+                type="button"
+                onClick={() => { onUndo(); toast.dismiss(id); }}
+                className="cursor-pointer underline focus:outline-none"
+              >
+                Undo
+              </button>
+            </>
+          )}
+        </p>
+        <button
+          type="button"
+          onClick={() => toast.dismiss(id)}
+          aria-label="Close"
+          className="flex h-[13px] w-[13px] shrink-0 cursor-pointer items-center justify-center text-white focus:outline-none"
+        >
+          <X className="h-[13px] w-[13px]" strokeWidth={2} />
+        </button>
+      </div>
+    ),
+    { duration: onUndo ? 8000 : 4000 },
+  );
 }

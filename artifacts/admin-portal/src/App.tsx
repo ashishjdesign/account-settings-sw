@@ -9,7 +9,12 @@ function App() {
   return (
     <SettingsProvider>
       <Router base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
-        <Toaster position="bottom-right" className="swui-scope" />
+        <Toaster
+          position="top-center"
+          offset={16}
+          className="swui-scope"
+          toastOptions={{ unstyled: true, classNames: { toast: '' } }}
+        />
         <Chrome>
           <Switch>
             <Route path="/" component={() => <Redirect to="/feature-settings/general" />} />
