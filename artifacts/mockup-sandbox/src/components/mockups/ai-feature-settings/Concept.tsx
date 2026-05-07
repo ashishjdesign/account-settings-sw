@@ -61,7 +61,7 @@ function SettingCard({
 
         {/* Sub-settings (indented under title, top border separates them) */}
         {children && (
-          <div className="flex w-full flex-col border-t border-[var(--sui-colors-neutral-b4)] pt-4">
+          <div className="flex w-full flex-col mt-2 border-t border-[var(--sui-colors-neutral-b4)] pt-4">
             {children}
           </div>
         )}

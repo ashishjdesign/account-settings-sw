@@ -341,7 +341,7 @@ export function SettingCard({
         ) : null}
 
         {summary && summary.length > 0 && (
-          <div className="flex w-full items-center justify-between gap-4 border-t border-[var(--sui-colors-neutral-b4)] pt-4 mt-2">
+          <div className="flex w-full items-center justify-between gap-4 mt-2 border-t border-[var(--sui-colors-neutral-b4)] pt-4 mt-2">
             <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
               {summary.map((seg, i) => (
                 <div
