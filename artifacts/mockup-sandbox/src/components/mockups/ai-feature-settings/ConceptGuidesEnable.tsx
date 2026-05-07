@@ -483,76 +483,90 @@ export function SpringManageDialog({
       <div
         role="dialog"
         aria-modal="true"
-        className="relative z-10 flex w-[620px] max-w-[calc(100%-32px)] flex-col rounded-[12px] bg-white shadow-[0_12px_32px_rgba(0,0,0,0.18),0_2px_6px_rgba(0,0,0,0.08)]"
+        className="relative z-10 flex w-[820px] max-w-[calc(100%-32px)] flex-col rounded-[10px] bg-white shadow-[0_10px_10px_rgba(0,0,0,0.2)]"
       >
-        <div className="flex flex-col gap-6 px-6 pb-10 pt-6">
-          <h2 className="py-3 text-[24px] font-normal leading-[32px] text-[var(--sui-colors-neutral-b1)]">
-            Manage Guides, tutorials &amp; announcements
-          </h2>
+        <div className="flex flex-col gap-8 px-6 pb-10 pt-9">
+          <div className="flex flex-col gap-6">
+            <div className="py-3">
+              <h2 className="text-[24px] font-normal leading-[32px] text-[var(--sui-colors-neutral-b0)]">
+                Manage Guides, tutorials &amp; announcements settings
+              </h2>
+            </div>
 
-          <p className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
-            <a
-              href="#"
-              onClick={(e) => { e.preventDefault(); setUsersDialog('default'); }}
-              className="cursor-pointer font-normal text-[var(--sui-colors-primary-b)] underline hover:text-[var(--sui-colors-primary-b-high-contrast)]"
-            >
-              72/98 users
-            </a>{' '}
-            are using the <span className="font-semibold">default</span> user configuration.
-          </p>
+            {/* Section: User deployment */}
+            <div className="flex flex-col gap-2">
+              <h3 className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b2)]">
+                User deployment
+              </h3>
 
-          <div className="flex flex-col rounded-[10px] border border-[var(--sui-colors-neutral-b4)] bg-white">
-            <div className="flex min-h-[64px] items-center justify-between gap-4 px-4 py-3">
-              <span className="text-[14px] font-semibold leading-[20px] text-[var(--sui-colors-neutral-b1)]">
-                User defaults
-              </span>
-              <div className="flex items-center gap-3">
-                <span className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
-                  Set this setting for users
-                </span>
-                <SpringSelect
-                  value={defaultValue}
-                  options={['On', 'Off']}
-                  onChange={(v) => setDefaultValue(v as 'On' | 'Off')}
-                  width={84}
-                />
+              <div className="flex flex-col gap-4 rounded-[10px] border border-[#9E9FA4]/35 bg-white p-4">
+                {/* Default in user settings row */}
+                <div className="flex w-full items-center justify-between gap-4">
+                  <div className="flex h-[32px] items-center gap-4 pr-4">
+                    <span className="text-[14px] font-semibold leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                      Default in user settings:
+                    </span>
+                    <div className="flex items-center gap-5">
+                      <SpringRadio
+                        checked={defaultValue === 'On'}
+                        onChange={() => setDefaultValue('On')}
+                        label="On"
+                      />
+                      <SpringRadio
+                        checked={defaultValue === 'Off'}
+                        onChange={() => setDefaultValue('Off')}
+                        label="Off"
+                      />
+                    </div>
+                  </div>
+                  <div className="flex h-[32px] items-center rounded-[10px] bg-[var(--sui-colors-neutral-b5)] px-3">
+                    <p className="whitespace-nowrap text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                      <a
+                        href="#"
+                        onClick={(e) => { e.preventDefault(); setUsersDialog('default'); }}
+                        className="cursor-pointer text-[var(--sui-colors-primary-b)] underline hover:text-[var(--sui-colors-primary-b-high-contrast)]"
+                      >
+                        72/98 users
+                      </a>{' '}
+                      are using the default
+                    </p>
+                  </div>
+                </div>
+
+                <div className="border-t border-[var(--sui-colors-neutral-b4)]" />
+
+                {/* User access row */}
+                <div className="flex h-[32px] items-center gap-4">
+                  <span className="text-[14px] font-semibold leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                    User access:
+                  </span>
+                  <label className="flex cursor-pointer items-center gap-2">
+                    <SpringCheckbox checked={allowChange} onChange={setAllowChange} />
+                    <span className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                      Allow users to change this setting
+                    </span>
+                  </label>
+                </div>
               </div>
             </div>
-            <div className="mx-4 border-t border-[var(--sui-colors-neutral-b4)]/70" />
-            <div className="flex min-h-[64px] items-center justify-between gap-4 px-4 py-3">
-              <span className="text-[14px] font-semibold leading-[20px] text-[var(--sui-colors-neutral-b1)]">
-                User permissions
-              </span>
-              <label className="flex cursor-pointer items-center gap-2 text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
-                <SpringCheckbox checked={allowChange} onChange={setAllowChange} />
-                Allow users to change this setting
-              </label>
-            </div>
           </div>
-
-          <p className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b2)]">
-            Admins can manage this setting for users from their detail pages or apply them in bulk through{' '}
-            <a href="#" className="cursor-pointer text-[var(--sui-colors-primary-b)] underline hover:text-[var(--sui-colors-primary-b-high-contrast)]">
-              User Templates
-            </a>.
-          </p>
         </div>
 
-        <div className="border-t border-[#DDDFE5]/50" />
-        <div className="flex justify-end gap-2 px-6 py-4">
+        <div className="border-t border-[var(--sui-colors-neutral-b4)]/50" />
+        <div className="flex justify-end gap-2 px-6 pt-5 pb-5">
           <button
             type="button"
             onClick={onCancel}
-            className="inline-flex h-[32px] min-w-[64px] cursor-pointer items-center justify-center rounded-[10px] border border-black/20 bg-white px-3 text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b0)] transition-colors hover:bg-[var(--sui-colors-neutral-b4)]/40"
+            className="inline-flex h-[36px] min-w-[60px] cursor-pointer items-center justify-center rounded-[10px] border border-[var(--sui-colors-neutral-b4)] bg-white px-[18px] text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b0)] transition-colors hover:bg-[var(--sui-colors-neutral-b4)]/40"
           >
             Cancel
           </button>
           <button
             type="button"
             onClick={() => onSave({ defaultValue, allowChange })}
-            className="inline-flex h-[32px] min-w-[64px] cursor-pointer items-center justify-center rounded-[10px] bg-[var(--sui-colors-primary-b)] px-3 text-[14px] font-medium leading-[20px] text-white transition-colors hover:bg-[var(--sui-colors-primary-b-high-contrast)]"
+            className="inline-flex h-[36px] min-w-[60px] cursor-pointer items-center justify-center rounded-[10px] bg-[var(--sui-colors-primary-b)] px-[18px] text-[14px] font-medium leading-[20px] text-white transition-colors hover:bg-[var(--sui-colors-primary-b-high-contrast)]"
           >
-            Save
+            Confirm
           </button>
         </div>
       </div>
