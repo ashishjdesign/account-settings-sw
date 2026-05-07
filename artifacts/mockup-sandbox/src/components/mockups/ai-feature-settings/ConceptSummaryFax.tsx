@@ -1,5 +1,15 @@
-import { Printer, FileText, Mail } from 'lucide-react';
-import { FeatureSettingsLayout, SectionHeading, SettingCard } from './_chrome';
+import { FeatureSettingsLayout, SettingCard } from './_chrome';
+
+const Icon = ({ name }: { name: string }) => (
+  <img
+    src={`/__mockup/figma-ref/icons/${name}.svg`}
+    alt=""
+    aria-hidden="true"
+    width={20}
+    height={20}
+    className="block h-5 w-5 shrink-0"
+  />
+);
 
 export function ConceptSummaryFax() {
   return (
@@ -7,34 +17,20 @@ export function ConceptSummaryFax() {
       <SettingCard
         title="Fax"
         switchOn
-        icon={<Printer className="h-5 w-5" strokeWidth={1.6} />}
-        description="Allow users to send and receive faxes online from their RingCentral account."
+        icon={<Icon name="fax" />}
+        description="Allow this account to access fax settings."
         summary={[
           { label: 'User default:', value: 'On' },
-          { value: 'Users can change this setting' },
+          { label: 'User access:', value: 'Allowed' },
         ]}
         onManage={() => {}}
       />
 
-      <SectionHeading>Delivery</SectionHeading>
-
       <SettingCard
-        title="Inbound fax delivery"
+        title="Email-to-Fax"
         switchOn
-        icon={<Mail className="h-5 w-5" strokeWidth={1.6} />}
-        description="Choose how received faxes are delivered to users."
-        summary={[
-          { label: 'Delivery:', value: 'Email + RingCentral app' },
-          { value: 'PDF attachment' },
-        ]}
-        onManage={() => {}}
-      />
-
-      <SettingCard
-        title="Cover page"
-        switchOn={false}
-        icon={<FileText className="h-5 w-5" strokeWidth={1.6} />}
-        description="Add a default cover page to outbound faxes with your company logo and contact info."
+        icon={<Icon name="email-to-fax" />}
+        description="Allow this account to send faxes using Email-to-fax feature."
       />
     </FeatureSettingsLayout>
   );
