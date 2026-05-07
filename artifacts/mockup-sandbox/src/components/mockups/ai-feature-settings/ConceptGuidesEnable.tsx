@@ -326,7 +326,7 @@ export function SpringEnableDialog({
           <div className="flex flex-col gap-6">
             <div className="py-3">
               <h2 className="text-[24px] font-normal leading-[32px] text-[var(--sui-colors-neutral-b0)]">
-                Turn on Guides, tutorials &amp; announcements or your organization?
+                Turn on Guides, tutorials &amp; announcements for your organization?
               </h2>
             </div>
 
