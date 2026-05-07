@@ -175,7 +175,7 @@ type SummarySegment = { label?: string; value: string };
 type IconKey = 'user-activation' | 'resource-center';
 
 function SettingCard({
-  title, description, switchOn, icon, summary, onManage,
+  title, description, switchOn, icon, summary, onManage, onSwitchClick,
 }: {
   title: string;
   description: React.ReactNode;

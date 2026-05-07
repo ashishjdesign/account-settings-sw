@@ -303,14 +303,11 @@ function SettingCard({
         {/* Summary + Manage row (Figma 1786:54673) */}
         {summary && summary.length > 0 && switchOn && (
           <div className="flex w-full items-center justify-between gap-4 border-t border-[var(--sui-colors-neutral-b4)] pt-4">
-            <div className="flex min-w-0 flex-1 items-center text-[14px] leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+            <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
               {summary.map((seg, i) => (
                 <div
                   key={i}
-                  className={cn(
-                    'flex items-center gap-2 whitespace-nowrap',
-                    i > 0 && 'ml-2 border-l border-[var(--sui-colors-neutral-b4)] pl-2',
-                  )}
+                  className="flex h-[32px] items-center gap-2 whitespace-nowrap rounded-[10px] bg-[var(--sui-colors-neutral-b5)] px-3 text-[14px] leading-[20px] text-[var(--sui-colors-neutral-b1)]"
                 >
                   {seg.label && <span className="font-semibold">{seg.label}</span>}
                   <span className="font-normal">{seg.value}</span>
@@ -556,7 +553,7 @@ function PhonePanel() {
   );
 }
 
-function AiPanel({ onManage }: { onManage: (k: 'ai-assistant' | 'auto-call-notes') => void }) {
+function AiPanel({ onManage }: { onManage: (k: 'ai-features' | 'ai-assistant' | 'auto-call-notes') => void }) {
   return (
     <div className="flex flex-col gap-4">
       <SettingCard
@@ -564,6 +561,10 @@ function AiPanel({ onManage }: { onManage: (k: 'ai-assistant' | 'auto-call-notes
         switchOn
         icon="ai-stars"
         description="Turn on AI support for calls, messages and video meetings. Deliver real-time answers, call notes, transcripts and meeting recaps to help teams stay focused and organized. Empower users to communicate clearly with built-in writing and polishing tools."
+        summary={[
+          { label: 'Data retention period:', value: '365 days' },
+        ]}
+        onManage={() => onManage('ai-features')}
       />
       <SettingCard
         title="AI Assistant"
@@ -634,7 +635,7 @@ function FaxPanel() {
 /* -----------------------------------------------------------------------------
  * MAIN — clickable prototype, pills navigate between v2 tabs
  * --------------------------------------------------------------------------- */
-type ModalKey = 'ai-assistant' | 'auto-call-notes' | null;
+type ModalKey = 'ai-features' | 'ai-assistant' | 'auto-call-notes' | null;
 type TabKey = 'general' | 'phone' | 'ai' | 'sms' | 'fax';
 
 const TABS: { key: TabKey; label: string }[] = [
@@ -785,14 +786,21 @@ export function ConceptPrototype() {
       {/* Modals (Spring scope so tokens resolve) */}
       <div className="spring-scope">
         <SpringDialog
-          open={modal === 'ai-assistant'}
-          title="Manage AI Assistant"
+          open={modal === 'ai-features'}
+          title="Manage AI features"
           onClose={() => setModal(null)}
         >
           <SubRow>
             <LabelWithInfo>AI notes and transcriptions retention period</LabelWithInfo>
             <SpringSelect value="365 days (Default)" width={200} />
           </SubRow>
+        </SpringDialog>
+
+        <SpringDialog
+          open={modal === 'ai-assistant'}
+          title="Manage AI Assistant"
+          onClose={() => setModal(null)}
+        >
           <UserDefaultsRow />
           <UserPermissionsRow />
         </SpringDialog>
