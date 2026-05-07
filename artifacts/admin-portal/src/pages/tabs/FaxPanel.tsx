@@ -78,7 +78,6 @@ export default function FaxPanel() {
           setEditAllow(fax.allowChange);
           setManageOpen(true);
         }}
-        onCustomize={openCustomize}
         onSwitchClick={() => dispatch({ type: 'PATCH_FAX', payload: { on: !fax.on } })}
       />
       <SettingCard
