@@ -2,7 +2,7 @@ import { FeatureSettingsLayout, SettingCard } from './_chrome';
 
 const Icon = ({ name }: { name: string }) => (
   <img
-    src={`/figma-ref/icons/${name}.svg`}
+    src={`/__mockup/figma-ref/icons/${name}.svg`}
     alt=""
     aria-hidden="true"
     width={20}

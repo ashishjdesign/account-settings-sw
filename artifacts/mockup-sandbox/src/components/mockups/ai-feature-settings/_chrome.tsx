@@ -317,7 +317,6 @@ export function FeatureSettingsLayout({
 
             <div className="flex flex-col gap-4">{children}</div>
 
-            <FooterActions />
             <LegalFooter />
           </main>
         </div>
