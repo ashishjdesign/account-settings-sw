@@ -2,8 +2,8 @@ import React from 'react';
 import { cn } from '@/lib/utils';
 import { FeatureSettingsShell, SpringSwitch } from './_shared';
 
-export type TabKey = 'General' | 'Phone' | 'AI' | 'SMS' | 'Fax' | 'Meetings';
-const TABS: TabKey[] = ['General', 'Phone', 'AI', 'SMS', 'Fax', 'Meetings'];
+export type TabKey = 'General' | 'Phone' | 'AI' | 'SMS' | 'Fax';
+const TABS: TabKey[] = ['General', 'Phone', 'AI', 'SMS', 'Fax'];
 
 export function PillTabs({ selected }: { selected: TabKey }) {
   return (

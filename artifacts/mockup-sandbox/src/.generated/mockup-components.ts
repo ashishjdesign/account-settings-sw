@@ -14,7 +14,6 @@ export const modules: ModuleMap = {
   "./components/mockups/ai-feature-settings/ConceptPrototype.tsx": () => import("../components/mockups/ai-feature-settings/ConceptPrototype.tsx"),
   "./components/mockups/ai-feature-settings/ConceptSummaryFax.tsx": () => import("../components/mockups/ai-feature-settings/ConceptSummaryFax.tsx"),
   "./components/mockups/ai-feature-settings/ConceptSummaryGeneral.tsx": () => import("../components/mockups/ai-feature-settings/ConceptSummaryGeneral.tsx"),
-  "./components/mockups/ai-feature-settings/ConceptSummaryMeetings.tsx": () => import("../components/mockups/ai-feature-settings/ConceptSummaryMeetings.tsx"),
   "./components/mockups/ai-feature-settings/ConceptSummaryModal.tsx": () => import("../components/mockups/ai-feature-settings/ConceptSummaryModal.tsx"),
   "./components/mockups/ai-feature-settings/ConceptSummaryPhone.tsx": () => import("../components/mockups/ai-feature-settings/ConceptSummaryPhone.tsx"),
   "./components/mockups/ai-feature-settings/ConceptSummarySMS.tsx": () => import("../components/mockups/ai-feature-settings/ConceptSummarySMS.tsx"),
