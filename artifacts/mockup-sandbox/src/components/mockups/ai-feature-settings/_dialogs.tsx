@@ -77,7 +77,7 @@ export function SpringFirstEnableDialog({
       <div
         role="dialog"
         aria-modal="true"
-        className="relative z-10 flex w-[640px] max-w-[calc(100%-32px)] flex-col rounded-[10px] bg-white"
+        className="relative z-10 flex w-[820px] max-w-[calc(100%-32px)] flex-col rounded-[10px] bg-white shadow-[0_10px_10px_rgba(0,0,0,0.2)]"
         style={{ boxShadow: '0 10px 30px rgba(0,0,0,0.2)' }}
       >
         <div className="flex flex-col gap-6 px-6 pb-10 pt-9">
@@ -169,7 +169,7 @@ export function ExtAppFeatureSettingsDialog({
   return (
     <div className="absolute inset-0 z-50 flex items-start justify-center bg-black/40 pt-[60px]">
       <div
-        className="flex w-[640px] flex-col rounded-[10px] bg-white pt-9"
+        className="flex w-[820px] max-w-[calc(100%-32px)] flex-col rounded-[10px] bg-white pt-9"
         style={{ boxShadow: '0 10px 30px rgba(0,0,0,0.2)' }}
       >
         {/* Content */}
