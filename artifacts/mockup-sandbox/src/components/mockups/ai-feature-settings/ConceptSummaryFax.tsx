@@ -31,6 +31,11 @@ export function ConceptSummaryFax() {
         switchOn
         icon={<Icon name="email-to-fax" />}
         description="Allow this account to send faxes using Email-to-fax feature."
+        summary={[
+          { label: 'User default:', value: 'On' },
+          { label: 'User access:', value: 'Allowed' },
+        ]}
+        onManage={() => {}}
       />
     </FeatureSettingsLayout>
   );
