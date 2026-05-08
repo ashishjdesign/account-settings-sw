@@ -658,7 +658,7 @@ export function ExtAppManageDialog({
         style={{ boxShadow: '0 12px 32px rgba(0,0,0,0.18), 0 2px 6px rgba(0,0,0,0.08)' }}
       >
         <div className="flex min-h-0 flex-1 flex-col gap-6 overflow-y-auto px-6 pb-8 pt-6">
-          <h2 className="py-2 text-[22px] font-normal leading-[30px] text-[var(--sui-colors-neutral-b1)]">
+          <h2 className="py-3 text-[24px] font-normal leading-[32px] text-[var(--sui-colors-neutral-b1)]">
             Manage Launch an external app for incoming calls
           </h2>
 

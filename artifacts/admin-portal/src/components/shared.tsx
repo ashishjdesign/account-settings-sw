@@ -1491,7 +1491,7 @@ export function ExtAppManageDialog({
             className="relative z-10 flex max-h-full min-h-0 w-[800px] max-w-[calc(100%-32px)] flex-col overflow-hidden rounded-[12px] bg-white shadow-[0_12px_32px_rgba(0,0,0,0.18),0_2px_6px_rgba(0,0,0,0.08)] data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95"
           >
             <div className="flex min-h-0 flex-1 flex-col gap-6 overflow-y-auto px-6 pb-8 pt-6">
-              <DialogPrimitives.Title className="py-2 text-[22px] font-normal leading-[30px] text-[var(--sui-colors-neutral-b1)]">
+              <DialogPrimitives.Title className="py-3 text-[24px] font-normal leading-[32px] text-[var(--sui-colors-neutral-b1)]">
                 Manage Launch an external app for incoming calls
               </DialogPrimitives.Title>
 
