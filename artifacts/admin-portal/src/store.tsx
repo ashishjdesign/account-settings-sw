@@ -24,6 +24,27 @@ export type GeneralState = {
   guides: FeatureConfig;
 };
 
+export type AutoAnswerDelay =
+  | 'Immediately'
+  | '5 seconds'
+  | '10 seconds'
+  | '15 seconds'
+  | '20 seconds'
+  | '25 seconds';
+
+export const AUTO_ANSWER_DELAY_OPTIONS: AutoAnswerDelay[] = [
+  'Immediately',
+  '5 seconds',
+  '10 seconds',
+  '15 seconds',
+  '20 seconds',
+  '25 seconds',
+];
+
+export type AutoAnswerConfig = FeatureConfig & {
+  delay: AutoAnswerDelay;
+};
+
 export type ExtAppConfig = FeatureConfig & {
   launchUrl: string;
   trigger: 'A call begins to ring' | 'A call is answered';
@@ -36,7 +57,7 @@ export type ExtAppConfig = FeatureConfig & {
 export type PhoneState = {
   externalAppOn: boolean;
   extApp: ExtAppConfig;
-  autoAnswer: FeatureConfig;
+  autoAnswer: AutoAnswerConfig;
   conferenceCallsOn: boolean;
 };
 
@@ -84,7 +105,7 @@ const initialState: AppState = {
       trigger: 'A call begins to ring',
       everEnabled: false,
     },
-    autoAnswer: { on: true, defaultVal: 'Off', allowChange: true, customUsers: 0 },
+    autoAnswer: { on: true, defaultVal: 'Off', allowChange: true, customUsers: 0, delay: 'Immediately' },
     conferenceCallsOn: false,
   },
   ai: {
@@ -130,7 +151,7 @@ type Action =
   | { type: 'SET_PHONE_EXTERNAL_APP'; payload: boolean }
   | { type: 'PATCH_PHONE_EXT_APP'; payload: Partial<ExtAppConfig> }
   | { type: 'SET_PHONE_CONFERENCE'; payload: boolean }
-  | { type: 'PATCH_PHONE_AUTO_ANSWER'; payload: Partial<FeatureConfig> }
+  | { type: 'PATCH_PHONE_AUTO_ANSWER'; payload: Partial<AutoAnswerConfig> }
   | { type: 'PATCH_AI_ASSISTANT'; payload: Partial<FeatureConfig> }
   | { type: 'PATCH_AI_AUTO_NOTES'; payload: Partial<FeatureConfig> }
   | { type: 'PATCH_AI_ASSISTANT_CUSTOMIZE'; payload: Partial<AiAssistantCustomize> }
@@ -205,14 +226,17 @@ function reducer(state: AppState, action: Action): AppState {
     }
     case 'SET_PHONE_CONFERENCE':
       return { ...withSnapshot(state), phone: { ...state.phone, conferenceCallsOn: action.payload } };
-    case 'PATCH_PHONE_AUTO_ANSWER':
+    case 'PATCH_PHONE_AUTO_ANSWER': {
+      const next = applyFeaturePatch(state.phone.autoAnswer, action.payload) as AutoAnswerConfig;
+      next.delay = action.payload.delay ?? state.phone.autoAnswer.delay;
       return {
         ...withSnapshot(state),
         phone: {
           ...state.phone,
-          autoAnswer: applyFeaturePatch(state.phone.autoAnswer, action.payload),
+          autoAnswer: next,
         },
       };
+    }
     case 'PATCH_AI_ASSISTANT':
       return {
         ...withSnapshot(state),

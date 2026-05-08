@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { useSettings } from '../../store';
+import { useSettings, type AutoAnswerDelay } from '../../store';
 import {
   SettingCard,
-  SpringFeatureManageDialog,
   SpringFeatureEnableDialog,
   SpringConfirmDialog,
   ExtAppFeatureSettingsDialog,
   ExtAppManageDialog,
+  AutoAnswerManageDialog,
   SpringFirstEnableDialog,
   showToast,
 } from '../../components/shared';
@@ -27,14 +27,14 @@ export default function PhonePanel() {
     | null
   >(null);
 
-  const handleSaveManage = (result: { defaultVal: 'On' | 'Off'; allowChange: boolean }) => {
+  const handleSaveManage = (result: { defaultVal: 'On' | 'Off'; allowChange: boolean; delay: AutoAnswerDelay }) => {
     if (state.simulateError) {
       dispatch({ type: 'TOGGLE_SIMULATE_ERROR' });
       return;
     }
     dispatch({
       type: 'PATCH_PHONE_AUTO_ANSWER',
-      payload: { defaultVal: result.defaultVal, allowChange: result.allowChange },
+      payload: { defaultVal: result.defaultVal, allowChange: result.allowChange, delay: result.delay },
     });
     setManageOpen(false);
     showToast('Settings were updated.', () => dispatch({ type: 'UNDO' }));
@@ -79,11 +79,11 @@ export default function PhonePanel() {
         onSwitchClick={() => dispatch({ type: 'SET_PHONE_CONFERENCE', payload: !conferenceCallsOn })}
       />
 
-      <SpringFeatureManageDialog
+      <AutoAnswerManageDialog
         open={manageOpen}
-        title="Manage Auto-answer calls settings"
         defaultVal={autoAnswer.defaultVal}
         allowChange={autoAnswer.allowChange}
+        delay={autoAnswer.delay}
         customCount={autoAnswer.customUsers}
         onCancel={() => setManageOpen(false)}
         onConfirm={handleSaveManage}

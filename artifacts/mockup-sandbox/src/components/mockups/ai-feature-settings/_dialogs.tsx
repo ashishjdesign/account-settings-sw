@@ -577,6 +577,161 @@ export function SpringReEnableDialog({
   );
 }
 
+/* Manage modal for "Auto-answer calls" — Figma node 1993:29733. Mirrors
+ * `ExtAppManageDialog` user-deployment block exactly (cross-feature
+ * consistency is the #1 priority); Feature settings hosts a single
+ * "Auto-answer delay" select. */
+const AUTO_ANSWER_DELAY_OPTIONS = [
+  'Immediately',
+  '5 seconds',
+  '10 seconds',
+  '15 seconds',
+  '20 seconds',
+  '25 seconds',
+] as const;
+type AutoAnswerDelay = (typeof AUTO_ANSWER_DELAY_OPTIONS)[number];
+
+export function AutoAnswerManageDialog({
+  open,
+  defaultVal = 'Off',
+  allowChange = true,
+  delay = 'Immediately',
+  customCount = 0,
+  totalUsers = 98,
+  onCancel,
+  onSave,
+}: {
+  open: boolean;
+  defaultVal?: 'On' | 'Off';
+  allowChange?: boolean;
+  delay?: AutoAnswerDelay;
+  customCount?: number;
+  totalUsers?: number;
+  onCancel?: () => void;
+  onSave?: (result: { defaultVal: 'On' | 'Off'; allowChange: boolean; delay: AutoAnswerDelay }) => void;
+}) {
+  const [value, setValue] = React.useState<'On' | 'Off'>(defaultVal);
+  const [allow, setAllow] = React.useState(allowChange);
+  const [del, setDel] = React.useState<AutoAnswerDelay>(delay);
+  React.useEffect(() => {
+    if (open) {
+      setValue(defaultVal);
+      setAllow(allowChange);
+      setDel(delay);
+    }
+  }, [open, defaultVal, allowChange, delay]);
+  const total = totalUsers;
+  const defaultCount = Math.max(0, total - (customCount || 0));
+  const dirty = value !== defaultVal || allow !== allowChange || del !== delay;
+
+  if (!open) return null;
+  return (
+    <div className="absolute inset-0 z-50 flex items-start justify-center bg-black/40 px-4 py-[60px]">
+      <div
+        className="flex max-h-full min-h-0 w-[800px] max-w-[calc(100%-32px)] flex-col overflow-hidden rounded-[12px] bg-white"
+        style={{ boxShadow: '0 12px 32px rgba(0,0,0,0.18), 0 2px 6px rgba(0,0,0,0.08)' }}
+      >
+        <div className="flex min-h-0 flex-1 flex-col gap-6 overflow-y-auto px-6 pb-8 pt-6">
+          <h2 className="py-3 text-[24px] font-normal leading-[32px] text-[var(--sui-colors-neutral-b1)]">
+            Manage Auto-answer calls
+          </h2>
+
+          {/* User deployment */}
+          <div className="flex flex-col gap-2">
+            <h3 className="text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b2)]">
+              User deployment
+            </h3>
+            <div className="flex flex-col gap-4 rounded-[10px] border border-[#9E9FA4]/35 bg-white p-4">
+              <div className="flex w-full items-center justify-between gap-4">
+                <div className="flex h-[32px] items-center gap-4 pr-4">
+                  <span className="text-[14px] font-semibold leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                    Default in user settings:
+                  </span>
+                  <div className="flex items-center gap-5">
+                    <SpringRadio checked={value === 'On'} onChange={() => setValue('On')} label="On" />
+                    <SpringRadio checked={value === 'Off'} onChange={() => setValue('Off')} label="Off" />
+                  </div>
+                </div>
+                <div className="flex h-[32px] items-center rounded-[10px] bg-[var(--sui-colors-neutral-b5)] px-3">
+                  <p className="whitespace-nowrap text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                    <button type="button" className="cursor-pointer text-[var(--sui-colors-primary-b)] underline">
+                      {defaultCount}/{total} users
+                    </button>{' '}
+                    are using the default
+                  </p>
+                </div>
+              </div>
+
+              <div className="border-t border-[var(--sui-colors-neutral-b4)]" />
+
+              <div className="flex h-[32px] items-center gap-4">
+                <span className="text-[14px] font-semibold leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                  User access:
+                </span>
+                <label className="flex cursor-pointer items-center gap-2">
+                  <SpringCheckbox checked={allow} onChange={setAllow} />
+                  <span className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                    Allow users to change this setting
+                  </span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          {/* Feature settings */}
+          <div className="flex flex-col gap-2">
+            <span className="text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b2)]">
+              Feature settings
+            </span>
+            <div className="flex flex-col gap-4 rounded-[10px] border border-[var(--sui-colors-neutral-b4)] p-4">
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex min-w-0 flex-col gap-1">
+                  <span className="text-[14px] font-semibold leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                    Auto-answer delay
+                  </span>
+                  <p className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b2)]">
+                    Select how long users’ incoming calls will ring before being auto-answered.
+                    This setting won’t apply while users are on an active call.
+                  </p>
+                </div>
+                <SpringSelect
+                  value={del}
+                  width={180}
+                  options={AUTO_ANSWER_DELAY_OPTIONS as unknown as string[]}
+                  onChange={(v) => setDel(v as AutoAnswerDelay)}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="border-t border-[var(--sui-colors-neutral-b4)]/50" />
+        <div className="flex shrink-0 items-center justify-end gap-2 bg-white px-6 pt-5 pb-5">
+          <button
+            type="button"
+            onClick={onCancel}
+            className="inline-flex h-[36px] min-w-[60px] cursor-pointer items-center justify-center rounded-[10px] border border-black/20 bg-white px-4 text-[15px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b0)] transition-colors hover:bg-[var(--sui-colors-neutral-b4)]/40"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={() => onSave?.({ defaultVal: value, allowChange: allow, delay: del })}
+            disabled={!dirty}
+            className={`inline-flex h-[36px] min-w-[60px] items-center justify-center rounded-[10px] px-4 text-[15px] font-medium leading-[20px] text-white transition-colors ${
+              dirty
+                ? 'cursor-pointer bg-[var(--sui-colors-primary-b)] hover:bg-[var(--sui-colors-primary-b-high-contrast)]'
+                : 'cursor-not-allowed bg-[var(--sui-colors-neutral-b3)]'
+            }`}
+          >
+            Save
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /* Manage modal for "Launch an external app for incoming calls" — Figma node
  * 1874:31634. Combines User deployment (Default + User access as separate
  * cards with an inline On/Off select) and Feature settings (Launch URL +
