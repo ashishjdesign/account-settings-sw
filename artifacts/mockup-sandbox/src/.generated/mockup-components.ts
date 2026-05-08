@@ -14,6 +14,7 @@ export const modules: ModuleMap = {
   "./components/mockups/ai-feature-settings/ConceptPhoneExtAppEnable.tsx": () => import("../components/mockups/ai-feature-settings/ConceptPhoneExtAppEnable.tsx"),
   "./components/mockups/ai-feature-settings/ConceptPhoneExtAppFeatureSettings.tsx": () => import("../components/mockups/ai-feature-settings/ConceptPhoneExtAppFeatureSettings.tsx"),
   "./components/mockups/ai-feature-settings/ConceptPhoneExtAppManage.tsx": () => import("../components/mockups/ai-feature-settings/ConceptPhoneExtAppManage.tsx"),
+  "./components/mockups/ai-feature-settings/ConceptPhoneExtAppManageConfirmOff.tsx": () => import("../components/mockups/ai-feature-settings/ConceptPhoneExtAppManageConfirmOff.tsx"),
   "./components/mockups/ai-feature-settings/ConceptPhoneExtAppReEnable.tsx": () => import("../components/mockups/ai-feature-settings/ConceptPhoneExtAppReEnable.tsx"),
   "./components/mockups/ai-feature-settings/ConceptPhoneExtAppRefParams.tsx": () => import("../components/mockups/ai-feature-settings/ConceptPhoneExtAppRefParams.tsx"),
   "./components/mockups/ai-feature-settings/ConceptPrototype.tsx": () => import("../components/mockups/ai-feature-settings/ConceptPrototype.tsx"),
