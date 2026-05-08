@@ -105,7 +105,7 @@ const initialState: AppState = {
       trigger: 'A call begins to ring',
       everEnabled: false,
     },
-    autoAnswer: { on: true, defaultVal: 'Off', allowChange: true, customUsers: 0, delay: 'Immediately' },
+    autoAnswer: { on: true, defaultVal: 'Off', allowChange: true, customUsers: 26, delay: 'Immediately' },
     conferenceCallsOn: false,
   },
   ai: {
