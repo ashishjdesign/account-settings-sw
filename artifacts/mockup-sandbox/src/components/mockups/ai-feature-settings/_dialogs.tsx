@@ -205,18 +205,18 @@ export function SpringFirstEnableDialog({
         </div>
 
         <div className="border-t border-[var(--sui-colors-neutral-b4)]" />
-        <div className="flex justify-end gap-2 px-6 py-4">
+        <div className="flex justify-end gap-2 px-6 pt-5 pb-5">
           <button
             type="button"
             onClick={onCancel}
-            className="inline-flex h-[32px] min-w-[64px] cursor-pointer items-center justify-center rounded-[10px] border border-black/20 bg-white px-3 text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b0)] transition-colors hover:bg-[var(--sui-colors-neutral-b4)]/40"
+            className="inline-flex h-[36px] min-w-[60px] cursor-pointer items-center justify-center rounded-[10px] border border-black/20 bg-white px-4 text-[15px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b0)] transition-colors hover:bg-[var(--sui-colors-neutral-b4)]/40"
           >
             Cancel
           </button>
           <button
             type="button"
             onClick={() => onConfirm?.({ defaultValue, allowChange })}
-            className="inline-flex h-[32px] min-w-[64px] cursor-pointer items-center justify-center rounded-[10px] bg-[var(--sui-colors-primary-b)] px-3 text-[14px] font-medium leading-[20px] text-white transition-colors hover:bg-[var(--sui-colors-primary-b-high-contrast)]"
+            className="inline-flex h-[36px] min-w-[60px] cursor-pointer items-center justify-center rounded-[10px] bg-[var(--sui-colors-primary-b)] px-4 text-[15px] font-medium leading-[20px] text-white transition-colors hover:bg-[var(--sui-colors-primary-b-high-contrast)]"
           >
             Turn on
           </button>
@@ -556,18 +556,18 @@ export function SpringReEnableDialog({
         </div>
 
         <div className="border-t border-[var(--sui-colors-neutral-b4)]/50" />
-        <div className="flex justify-end gap-2 px-6 py-4">
+        <div className="flex justify-end gap-2 px-6 pt-5 pb-5">
           <button
             type="button"
             onClick={onCancel}
-            className="inline-flex h-[32px] min-w-[64px] cursor-pointer items-center justify-center rounded-[10px] border border-black/20 bg-white px-3 text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b0)] transition-colors hover:bg-[var(--sui-colors-neutral-b4)]/40"
+            className="inline-flex h-[36px] min-w-[60px] cursor-pointer items-center justify-center rounded-[10px] border border-black/20 bg-white px-4 text-[15px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b0)] transition-colors hover:bg-[var(--sui-colors-neutral-b4)]/40"
           >
             Cancel
           </button>
           <button
             type="button"
             onClick={() => onConfirm?.({ defaultValue, allowChange, customAction })}
-            className="inline-flex h-[32px] min-w-[64px] cursor-pointer items-center justify-center rounded-[10px] bg-[var(--sui-colors-primary-b)] px-3 text-[14px] font-medium leading-[20px] text-white transition-colors hover:bg-[var(--sui-colors-primary-b-high-contrast)]"
+            className="inline-flex h-[36px] min-w-[60px] cursor-pointer items-center justify-center rounded-[10px] bg-[var(--sui-colors-primary-b)] px-4 text-[15px] font-medium leading-[20px] text-white transition-colors hover:bg-[var(--sui-colors-primary-b-high-contrast)]"
           >
             Turn on
           </button>
@@ -771,7 +771,7 @@ export function ExtAppManageDialog({
           <button
             type="button"
             onClick={onCancel}
-            className="inline-flex h-[32px] min-w-[64px] cursor-pointer items-center justify-center rounded-[10px] border border-black/20 bg-white px-3 text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b0)] transition-colors hover:bg-[var(--sui-colors-neutral-b4)]/40"
+            className="inline-flex h-[36px] min-w-[60px] cursor-pointer items-center justify-center rounded-[10px] border border-black/20 bg-white px-4 text-[15px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b0)] transition-colors hover:bg-[var(--sui-colors-neutral-b4)]/40"
           >
             Cancel
           </button>
@@ -779,7 +779,7 @@ export function ExtAppManageDialog({
             type="button"
             onClick={handleSave}
             disabled={!dirty}
-            className={`inline-flex h-[32px] min-w-[64px] items-center justify-center rounded-[10px] px-3 text-[14px] font-medium leading-[20px] text-white transition-colors ${
+            className={`inline-flex h-[36px] min-w-[60px] items-center justify-center rounded-[10px] px-4 text-[15px] font-medium leading-[20px] text-white transition-colors ${
               dirty
                 ? 'cursor-pointer bg-[var(--sui-colors-primary-b)] hover:bg-[var(--sui-colors-primary-b-high-contrast)]'
                 : 'cursor-not-allowed bg-[var(--sui-colors-neutral-b3)]'
@@ -818,11 +818,11 @@ export function ExtAppManageDialog({
               </div>
             </div>
             <div className="border-t border-[#DDDFE5]/50" />
-            <div className="flex justify-end gap-2 px-6 py-4">
+            <div className="flex justify-end gap-2 px-6 pt-5 pb-5">
               <button
                 type="button"
                 onClick={() => setConfirmOff(false)}
-                className="inline-flex h-[32px] min-w-[64px] cursor-pointer items-center justify-center rounded-[10px] border border-black/20 bg-white px-3 text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b0)] transition-colors hover:bg-[var(--sui-colors-neutral-b4)]/40"
+                className="inline-flex h-[36px] min-w-[60px] cursor-pointer items-center justify-center rounded-[10px] border border-black/20 bg-white px-4 text-[15px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b0)] transition-colors hover:bg-[var(--sui-colors-neutral-b4)]/40"
               >
                 Cancel
               </button>
@@ -832,7 +832,7 @@ export function ExtAppManageDialog({
                   setConfirmOff(false);
                   commit({ defaultVal: 'Off' });
                 }}
-                className="inline-flex h-[32px] cursor-pointer items-center justify-center rounded-[10px] bg-[var(--sui-colors-primary-b)] px-3 text-[14px] font-medium leading-[20px] text-white transition-colors hover:bg-[var(--sui-colors-primary-b-high-contrast)]"
+                className="inline-flex h-[36px] cursor-pointer items-center justify-center rounded-[10px] bg-[var(--sui-colors-primary-b)] px-4 text-[15px] font-medium leading-[20px] text-white transition-colors hover:bg-[var(--sui-colors-primary-b-high-contrast)]"
               >
                 Turn off default &amp; save
               </button>
