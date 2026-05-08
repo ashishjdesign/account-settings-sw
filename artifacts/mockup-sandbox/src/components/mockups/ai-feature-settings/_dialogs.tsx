@@ -30,22 +30,37 @@ const Icon = ({ name, className }: { name: string; className?: string }) => (
   />
 );
 
-function SpringRadio({ checked, onChange, label }: {
-  checked: boolean; onChange: () => void; label: string;
+function SpringRadio({ checked, onChange, label, disabled }: {
+  checked: boolean; onChange: () => void; label: string; disabled?: boolean;
 }) {
   return (
-    <label className="flex cursor-pointer items-center gap-2">
+    <label className={cn(
+      'flex items-center gap-2',
+      disabled ? 'cursor-not-allowed' : 'cursor-pointer',
+    )}>
       <button
         type="button"
         onClick={onChange}
         aria-pressed={checked}
-        className="relative flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-full border border-[var(--sui-colors-neutral-b2)] bg-white"
+        disabled={disabled}
+        className={cn(
+          'relative flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-full border bg-white',
+          disabled
+            ? 'cursor-not-allowed border-[var(--sui-colors-neutral-b3)] bg-[var(--sui-colors-neutral-b5)]'
+            : 'cursor-pointer border-[var(--sui-colors-neutral-b2)]',
+        )}
       >
         {checked && (
-          <span className="absolute inset-[3px] rounded-full bg-[var(--sui-colors-primary-b)]" />
+          <span className={cn(
+            'absolute inset-[3px] rounded-full',
+            disabled ? 'bg-[var(--sui-colors-neutral-b3)]' : 'bg-[var(--sui-colors-primary-b)]',
+          )} />
         )}
       </button>
-      <span className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+      <span className={cn(
+        'text-[14px] font-normal leading-[20px]',
+        disabled ? 'text-[var(--sui-colors-neutral-b2)]' : 'text-[var(--sui-colors-neutral-b1)]',
+      )}>
         {label}
       </span>
     </label>
@@ -652,43 +667,64 @@ export function ExtAppManageDialog({
           </h2>
 
           {/* User deployment */}
-          <div className="flex flex-col gap-3">
-            <div className="flex flex-col gap-1">
-              <h3 className="text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b2)]">
-                User deployment
-              </h3>
-              <p className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b2)]">
-                <button
-                  type="button"
-                  className="cursor-pointer text-[var(--sui-colors-primary-b)] underline hover:text-[var(--sui-colors-primary-b-high-contrast)]"
-                >
-                  {defaultCount}/{total} users
-                </button>{' '}
-                use the default.
-              </p>
-            </div>
+          <div className="flex flex-col gap-2">
+            <h3 className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b2)]">
+              User deployment
+            </h3>
 
-            <div className="flex flex-col rounded-[10px] border border-[var(--sui-colors-neutral-b4)] bg-white">
-              <div className="flex min-h-[56px] items-center gap-4 p-4">
-                <h4 className="flex-1 text-[15px] font-bold leading-[20px] text-[var(--sui-colors-neutral-b1)]">
-                  Default for new users
-                </h4>
-                <SpringSelect
-                  value={effectiveValue}
-                  options={['On', 'Off']}
-                  width={84}
-                  disabled={urlEmpty}
-                  tooltip={urlEmpty ? noUrlTooltip : undefined}
-                  onChange={(v) => setValue(v as 'On' | 'Off')}
-                />
+            <div className="flex flex-col rounded-[10px] border border-[#9E9FA4]/35 bg-white">
+              <div className="flex min-h-[56px] items-center gap-4 px-4 py-3">
+                <span className="text-[14px] font-bold leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                  Default in user settings:
+                </span>
+                <div className="group relative flex items-center gap-5">
+                  <SpringRadio
+                    checked={effectiveValue === 'On'}
+                    onChange={() => !urlEmpty && setValue('On')}
+                    label="On"
+                    disabled={urlEmpty}
+                  />
+                  <SpringRadio
+                    checked={effectiveValue === 'Off'}
+                    onChange={() => !urlEmpty && setValue('Off')}
+                    label="Off"
+                    disabled={urlEmpty}
+                  />
+                  {urlEmpty && (
+                    <div
+                      role="tooltip"
+                      className="pointer-events-none absolute bottom-[calc(100%+8px)] left-0 z-50 hidden w-[260px] rounded-md bg-[var(--sui-colors-neutral-b1)] px-3 py-2 text-[12px] font-normal leading-[16px] text-white shadow-md group-hover:block group-focus-within:block"
+                    >
+                      {noUrlTooltip}
+                      <span
+                        aria-hidden="true"
+                        className="absolute left-4 top-full h-0 w-0 border-x-[6px] border-t-[6px] border-x-transparent border-t-[var(--sui-colors-neutral-b1)]"
+                      />
+                    </div>
+                  )}
+                </div>
+                <p className="ml-auto text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b2)]">
+                  <button
+                    type="button"
+                    className="cursor-pointer text-[var(--sui-colors-primary-b)] underline hover:text-[var(--sui-colors-primary-b-high-contrast)]"
+                  >
+                    {defaultCount}/{total} users
+                  </button>{' '}
+                  are using the default
+                </p>
               </div>
               <div className="mx-4 border-t border-[var(--sui-colors-neutral-b4)]/70" />
-              <label className="flex min-h-[56px] cursor-pointer items-center gap-4 p-4">
-                <h4 className="flex-1 text-[15px] font-bold leading-[20px] text-[var(--sui-colors-neutral-b1)]">
-                  Let users change this themselves
-                </h4>
-                <SpringSwitch checked={allow} onCheckedChange={setAllow} />
-              </label>
+              <div className="flex min-h-[56px] items-center gap-4 px-4 py-3">
+                <span className="text-[14px] font-bold leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                  User access:
+                </span>
+                <label className="flex cursor-pointer items-center gap-2">
+                  <SpringCheckbox checked={allow} onChange={setAllow} />
+                  <span className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                    Allow users to change this setting
+                  </span>
+                </label>
+              </div>
             </div>
           </div>
 

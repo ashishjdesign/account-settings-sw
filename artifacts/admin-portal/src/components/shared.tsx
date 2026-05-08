@@ -411,24 +411,35 @@ export function SubRow({ children }: React.PropsWithChildren) {
 }
 
 function SpringRadio({
-  checked, onChange, label,
-}: { checked: boolean; onChange: () => void; label: string }) {
+  checked, onChange, label, disabled,
+}: { checked: boolean; onChange: () => void; label: string; disabled?: boolean }) {
   return (
-    <label className="flex cursor-pointer items-center gap-2 text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b0)]">
+    <label className={cn(
+      'flex items-center gap-2 text-[14px] font-medium leading-[20px]',
+      disabled
+        ? 'cursor-not-allowed text-[var(--sui-colors-neutral-b2)]'
+        : 'cursor-pointer text-[var(--sui-colors-neutral-b0)]',
+    )}>
       <button
         type="button"
         role="radio"
         aria-checked={checked}
+        disabled={disabled}
         onClick={onChange}
         className={cn(
-          'flex h-[20px] w-[20px] shrink-0 cursor-pointer items-center justify-center rounded-full border-[1.2px] transition-colors',
-          checked
-            ? 'border-[var(--sui-colors-primary-b)]'
-            : 'border-[var(--sui-colors-neutral-b3)] hover:border-[var(--sui-colors-neutral-b2)]',
+          'flex h-[20px] w-[20px] shrink-0 items-center justify-center rounded-full border-[1.2px] transition-colors',
+          disabled
+            ? 'cursor-not-allowed border-[var(--sui-colors-neutral-b3)] bg-[var(--sui-colors-neutral-b5)]'
+            : checked
+              ? 'cursor-pointer border-[var(--sui-colors-primary-b)]'
+              : 'cursor-pointer border-[var(--sui-colors-neutral-b3)] hover:border-[var(--sui-colors-neutral-b2)]',
         )}
       >
         {checked && (
-          <span className="h-[12px] w-[12px] rounded-full bg-[var(--sui-colors-primary-b)]" />
+          <span className={cn(
+            'h-[12px] w-[12px] rounded-full',
+            disabled ? 'bg-[var(--sui-colors-neutral-b3)]' : 'bg-[var(--sui-colors-primary-b)]',
+          )} />
         )}
       </button>
       {label}
@@ -1491,39 +1502,23 @@ export function ExtAppManageDialog({
               </DialogPrimitives.Title>
 
               {/* User deployment */}
-              <div className="flex flex-col gap-3">
-                <div className="flex flex-col gap-1">
-                  <h3 className="text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b2)]">
-                    User deployment
-                  </h3>
-                  <p className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b2)]">
-                    <button
-                      type="button"
-                      onClick={() => setUsersOpen(true)}
-                      className="cursor-pointer text-[var(--sui-colors-primary-b)] underline hover:text-[var(--sui-colors-primary-b-high-contrast)] focus:outline-none focus:ring-2 focus:ring-[var(--sui-colors-primary-b)]/30 rounded-sm"
-                    >
-                      {defaultCount}/{total} users
-                    </button>{' '}
-                    use the default.
-                  </p>
-                </div>
+              <div className="flex flex-col gap-2">
+                <h3 className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b2)]">
+                  User deployment
+                </h3>
 
-                <div className="flex flex-col rounded-[10px] border border-[var(--sui-colors-neutral-b4)] bg-white">
-                  <div className="flex min-h-[56px] items-center gap-4 p-4">
-                    <h4 className="flex-1 text-[15px] font-bold leading-[20px] text-[var(--sui-colors-neutral-b1)]">
-                      Default for new users
-                    </h4>
+                <div className="flex flex-col rounded-[10px] border border-[#9E9FA4]/35 bg-white">
+                  <div className="flex min-h-[56px] items-center gap-4 px-4 py-3">
+                    <span className="text-[14px] font-bold leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                      Default in user settings:
+                    </span>
                     {urlEmpty ? (
                       <TooltipPrimitives.Provider delayDuration={200}>
                         <TooltipPrimitives.Root>
                           <TooltipPrimitives.Trigger asChild>
-                            <span tabIndex={0} aria-label={noUrlTooltip}>
-                              <SpringSelect
-                                value="Off"
-                                width={84}
-                                options={['On', 'Off']}
-                                disabled
-                              />
+                            <span tabIndex={0} aria-label={noUrlTooltip} className="flex items-center gap-5">
+                              <SpringRadio checked={false} onChange={() => {}} label="On" disabled />
+                              <SpringRadio checked={true} onChange={() => {}} label="Off" disabled />
                             </span>
                           </TooltipPrimitives.Trigger>
                           <TooltipPrimitives.Portal>
@@ -1539,21 +1534,44 @@ export function ExtAppManageDialog({
                         </TooltipPrimitives.Root>
                       </TooltipPrimitives.Provider>
                     ) : (
-                      <SpringSelect
-                        value={value}
-                        width={84}
-                        options={['On', 'Off']}
-                        onChange={(v) => setValue(v as 'On' | 'Off')}
-                      />
+                      <div className="flex items-center gap-5">
+                        <SpringRadio checked={value === 'On'} onChange={() => setValue('On')} label="On" />
+                        <SpringRadio checked={value === 'Off'} onChange={() => setValue('Off')} label="Off" />
+                      </div>
                     )}
+                    <p className="ml-auto text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b2)]">
+                      <button
+                        type="button"
+                        onClick={() => setUsersOpen(true)}
+                        className="cursor-pointer text-[var(--sui-colors-primary-b)] underline hover:text-[var(--sui-colors-primary-b-high-contrast)] focus:outline-none focus:ring-2 focus:ring-[var(--sui-colors-primary-b)]/30 rounded-sm"
+                      >
+                        {defaultCount}/{total} users
+                      </button>{' '}
+                      are using the default
+                    </p>
                   </div>
                   <div className="mx-4 border-t border-[var(--sui-colors-neutral-b4)]/70" />
-                  <label className="flex min-h-[56px] cursor-pointer items-center gap-4 p-4">
-                    <h4 className="flex-1 text-[15px] font-bold leading-[20px] text-[var(--sui-colors-neutral-b1)]">
-                      Let users change this themselves
-                    </h4>
-                    <SpringSwitch checked={allow} onCheckedChange={setAllow} />
-                  </label>
+                  <div className="flex min-h-[56px] items-center gap-4 px-4 py-3">
+                    <span className="text-[14px] font-bold leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                      User access:
+                    </span>
+                    <label className="flex cursor-pointer items-center gap-2">
+                      <div className="relative flex h-[20px] w-[20px] items-center justify-center">
+                        <input
+                          type="checkbox"
+                          className="peer sr-only"
+                          checked={allow}
+                          onChange={(e) => setAllow(e.target.checked)}
+                        />
+                        <div className="absolute inset-0 rounded-[4px] border border-[var(--sui-colors-neutral-b3)] bg-white peer-focus-visible:ring-2 peer-focus-visible:ring-[var(--sui-colors-primary-b)]/30 peer-checked:bg-[var(--sui-colors-primary-b)] peer-checked:border-[var(--sui-colors-primary-b)] flex items-center justify-center transition-colors">
+                          {allow && <Check className="h-3 w-3 text-white" strokeWidth={3} />}
+                        </div>
+                      </div>
+                      <span className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                        Allow users to change this setting
+                      </span>
+                    </label>
+                  </div>
                 </div>
               </div>
 
