@@ -70,15 +70,16 @@ function SpringCheckbox({ checked, onChange }: {
       type="button"
       onClick={() => onChange(!checked)}
       aria-pressed={checked}
-      className={`flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-[4px] border ${
+      className={cn(
+        'flex h-[20px] w-[20px] shrink-0 cursor-pointer items-center justify-center rounded-[4px]',
         checked
-          ? 'border-[var(--sui-colors-primary-b)] bg-[var(--sui-colors-primary-b)]'
-          : 'border-[var(--sui-colors-neutral-b2)] bg-white'
-      }`}
+          ? 'bg-[var(--sui-colors-primary-b)] p-[4px]'
+          : 'border-[1.2px] border-[var(--sui-colors-neutral-b2)] bg-white',
+      )}
     >
       {checked && (
-        <svg viewBox="0 0 12 12" className="h-3 w-3 text-white" fill="none" stroke="currentColor" strokeWidth="3">
-          <path d="M2 6l3 3 5-6" strokeLinecap="round" strokeLinejoin="round" />
+        <svg viewBox="0 0 12 12" className="h-[12px] w-[12px] text-white" fill="none" stroke="currentColor" strokeWidth="2.4">
+          <path d="M1.5 6l3 3 6-6.5" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       )}
     </button>
