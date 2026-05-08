@@ -134,6 +134,7 @@ export default function PhonePanel() {
         open={extSettingsOpen}
         initialUrl={extApp.launchUrl}
         initialTrigger={extApp.trigger}
+        requireSave={pendingEnable?.defaultVal === 'On'}
         onBack={() => {
           // Back returns to the prior first-enable dialog, preserving the
           // admin's deployment choices so they aren't re-entered.

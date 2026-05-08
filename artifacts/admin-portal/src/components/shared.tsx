@@ -1255,6 +1255,7 @@ export function ExtAppFeatureSettingsDialog({
   initialUrl = '',
   initialTrigger = 'A call begins to ring',
   initialExpanded = false,
+  requireSave = false,
   onBack,
   onSkip,
   onSave,
@@ -1263,6 +1264,10 @@ export function ExtAppFeatureSettingsDialog({
   initialUrl?: string;
   initialTrigger?: 'A call begins to ring' | 'A call is answered';
   initialExpanded?: boolean;
+  /* When true (admin chose "Default: On" in the prior dialog), Skip is
+   * hidden — admin must provide a Launch URL before turning the feature on
+   * for users. */
+  requireSave?: boolean;
   onBack: () => void;
   onSkip: () => void;
   onSave: (result: { launchUrl: string; trigger: 'A call begins to ring' | 'A call is answered' }) => void;
@@ -1355,13 +1360,15 @@ export function ExtAppFeatureSettingsDialog({
                 Back
               </button>
               <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={onSkip}
-                  className="inline-flex h-[36px] min-w-[60px] cursor-pointer items-center justify-center rounded-[10px] border border-[var(--sui-colors-neutral-b4)] bg-white px-[18px] text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b0)] transition-colors hover:bg-[var(--sui-colors-neutral-b4)]/40 focus:outline-none focus:ring-2 focus:ring-[var(--sui-colors-primary-b)]/30"
-                >
-                  Skip and Continue
-                </button>
+                {!requireSave && (
+                  <button
+                    type="button"
+                    onClick={onSkip}
+                    className="inline-flex h-[36px] min-w-[60px] cursor-pointer items-center justify-center rounded-[10px] border border-[var(--sui-colors-neutral-b4)] bg-white px-[18px] text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b0)] transition-colors hover:bg-[var(--sui-colors-neutral-b4)]/40 focus:outline-none focus:ring-2 focus:ring-[var(--sui-colors-primary-b)]/30"
+                  >
+                    Skip and Continue
+                  </button>
+                )}
                 <button
                   type="button"
                   onClick={() => onSave({ launchUrl: url.trim(), trigger })}

@@ -17,6 +17,7 @@ type Step = 'enable' | 'settings' | 'closed';
 
 export function ConceptPhoneExtAppFeatureSettings() {
   const [step, setStep] = React.useState<Step>('settings');
+  const [defaultVal, setDefaultVal] = React.useState<'On' | 'Off'>('On');
 
   return (
     <div className="relative">
@@ -54,10 +55,14 @@ export function ConceptPhoneExtAppFeatureSettings() {
           title="Turn on Launch an external app for incoming calls?"
           body="This feature will be enabled for your account. Configure how it should be deployed to users below."
           onCancel={() => setStep('closed')}
-          onConfirm={() => setStep('settings')}
+          onConfirm={(r) => {
+            setDefaultVal(r.defaultVal);
+            setStep('settings');
+          }}
         />
         <ExtAppFeatureSettingsDialog
           open={step === 'settings'}
+          requireSave={defaultVal === 'On'}
           onBack={() => setStep('enable')}
           onSkip={() => setStep('closed')}
           onSave={() => setStep('closed')}

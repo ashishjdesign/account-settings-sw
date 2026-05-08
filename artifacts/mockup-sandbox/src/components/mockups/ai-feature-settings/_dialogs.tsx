@@ -267,13 +267,17 @@ function ReferenceParametersTable() {
 
 /* Figma node 1980:37906 — Set up feature settings for external apps or URLs */
 export function ExtAppFeatureSettingsDialog({
-  open, onBack, onSkip, onSave, initialExpanded = false,
+  open, onBack, onSkip, onSave, initialExpanded = false, requireSave = false,
 }: {
   open: boolean;
   onBack?: () => void;
   onSkip?: () => void;
   onSave?: () => void;
   initialExpanded?: boolean;
+  /* When true (e.g. admin chose "Default: On" in the prior dialog), the
+   * Skip button is hidden — feature settings are mandatory before the
+   * feature can be turned on for users. */
+  requireSave?: boolean;
 }) {
   const [expanded, setExpanded] = React.useState(initialExpanded);
   React.useEffect(() => { if (open) setExpanded(initialExpanded); }, [open, initialExpanded]);
@@ -368,13 +372,15 @@ export function ExtAppFeatureSettingsDialog({
             Back
           </button>
           <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={onSkip}
-              className="inline-flex h-[36px] min-w-[60px] cursor-pointer items-center justify-center rounded-[10px] border border-[var(--sui-colors-neutral-b4)] bg-white px-[18px] text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b0)] transition-colors hover:bg-[var(--sui-colors-neutral-b4)]/40"
-            >
-              Skip and Continue
-            </button>
+            {!requireSave && (
+              <button
+                type="button"
+                onClick={onSkip}
+                className="inline-flex h-[36px] min-w-[60px] cursor-pointer items-center justify-center rounded-[10px] border border-[var(--sui-colors-neutral-b4)] bg-white px-[18px] text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b0)] transition-colors hover:bg-[var(--sui-colors-neutral-b4)]/40"
+              >
+                Skip and Continue
+              </button>
+            )}
             <button
               type="button"
               onClick={onSave}
