@@ -352,7 +352,7 @@ export function ExtAppFeatureSettingsDialog({
 
           {/* Feature settings group */}
           <div className="flex flex-col gap-2">
-            <span className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b2)]">
+            <span className="text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b2)]">
               Feature settings
             </span>
 
@@ -489,7 +489,7 @@ export function SpringReEnableDialog({
             </p>
 
             <div className="flex flex-col gap-2">
-              <h3 className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b2)]">
+              <h3 className="text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b2)]">
                 User deployment
               </h3>
 
