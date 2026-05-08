@@ -702,7 +702,7 @@ export function ExtAppManageDialog({
                 <p className="ml-auto text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b2)]">
                   <button
                     type="button"
-                    className="inline-flex cursor-pointer items-center rounded-full bg-[var(--sui-colors-neutral-b5)] px-2 py-0.5 text-[var(--sui-colors-primary-b)] underline hover:bg-[var(--sui-colors-neutral-b4)]/60 hover:text-[var(--sui-colors-primary-b-high-contrast)]"
+                    className="inline-flex cursor-pointer items-center rounded-[6px] bg-[var(--sui-colors-neutral-b5)] px-2 py-0.5 text-[var(--sui-colors-primary-b)] underline hover:bg-[var(--sui-colors-neutral-b4)]/60 hover:text-[var(--sui-colors-primary-b-high-contrast)]"
                   >
                     {defaultCount}/{total} users
                   </button>{' '}

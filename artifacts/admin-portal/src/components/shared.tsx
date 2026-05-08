@@ -1537,7 +1537,7 @@ export function ExtAppManageDialog({
                       <button
                         type="button"
                         onClick={() => setUsersOpen(true)}
-                        className="inline-flex cursor-pointer items-center rounded-full bg-[var(--sui-colors-neutral-b5)] px-2 py-0.5 text-[var(--sui-colors-primary-b)] underline hover:bg-[var(--sui-colors-neutral-b4)]/60 hover:text-[var(--sui-colors-primary-b-high-contrast)] focus:outline-none focus:ring-2 focus:ring-[var(--sui-colors-primary-b)]/30"
+                        className="inline-flex cursor-pointer items-center rounded-[6px] bg-[var(--sui-colors-neutral-b5)] px-2 py-0.5 text-[var(--sui-colors-primary-b)] underline hover:bg-[var(--sui-colors-neutral-b4)]/60 hover:text-[var(--sui-colors-primary-b-high-contrast)] focus:outline-none focus:ring-2 focus:ring-[var(--sui-colors-primary-b)]/30"
                       >
                         {defaultCount}/{total} users
                       </button>{' '}
