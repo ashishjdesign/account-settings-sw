@@ -78,7 +78,7 @@ export const SpringSwitch = React.forwardRef<
 ));
 SpringSwitch.displayName = 'SpringSwitch';
 
-export function SpringSelect({ value, width = 200, onChange, options }: { value: string; width?: number; onChange?: (v: string) => void; options?: string[] }) {
+export function SpringSelect({ value, width = 200, onChange, options, disabled }: { value: string; width?: number; onChange?: (v: string) => void; options?: string[]; disabled?: boolean }) {
   if (!options) {
     return (
       <button
@@ -100,8 +100,9 @@ export function SpringSelect({ value, width = 200, onChange, options }: { value:
     <div className="relative inline-flex" style={{ width }}>
       <select
         value={value}
+        disabled={disabled}
         onChange={e => onChange?.(e.target.value)}
-        className="h-[32px] w-full cursor-pointer appearance-none rounded-[10px] border border-black/20 bg-white pl-[10px] pr-8 text-left text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b0)] transition-colors hover:border-black/40 focus:outline-none focus:ring-2 focus:ring-[var(--sui-colors-primary-b)]/30"
+        className="h-[32px] w-full appearance-none rounded-[10px] border border-black/20 bg-white pl-[10px] pr-8 text-left text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b0)] transition-colors hover:border-black/40 focus:outline-none focus:ring-2 focus:ring-[var(--sui-colors-primary-b)]/30 disabled:cursor-not-allowed disabled:bg-[var(--sui-colors-neutral-b5)] disabled:text-[var(--sui-colors-neutral-b2)] disabled:hover:border-black/20 enabled:cursor-pointer"
       >
         {options.map(opt => <option key={opt} value={opt}>{opt}</option>)}
       </select>
@@ -1425,6 +1426,7 @@ export function ExtAppManageDialog({
   const [trig, setTrig] = useState<'A call begins to ring' | 'A call is answered'>(trigger);
   const [expanded, setExpanded] = useState(false);
   const [usersOpen, setUsersOpen] = useState(false);
+  const [confirmOff, setConfirmOff] = useState(false);
   const total = totalUsers;
   const defaultCount = Math.max(0, total - (customCount || 0));
 
@@ -1436,15 +1438,44 @@ export function ExtAppManageDialog({
       setTrig(trigger);
       setExpanded(false);
       setUsersOpen(false);
+      setConfirmOff(false);
     }
   }, [open, defaultVal, allowChange, launchUrl, trigger]);
 
+  // When the URL is empty, the default-for-users is forced Off and the
+  // select is disabled. Compute the effective value the user sees.
+  const urlEmpty = url.trim().length === 0;
+  const effectiveValue: 'On' | 'Off' = urlEmpty ? 'Off' : value;
+  const noUrlTooltip = 'To set this setting for new users as ON, set up external app or website URL first.';
+
   const dirty =
-    value !== defaultVal ||
+    effectiveValue !== defaultVal ||
     allow !== allowChange ||
     url.trim() !== launchUrl.trim() ||
     trig !== trigger;
-  const disabled = !dirty && !error;
+  const saveDisabled = !dirty && !error;
+
+  const commit = (override?: { defaultVal?: 'On' | 'Off' }) => {
+    onConfirm({
+      defaultVal: override?.defaultVal ?? effectiveValue,
+      allowChange: allow,
+      launchUrl: url.trim(),
+      trigger: trig,
+    });
+  };
+
+  const handleSave = () => {
+    if (error) {
+      commit();
+      return;
+    }
+    // Cleared the URL on a feature that was on by default for users → confirm.
+    if (urlEmpty && defaultVal === 'On') {
+      setConfirmOff(true);
+      return;
+    }
+    commit();
+  };
 
   return (
     <DialogPrimitives.Root open={open} onOpenChange={(o) => !o && onCancel()}>
@@ -1484,12 +1515,39 @@ export function ExtAppManageDialog({
                       </p>
                     </div>
                   </div>
-                  <SpringSelect
-                    value={value}
-                    width={112}
-                    options={['On', 'Off']}
-                    onChange={(v) => setValue(v as 'On' | 'Off')}
-                  />
+                  {urlEmpty ? (
+                    <TooltipPrimitives.Provider delayDuration={200}>
+                      <TooltipPrimitives.Root>
+                        <TooltipPrimitives.Trigger asChild>
+                          <span tabIndex={0} aria-label={noUrlTooltip}>
+                            <SpringSelect
+                              value="Off"
+                              width={112}
+                              options={['On', 'Off']}
+                              disabled
+                            />
+                          </span>
+                        </TooltipPrimitives.Trigger>
+                        <TooltipPrimitives.Portal>
+                          <TooltipPrimitives.Content
+                            side="top"
+                            sideOffset={6}
+                            className="z-50 max-w-xs rounded-md bg-gray-900 px-3 py-2 text-sm text-white shadow-md animate-in fade-in-0 zoom-in-95"
+                          >
+                            {noUrlTooltip}
+                            <TooltipPrimitives.Arrow className="fill-gray-900" />
+                          </TooltipPrimitives.Content>
+                        </TooltipPrimitives.Portal>
+                      </TooltipPrimitives.Root>
+                    </TooltipPrimitives.Provider>
+                  ) : (
+                    <SpringSelect
+                      value={value}
+                      width={112}
+                      options={['On', 'Off']}
+                      onChange={(v) => setValue(v as 'On' | 'Off')}
+                    />
+                  )}
                 </div>
 
                 {/* User access card */}
@@ -1578,10 +1636,8 @@ export function ExtAppManageDialog({
               </DialogPrimitives.Close>
               <button
                 type="button"
-                onClick={() =>
-                  onConfirm({ defaultVal: value, allowChange: allow, launchUrl: url.trim(), trigger: trig })
-                }
-                disabled={disabled}
+                onClick={handleSave}
+                disabled={saveDisabled}
                 className="inline-flex h-[36px] min-w-[60px] items-center justify-center rounded-[10px] bg-[var(--sui-colors-primary-b)] px-[18px] text-[14px] font-medium leading-[20px] text-white transition-colors hover:bg-[var(--sui-colors-primary-b-high-contrast)] focus:outline-none focus:ring-2 focus:ring-[var(--sui-colors-primary-b)]/30 disabled:cursor-not-allowed disabled:bg-[var(--sui-colors-neutral-b3)] disabled:hover:bg-[var(--sui-colors-neutral-b3)] enabled:cursor-pointer"
               >
                 {error ? 'Retry' : 'Save'}
@@ -1590,6 +1646,27 @@ export function ExtAppManageDialog({
           </DialogPrimitives.Content>
         </DialogPrimitives.Overlay>
       </DialogPrimitives.Portal>
+      <SpringConfirmDialog
+        open={confirmOff}
+        title="Turn off default for users?"
+        body={
+          <>
+            <p className="mb-3">
+              <strong>Launch an external app for incoming calls</strong> doesn’t have a URL.
+            </p>
+            <p>
+              The default for users can’t stay on without a URL and will be turned <strong>off</strong>.
+              All other changes will still be saved.
+            </p>
+          </>
+        }
+        confirmLabel="Turn off default & save"
+        onCancel={() => setConfirmOff(false)}
+        onConfirm={() => {
+          setConfirmOff(false);
+          commit({ defaultVal: 'Off' });
+        }}
+      />
       <SpringUsersConfigDialog
         open={usersOpen}
         featureLabel="Launch an external app for incoming calls"

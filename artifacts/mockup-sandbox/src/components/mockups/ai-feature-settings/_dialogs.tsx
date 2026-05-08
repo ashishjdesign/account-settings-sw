@@ -56,14 +56,15 @@ function SpringCheckbox({ checked, onChange }: {
 
 /* Lightweight Spring-style select used in the Manage modal. */
 function SpringSelect({
-  value, options, width = 112, onChange,
-}: { value: string; options: string[]; width?: number; onChange?: (v: string) => void }) {
+  value, options, width = 112, onChange, disabled, tooltip,
+}: { value: string; options: string[]; width?: number; onChange?: (v: string) => void; disabled?: boolean; tooltip?: string }) {
   return (
-    <div className="relative inline-flex" style={{ width }}>
+    <div className="group relative inline-flex" style={{ width }}>
       <select
         value={value}
+        disabled={disabled}
         onChange={(e) => onChange?.(e.target.value)}
-        className="h-[32px] w-full cursor-pointer appearance-none rounded-[10px] border border-black/20 bg-white pl-2.5 pr-7 text-left text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b0)] focus:outline-none focus:ring-2 focus:ring-[var(--sui-colors-primary-b)]/30"
+        className="h-[32px] w-full appearance-none rounded-[10px] border border-black/20 bg-white pl-2.5 pr-7 text-left text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b0)] focus:outline-none focus:ring-2 focus:ring-[var(--sui-colors-primary-b)]/30 disabled:cursor-not-allowed disabled:bg-[var(--sui-colors-neutral-b5)] disabled:text-[var(--sui-colors-neutral-b2)] enabled:cursor-pointer"
       >
         {options.map((o) => <option key={o} value={o}>{o}</option>)}
       </select>
@@ -75,6 +76,18 @@ function SpringSelect({
       >
         <path d="M4.6705 5.5505L0 0.8505L0.8505 0.000999928L4.6705 3.82L8.4905 0L9.341 0.8505L4.6705 5.5505Z" />
       </svg>
+      {disabled && tooltip && (
+        <div
+          role="tooltip"
+          className="pointer-events-none absolute bottom-[calc(100%+8px)] right-0 z-50 hidden w-[260px] rounded-md bg-[var(--sui-colors-neutral-b1)] px-3 py-2 text-[12px] font-normal leading-[16px] text-white shadow-md group-hover:block group-focus-within:block"
+        >
+          {tooltip}
+          <span
+            aria-hidden="true"
+            className="absolute right-4 top-full h-0 w-0 border-x-[6px] border-t-[6px] border-x-transparent border-t-[var(--sui-colors-neutral-b1)]"
+          />
+        </div>
+      )}
     </div>
   );
 }
@@ -568,13 +581,42 @@ export function ExtAppManageDialog({
   const [url, setUrl] = React.useState(launchUrl);
   const [trig, setTrig] = React.useState<'A call begins to ring' | 'A call is answered'>(trigger);
   const [expanded, setExpanded] = React.useState(false);
+  const [confirmOff, setConfirmOff] = React.useState(false);
+  React.useEffect(() => {
+    if (open) {
+      setValue(defaultVal);
+      setAllow(allowChange);
+      setUrl(launchUrl);
+      setTrig(trigger);
+      setExpanded(false);
+      setConfirmOff(false);
+    }
+  }, [open, defaultVal, allowChange, launchUrl, trigger]);
   const total = totalUsers;
   const defaultCount = Math.max(0, total - (customCount || 0));
+  const urlEmpty = url.trim().length === 0;
+  const effectiveValue: 'On' | 'Off' = urlEmpty ? 'Off' : value;
+  const noUrlTooltip =
+    'To set this setting for new users as ON, set up external app or website URL first.';
   const dirty =
-    value !== defaultVal ||
+    effectiveValue !== defaultVal ||
     allow !== allowChange ||
     url.trim() !== launchUrl.trim() ||
     trig !== trigger;
+  const commit = (override?: { defaultVal?: 'On' | 'Off' }) =>
+    onSave?.({
+      defaultVal: override?.defaultVal ?? effectiveValue,
+      allowChange: allow,
+      launchUrl: url.trim(),
+      trigger: trig,
+    });
+  const handleSave = () => {
+    if (urlEmpty && defaultVal === 'On') {
+      setConfirmOff(true);
+      return;
+    }
+    commit();
+  };
 
   if (!open) return null;
   return (
@@ -610,9 +652,11 @@ export function ExtAppManageDialog({
                 </div>
               </div>
               <SpringSelect
-                value={value}
+                value={effectiveValue}
                 width={112}
                 options={['On', 'Off']}
+                disabled={urlEmpty}
+                tooltip={urlEmpty ? noUrlTooltip : undefined}
                 onChange={(v) => setValue(v as 'On' | 'Off')}
               />
             </div>
@@ -683,7 +727,7 @@ export function ExtAppManageDialog({
           </button>
           <button
             type="button"
-            onClick={() => onSave?.({ defaultVal: value, allowChange: allow, launchUrl: url.trim(), trigger: trig })}
+            onClick={handleSave}
             disabled={!dirty}
             className={`inline-flex h-[36px] min-w-[60px] items-center justify-center rounded-[10px] px-[18px] text-[14px] font-medium leading-[20px] text-white transition-colors ${
               dirty
@@ -695,6 +739,57 @@ export function ExtAppManageDialog({
           </button>
         </div>
       </div>
+
+      {confirmOff && (
+        <div className="absolute inset-0 z-[60] flex items-start justify-center pt-24">
+          <div
+            className="absolute inset-0 bg-black/40"
+            onClick={() => setConfirmOff(false)}
+            aria-hidden="true"
+          />
+          <div
+            role="dialog"
+            aria-modal="true"
+            className="relative z-10 flex w-[600px] max-w-[calc(100%-32px)] flex-col rounded-[12px] bg-white"
+            style={{ boxShadow: '0 12px 32px rgba(0,0,0,0.18)' }}
+          >
+            <div className="flex flex-col gap-8 px-6 pb-10 pt-6">
+              <h2 className="py-3 text-[24px] font-normal leading-[32px] text-[var(--sui-colors-neutral-b1)]">
+                Turn off default for users?
+              </h2>
+              <div className="flex flex-col gap-3 text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                <p>
+                  <strong>Launch an external app for incoming calls</strong> doesn’t have a URL.
+                </p>
+                <p>
+                  The default for users can’t stay on without a URL and will be turned{' '}
+                  <strong>off</strong>. All other changes will still be saved.
+                </p>
+              </div>
+            </div>
+            <div className="border-t border-[#DDDFE5]/50" />
+            <div className="flex justify-end gap-2 px-6 py-4">
+              <button
+                type="button"
+                onClick={() => setConfirmOff(false)}
+                className="inline-flex h-[32px] min-w-[64px] cursor-pointer items-center justify-center rounded-[10px] border border-black/20 bg-white px-3 text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b0)] transition-colors hover:bg-[var(--sui-colors-neutral-b4)]/40"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setConfirmOff(false);
+                  commit({ defaultVal: 'Off' });
+                }}
+                className="inline-flex h-[32px] cursor-pointer items-center justify-center rounded-[10px] bg-[var(--sui-colors-primary-b)] px-3 text-[14px] font-medium leading-[20px] text-white transition-colors hover:bg-[var(--sui-colors-primary-b-high-contrast)]"
+              >
+                Turn off default &amp; save
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
