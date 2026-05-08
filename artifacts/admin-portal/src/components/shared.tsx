@@ -1872,6 +1872,206 @@ export function AutoAnswerManageDialog({
   );
 }
 
+/* Auto-answer calls — Turn back on dialog. Mirrors SpringFeatureEnableDialog
+ * (User deployment + custom-users question) AND embeds the Feature settings
+ * (Auto-answer delay) section identical to AutoAnswerManageDialog. */
+export function AutoAnswerReEnableDialog({
+  open,
+  delay,
+  customCount = 0,
+  totalUsers = 98,
+  onCancel,
+  onConfirm,
+}: {
+  open: boolean;
+  delay: AutoAnswerDelay;
+  customCount?: number;
+  totalUsers?: number;
+  onCancel: () => void;
+  onConfirm: (result: {
+    defaultVal: 'On' | 'Off';
+    allowChange: boolean;
+    customAction: 'reset' | 'restore';
+    delay: AutoAnswerDelay;
+  }) => void;
+}) {
+  const [value, setValue] = useState<'On' | 'Off'>('Off');
+  const [allow, setAllow] = useState(true);
+  const [customAction, setCustomAction] = useState<'reset' | 'restore'>('reset');
+  const [del, setDel] = useState<AutoAnswerDelay>(delay);
+  const [usersOpen, setUsersOpen] = useState<null | 'default' | 'custom'>(null);
+  const total = totalUsers;
+  const defaultCount = Math.max(0, total - (customCount || 0));
+
+  useEffect(() => {
+    if (open) {
+      setValue('Off');
+      setAllow(true);
+      setCustomAction('reset');
+      setDel(delay);
+    }
+  }, [open, delay]);
+
+  return (
+    <DialogPrimitives.Root open={open} onOpenChange={(o) => !o && onCancel()}>
+      <DialogPrimitives.Portal>
+        <DialogPrimitives.Overlay className="fixed inset-0 z-50 flex items-start justify-center bg-black/40 px-4 py-[60px] data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0">
+          <DialogPrimitives.Content
+            aria-label="Turn on Auto-answer calls"
+            className="relative z-10 flex max-h-full min-h-0 w-[820px] max-w-[calc(100%-32px)] flex-col overflow-hidden rounded-[10px] bg-white shadow-[0_10px_30px_rgba(0,0,0,0.2)] data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95"
+          >
+            <div className="flex min-h-0 flex-1 flex-col gap-6 overflow-y-auto px-6 pb-8 pt-9">
+              <DialogPrimitives.Title className="py-3 text-[24px] font-normal leading-[32px] text-[var(--sui-colors-neutral-b0)]">
+                Turn on Auto-answer calls?
+              </DialogPrimitives.Title>
+
+              <p className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                This feature will be enabled for your account. Configure how it should be deployed to users below.
+              </p>
+
+              {/* User deployment */}
+              <div className="flex flex-col gap-2">
+                <h3 className="text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b2)]">
+                  User deployment
+                </h3>
+                <div className="flex flex-col gap-4 rounded-[10px] border border-[#9E9FA4]/35 bg-white p-4">
+                  <div className="flex w-full items-center justify-between gap-4">
+                    <div className="flex h-[32px] items-center gap-4 pr-4">
+                      <span className="text-[14px] font-semibold leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                        Default in user settings:
+                      </span>
+                      <div className="flex items-center gap-5">
+                        <SpringRadio checked={value === 'On'} onChange={() => setValue('On')} label="On" />
+                        <SpringRadio checked={value === 'Off'} onChange={() => setValue('Off')} label="Off" />
+                      </div>
+                    </div>
+                    <div className="flex h-[32px] items-center rounded-[10px] bg-[var(--sui-colors-neutral-b5)] px-3">
+                      <p className="whitespace-nowrap text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                        <button
+                          type="button"
+                          onClick={() => setUsersOpen('default')}
+                          className="cursor-pointer text-[var(--sui-colors-primary-b)] underline hover:text-[var(--sui-colors-primary-b-high-contrast)] focus:outline-none focus:ring-2 focus:ring-[var(--sui-colors-primary-b)]/30 rounded-sm"
+                        >
+                          {defaultCount}/{total} users
+                        </button>{' '}
+                        are using the default
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="border-t border-[var(--sui-colors-neutral-b4)]" />
+
+                  <div className="flex h-[32px] items-center gap-4">
+                    <span className="text-[14px] font-semibold leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                      User access:
+                    </span>
+                    <label className="flex cursor-pointer items-center gap-2">
+                      <div className="relative flex h-[20px] w-[20px] items-center justify-center">
+                        <input
+                          type="checkbox"
+                          className="peer sr-only"
+                          checked={allow}
+                          onChange={(e) => setAllow(e.target.checked)}
+                        />
+                        <div className="absolute inset-0 rounded-[4px] border-[1.2px] border-[var(--sui-colors-neutral-b2)] bg-white peer-focus-visible:ring-2 peer-focus-visible:ring-[var(--sui-colors-primary-b)]/30 peer-checked:bg-[var(--sui-colors-primary-b)] peer-checked:border-transparent flex items-center justify-center transition-colors">
+                          {allow && <Check className="h-3 w-3 text-white" strokeWidth={3} />}
+                        </div>
+                      </div>
+                      <span className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                        Allow users to change this setting
+                      </span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              {/* Feature settings — Auto-answer delay (mirrors AutoAnswerManageDialog) */}
+              <div className="flex flex-col gap-2">
+                <h3 className="text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b2)]">
+                  Feature settings
+                </h3>
+                <div className="flex flex-col gap-4 rounded-[10px] border border-[var(--sui-colors-neutral-b4)] p-4">
+                  <div className="flex items-start justify-between gap-8">
+                    <div className="flex min-w-0 flex-col gap-1 pr-6">
+                      <span className="flex h-[32px] items-center text-[14px] font-semibold leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                        Auto-answer delay
+                      </span>
+                      <p className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b2)]">
+                        Select how long users’ incoming calls will ring before being auto-answered.
+                        This setting won’t apply while users are on an active call.
+                      </p>
+                    </div>
+                    <SpringSelect
+                      value={del}
+                      width={200}
+                      options={AUTO_ANSWER_DELAY_OPTIONS as unknown as string[]}
+                      onChange={(v) => setDel(v as AutoAnswerDelay)}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {customCount > 0 && (
+                <div className="flex flex-col gap-3">
+                  <p className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                    <button
+                      type="button"
+                      onClick={() => setUsersOpen('custom')}
+                      className="cursor-pointer text-[var(--sui-colors-primary-b)] underline hover:text-[var(--sui-colors-primary-b-high-contrast)] focus:outline-none focus:ring-2 focus:ring-[var(--sui-colors-primary-b)]/30 rounded-sm"
+                    >
+                      {customCount}/{total} users
+                    </button>{' '}
+                    have custom settings for this feature. What would you like to do with these users?
+                  </p>
+                  <div className="flex items-center gap-8">
+                    <SpringRadio
+                      checked={customAction === 'reset'}
+                      onChange={() => setCustomAction('reset')}
+                      label="Reset all to default"
+                    />
+                    <SpringRadio
+                      checked={customAction === 'restore'}
+                      onChange={() => setCustomAction('restore')}
+                      label="Restore their custom settings"
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="flex shrink-0 justify-end gap-2 border-t border-[var(--sui-colors-neutral-b4)]/50 bg-white px-6 pt-5 pb-5">
+              <DialogPrimitives.Close asChild>
+                <button
+                  type="button"
+                  className="inline-flex h-[36px] min-w-[60px] cursor-pointer items-center justify-center rounded-[10px] border border-black/20 bg-white px-4 text-[15px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b0)] transition-colors hover:bg-[var(--sui-colors-neutral-b4)]/40 focus:outline-none focus:ring-2 focus:ring-[var(--sui-colors-primary-b)]/30"
+                >
+                  Cancel
+                </button>
+              </DialogPrimitives.Close>
+              <button
+                type="button"
+                onClick={() => onConfirm({ defaultVal: value, allowChange: allow, customAction, delay: del })}
+                className="inline-flex h-[36px] min-w-[60px] cursor-pointer items-center justify-center rounded-[10px] bg-[var(--sui-colors-primary-b)] px-4 text-[15px] font-medium leading-[20px] text-white transition-colors hover:bg-[var(--sui-colors-primary-b-high-contrast)] focus:outline-none focus:ring-2 focus:ring-[var(--sui-colors-primary-b)]/30"
+              >
+                Turn on
+              </button>
+            </div>
+          </DialogPrimitives.Content>
+        </DialogPrimitives.Overlay>
+      </DialogPrimitives.Portal>
+      <SpringUsersConfigDialog
+        open={usersOpen !== null}
+        featureLabel="Auto-answer calls"
+        variant={usersOpen ?? 'default'}
+        onClose={() => setUsersOpen(null)}
+        defaultUsersCount={defaultCount}
+        customUsersCount={customCount}
+        totalUsersCount={total}
+      />
+    </DialogPrimitives.Root>
+  );
+}
+
 export function showToast(message: string, _onUndo?: () => void) {
   toast.custom(
     (id) => (

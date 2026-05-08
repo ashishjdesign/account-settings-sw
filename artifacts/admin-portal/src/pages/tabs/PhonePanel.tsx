@@ -7,6 +7,7 @@ import {
   ExtAppFeatureSettingsDialog,
   ExtAppManageDialog,
   AutoAnswerManageDialog,
+  AutoAnswerReEnableDialog,
   SpringFirstEnableDialog,
   showToast,
 } from '../../components/shared';
@@ -16,6 +17,8 @@ export default function PhonePanel() {
   const { externalAppOn, extApp, autoAnswer, conferenceCallsOn } = state.phone;
 
   const [manageOpen, setManageOpen] = useState(false);
+  const [autoAnswerEnableOpen, setAutoAnswerEnableOpen] = useState(false);
+  const [autoAnswerDisableOpen, setAutoAnswerDisableOpen] = useState(false);
   const [extEnableOpen, setExtEnableOpen] = useState(false);
   const [extDisableOpen, setExtDisableOpen] = useState(false);
   const [extSettingsOpen, setExtSettingsOpen] = useState(false);
@@ -62,14 +65,15 @@ export default function PhonePanel() {
         switchOn={autoAnswer.on}
         icon="active-call"
         description="Allow users to turn on Auto-Answer for incoming calls in the RingCentral desktop app."
-        summary={[
+        summary={autoAnswer.on ? [
           { label: 'User default:', value: autoAnswer.defaultVal },
           { label: 'User access:', value: autoAnswer.allowChange ? 'Allowed' : 'Restricted' },
-        ]}
-        onManage={() => setManageOpen(true)}
-        onSwitchClick={() =>
-          dispatch({ type: 'PATCH_PHONE_AUTO_ANSWER', payload: { on: !autoAnswer.on } })
-        }
+        ] : undefined}
+        onManage={autoAnswer.on ? () => setManageOpen(true) : undefined}
+        onSwitchClick={() => {
+          if (autoAnswer.on) setAutoAnswerDisableOpen(true);
+          else setAutoAnswerEnableOpen(true);
+        }}
       />
       <SettingCard
         title="Conference calls"
@@ -88,6 +92,40 @@ export default function PhonePanel() {
         onCancel={() => setManageOpen(false)}
         onConfirm={handleSaveManage}
         error={state.simulateError}
+      />
+
+      <AutoAnswerReEnableDialog
+        open={autoAnswerEnableOpen}
+        delay={autoAnswer.delay}
+        customCount={autoAnswer.customUsers}
+        onCancel={() => setAutoAnswerEnableOpen(false)}
+        onConfirm={(result) => {
+          dispatch({
+            type: 'PATCH_PHONE_AUTO_ANSWER',
+            payload: {
+              on: true,
+              defaultVal: result.defaultVal,
+              allowChange: result.allowChange,
+              delay: result.delay,
+              ...(result.customAction === 'reset' ? { customUsers: 0 } : {}),
+            },
+          });
+          setAutoAnswerEnableOpen(false);
+          showToast('Auto-answer calls is on.');
+        }}
+      />
+
+      <SpringConfirmDialog
+        open={autoAnswerDisableOpen}
+        title="Turn off Auto-answer calls for your organization?"
+        body={<>This feature will be turned off for your account and no longer available to users.<br />When turned back on, previous user settings can be restored.</>}
+        confirmLabel="Turn off"
+        onCancel={() => setAutoAnswerDisableOpen(false)}
+        onConfirm={() => {
+          dispatch({ type: 'PATCH_PHONE_AUTO_ANSWER', payload: { on: false } });
+          setAutoAnswerDisableOpen(false);
+          showToast('Auto-answer calls is off.');
+        }}
       />
 
       {/* Launch external app — first-time enable + Manage */}
