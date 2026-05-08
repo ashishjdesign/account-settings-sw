@@ -254,13 +254,13 @@ export function ExtAppFeatureSettingsDialog({
   React.useEffect(() => { if (open) setExpanded(initialExpanded); }, [open, initialExpanded]);
   if (!open) return null;
   return (
-    <div className="absolute inset-0 z-50 flex items-start justify-center bg-black/40 pt-[60px]">
+    <div className="absolute inset-0 z-50 flex items-start justify-center bg-black/40 px-4 py-[60px]">
       <div
-        className="flex w-[820px] max-w-[calc(100%-32px)] flex-col rounded-[10px] bg-white pt-9"
+        className="flex max-h-full w-[820px] max-w-[calc(100%-32px)] min-h-0 flex-col overflow-hidden rounded-[10px] bg-white pt-9"
         style={{ boxShadow: '0 10px 30px rgba(0,0,0,0.2)' }}
       >
-        {/* Content */}
-        <div className="flex flex-col gap-8 overflow-y-auto px-6 pb-10">
+        {/* Content (scrollable) */}
+        <div className="flex min-h-0 flex-1 flex-col gap-8 overflow-y-auto px-6 pb-10">
           <p className="py-3 text-[24px] font-normal leading-[32px] text-[var(--sui-colors-neutral-b0)]">
             Set up feature settings for external apps or URLs for incoming calls
           </p>
@@ -333,8 +333,8 @@ export function ExtAppFeatureSettingsDialog({
           </div>
         </div>
 
-        {/* Footer */}
-        <div className="flex items-center justify-between gap-2 border-t border-[#DDDFE5]/50 px-6 pt-5 pb-5">
+        {/* Footer (pinned) */}
+        <div className="flex shrink-0 items-center justify-between gap-2 border-t border-[#DDDFE5]/50 bg-white px-6 pt-5 pb-5">
           <button
             type="button"
             onClick={onCancel}
