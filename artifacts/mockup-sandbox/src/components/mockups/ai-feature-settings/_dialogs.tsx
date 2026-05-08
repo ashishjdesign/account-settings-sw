@@ -691,6 +691,7 @@ export function AutoAnswerManageDialog({
                   </span>
                   <p className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b2)]">
                     Select how long users’ incoming calls will ring before being auto-answered.
+                    <br />
                     This setting won’t apply while users are on an active call.
                   </p>
                 </div>
