@@ -91,7 +91,7 @@ function SpringSelect({
   value, options, width = 112, onChange, disabled, tooltip,
 }: { value: string; options: string[]; width?: number; onChange?: (v: string) => void; disabled?: boolean; tooltip?: string }) {
   return (
-    <div className="group relative inline-flex" style={{ width }}>
+    <div className="group relative inline-flex shrink-0" style={{ width }}>
       <select
         value={value}
         disabled={disabled}

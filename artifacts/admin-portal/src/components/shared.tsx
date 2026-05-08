@@ -97,7 +97,7 @@ export function SpringSelect({ value, width = 200, onChange, options, disabled }
   }
   
   return (
-    <div className="relative inline-flex" style={{ width }}>
+    <div className="relative inline-flex shrink-0" style={{ width }}>
       <select
         value={value}
         disabled={disabled}
