@@ -1509,20 +1509,37 @@ export function ExtAppManageDialog({
                       <span className="text-[14px] font-semibold leading-[20px] text-[var(--sui-colors-neutral-b1)]">
                         Default in user settings:
                       </span>
-                      <div className="flex items-center gap-5">
-                        <SpringRadio
-                          checked={value === 'On'}
-                          onChange={() => setValue('On')}
-                          label="On"
-                          disabled={urlEmpty && value === 'Off'}
-                        />
-                        <SpringRadio
-                          checked={value === 'Off'}
-                          onChange={() => setValue('Off')}
-                          label="Off"
-                          disabled={urlEmpty && value === 'Off'}
-                        />
-                      </div>
+                      {urlEmpty && value === 'Off' ? (
+                        <TooltipPrimitives.Provider delayDuration={200}>
+                          <TooltipPrimitives.Root>
+                            <TooltipPrimitives.Trigger asChild>
+                              <span
+                                tabIndex={0}
+                                aria-label="To set this setting for new users as ON, set up external app or website URL first."
+                                className="flex items-center gap-5"
+                              >
+                                <SpringRadio checked={false} onChange={() => {}} label="On" disabled />
+                                <SpringRadio checked={true} onChange={() => {}} label="Off" disabled />
+                              </span>
+                            </TooltipPrimitives.Trigger>
+                            <TooltipPrimitives.Portal>
+                              <TooltipPrimitives.Content
+                                side="top"
+                                sideOffset={6}
+                                className="z-50 max-w-xs rounded-md bg-gray-900 px-3 py-2 text-sm text-white shadow-md animate-in fade-in-0 zoom-in-95"
+                              >
+                                To set this setting for new users as ON, set up external app or website URL first.
+                                <TooltipPrimitives.Arrow className="fill-gray-900" />
+                              </TooltipPrimitives.Content>
+                            </TooltipPrimitives.Portal>
+                          </TooltipPrimitives.Root>
+                        </TooltipPrimitives.Provider>
+                      ) : (
+                        <div className="flex items-center gap-5">
+                          <SpringRadio checked={value === 'On'} onChange={() => setValue('On')} label="On" />
+                          <SpringRadio checked={value === 'Off'} onChange={() => setValue('Off')} label="Off" />
+                        </div>
+                      )}
                     </div>
                     <div className="flex h-[32px] items-center rounded-[10px] bg-[var(--sui-colors-neutral-b5)] px-3">
                       <p className="whitespace-nowrap text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
