@@ -144,27 +144,17 @@ type Action =
   | { type: 'PATCH_FAX_CUSTOMIZE'; payload: Partial<FaxConfig> }
   | { type: 'RESET_OVERRIDES_AI'; payload: 'aiAssistant' | 'autoCallNotes' | 'realTimeAnswers' | 'transcripts' | 'writingAssist' };
 
-const TOTAL_USERS = 98;
-
 function withSnapshot(state: AppState): AppState {
   return { ...state, undoSnapshot: { ...state, undoSnapshot: null } };
 }
 
 function applyFeaturePatch(current: FeatureConfig, patch: Partial<FeatureConfig>): FeatureConfig {
-  const next: FeatureConfig = { ...current, ...patch };
-  // When the admin flips the default, users previously on the default are now
-  // on a non-default value (and vice versa) — swap the override count so the
-  // X/Y "users using default" metric updates live. An explicit `customUsers`
-  // in the patch (e.g. "Reset all to default" → 0) takes precedence and is
-  // not overwritten by the default-flip swap.
-  if (
-    patch.defaultVal !== undefined &&
-    patch.defaultVal !== current.defaultVal &&
-    patch.customUsers === undefined
-  ) {
-    next.customUsers = Math.max(0, TOTAL_USERS - current.customUsers);
-  }
-  return next;
+  // `customUsers` counts users who have overridden the default in their own
+  // settings (only meaningful when User access is Allowed). It is independent
+  // of which value (On/Off) is currently the default — flipping the default
+  // does not move users between "using default" and "overriding default".
+  // Only explicit patches (e.g. "Reset all to default" → 0) change it.
+  return { ...current, ...patch };
 }
 
 function reducer(state: AppState, action: Action): AppState {
