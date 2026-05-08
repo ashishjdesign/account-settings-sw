@@ -1810,8 +1810,8 @@ export function AutoAnswerManageDialog({
                   Feature settings
                 </h3>
                 <div className="flex flex-col gap-4 rounded-[10px] border border-[var(--sui-colors-neutral-b4)] p-4">
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex min-w-0 flex-col gap-1">
+                  <div className="flex items-start justify-between gap-8">
+                    <div className="flex min-w-0 flex-col gap-1 pr-2">
                       <span className="text-[14px] font-semibold leading-[20px] text-[var(--sui-colors-neutral-b1)]">
                         Auto-answer delay
                       </span>
