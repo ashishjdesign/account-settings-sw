@@ -696,7 +696,7 @@ export function AutoAnswerManageDialog({
                 </div>
                 <SpringSelect
                   value={del}
-                  width={180}
+                  width={160}
                   options={AUTO_ANSWER_DELAY_OPTIONS as unknown as string[]}
                   onChange={(v) => setDel(v as AutoAnswerDelay)}
                 />
