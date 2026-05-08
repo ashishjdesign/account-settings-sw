@@ -6,6 +6,8 @@ import {
   SpringFeatureEnableDialog,
   SpringConfirmDialog,
   ExtAppFeatureSettingsDialog,
+  ExtAppManageDialog,
+  // SpringFeatureManageDialog used for Auto-answer (still imported above)
   showToast,
 } from '../../components/shared';
 
@@ -140,17 +142,28 @@ export default function PhonePanel() {
           showToast('Settings were saved.');
         }}
       />
-      <SpringFeatureManageDialog
+      <ExtAppManageDialog
         open={extManageOpen}
-        title="Manage Launch an external app for incoming calls settings"
         defaultVal={extApp.defaultVal}
         allowChange={extApp.allowChange}
+        launchUrl={extApp.launchUrl}
+        trigger={extApp.trigger}
         customCount={extApp.customUsers}
+        error={state.simulateError}
         onCancel={() => setExtManageOpen(false)}
         onConfirm={(result) => {
+          if (state.simulateError) {
+            dispatch({ type: 'TOGGLE_SIMULATE_ERROR' });
+            return;
+          }
           dispatch({
             type: 'PATCH_PHONE_EXT_APP',
-            payload: { defaultVal: result.defaultVal, allowChange: result.allowChange },
+            payload: {
+              defaultVal: result.defaultVal,
+              allowChange: result.allowChange,
+              launchUrl: result.launchUrl,
+              trigger: result.trigger,
+            },
           });
           setExtManageOpen(false);
           showToast('Settings were updated.', () => dispatch({ type: 'UNDO' }));

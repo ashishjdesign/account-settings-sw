@@ -1263,6 +1263,223 @@ export function ExtAppFeatureSettingsDialog({
   );
 }
 
+/* -----------------------------------------------------------------------------
+ * ExtAppManageDialog — Manage modal for "Launch an external app for incoming
+ * calls" (Figma node 1874:31634). Combines User deployment (Default + User
+ * access as separate cards) and Feature settings (Launch URL + trigger).
+ * --------------------------------------------------------------------------- */
+export function ExtAppManageDialog({
+  open,
+  defaultVal,
+  allowChange,
+  launchUrl,
+  trigger,
+  customCount = 0,
+  totalUsers = 98,
+  onCancel,
+  onConfirm,
+  error,
+}: {
+  open: boolean;
+  defaultVal: 'On' | 'Off';
+  allowChange: boolean;
+  launchUrl: string;
+  trigger: 'A call begins to ring' | 'A call is answered';
+  customCount?: number;
+  totalUsers?: number;
+  onCancel: () => void;
+  onConfirm: (result: {
+    defaultVal: 'On' | 'Off';
+    allowChange: boolean;
+    launchUrl: string;
+    trigger: 'A call begins to ring' | 'A call is answered';
+  }) => void;
+  error?: boolean;
+}) {
+  const [value, setValue] = useState<'On' | 'Off'>(defaultVal);
+  const [allow, setAllow] = useState(allowChange);
+  const [url, setUrl] = useState(launchUrl);
+  const [trig, setTrig] = useState<'A call begins to ring' | 'A call is answered'>(trigger);
+  const [expanded, setExpanded] = useState(false);
+  const [usersOpen, setUsersOpen] = useState(false);
+  const total = totalUsers;
+  const defaultCount = Math.max(0, total - (customCount || 0));
+
+  useEffect(() => {
+    if (open) {
+      setValue(defaultVal);
+      setAllow(allowChange);
+      setUrl(launchUrl);
+      setTrig(trigger);
+      setExpanded(false);
+      setUsersOpen(false);
+    }
+  }, [open, defaultVal, allowChange, launchUrl, trigger]);
+
+  const dirty =
+    value !== defaultVal ||
+    allow !== allowChange ||
+    url.trim() !== launchUrl.trim() ||
+    trig !== trigger;
+  const disabled = !dirty && !error;
+
+  return (
+    <DialogPrimitives.Root open={open} onOpenChange={(o) => !o && onCancel()}>
+      <DialogPrimitives.Portal>
+        <DialogPrimitives.Overlay className="fixed inset-0 z-50 flex items-start justify-center bg-black/40 px-4 py-[60px] data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0">
+          <DialogPrimitives.Content
+            aria-label="Manage Launch an external app for incoming calls"
+            className="relative z-10 flex max-h-full min-h-0 w-[820px] max-w-[calc(100%-32px)] flex-col overflow-hidden rounded-[10px] bg-white pt-9 shadow-[0_10px_30px_rgba(0,0,0,0.2)] data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95"
+          >
+            <div className="flex min-h-0 flex-1 flex-col gap-6 overflow-y-auto px-6 pb-10">
+              <DialogPrimitives.Title className="py-3 text-[24px] font-normal leading-[32px] text-[var(--sui-colors-neutral-b0)]">
+                Manage Launch an external app for incoming calls
+              </DialogPrimitives.Title>
+
+              {/* User deployment */}
+              <div className="flex flex-col gap-2">
+                <h3 className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b2)]">
+                  User deployment
+                </h3>
+
+                {/* Default in user settings card */}
+                <div className="flex min-h-[64px] items-center justify-between rounded-[10px] border border-[#9E9FA4]/35 bg-white px-3 py-4">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                      Default in user settings
+                    </span>
+                    <div className="flex items-center border-l border-[var(--sui-colors-neutral-b4)] pl-2">
+                      <p className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b2)]">
+                        <button
+                          type="button"
+                          onClick={() => setUsersOpen(true)}
+                          className="cursor-pointer text-[var(--sui-colors-primary-b)] underline hover:text-[var(--sui-colors-primary-b-high-contrast)] focus:outline-none focus:ring-2 focus:ring-[var(--sui-colors-primary-b)]/30 rounded-sm"
+                        >
+                          {defaultCount}/{total} users
+                        </button>{' '}
+                        are using the default
+                      </p>
+                    </div>
+                  </div>
+                  <SpringSelect
+                    value={value}
+                    width={112}
+                    options={['On', 'Off']}
+                    onChange={(v) => setValue(v as 'On' | 'Off')}
+                  />
+                </div>
+
+                {/* User access card */}
+                <div className="flex min-h-[64px] items-center justify-between rounded-[10px] border border-[#9E9FA4]/35 bg-white px-3 py-4">
+                  <span className="text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                    User access
+                  </span>
+                  <label className="flex cursor-pointer items-center gap-2">
+                    <div className="relative flex h-[20px] w-[20px] items-center justify-center">
+                      <input
+                        type="checkbox"
+                        className="peer sr-only"
+                        checked={allow}
+                        onChange={(e) => setAllow(e.target.checked)}
+                      />
+                      <div className="absolute inset-0 rounded-[4px] border border-[var(--sui-colors-neutral-b3)] bg-white peer-focus-visible:ring-2 peer-focus-visible:ring-[var(--sui-colors-primary-b)]/30 peer-checked:bg-[var(--sui-colors-primary-b)] peer-checked:border-[var(--sui-colors-primary-b)] flex items-center justify-center transition-colors">
+                        {allow && <Check className="h-3 w-3 text-white" strokeWidth={3} />}
+                      </div>
+                    </div>
+                    <span className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                      Allow users to change this setting
+                    </span>
+                  </label>
+                </div>
+              </div>
+
+              {/* Feature settings */}
+              <div className="flex flex-col gap-2">
+                <h3 className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b2)]">
+                  Feature settings
+                </h3>
+                <div className="flex flex-col gap-4 rounded-[8px] border border-[var(--sui-colors-neutral-b4)] p-4">
+                  <div className="flex h-[32px] items-center gap-2">
+                    <span className="text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                      Launch
+                    </span>
+                    <div className="flex h-[32px] flex-1 items-center rounded-[10px] border border-black/20 bg-white px-2.5 focus-within:ring-2 focus-within:ring-[var(--sui-colors-primary-b)]/30">
+                      <input
+                        type="text"
+                        value={url}
+                        onChange={(e) => setUrl(e.target.value)}
+                        placeholder="Enter an external app or website URL"
+                        aria-label="Launch URL or external app path"
+                        className="w-full bg-transparent text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)] placeholder-[var(--sui-colors-neutral-b2)] outline-none"
+                      />
+                    </div>
+                    <span className="text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                      when
+                    </span>
+                    <span className="sr-only" id="ext-app-manage-trigger-label">Trigger event</span>
+                    <SpringSelect
+                      value={trig}
+                      width={240}
+                      options={['A call begins to ring', 'A call is answered']}
+                      onChange={(v) => setTrig(v as typeof trig)}
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setExpanded((v) => !v)}
+                    aria-expanded={expanded}
+                    className="self-start cursor-pointer rounded-[4px] px-1 py-0.5 text-[12px] font-medium leading-[17px] text-[var(--sui-colors-primary-b)] hover:underline focus:outline-none focus:ring-2 focus:ring-[var(--sui-colors-primary-b)]/30"
+                  >
+                    {expanded ? 'Hide reference parameters' : 'Show reference parameters'}
+                  </button>
+                  {expanded && <ReferenceParametersTable />}
+                </div>
+              </div>
+
+              {error && (
+                <div className="flex items-center gap-2 rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-800">
+                  <Info className="h-4 w-4 shrink-0 text-red-600" />
+                  <span>Couldn't save settings. Try again.</span>
+                </div>
+              )}
+            </div>
+
+            <div className="flex shrink-0 justify-end gap-2 border-t border-[#DDDFE5]/50 bg-white px-6 pt-5 pb-5">
+              <DialogPrimitives.Close asChild>
+                <button
+                  type="button"
+                  className="inline-flex h-[36px] min-w-[60px] cursor-pointer items-center justify-center rounded-[10px] border border-[var(--sui-colors-neutral-b4)] bg-white px-[18px] text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b0)] transition-colors hover:bg-[var(--sui-colors-neutral-b4)]/40 focus:outline-none focus:ring-2 focus:ring-[var(--sui-colors-primary-b)]/30"
+                >
+                  Cancel
+                </button>
+              </DialogPrimitives.Close>
+              <button
+                type="button"
+                onClick={() =>
+                  onConfirm({ defaultVal: value, allowChange: allow, launchUrl: url.trim(), trigger: trig })
+                }
+                disabled={disabled}
+                className="inline-flex h-[36px] min-w-[60px] items-center justify-center rounded-[10px] bg-[var(--sui-colors-primary-b)] px-[18px] text-[14px] font-medium leading-[20px] text-white transition-colors hover:bg-[var(--sui-colors-primary-b-high-contrast)] focus:outline-none focus:ring-2 focus:ring-[var(--sui-colors-primary-b)]/30 disabled:cursor-not-allowed disabled:bg-[var(--sui-colors-neutral-b3)] disabled:hover:bg-[var(--sui-colors-neutral-b3)] enabled:cursor-pointer"
+              >
+                {error ? 'Retry' : 'Save'}
+              </button>
+            </div>
+          </DialogPrimitives.Content>
+        </DialogPrimitives.Overlay>
+      </DialogPrimitives.Portal>
+      <SpringUsersConfigDialog
+        open={usersOpen}
+        featureLabel="Launch an external app for incoming calls"
+        variant="default"
+        onClose={() => setUsersOpen(false)}
+        defaultUsersCount={defaultCount}
+        customUsersCount={customCount}
+        totalUsersCount={total}
+      />
+    </DialogPrimitives.Root>
+  );
+}
+
 export function showToast(message: string, _onUndo?: () => void) {
   toast.custom(
     (id) => (
