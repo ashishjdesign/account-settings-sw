@@ -1,4 +1,25 @@
 import React from 'react';
+import * as SwitchPrimitives from '@radix-ui/react-switch';
+import { cn } from '@/lib/utils';
+
+const SpringSwitch = React.forwardRef<
+  React.ElementRef<typeof SwitchPrimitives.Root>,
+  React.ComponentPropsWithoutRef<typeof SwitchPrimitives.Root>
+>(({ className, ...props }, ref) => (
+  <SwitchPrimitives.Root
+    ref={ref}
+    className={cn(
+      'peer inline-flex h-[24px] w-[40px] shrink-0 cursor-pointer items-center rounded-full transition-colors',
+      'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sui-colors-primary-b-high-contrast)] focus-visible:ring-offset-2',
+      'data-[state=checked]:bg-[var(--sui-colors-primary-b)] data-[state=unchecked]:bg-[var(--sui-colors-neutral-b3)]',
+      className,
+    )}
+    {...props}
+  >
+    <SwitchPrimitives.Thumb className="pointer-events-none block h-[20px] w-[20px] rounded-full bg-white shadow-sm transition-transform data-[state=checked]:translate-x-[18px] data-[state=unchecked]:translate-x-[2px]" />
+  </SwitchPrimitives.Root>
+));
+SpringSwitch.displayName = 'SpringSwitch';
 
 const Icon = ({ name, className }: { name: string; className?: string }) => (
   <img
@@ -622,65 +643,61 @@ export function ExtAppManageDialog({
   return (
     <div className="absolute inset-0 z-50 flex items-start justify-center bg-black/40 px-4 py-[60px]">
       <div
-        className="flex max-h-full min-h-0 w-[820px] max-w-[calc(100%-32px)] flex-col overflow-hidden rounded-[10px] bg-white pt-9"
-        style={{ boxShadow: '0 10px 30px rgba(0,0,0,0.2)' }}
+        className="flex max-h-full min-h-0 w-[800px] max-w-[calc(100%-32px)] flex-col overflow-hidden rounded-[12px] bg-white"
+        style={{ boxShadow: '0 12px 32px rgba(0,0,0,0.18), 0 2px 6px rgba(0,0,0,0.08)' }}
       >
-        <div className="flex min-h-0 flex-1 flex-col gap-6 overflow-y-auto px-6 pb-10">
-          <h2 className="py-3 text-[24px] font-normal leading-[32px] text-[var(--sui-colors-neutral-b0)]">
+        <div className="flex min-h-0 flex-1 flex-col gap-6 overflow-y-auto px-6 pb-8 pt-6">
+          <h2 className="py-2 text-[22px] font-normal leading-[30px] text-[var(--sui-colors-neutral-b1)]">
             Manage Launch an external app for incoming calls
           </h2>
 
           {/* User deployment */}
-          <div className="flex flex-col gap-2">
-            <h3 className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b2)]">
-              User deployment
-            </h3>
-
-            {/* Default in user settings card */}
-            <div className="flex min-h-[64px] items-center justify-between rounded-[10px] border border-[#9E9FA4]/35 bg-white px-3 py-4">
-              <div className="flex items-center gap-2">
-                <span className="text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b1)]">
-                  Default in user settings
-                </span>
-                <div className="flex items-center border-l border-[var(--sui-colors-neutral-b4)] pl-2">
-                  <p className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b2)]">
-                    <button type="button" className="cursor-pointer text-[var(--sui-colors-primary-b)] underline">
-                      {defaultCount}/{total} users
-                    </button>{' '}
-                    are using the default
-                  </p>
-                </div>
-              </div>
-              <SpringSelect
-                value={effectiveValue}
-                width={112}
-                options={['On', 'Off']}
-                disabled={urlEmpty}
-                tooltip={urlEmpty ? noUrlTooltip : undefined}
-                onChange={(v) => setValue(v as 'On' | 'Off')}
-              />
+          <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-1">
+              <h3 className="text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b2)]">
+                User deployment
+              </h3>
+              <p className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b2)]">
+                <button
+                  type="button"
+                  className="cursor-pointer text-[var(--sui-colors-primary-b)] underline hover:text-[var(--sui-colors-primary-b-high-contrast)]"
+                >
+                  {defaultCount}/{total} users
+                </button>{' '}
+                use the default.
+              </p>
             </div>
 
-            {/* User access card */}
-            <div className="flex min-h-[64px] items-center justify-between rounded-[10px] border border-[#9E9FA4]/35 bg-white px-3 py-4">
-              <span className="text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b1)]">
-                User access
-              </span>
-              <label className="flex cursor-pointer items-center gap-2">
-                <SpringCheckbox checked={allow} onChange={setAllow} />
-                <span className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
-                  Allow users to change this setting
-                </span>
+            <div className="flex flex-col rounded-[10px] border border-[var(--sui-colors-neutral-b4)] bg-white">
+              <div className="flex min-h-[56px] items-center gap-4 p-4">
+                <h4 className="flex-1 text-[15px] font-bold leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                  Default for new users
+                </h4>
+                <SpringSelect
+                  value={effectiveValue}
+                  options={['On', 'Off']}
+                  width={84}
+                  disabled={urlEmpty}
+                  tooltip={urlEmpty ? noUrlTooltip : undefined}
+                  onChange={(v) => setValue(v as 'On' | 'Off')}
+                />
+              </div>
+              <div className="mx-4 border-t border-[var(--sui-colors-neutral-b4)]/70" />
+              <label className="flex min-h-[56px] cursor-pointer items-center gap-4 p-4">
+                <h4 className="flex-1 text-[15px] font-bold leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                  Let users change this themselves
+                </h4>
+                <SpringSwitch checked={allow} onCheckedChange={setAllow} />
               </label>
             </div>
           </div>
 
           {/* Feature settings */}
           <div className="flex flex-col gap-2">
-            <span className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b2)]">
+            <span className="text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b2)]">
               Feature settings
             </span>
-            <div className="flex flex-col gap-4 rounded-[8px] border border-[var(--sui-colors-neutral-b4)] p-4">
+            <div className="flex flex-col gap-4 rounded-[10px] border border-[var(--sui-colors-neutral-b4)] p-4">
               <div className="flex h-[32px] items-center gap-2">
                 <span className="text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b1)]">
                   Launch
@@ -717,11 +734,12 @@ export function ExtAppManageDialog({
           </div>
         </div>
 
-        <div className="flex shrink-0 items-center justify-end gap-2 border-t border-[#DDDFE5]/50 bg-white px-6 pt-5 pb-5">
+        <div className="border-t border-[#DDDFE5]/50" />
+        <div className="flex shrink-0 items-center justify-end gap-2 bg-white px-6 py-4">
           <button
             type="button"
             onClick={onCancel}
-            className="inline-flex h-[36px] min-w-[60px] cursor-pointer items-center justify-center rounded-[10px] border border-[var(--sui-colors-neutral-b4)] bg-white px-[18px] text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b0)] transition-colors hover:bg-[var(--sui-colors-neutral-b4)]/40"
+            className="inline-flex h-[32px] min-w-[64px] cursor-pointer items-center justify-center rounded-[10px] border border-black/20 bg-white px-3 text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b0)] transition-colors hover:bg-[var(--sui-colors-neutral-b4)]/40"
           >
             Cancel
           </button>
@@ -729,7 +747,7 @@ export function ExtAppManageDialog({
             type="button"
             onClick={handleSave}
             disabled={!dirty}
-            className={`inline-flex h-[36px] min-w-[60px] items-center justify-center rounded-[10px] px-[18px] text-[14px] font-medium leading-[20px] text-white transition-colors ${
+            className={`inline-flex h-[32px] min-w-[64px] items-center justify-center rounded-[10px] px-3 text-[14px] font-medium leading-[20px] text-white transition-colors ${
               dirty
                 ? 'cursor-pointer bg-[var(--sui-colors-primary-b)] hover:bg-[var(--sui-colors-primary-b-high-contrast)]'
                 : 'cursor-not-allowed bg-[var(--sui-colors-neutral-b3)]'
