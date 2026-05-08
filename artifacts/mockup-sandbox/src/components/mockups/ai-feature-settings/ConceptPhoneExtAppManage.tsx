@@ -25,7 +25,7 @@ export function ConceptPhoneExtAppManage() {
           icon={<Icon name="tear-out-window" />}
           description="Have incoming calls open an external app or website, like a CRM system or online database."
           summary={[
-            { label: 'User default:', value: 'On' },
+            { label: 'User default:', value: 'Off' },
             { label: 'User access:', value: 'Allowed' },
           ]}
           onManage={() => setOpen(true)}
@@ -54,11 +54,11 @@ export function ConceptPhoneExtAppManage() {
       <div className="spring-scope">
         <ExtAppManageDialog
           open={open}
-          defaultVal="On"
+          defaultVal="Off"
           allowChange
-          launchUrl="http://www.mysite.com/myintegration.htm?number=%P"
+          launchUrl=""
           trigger="A call begins to ring"
-          customCount={12}
+          customCount={98}
           onCancel={() => setOpen(false)}
           onSave={() => setOpen(false)}
         />
