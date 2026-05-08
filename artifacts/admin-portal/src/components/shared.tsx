@@ -1055,6 +1055,214 @@ export function UserDefaultsRow({
   );
 }
 
+/* -----------------------------------------------------------------------------
+ * ExtAppFeatureSettingsDialog — Set up Launch URL + trigger for the
+ * "Launch an external app for incoming calls" feature. Includes a
+ * collapsible reference parameters table (Figma node 1981:38965).
+ * --------------------------------------------------------------------------- */
+const TRIGGER_OPTIONS: ReadonlyArray<'A call begins to ring' | 'A call is answered'> = [
+  'A call begins to ring',
+  'A call is answered',
+];
+
+function ReferenceParametersTable() {
+  const rowText = 'text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]';
+  const codeCell = 'w-[120px] shrink-0 px-4 py-3 text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]';
+  const usageCell = 'flex-1 px-4 py-3';
+  const simpleRows = [
+    { p: '%N', u: 'Full name' },
+    { p: '%F', u: 'First name' },
+    { p: '%L', u: 'Last name' },
+    { p: '%D', u: 'Called number' },
+  ];
+  const tailRows = [
+    { p: '%C', u: 'Full canonical format: +1 (650) 555-4092' },
+    { p: '%E', u: 'E164 phone number: +16505554092' },
+    { p: '%%', u: '%symbol' },
+  ];
+  return (
+    <div className="overflow-hidden rounded-[8px] border border-[var(--sui-colors-neutral-b4)]">
+      <div className="flex bg-[var(--sui-colors-neutral-b5)]">
+        <div className="w-[120px] shrink-0 px-4 py-2 text-[14px] font-semibold leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+          Parameter
+        </div>
+        <div className="flex-1 px-4 py-2 text-[14px] font-semibold leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+          Usage
+        </div>
+      </div>
+      {simpleRows.map((r) => (
+        <div key={r.p} className="flex border-t border-[var(--sui-colors-neutral-b4)]">
+          <div className={codeCell}>{r.p}</div>
+          <div className={`${usageCell} ${rowText}`}>{r.u}</div>
+        </div>
+      ))}
+      <div className="flex border-t border-[var(--sui-colors-neutral-b4)]">
+        <div className={codeCell}>%P</div>
+        <div className={`${usageCell} flex flex-col gap-3`}>
+          <p className={rowText}>Formatted phone number: (650) 555-4092</p>
+          <div className="flex flex-col gap-2">
+            <p className={rowText}>Examples:</p>
+            <div className="flex flex-col gap-1 pl-4">
+              <p className={`${rowText} relative before:absolute before:-left-3 before:content-['•']`}>Launch URL</p>
+              <div className="flex h-[32px] items-center rounded-[10px] border border-black/20 bg-white px-2.5">
+                <span className={rowText}>http://www.mysite.com/myintegration.htm?number=%P</span>
+              </div>
+              <p className="text-[13px] font-normal leading-[18px] text-[var(--sui-colors-neutral-b2)]">
+                This example launches a browser, opens a webpage, and passes the caller's phone number details.
+              </p>
+            </div>
+            <div className="flex flex-col gap-1 pl-4">
+              <p className={`${rowText} relative before:absolute before:-left-3 before:content-['•']`}>Launch app</p>
+              <div className="flex h-[32px] items-center rounded-[10px] border border-black/20 bg-white px-2.5">
+                <span className={rowText}>/myfolder/myapp "%P" "%N"</span>
+              </div>
+              <p className="text-[13px] font-normal leading-[18px] text-[var(--sui-colors-neutral-b2)]">
+                This example opens an application on your computer and passes the caller's phone number and full name to the app.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+      {tailRows.map((r) => (
+        <div key={r.p} className="flex border-t border-[var(--sui-colors-neutral-b4)]">
+          <div className={codeCell}>{r.p}</div>
+          <div className={`${usageCell} ${rowText}`}>{r.u}</div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+export function ExtAppFeatureSettingsDialog({
+  open,
+  initialUrl = '',
+  initialTrigger = 'A call begins to ring',
+  initialExpanded = false,
+  onCancel,
+  onSkip,
+  onSave,
+}: {
+  open: boolean;
+  initialUrl?: string;
+  initialTrigger?: 'A call begins to ring' | 'A call is answered';
+  initialExpanded?: boolean;
+  onCancel: () => void;
+  onSkip: () => void;
+  onSave: (result: { launchUrl: string; trigger: 'A call begins to ring' | 'A call is answered' }) => void;
+}) {
+  const [url, setUrl] = useState(initialUrl);
+  const [trigger, setTrigger] = useState<'A call begins to ring' | 'A call is answered'>(initialTrigger);
+  const [expanded, setExpanded] = useState(initialExpanded);
+  useEffect(() => {
+    if (open) {
+      setUrl(initialUrl);
+      setTrigger(initialTrigger);
+      setExpanded(initialExpanded);
+    }
+  }, [open, initialUrl, initialTrigger, initialExpanded]);
+
+  const canSave = url.trim().length > 0;
+
+  return (
+    <DialogPrimitives.Root open={open} onOpenChange={(o) => !o && onCancel()}>
+      <DialogPrimitives.Portal>
+        <DialogPrimitives.Overlay className="fixed inset-0 z-50 flex items-start justify-center bg-black/40 px-4 py-[60px] data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0">
+          <DialogPrimitives.Content
+            aria-label="Set up feature settings for external apps or URLs for incoming calls"
+            className="relative z-10 flex max-h-full min-h-0 w-[820px] max-w-[calc(100%-32px)] flex-col overflow-hidden rounded-[10px] bg-white pt-9 shadow-[0_10px_30px_rgba(0,0,0,0.2)] data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95"
+          >
+            <div className="flex min-h-0 flex-1 flex-col gap-8 overflow-y-auto px-6 pb-10">
+              <DialogPrimitives.Title className="py-3 text-[24px] font-normal leading-[32px] text-[var(--sui-colors-neutral-b0)]">
+                Set up feature settings for external apps or URLs for incoming calls
+              </DialogPrimitives.Title>
+
+              <div
+                className="flex min-h-[48px] items-center gap-2 rounded-[10px] border border-[var(--sui-colors-neutral-b2)] px-4 py-2"
+                style={{ background: 'rgba(221,223,229,0.5)' }}
+              >
+                <Info className="h-5 w-5 shrink-0 text-[var(--sui-colors-neutral-b1)]" />
+                <p className="flex-1 text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b0)]">
+                  Launching an external app may impact the performance of RingCentral services.
+                </p>
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <span className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b2)]">
+                  Feature settings
+                </span>
+
+                <div className="flex flex-col gap-4 rounded-[8px] border border-[var(--sui-colors-neutral-b4)] p-4">
+                  <div className="flex h-[32px] items-center gap-2">
+                    <span className="text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                      Launch
+                    </span>
+                    <div className="flex h-[32px] flex-1 items-center rounded-[10px] border border-black/20 bg-white px-2.5 focus-within:ring-2 focus-within:ring-[var(--sui-colors-primary-b)]/30">
+                      <input
+                        type="text"
+                        value={url}
+                        onChange={(e) => setUrl(e.target.value)}
+                        placeholder="Enter an external app or website URL"
+                        className="w-full bg-transparent text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)] placeholder-[var(--sui-colors-neutral-b2)] outline-none"
+                      />
+                    </div>
+                    <span className="text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                      when
+                    </span>
+                    <SpringSelect
+                      value={trigger}
+                      width={240}
+                      options={TRIGGER_OPTIONS as unknown as string[]}
+                      onChange={(v) => setTrigger(v as typeof trigger)}
+                    />
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => setExpanded((v) => !v)}
+                    className="self-start cursor-pointer rounded-[4px] px-1 py-0.5 text-[12px] font-medium leading-[17px] text-[var(--sui-colors-primary-b)] hover:underline focus:outline-none focus:ring-2 focus:ring-[var(--sui-colors-primary-b)]/30"
+                  >
+                    {expanded ? 'Hide reference parameters' : 'Show reference parameters'}
+                  </button>
+
+                  {expanded && <ReferenceParametersTable />}
+                </div>
+              </div>
+            </div>
+
+            <div className="flex shrink-0 items-center justify-between gap-2 border-t border-[#DDDFE5]/50 bg-white px-6 pt-5 pb-5">
+              <DialogPrimitives.Close asChild>
+                <button
+                  type="button"
+                  className="inline-flex h-[36px] min-w-[60px] cursor-pointer items-center justify-center rounded-[10px] border border-[var(--sui-colors-neutral-b4)] bg-white px-[18px] text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b0)] transition-colors hover:bg-[var(--sui-colors-neutral-b4)]/40 focus:outline-none focus:ring-2 focus:ring-[var(--sui-colors-primary-b)]/30"
+                >
+                  Cancel
+                </button>
+              </DialogPrimitives.Close>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={onSkip}
+                  className="inline-flex h-[36px] min-w-[60px] cursor-pointer items-center justify-center rounded-[10px] border border-[var(--sui-colors-neutral-b4)] bg-white px-[18px] text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b0)] transition-colors hover:bg-[var(--sui-colors-neutral-b4)]/40 focus:outline-none focus:ring-2 focus:ring-[var(--sui-colors-primary-b)]/30"
+                >
+                  Skip and Continue
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onSave({ launchUrl: url.trim(), trigger })}
+                  disabled={!canSave}
+                  className="inline-flex h-[36px] min-w-[60px] items-center justify-center rounded-[10px] bg-[var(--sui-colors-primary-b)] px-[18px] text-[14px] font-medium leading-[20px] text-white transition-colors hover:bg-[var(--sui-colors-primary-b-high-contrast)] focus:outline-none focus:ring-2 focus:ring-[var(--sui-colors-primary-b)]/30 disabled:cursor-not-allowed disabled:bg-[var(--sui-colors-neutral-b3)] disabled:hover:bg-[var(--sui-colors-neutral-b3)] enabled:cursor-pointer"
+                >
+                  Save
+                </button>
+              </div>
+            </div>
+          </DialogPrimitives.Content>
+        </DialogPrimitives.Overlay>
+      </DialogPrimitives.Portal>
+    </DialogPrimitives.Root>
+  );
+}
+
 export function showToast(message: string, _onUndo?: () => void) {
   toast.custom(
     (id) => (

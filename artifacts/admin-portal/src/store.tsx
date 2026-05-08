@@ -24,8 +24,14 @@ export type GeneralState = {
   guides: FeatureConfig;
 };
 
+export type ExtAppConfig = FeatureConfig & {
+  launchUrl: string;
+  trigger: 'A call begins to ring' | 'A call is answered';
+};
+
 export type PhoneState = {
   externalAppOn: boolean;
+  extApp: ExtAppConfig;
   autoAnswer: FeatureConfig;
   conferenceCallsOn: boolean;
 };
@@ -65,6 +71,14 @@ const initialState: AppState = {
   },
   phone: {
     externalAppOn: false,
+    extApp: {
+      on: false,
+      defaultVal: 'On',
+      allowChange: true,
+      customUsers: 0,
+      launchUrl: '',
+      trigger: 'A call begins to ring',
+    },
     autoAnswer: { on: true, defaultVal: 'Off', allowChange: true, customUsers: 0 },
     conferenceCallsOn: false,
   },
@@ -109,6 +123,7 @@ type Action =
   | { type: 'PATCH_GENERAL_GUIDES'; payload: Partial<FeatureConfig> }
   | { type: 'SET_GENERAL_USER_ACTIVATION'; payload: boolean }
   | { type: 'SET_PHONE_EXTERNAL_APP'; payload: boolean }
+  | { type: 'PATCH_PHONE_EXT_APP'; payload: Partial<ExtAppConfig> }
   | { type: 'SET_PHONE_CONFERENCE'; payload: boolean }
   | { type: 'PATCH_PHONE_AUTO_ANSWER'; payload: Partial<FeatureConfig> }
   | { type: 'PATCH_AI_ASSISTANT'; payload: Partial<FeatureConfig> }
@@ -164,7 +179,28 @@ function reducer(state: AppState, action: Action): AppState {
         general: { ...state.general, userActivationOn: action.payload },
       };
     case 'SET_PHONE_EXTERNAL_APP':
-      return { ...withSnapshot(state), phone: { ...state.phone, externalAppOn: action.payload } };
+      return {
+        ...withSnapshot(state),
+        phone: {
+          ...state.phone,
+          externalAppOn: action.payload,
+          extApp: { ...state.phone.extApp, on: action.payload },
+        },
+      };
+    case 'PATCH_PHONE_EXT_APP': {
+      const next = applyFeaturePatch(state.phone.extApp, action.payload) as ExtAppConfig;
+      // Preserve url/trigger when not in patch
+      next.launchUrl = action.payload.launchUrl ?? state.phone.extApp.launchUrl;
+      next.trigger = action.payload.trigger ?? state.phone.extApp.trigger;
+      return {
+        ...withSnapshot(state),
+        phone: {
+          ...state.phone,
+          externalAppOn: next.on,
+          extApp: next,
+        },
+      };
+    }
     case 'SET_PHONE_CONFERENCE':
       return { ...withSnapshot(state), phone: { ...state.phone, conferenceCallsOn: action.payload } };
     case 'PATCH_PHONE_AUTO_ANSWER':
