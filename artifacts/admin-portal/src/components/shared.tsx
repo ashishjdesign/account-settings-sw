@@ -648,11 +648,13 @@ export function SpringUsersConfigDialog({
   const [configFilter, setConfigFilter] = useState<'All' | 'Default' | 'Custom'>(initialFilter);
   useEffect(() => { if (open) setConfigFilter(initialFilter); }, [open, initialFilter]);
   const total = totalUsersCount;
+  const defaultRows = MOCK_DEFAULT_USERS.slice(0, defaultUsersCount);
+  const customRows = MOCK_CUSTOM_USERS.slice(0, customUsersCount);
   const rows: UserRow[] = configFilter === 'Custom'
-    ? MOCK_CUSTOM_USERS
+    ? customRows
     : configFilter === 'Default'
-      ? MOCK_DEFAULT_USERS
-      : [...MOCK_DEFAULT_USERS, ...MOCK_CUSTOM_USERS];
+      ? defaultRows
+      : [...defaultRows, ...customRows];
   const count = configFilter === 'All' ? total : configFilter === 'Default' ? defaultUsersCount : customUsersCount;
 
   return (
