@@ -1,6 +1,6 @@
 import React from 'react';
 import { FeatureSettingsLayout, SettingCard } from './_chrome';
-import { ExtAppFeatureSettingsDialog } from './_dialogs';
+import { ExtAppFeatureSettingsDialog, SpringFirstEnableDialog } from './_dialogs';
 
 const Icon = ({ name }: { name: string }) => (
   <img
@@ -13,8 +13,10 @@ const Icon = ({ name }: { name: string }) => (
   />
 );
 
+type Step = 'enable' | 'settings' | 'closed';
+
 export function ConceptPhoneExtAppFeatureSettings() {
-  const [dialogOpen, setDialogOpen] = React.useState(true);
+  const [step, setStep] = React.useState<Step>('settings');
 
   return (
     <div className="relative">
@@ -47,11 +49,18 @@ export function ConceptPhoneExtAppFeatureSettings() {
       </FeatureSettingsLayout>
 
       <div className="spring-scope">
+        <SpringFirstEnableDialog
+          open={step === 'enable'}
+          title="Turn on Launch an external app for incoming calls?"
+          body="This feature will be enabled for your account. Configure how it should be deployed to users below."
+          onCancel={() => setStep('closed')}
+          onConfirm={() => setStep('settings')}
+        />
         <ExtAppFeatureSettingsDialog
-          open={dialogOpen}
-          onCancel={() => setDialogOpen(false)}
-          onSkip={() => setDialogOpen(false)}
-          onSave={() => setDialogOpen(false)}
+          open={step === 'settings'}
+          onBack={() => setStep('enable')}
+          onSkip={() => setStep('closed')}
+          onSave={() => setStep('closed')}
         />
       </div>
     </div>

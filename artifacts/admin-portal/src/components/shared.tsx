@@ -1255,7 +1255,7 @@ export function ExtAppFeatureSettingsDialog({
   initialUrl = '',
   initialTrigger = 'A call begins to ring',
   initialExpanded = false,
-  onCancel,
+  onBack,
   onSkip,
   onSave,
 }: {
@@ -1263,7 +1263,7 @@ export function ExtAppFeatureSettingsDialog({
   initialUrl?: string;
   initialTrigger?: 'A call begins to ring' | 'A call is answered';
   initialExpanded?: boolean;
-  onCancel: () => void;
+  onBack: () => void;
   onSkip: () => void;
   onSave: (result: { launchUrl: string; trigger: 'A call begins to ring' | 'A call is answered' }) => void;
 }) {
@@ -1281,7 +1281,7 @@ export function ExtAppFeatureSettingsDialog({
   const canSave = url.trim().length > 0;
 
   return (
-    <DialogPrimitives.Root open={open} onOpenChange={(o) => !o && onCancel()}>
+    <DialogPrimitives.Root open={open} onOpenChange={(o) => !o && onBack()}>
       <DialogPrimitives.Portal>
         <DialogPrimitives.Overlay className="fixed inset-0 z-50 flex items-start justify-center bg-black/40 px-4 py-[60px] data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0">
           <DialogPrimitives.Content
@@ -1347,14 +1347,13 @@ export function ExtAppFeatureSettingsDialog({
             </div>
 
             <div className="flex shrink-0 items-center justify-between gap-2 border-t border-[#DDDFE5]/50 bg-white px-6 pt-5 pb-5">
-              <DialogPrimitives.Close asChild>
-                <button
-                  type="button"
-                  className="inline-flex h-[36px] min-w-[60px] cursor-pointer items-center justify-center rounded-[10px] border border-[var(--sui-colors-neutral-b4)] bg-white px-[18px] text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b0)] transition-colors hover:bg-[var(--sui-colors-neutral-b4)]/40 focus:outline-none focus:ring-2 focus:ring-[var(--sui-colors-primary-b)]/30"
-                >
-                  Cancel
-                </button>
-              </DialogPrimitives.Close>
+              <button
+                type="button"
+                onClick={onBack}
+                className="inline-flex h-[36px] min-w-[60px] cursor-pointer items-center justify-center rounded-[10px] border border-[var(--sui-colors-neutral-b4)] bg-white px-[18px] text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b0)] transition-colors hover:bg-[var(--sui-colors-neutral-b4)]/40 focus:outline-none focus:ring-2 focus:ring-[var(--sui-colors-primary-b)]/30"
+              >
+                Back
+              </button>
               <div className="flex items-center gap-2">
                 <button
                   type="button"

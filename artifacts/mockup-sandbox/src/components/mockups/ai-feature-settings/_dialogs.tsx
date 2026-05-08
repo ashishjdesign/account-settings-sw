@@ -267,10 +267,10 @@ function ReferenceParametersTable() {
 
 /* Figma node 1980:37906 — Set up feature settings for external apps or URLs */
 export function ExtAppFeatureSettingsDialog({
-  open, onCancel, onSkip, onSave, initialExpanded = false,
+  open, onBack, onSkip, onSave, initialExpanded = false,
 }: {
   open: boolean;
-  onCancel?: () => void;
+  onBack?: () => void;
   onSkip?: () => void;
   onSave?: () => void;
   initialExpanded?: boolean;
@@ -362,10 +362,10 @@ export function ExtAppFeatureSettingsDialog({
         <div className="flex shrink-0 items-center justify-between gap-2 border-t border-[#DDDFE5]/50 bg-white px-6 pt-5 pb-5">
           <button
             type="button"
-            onClick={onCancel}
+            onClick={onBack}
             className="inline-flex h-[36px] min-w-[60px] cursor-pointer items-center justify-center rounded-[10px] border border-[var(--sui-colors-neutral-b4)] bg-white px-[18px] text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b0)] transition-colors hover:bg-[var(--sui-colors-neutral-b4)]/40"
           >
-            Cancel
+            Back
           </button>
           <div className="flex items-center gap-2">
             <button

@@ -134,10 +134,11 @@ export default function PhonePanel() {
         open={extSettingsOpen}
         initialUrl={extApp.launchUrl}
         initialTrigger={extApp.trigger}
-        onCancel={() => {
-          // Cancel aborts the entire onboarding — nothing committed.
+        onBack={() => {
+          // Back returns to the prior first-enable dialog, preserving the
+          // admin's deployment choices so they aren't re-entered.
           setExtSettingsOpen(false);
-          setPendingEnable(null);
+          setExtEnableOpen(true);
         }}
         onSkip={() => {
           if (pendingEnable) {
