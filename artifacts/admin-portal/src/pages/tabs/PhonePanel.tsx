@@ -7,7 +7,7 @@ import {
   SpringConfirmDialog,
   ExtAppFeatureSettingsDialog,
   ExtAppManageDialog,
-  // SpringFeatureManageDialog used for Auto-answer (still imported above)
+  SpringFirstEnableDialog,
   showToast,
 } from '../../components/shared';
 
@@ -91,19 +91,45 @@ export default function PhonePanel() {
       />
 
       {/* Launch external app — first-time enable + Manage */}
-      <SpringFeatureEnableDialog
-        open={extEnableOpen}
-        title="Turn on Launch an external app for incoming calls?"
-        customCount={extApp.customUsers}
-        onCancel={() => setExtEnableOpen(false)}
-        onConfirm={(result) => {
-          // Stage deployment choices; do NOT dispatch yet so Cancel on the
-          // follow-on settings dialog can abort cleanly.
-          setPendingEnable({ defaultVal: result.defaultVal, allowChange: result.allowChange });
-          setExtEnableOpen(false);
-          setExtSettingsOpen(true);
-        }}
-      />
+      {/* First-time enablement: bare-bones dialog (no user-count link, no
+          custom-users section). After the admin has completed onboarding once
+          (`everEnabled`), subsequent re-enables use the full deployment dialog
+          which validates custom users. */}
+      {!extApp.everEnabled ? (
+        <SpringFirstEnableDialog
+          open={extEnableOpen}
+          title="Turn on Launch an external app for incoming calls?"
+          body="This feature will be enabled for your account. Configure how it should be deployed to users below."
+          onCancel={() => setExtEnableOpen(false)}
+          onConfirm={(result) => {
+            setPendingEnable({ defaultVal: result.defaultVal, allowChange: result.allowChange });
+            setExtEnableOpen(false);
+            setExtSettingsOpen(true);
+          }}
+        />
+      ) : (
+        <SpringFeatureEnableDialog
+          open={extEnableOpen}
+          title="Turn on Launch an external app for incoming calls?"
+          customCount={extApp.customUsers}
+          onCancel={() => setExtEnableOpen(false)}
+          onConfirm={(result) => {
+            // Re-enable: commit deployment + custom-user choice atomically;
+            // no follow-on settings dialog because URL/trigger are preserved.
+            dispatch({
+              type: 'PATCH_PHONE_EXT_APP',
+              payload: {
+                on: true,
+                defaultVal: result.defaultVal,
+                allowChange: result.allowChange,
+                ...(result.customAction === 'reset' ? { customUsers: 0 } : {}),
+              },
+            });
+            setExtEnableOpen(false);
+            showToast('Launch an external app for incoming calls is on.');
+          }}
+        />
+      )}
       <ExtAppFeatureSettingsDialog
         open={extSettingsOpen}
         initialUrl={extApp.launchUrl}
@@ -117,7 +143,12 @@ export default function PhonePanel() {
           if (pendingEnable) {
             dispatch({
               type: 'PATCH_PHONE_EXT_APP',
-              payload: { on: true, defaultVal: pendingEnable.defaultVal, allowChange: pendingEnable.allowChange },
+              payload: {
+                on: true,
+                defaultVal: pendingEnable.defaultVal,
+                allowChange: pendingEnable.allowChange,
+                everEnabled: true,
+              },
             });
           }
           setPendingEnable(null);
@@ -134,6 +165,7 @@ export default function PhonePanel() {
                   allowChange: pendingEnable.allowChange,
                   launchUrl: result.launchUrl,
                   trigger: result.trigger,
+                  everEnabled: true,
                 }
               : { launchUrl: result.launchUrl, trigger: result.trigger },
           });

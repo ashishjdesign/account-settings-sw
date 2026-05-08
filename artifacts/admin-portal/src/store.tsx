@@ -27,6 +27,10 @@ export type GeneralState = {
 export type ExtAppConfig = FeatureConfig & {
   launchUrl: string;
   trigger: 'A call begins to ring' | 'A call is answered';
+  // True once the admin has completed the first-time enable flow at
+  // least once. Subsequent re-enables show the full deployment dialog
+  // (with default user-count link + custom-users validation).
+  everEnabled: boolean;
 };
 
 export type PhoneState = {
@@ -78,6 +82,7 @@ const initialState: AppState = {
       customUsers: 0,
       launchUrl: '',
       trigger: 'A call begins to ring',
+      everEnabled: false,
     },
     autoAnswer: { on: true, defaultVal: 'Off', allowChange: true, customUsers: 0 },
     conferenceCallsOn: false,
@@ -149,8 +154,14 @@ function applyFeaturePatch(current: FeatureConfig, patch: Partial<FeatureConfig>
   const next: FeatureConfig = { ...current, ...patch };
   // When the admin flips the default, users previously on the default are now
   // on a non-default value (and vice versa) — swap the override count so the
-  // X/Y "users using default" metric updates live.
-  if (patch.defaultVal !== undefined && patch.defaultVal !== current.defaultVal) {
+  // X/Y "users using default" metric updates live. An explicit `customUsers`
+  // in the patch (e.g. "Reset all to default" → 0) takes precedence and is
+  // not overwritten by the default-flip swap.
+  if (
+    patch.defaultVal !== undefined &&
+    patch.defaultVal !== current.defaultVal &&
+    patch.customUsers === undefined
+  ) {
     next.customUsers = Math.max(0, TOTAL_USERS - current.customUsers);
   }
   return next;
@@ -189,9 +200,10 @@ function reducer(state: AppState, action: Action): AppState {
       };
     case 'PATCH_PHONE_EXT_APP': {
       const next = applyFeaturePatch(state.phone.extApp, action.payload) as ExtAppConfig;
-      // Preserve url/trigger when not in patch
+      // Preserve url/trigger/everEnabled when not in patch
       next.launchUrl = action.payload.launchUrl ?? state.phone.extApp.launchUrl;
       next.trigger = action.payload.trigger ?? state.phone.extApp.trigger;
+      next.everEnabled = action.payload.everEnabled ?? state.phone.extApp.everEnabled;
       return {
         ...withSnapshot(state),
         phone: {
