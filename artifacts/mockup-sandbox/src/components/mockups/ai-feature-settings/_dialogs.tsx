@@ -685,13 +685,12 @@ export function AutoAnswerManageDialog({
             </span>
             <div className="flex flex-col gap-4 rounded-[10px] border border-[var(--sui-colors-neutral-b4)] p-4">
               <div className="flex items-start justify-between gap-8">
-                <div className="flex min-w-0 flex-col gap-1 pr-2">
+                <div className="flex min-w-0 flex-col gap-1 pr-6">
                   <span className="text-[14px] font-semibold leading-[20px] text-[var(--sui-colors-neutral-b1)]">
                     Auto-answer delay
                   </span>
                   <p className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b2)]">
                     Select how long users’ incoming calls will ring before being auto-answered.
-                    <br />
                     This setting won’t apply while users are on an active call.
                   </p>
                 </div>
