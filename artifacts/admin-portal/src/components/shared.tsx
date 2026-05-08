@@ -1636,7 +1636,6 @@ export function ExtAppManageDialog({
             </p>
             <p>
               The default for users can’t stay on without a URL and will be turned <strong>off</strong>.
-              All other changes will still be saved.
             </p>
           </>
         }
