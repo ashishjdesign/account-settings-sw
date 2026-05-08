@@ -1120,7 +1120,7 @@ export function SpringFirstEnableDialog({
               )}
 
               <div className="flex flex-col gap-2">
-                <h3 className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b2)]">
+                <h3 className="text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b2)]">
                   User deployment
                 </h3>
                 <div className="flex flex-col gap-4 rounded-[10px] border border-[#9E9FA4]/35 bg-white p-4">
@@ -1503,7 +1503,7 @@ export function ExtAppManageDialog({
 
               {/* User deployment */}
               <div className="flex flex-col gap-2">
-                <h3 className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b2)]">
+                <h3 className="text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b2)]">
                   User deployment
                 </h3>
 
