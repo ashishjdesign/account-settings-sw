@@ -97,14 +97,18 @@ export function SpringSelect({ value, width = 200, onChange, options }: { value:
   }
   
   return (
-    <select
-      style={{ width }}
-      value={value}
-      onChange={e => onChange?.(e.target.value)}
-      className="flex h-[32px] items-center gap-1 rounded-[10px] border border-black/20 bg-white pl-[10px] pr-[6px] text-left transition-colors hover:border-black/40 focus:outline-none focus:ring-2 focus:ring-[var(--sui-colors-primary-b)]/30 text-[14px] font-normal text-[var(--sui-colors-neutral-b0)] appearance-none cursor-pointer"
-    >
-      {options.map(opt => <option key={opt} value={opt}>{opt}</option>)}
-    </select>
+    <div className="relative inline-flex" style={{ width }}>
+      <select
+        value={value}
+        onChange={e => onChange?.(e.target.value)}
+        className="h-[32px] w-full cursor-pointer appearance-none rounded-[10px] border border-black/20 bg-white pl-[10px] pr-8 text-left text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b0)] transition-colors hover:border-black/40 focus:outline-none focus:ring-2 focus:ring-[var(--sui-colors-primary-b)]/30"
+      >
+        {options.map(opt => <option key={opt} value={opt}>{opt}</option>)}
+      </select>
+      <span className="pointer-events-none absolute right-1.5 top-1/2 flex h-6 w-6 -translate-y-1/2 items-center justify-center text-[var(--sui-colors-neutral-b1)]">
+        <ChevronDown className="h-4 w-4" strokeWidth={1.6} />
+      </span>
+    </div>
   );
 }
 
