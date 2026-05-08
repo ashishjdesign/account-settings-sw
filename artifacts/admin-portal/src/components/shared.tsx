@@ -231,7 +231,7 @@ export function SpringConfirmDialog({
                 </div>
               )}
             </div>
-            <div className="border-t border-[#DDDFE5]/50" />
+            <div className="border-t border-[var(--sui-colors-neutral-b4)]/50" />
             <div className="flex justify-end gap-2 px-6 pt-5 pb-5">
               <DialogPrimitives.Close asChild>
                 <button
@@ -572,7 +572,7 @@ export function SpringFeatureManageDialog({
               <DialogPrimitives.Close asChild>
                 <button
                   type="button"
-                  className="inline-flex h-[36px] min-w-[60px] cursor-pointer items-center justify-center rounded-[10px] border border-[var(--sui-colors-neutral-b4)] bg-white px-[18px] text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b0)] transition-colors hover:bg-[var(--sui-colors-neutral-b4)]/40 focus:outline-none focus:ring-2 focus:ring-[var(--sui-colors-primary-b)]/30"
+                  className="inline-flex h-[36px] min-w-[60px] cursor-pointer items-center justify-center rounded-[10px] border border-black/20 bg-white px-4 text-[15px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b0)] transition-colors hover:bg-[var(--sui-colors-neutral-b4)]/40 focus:outline-none focus:ring-2 focus:ring-[var(--sui-colors-primary-b)]/30"
                 >
                   Cancel
                 </button>
@@ -965,7 +965,7 @@ export function SpringFeatureEnableDialog({
               <DialogPrimitives.Close asChild>
                 <button
                   type="button"
-                  className="inline-flex h-[36px] min-w-[60px] cursor-pointer items-center justify-center rounded-[10px] border border-[var(--sui-colors-neutral-b4)] bg-white px-[18px] text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b0)] transition-colors hover:bg-[var(--sui-colors-neutral-b4)]/40 focus:outline-none focus:ring-2 focus:ring-[var(--sui-colors-primary-b)]/30"
+                  className="inline-flex h-[36px] min-w-[60px] cursor-pointer items-center justify-center rounded-[10px] border border-black/20 bg-white px-4 text-[15px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b0)] transition-colors hover:bg-[var(--sui-colors-neutral-b4)]/40 focus:outline-none focus:ring-2 focus:ring-[var(--sui-colors-primary-b)]/30"
                 >
                   Cancel
                 </button>
@@ -973,7 +973,7 @@ export function SpringFeatureEnableDialog({
               <button
                 type="button"
                 onClick={() => onConfirm({ defaultVal: value, allowChange: allow, customAction })}
-                className="inline-flex h-[36px] min-w-[60px] cursor-pointer items-center justify-center rounded-[10px] bg-[var(--sui-colors-primary-b)] px-[18px] text-[14px] font-medium leading-[20px] text-white transition-colors hover:bg-[var(--sui-colors-primary-b-high-contrast)] focus:outline-none focus:ring-2 focus:ring-[var(--sui-colors-primary-b)]/30"
+                className="inline-flex h-[36px] min-w-[60px] cursor-pointer items-center justify-center rounded-[10px] bg-[var(--sui-colors-primary-b)] px-4 text-[15px] font-medium leading-[20px] text-white transition-colors hover:bg-[var(--sui-colors-primary-b-high-contrast)] focus:outline-none focus:ring-2 focus:ring-[var(--sui-colors-primary-b)]/30"
               >
                 Turn on
               </button>
@@ -1357,11 +1357,11 @@ export function ExtAppFeatureSettingsDialog({
               </div>
             </div>
 
-            <div className="flex shrink-0 items-center justify-between gap-2 border-t border-[#DDDFE5]/50 bg-white px-6 pt-5 pb-5">
+            <div className="flex shrink-0 items-center justify-between gap-2 border-t border-[var(--sui-colors-neutral-b4)]/50 bg-white px-6 pt-5 pb-5">
               <button
                 type="button"
                 onClick={onBack}
-                className="inline-flex h-[36px] min-w-[60px] cursor-pointer items-center justify-center rounded-[10px] border border-[var(--sui-colors-neutral-b4)] bg-white px-[18px] text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b0)] transition-colors hover:bg-[var(--sui-colors-neutral-b4)]/40 focus:outline-none focus:ring-2 focus:ring-[var(--sui-colors-primary-b)]/30"
+                className="inline-flex h-[36px] min-w-[60px] cursor-pointer items-center justify-center rounded-[10px] border border-black/20 bg-white px-4 text-[15px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b0)] transition-colors hover:bg-[var(--sui-colors-neutral-b4)]/40 focus:outline-none focus:ring-2 focus:ring-[var(--sui-colors-primary-b)]/30"
               >
                 Back
               </button>
@@ -1370,7 +1370,7 @@ export function ExtAppFeatureSettingsDialog({
                   <button
                     type="button"
                     onClick={onSkip}
-                    className="inline-flex h-[36px] min-w-[60px] cursor-pointer items-center justify-center rounded-[10px] border border-[var(--sui-colors-neutral-b4)] bg-white px-[18px] text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b0)] transition-colors hover:bg-[var(--sui-colors-neutral-b4)]/40 focus:outline-none focus:ring-2 focus:ring-[var(--sui-colors-primary-b)]/30"
+                    className="inline-flex h-[36px] min-w-[60px] cursor-pointer items-center justify-center rounded-[10px] border border-black/20 bg-white px-4 text-[15px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b0)] transition-colors hover:bg-[var(--sui-colors-neutral-b4)]/40 focus:outline-none focus:ring-2 focus:ring-[var(--sui-colors-primary-b)]/30"
                   >
                     Skip and Continue
                   </button>
@@ -1620,7 +1620,7 @@ export function ExtAppManageDialog({
               )}
             </div>
 
-            <div className="flex shrink-0 justify-end gap-2 border-t border-[#DDDFE5]/50 bg-white px-6 py-4">
+            <div className="flex shrink-0 justify-end gap-2 border-t border-[var(--sui-colors-neutral-b4)]/50 bg-white px-6 pt-5 pb-5">
               <DialogPrimitives.Close asChild>
                 <button
                   type="button"
