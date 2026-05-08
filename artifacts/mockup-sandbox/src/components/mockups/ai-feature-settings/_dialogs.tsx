@@ -627,23 +627,23 @@ export function ExtAppManageDialog({
   const total = totalUsers;
   const defaultCount = Math.max(0, total - (customCount || 0));
   const urlEmpty = url.trim().length === 0;
-  const effectiveValue: 'On' | 'Off' = urlEmpty ? 'Off' : value;
-  const noUrlTooltip =
-    'To set this setting for new users as ON, set up external app or website URL first.';
   const dirty =
-    effectiveValue !== defaultVal ||
+    value !== defaultVal ||
     allow !== allowChange ||
     url.trim() !== launchUrl.trim() ||
     trig !== trigger;
   const commit = (override?: { defaultVal?: 'On' | 'Off' }) =>
     onSave?.({
-      defaultVal: override?.defaultVal ?? effectiveValue,
+      defaultVal: override?.defaultVal ?? value,
       allowChange: allow,
       launchUrl: url.trim(),
       trigger: trig,
     });
   const handleSave = () => {
-    if (urlEmpty && defaultVal === 'On') {
+    // If the user is saving with an empty URL while the default is still On,
+    // confirm before turning the default off (Figma node 1991:28574). We do
+    // not auto-flip the radios when the URL is cleared.
+    if (urlEmpty && value === 'On') {
       setConfirmOff(true);
       return;
     }
@@ -674,31 +674,9 @@ export function ExtAppManageDialog({
                   <span className="text-[14px] font-semibold leading-[20px] text-[var(--sui-colors-neutral-b1)]">
                     Default in user settings:
                   </span>
-                  <div className="group relative flex items-center gap-5">
-                    <SpringRadio
-                      checked={effectiveValue === 'On'}
-                      onChange={() => !urlEmpty && setValue('On')}
-                      label="On"
-                      disabled={urlEmpty}
-                    />
-                    <SpringRadio
-                      checked={effectiveValue === 'Off'}
-                      onChange={() => !urlEmpty && setValue('Off')}
-                      label="Off"
-                      disabled={urlEmpty}
-                    />
-                    {urlEmpty && (
-                      <div
-                        role="tooltip"
-                        className="pointer-events-none absolute bottom-[calc(100%+8px)] left-0 z-50 hidden w-[260px] rounded-md bg-[var(--sui-colors-neutral-b1)] px-3 py-2 text-[12px] font-normal leading-[16px] text-white shadow-md group-hover:block group-focus-within:block"
-                      >
-                        {noUrlTooltip}
-                        <span
-                          aria-hidden="true"
-                          className="absolute left-4 top-full h-0 w-0 border-x-[6px] border-t-[6px] border-x-transparent border-t-[var(--sui-colors-neutral-b1)]"
-                        />
-                      </div>
-                    )}
+                  <div className="flex items-center gap-5">
+                    <SpringRadio checked={value === 'On'} onChange={() => setValue('On')} label="On" />
+                    <SpringRadio checked={value === 'Off'} onChange={() => setValue('Off')} label="Off" />
                   </div>
                 </div>
                 <div className="flex h-[32px] items-center rounded-[10px] bg-[var(--sui-colors-neutral-b5)] px-3">

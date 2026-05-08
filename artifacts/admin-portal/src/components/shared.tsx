@@ -1449,14 +1449,13 @@ export function ExtAppManageDialog({
     }
   }, [open, defaultVal, allowChange, launchUrl, trigger]);
 
-  // When the URL is empty, the default-for-users is forced Off and the
-  // select is disabled. Compute the effective value the user sees.
+  // When the URL is empty, do NOT auto-flip the default-for-users radio. The
+  // user keeps their selection in the UI and gets a confirmation on Save
+  // (Figma node 1991:28574) before the default is turned off.
   const urlEmpty = url.trim().length === 0;
-  const effectiveValue: 'On' | 'Off' = urlEmpty ? 'Off' : value;
-  const noUrlTooltip = 'To set this setting for new users as ON, set up external app or website URL first.';
 
   const dirty =
-    effectiveValue !== defaultVal ||
+    value !== defaultVal ||
     allow !== allowChange ||
     url.trim() !== launchUrl.trim() ||
     trig !== trigger;
@@ -1464,7 +1463,7 @@ export function ExtAppManageDialog({
 
   const commit = (override?: { defaultVal?: 'On' | 'Off' }) => {
     onConfirm({
-      defaultVal: override?.defaultVal ?? effectiveValue,
+      defaultVal: override?.defaultVal ?? value,
       allowChange: allow,
       launchUrl: url.trim(),
       trigger: trig,
@@ -1476,8 +1475,9 @@ export function ExtAppManageDialog({
       commit();
       return;
     }
-    // Cleared the URL on a feature that was on by default for users → confirm.
-    if (urlEmpty && defaultVal === 'On') {
+    // Saving with an empty URL while the default is still On → confirm
+    // before turning it off (Figma node 1991:28574).
+    if (urlEmpty && value === 'On') {
       setConfirmOff(true);
       return;
     }
@@ -1509,33 +1509,10 @@ export function ExtAppManageDialog({
                       <span className="text-[14px] font-semibold leading-[20px] text-[var(--sui-colors-neutral-b1)]">
                         Default in user settings:
                       </span>
-                      {urlEmpty ? (
-                        <TooltipPrimitives.Provider delayDuration={200}>
-                          <TooltipPrimitives.Root>
-                            <TooltipPrimitives.Trigger asChild>
-                              <span tabIndex={0} aria-label={noUrlTooltip} className="flex items-center gap-5">
-                                <SpringRadio checked={false} onChange={() => {}} label="On" disabled />
-                                <SpringRadio checked={true} onChange={() => {}} label="Off" disabled />
-                              </span>
-                            </TooltipPrimitives.Trigger>
-                            <TooltipPrimitives.Portal>
-                              <TooltipPrimitives.Content
-                                side="top"
-                                sideOffset={6}
-                                className="z-50 max-w-xs rounded-md bg-gray-900 px-3 py-2 text-sm text-white shadow-md animate-in fade-in-0 zoom-in-95"
-                              >
-                                {noUrlTooltip}
-                                <TooltipPrimitives.Arrow className="fill-gray-900" />
-                              </TooltipPrimitives.Content>
-                            </TooltipPrimitives.Portal>
-                          </TooltipPrimitives.Root>
-                        </TooltipPrimitives.Provider>
-                      ) : (
-                        <div className="flex items-center gap-5">
-                          <SpringRadio checked={value === 'On'} onChange={() => setValue('On')} label="On" />
-                          <SpringRadio checked={value === 'Off'} onChange={() => setValue('Off')} label="Off" />
-                        </div>
-                      )}
+                      <div className="flex items-center gap-5">
+                        <SpringRadio checked={value === 'On'} onChange={() => setValue('On')} label="On" />
+                        <SpringRadio checked={value === 'Off'} onChange={() => setValue('Off')} label="Off" />
+                      </div>
                     </div>
                     <div className="flex h-[32px] items-center rounded-[10px] bg-[var(--sui-colors-neutral-b5)] px-3">
                       <p className="whitespace-nowrap text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
