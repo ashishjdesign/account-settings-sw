@@ -428,8 +428,8 @@ function SpringRadio({
           'flex h-[20px] w-[20px] shrink-0 items-center justify-center rounded-full border-[1.2px] bg-white transition-colors',
           checked
             ? 'border-[var(--sui-colors-primary-b)]'
-            : 'border-black/20 hover:border-[var(--sui-colors-neutral-b1)]',
-          disabled ? 'cursor-not-allowed opacity-60 hover:border-black/20' : 'cursor-pointer',
+            : 'border-[var(--sui-colors-neutral-b2)] hover:border-[var(--sui-colors-neutral-b1)]',
+          disabled ? 'cursor-not-allowed opacity-60 hover:border-[var(--sui-colors-neutral-b2)]' : 'cursor-pointer',
         )}
       >
         {checked && (
@@ -539,14 +539,14 @@ export function SpringFeatureManageDialog({
                         User access:
                       </span>
                       <label className="flex cursor-pointer items-center gap-2">
-                        <div className="relative flex h-[18px] w-[18px] items-center justify-center">
+                        <div className="relative flex h-[20px] w-[20px] items-center justify-center">
                           <input
                             type="checkbox"
                             className="peer sr-only"
                             checked={allow}
                             onChange={(e) => setAllow(e.target.checked)}
                           />
-                          <div className="absolute inset-0 rounded-[4px] border border-[var(--sui-colors-neutral-b3)] bg-white peer-focus-visible:ring-2 peer-focus-visible:ring-[var(--sui-colors-primary-b)]/30 peer-checked:bg-[var(--sui-colors-primary-b)] peer-checked:border-[var(--sui-colors-primary-b)] flex items-center justify-center transition-colors">
+                          <div className="absolute inset-0 rounded-[4px] border-[1.2px] border-[var(--sui-colors-neutral-b2)] bg-white peer-focus-visible:ring-2 peer-focus-visible:ring-[var(--sui-colors-primary-b)]/30 peer-checked:bg-[var(--sui-colors-primary-b)] peer-checked:border-transparent flex items-center justify-center transition-colors">
                             {allow && <Check className="h-3 w-3 text-white" strokeWidth={3} />}
                           </div>
                         </div>
@@ -912,14 +912,14 @@ export function SpringFeatureEnableDialog({
                         User access:
                       </span>
                       <label className="flex cursor-pointer items-center gap-2">
-                        <div className="relative flex h-[18px] w-[18px] items-center justify-center">
+                        <div className="relative flex h-[20px] w-[20px] items-center justify-center">
                           <input
                             type="checkbox"
                             className="peer sr-only"
                             checked={allow}
                             onChange={(e) => setAllow(e.target.checked)}
                           />
-                          <div className="absolute inset-0 rounded-[4px] border border-[var(--sui-colors-neutral-b3)] bg-white peer-focus-visible:ring-2 peer-focus-visible:ring-[var(--sui-colors-primary-b)]/30 peer-checked:bg-[var(--sui-colors-primary-b)] peer-checked:border-[var(--sui-colors-primary-b)] flex items-center justify-center transition-colors">
+                          <div className="absolute inset-0 rounded-[4px] border-[1.2px] border-[var(--sui-colors-neutral-b2)] bg-white peer-focus-visible:ring-2 peer-focus-visible:ring-[var(--sui-colors-primary-b)]/30 peer-checked:bg-[var(--sui-colors-primary-b)] peer-checked:border-transparent flex items-center justify-center transition-colors">
                             {allow && <Check className="h-3 w-3 text-white" strokeWidth={3} />}
                           </div>
                         </div>
@@ -1036,14 +1036,14 @@ export function UserDefaultsRow({
       <SubRow>
         <span className="text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b1)]">User permissions</span>
         <label className="flex cursor-pointer items-center gap-2 text-[14px] leading-[20px] text-[var(--sui-colors-neutral-b1)]">
-          <div className="relative flex h-[18px] w-[18px] items-center justify-center">
+          <div className="relative flex h-[20px] w-[20px] items-center justify-center">
             <input 
               type="checkbox" 
               className="peer sr-only" 
               checked={allowChange}
               onChange={(e) => onAllowChangeChange(e.target.checked)}
             />
-            <div className="absolute inset-0 rounded-[4px] border border-[var(--sui-colors-neutral-b3)] bg-white peer-focus-visible:ring-2 peer-focus-visible:ring-[var(--sui-colors-primary-b)]/30 peer-checked:bg-[var(--sui-colors-primary-b)] peer-checked:border-[var(--sui-colors-primary-b)] flex items-center justify-center transition-colors">
+            <div className="absolute inset-0 rounded-[4px] border-[1.2px] border-[var(--sui-colors-neutral-b2)] bg-white peer-focus-visible:ring-2 peer-focus-visible:ring-[var(--sui-colors-primary-b)]/30 peer-checked:bg-[var(--sui-colors-primary-b)] peer-checked:border-transparent flex items-center justify-center transition-colors">
               {allowChange && <Check className="h-3 w-3 text-white" strokeWidth={3} />}
             </div>
           </div>
@@ -1133,14 +1133,14 @@ export function SpringFirstEnableDialog({
                       User access:
                     </span>
                     <label className="flex cursor-pointer items-center gap-2">
-                      <div className="relative flex h-[18px] w-[18px] items-center justify-center">
+                      <div className="relative flex h-[20px] w-[20px] items-center justify-center">
                         <input
                           type="checkbox"
                           className="peer sr-only"
                           checked={allow}
                           onChange={(e) => setAllow(e.target.checked)}
                         />
-                        <div className="absolute inset-0 rounded-[4px] border border-[var(--sui-colors-neutral-b3)] bg-white peer-focus-visible:ring-2 peer-focus-visible:ring-[var(--sui-colors-primary-b)]/30 peer-checked:bg-[var(--sui-colors-primary-b)] peer-checked:border-[var(--sui-colors-primary-b)] flex items-center justify-center transition-colors">
+                        <div className="absolute inset-0 rounded-[4px] border-[1.2px] border-[var(--sui-colors-neutral-b2)] bg-white peer-focus-visible:ring-2 peer-focus-visible:ring-[var(--sui-colors-primary-b)]/30 peer-checked:bg-[var(--sui-colors-primary-b)] peer-checked:border-transparent flex items-center justify-center transition-colors">
                           {allow && <Check className="h-3 w-3 text-white" strokeWidth={3} />}
                         </div>
                       </div>
@@ -1557,7 +1557,7 @@ export function ExtAppManageDialog({
                           checked={allow}
                           onChange={(e) => setAllow(e.target.checked)}
                         />
-                        <div className="absolute inset-0 rounded-[4px] border border-[var(--sui-colors-neutral-b3)] bg-white peer-focus-visible:ring-2 peer-focus-visible:ring-[var(--sui-colors-primary-b)]/30 peer-checked:bg-[var(--sui-colors-primary-b)] peer-checked:border-[var(--sui-colors-primary-b)] flex items-center justify-center transition-colors">
+                        <div className="absolute inset-0 rounded-[4px] border-[1.2px] border-[var(--sui-colors-neutral-b2)] bg-white peer-focus-visible:ring-2 peer-focus-visible:ring-[var(--sui-colors-primary-b)]/30 peer-checked:bg-[var(--sui-colors-primary-b)] peer-checked:border-transparent flex items-center justify-center transition-colors">
                           {allow && <Check className="h-3 w-3 text-white" strokeWidth={3} />}
                         </div>
                       </div>

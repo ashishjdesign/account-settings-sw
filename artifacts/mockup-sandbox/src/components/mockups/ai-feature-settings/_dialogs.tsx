@@ -47,8 +47,8 @@ function SpringRadio({ checked, onChange, label, disabled }: {
           'relative flex h-[20px] w-[20px] shrink-0 items-center justify-center rounded-full border-[1.2px] bg-white',
           checked
             ? 'border-[var(--sui-colors-primary-b)]'
-            : 'border-black/20',
-          disabled ? 'cursor-not-allowed opacity-60' : 'cursor-pointer',
+            : 'border-[var(--sui-colors-neutral-b2)]',
+          disabled ? 'cursor-not-allowed opacity-60' : 'cursor-pointer hover:border-[var(--sui-colors-neutral-b1)]',
         )}
       >
         {checked && (
