@@ -44,23 +44,18 @@ function SpringRadio({ checked, onChange, label, disabled }: {
         aria-pressed={checked}
         disabled={disabled}
         className={cn(
-          'relative flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-full border bg-white',
-          disabled
-            ? 'cursor-not-allowed border-[var(--sui-colors-neutral-b3)] bg-[var(--sui-colors-neutral-b5)]'
-            : 'cursor-pointer border-[var(--sui-colors-neutral-b2)]',
+          'relative flex h-[20px] w-[20px] shrink-0 items-center justify-center rounded-full border-[1.2px] bg-white',
+          checked
+            ? 'border-[var(--sui-colors-primary-b)]'
+            : 'border-black/20',
+          disabled ? 'cursor-not-allowed opacity-60' : 'cursor-pointer',
         )}
       >
         {checked && (
-          <span className={cn(
-            'absolute inset-[3px] rounded-full',
-            disabled ? 'bg-[var(--sui-colors-neutral-b3)]' : 'bg-[var(--sui-colors-primary-b)]',
-          )} />
+          <span className="absolute inset-[3px] rounded-full bg-[var(--sui-colors-primary-b)]" />
         )}
       </button>
-      <span className={cn(
-        'text-[14px] font-normal leading-[20px]',
-        disabled ? 'text-[var(--sui-colors-neutral-b2)]' : 'text-[var(--sui-colors-neutral-b1)]',
-      )}>
+      <span className="text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b0)]">
         {label}
       </span>
     </label>

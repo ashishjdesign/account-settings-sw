@@ -415,10 +415,8 @@ function SpringRadio({
 }: { checked: boolean; onChange: () => void; label: string; disabled?: boolean }) {
   return (
     <label className={cn(
-      'flex items-center gap-2 text-[14px] font-medium leading-[20px]',
-      disabled
-        ? 'cursor-not-allowed text-[var(--sui-colors-neutral-b2)]'
-        : 'cursor-pointer text-[var(--sui-colors-neutral-b0)]',
+      'flex items-center gap-2 text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b0)]',
+      disabled ? 'cursor-not-allowed' : 'cursor-pointer',
     )}>
       <button
         type="button"
@@ -427,19 +425,15 @@ function SpringRadio({
         disabled={disabled}
         onClick={onChange}
         className={cn(
-          'flex h-[20px] w-[20px] shrink-0 items-center justify-center rounded-full border-[1.2px] transition-colors',
-          disabled
-            ? 'cursor-not-allowed border-[var(--sui-colors-neutral-b3)] bg-[var(--sui-colors-neutral-b5)]'
-            : checked
-              ? 'cursor-pointer border-[var(--sui-colors-primary-b)]'
-              : 'cursor-pointer border-[var(--sui-colors-neutral-b3)] hover:border-[var(--sui-colors-neutral-b2)]',
+          'flex h-[20px] w-[20px] shrink-0 items-center justify-center rounded-full border-[1.2px] bg-white transition-colors',
+          checked
+            ? 'border-[var(--sui-colors-primary-b)]'
+            : 'border-black/20 hover:border-[var(--sui-colors-neutral-b1)]',
+          disabled ? 'cursor-not-allowed opacity-60 hover:border-black/20' : 'cursor-pointer',
         )}
       >
         {checked && (
-          <span className={cn(
-            'h-[12px] w-[12px] rounded-full',
-            disabled ? 'bg-[var(--sui-colors-neutral-b3)]' : 'bg-[var(--sui-colors-primary-b)]',
-          )} />
+          <span className="h-[12px] w-[12px] rounded-full bg-[var(--sui-colors-primary-b)]" />
         )}
       </button>
       {label}
