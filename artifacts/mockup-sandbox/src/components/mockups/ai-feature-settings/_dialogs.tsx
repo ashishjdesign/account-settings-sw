@@ -686,7 +686,7 @@ export function AutoAnswerManageDialog({
             <div className="flex flex-col gap-4 rounded-[10px] border border-[var(--sui-colors-neutral-b4)] p-4">
               <div className="flex items-start justify-between gap-8">
                 <div className="flex min-w-0 flex-col gap-1 pr-6">
-                  <span className="text-[14px] font-semibold leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                  <span className="flex h-[32px] items-center text-[14px] font-semibold leading-[20px] text-[var(--sui-colors-neutral-b1)]">
                     Auto-answer delay
                   </span>
                   <p className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b2)]">
