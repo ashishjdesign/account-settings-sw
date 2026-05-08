@@ -1501,52 +1501,58 @@ export function ExtAppManageDialog({
                   User deployment
                 </h3>
 
-                <div className="flex flex-col rounded-[10px] border border-[#9E9FA4]/35 bg-white">
-                  <div className="flex min-h-[56px] items-center gap-4 px-4 py-3">
-                    <span className="text-[14px] font-bold leading-[20px] text-[var(--sui-colors-neutral-b1)]">
-                      Default in user settings:
-                    </span>
-                    {urlEmpty ? (
-                      <TooltipPrimitives.Provider delayDuration={200}>
-                        <TooltipPrimitives.Root>
-                          <TooltipPrimitives.Trigger asChild>
-                            <span tabIndex={0} aria-label={noUrlTooltip} className="flex items-center gap-5">
-                              <SpringRadio checked={false} onChange={() => {}} label="On" disabled />
-                              <SpringRadio checked={true} onChange={() => {}} label="Off" disabled />
-                            </span>
-                          </TooltipPrimitives.Trigger>
-                          <TooltipPrimitives.Portal>
-                            <TooltipPrimitives.Content
-                              side="top"
-                              sideOffset={6}
-                              className="z-50 max-w-xs rounded-md bg-gray-900 px-3 py-2 text-sm text-white shadow-md animate-in fade-in-0 zoom-in-95"
-                            >
-                              {noUrlTooltip}
-                              <TooltipPrimitives.Arrow className="fill-gray-900" />
-                            </TooltipPrimitives.Content>
-                          </TooltipPrimitives.Portal>
-                        </TooltipPrimitives.Root>
-                      </TooltipPrimitives.Provider>
-                    ) : (
-                      <div className="flex items-center gap-5">
-                        <SpringRadio checked={value === 'On'} onChange={() => setValue('On')} label="On" />
-                        <SpringRadio checked={value === 'Off'} onChange={() => setValue('Off')} label="Off" />
-                      </div>
-                    )}
-                    <p className="ml-auto text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b2)]">
-                      <button
-                        type="button"
-                        onClick={() => setUsersOpen(true)}
-                        className="inline-flex cursor-pointer items-center rounded-[6px] bg-[var(--sui-colors-neutral-b5)] px-2 py-0.5 text-[var(--sui-colors-primary-b)] underline hover:bg-[var(--sui-colors-neutral-b4)]/60 hover:text-[var(--sui-colors-primary-b-high-contrast)] focus:outline-none focus:ring-2 focus:ring-[var(--sui-colors-primary-b)]/30"
-                      >
-                        {defaultCount}/{total} users
-                      </button>{' '}
-                      are using the default
-                    </p>
+                <div className="flex flex-col gap-4 rounded-[10px] border border-[#9E9FA4]/35 bg-white p-4">
+                  <div className="flex w-full items-center justify-between gap-4">
+                    <div className="flex h-[32px] items-center gap-4 pr-4">
+                      <span className="text-[14px] font-semibold leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                        Default in user settings:
+                      </span>
+                      {urlEmpty ? (
+                        <TooltipPrimitives.Provider delayDuration={200}>
+                          <TooltipPrimitives.Root>
+                            <TooltipPrimitives.Trigger asChild>
+                              <span tabIndex={0} aria-label={noUrlTooltip} className="flex items-center gap-5">
+                                <SpringRadio checked={false} onChange={() => {}} label="On" disabled />
+                                <SpringRadio checked={true} onChange={() => {}} label="Off" disabled />
+                              </span>
+                            </TooltipPrimitives.Trigger>
+                            <TooltipPrimitives.Portal>
+                              <TooltipPrimitives.Content
+                                side="top"
+                                sideOffset={6}
+                                className="z-50 max-w-xs rounded-md bg-gray-900 px-3 py-2 text-sm text-white shadow-md animate-in fade-in-0 zoom-in-95"
+                              >
+                                {noUrlTooltip}
+                                <TooltipPrimitives.Arrow className="fill-gray-900" />
+                              </TooltipPrimitives.Content>
+                            </TooltipPrimitives.Portal>
+                          </TooltipPrimitives.Root>
+                        </TooltipPrimitives.Provider>
+                      ) : (
+                        <div className="flex items-center gap-5">
+                          <SpringRadio checked={value === 'On'} onChange={() => setValue('On')} label="On" />
+                          <SpringRadio checked={value === 'Off'} onChange={() => setValue('Off')} label="Off" />
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex h-[32px] items-center rounded-[10px] bg-[var(--sui-colors-neutral-b5)] px-3">
+                      <p className="whitespace-nowrap text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                        <button
+                          type="button"
+                          onClick={() => setUsersOpen(true)}
+                          className="cursor-pointer text-[var(--sui-colors-primary-b)] underline hover:text-[var(--sui-colors-primary-b-high-contrast)] focus:outline-none focus:ring-2 focus:ring-[var(--sui-colors-primary-b)]/30 rounded-sm"
+                        >
+                          {defaultCount}/{total} users
+                        </button>{' '}
+                        are using the default
+                      </p>
+                    </div>
                   </div>
-                  <div className="mx-4 border-t border-[var(--sui-colors-neutral-b4)]/70" />
-                  <div className="flex min-h-[56px] items-center gap-4 px-4 py-3">
-                    <span className="text-[14px] font-bold leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+
+                  <div className="border-t border-[var(--sui-colors-neutral-b4)]" />
+
+                  <div className="flex h-[32px] items-center gap-4">
+                    <span className="text-[14px] font-semibold leading-[20px] text-[var(--sui-colors-neutral-b1)]">
                       User access:
                     </span>
                     <label className="flex cursor-pointer items-center gap-2">

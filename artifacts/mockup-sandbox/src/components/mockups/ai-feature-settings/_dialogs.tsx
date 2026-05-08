@@ -668,50 +668,53 @@ export function ExtAppManageDialog({
               User deployment
             </h3>
 
-            <div className="flex flex-col rounded-[10px] border border-[#9E9FA4]/35 bg-white">
-              <div className="flex min-h-[56px] items-center gap-4 px-4 py-3">
-                <span className="text-[14px] font-bold leading-[20px] text-[var(--sui-colors-neutral-b1)]">
-                  Default in user settings:
-                </span>
-                <div className="group relative flex items-center gap-5">
-                  <SpringRadio
-                    checked={effectiveValue === 'On'}
-                    onChange={() => !urlEmpty && setValue('On')}
-                    label="On"
-                    disabled={urlEmpty}
-                  />
-                  <SpringRadio
-                    checked={effectiveValue === 'Off'}
-                    onChange={() => !urlEmpty && setValue('Off')}
-                    label="Off"
-                    disabled={urlEmpty}
-                  />
-                  {urlEmpty && (
-                    <div
-                      role="tooltip"
-                      className="pointer-events-none absolute bottom-[calc(100%+8px)] left-0 z-50 hidden w-[260px] rounded-md bg-[var(--sui-colors-neutral-b1)] px-3 py-2 text-[12px] font-normal leading-[16px] text-white shadow-md group-hover:block group-focus-within:block"
-                    >
-                      {noUrlTooltip}
-                      <span
-                        aria-hidden="true"
-                        className="absolute left-4 top-full h-0 w-0 border-x-[6px] border-t-[6px] border-x-transparent border-t-[var(--sui-colors-neutral-b1)]"
-                      />
-                    </div>
-                  )}
+            <div className="flex flex-col gap-4 rounded-[10px] border border-[#9E9FA4]/35 bg-white p-4">
+              <div className="flex w-full items-center justify-between gap-4">
+                <div className="flex h-[32px] items-center gap-4 pr-4">
+                  <span className="text-[14px] font-semibold leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                    Default in user settings:
+                  </span>
+                  <div className="group relative flex items-center gap-5">
+                    <SpringRadio
+                      checked={effectiveValue === 'On'}
+                      onChange={() => !urlEmpty && setValue('On')}
+                      label="On"
+                      disabled={urlEmpty}
+                    />
+                    <SpringRadio
+                      checked={effectiveValue === 'Off'}
+                      onChange={() => !urlEmpty && setValue('Off')}
+                      label="Off"
+                      disabled={urlEmpty}
+                    />
+                    {urlEmpty && (
+                      <div
+                        role="tooltip"
+                        className="pointer-events-none absolute bottom-[calc(100%+8px)] left-0 z-50 hidden w-[260px] rounded-md bg-[var(--sui-colors-neutral-b1)] px-3 py-2 text-[12px] font-normal leading-[16px] text-white shadow-md group-hover:block group-focus-within:block"
+                      >
+                        {noUrlTooltip}
+                        <span
+                          aria-hidden="true"
+                          className="absolute left-4 top-full h-0 w-0 border-x-[6px] border-t-[6px] border-x-transparent border-t-[var(--sui-colors-neutral-b1)]"
+                        />
+                      </div>
+                    )}
+                  </div>
                 </div>
-                <p className="ml-auto text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b2)]">
-                  <button
-                    type="button"
-                    className="inline-flex cursor-pointer items-center rounded-[6px] bg-[var(--sui-colors-neutral-b5)] px-2 py-0.5 text-[var(--sui-colors-primary-b)] underline hover:bg-[var(--sui-colors-neutral-b4)]/60 hover:text-[var(--sui-colors-primary-b-high-contrast)]"
-                  >
-                    {defaultCount}/{total} users
-                  </button>{' '}
-                  are using the default
-                </p>
+                <div className="flex h-[32px] items-center rounded-[10px] bg-[var(--sui-colors-neutral-b5)] px-3">
+                  <p className="whitespace-nowrap text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                    <button type="button" className="cursor-pointer text-[var(--sui-colors-primary-b)] underline">
+                      {defaultCount}/{total} users
+                    </button>{' '}
+                    are using the default
+                  </p>
+                </div>
               </div>
-              <div className="mx-4 border-t border-[var(--sui-colors-neutral-b4)]/70" />
-              <div className="flex min-h-[56px] items-center gap-4 px-4 py-3">
-                <span className="text-[14px] font-bold leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+
+              <div className="border-t border-[var(--sui-colors-neutral-b4)]" />
+
+              <div className="flex h-[32px] items-center gap-4">
+                <span className="text-[14px] font-semibold leading-[20px] text-[var(--sui-colors-neutral-b1)]">
                   User access:
                 </span>
                 <label className="flex cursor-pointer items-center gap-2">
