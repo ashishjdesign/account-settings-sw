@@ -675,8 +675,18 @@ export function ExtAppManageDialog({
                     Default in user settings:
                   </span>
                   <div className="flex items-center gap-5">
-                    <SpringRadio checked={value === 'On'} onChange={() => setValue('On')} label="On" />
-                    <SpringRadio checked={value === 'Off'} onChange={() => setValue('Off')} label="Off" />
+                    <SpringRadio
+                      checked={value === 'On'}
+                      onChange={() => setValue('On')}
+                      label="On"
+                      disabled={urlEmpty && value === 'Off'}
+                    />
+                    <SpringRadio
+                      checked={value === 'Off'}
+                      onChange={() => setValue('Off')}
+                      label="Off"
+                      disabled={urlEmpty && value === 'Off'}
+                    />
                   </div>
                 </div>
                 <div className="flex h-[32px] items-center rounded-[10px] bg-[var(--sui-colors-neutral-b5)] px-3">
