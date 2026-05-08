@@ -1001,3 +1001,227 @@ export function ExtAppManageDialog({
     </div>
   );
 }
+
+/* -----------------------------------------------------------------------------
+ * Auto-answer calls — Turn off confirmation (standard user-level pattern).
+ * Mirrors `SpringConfirmDialog` used by ConceptGuidesDisable for cross-feature
+ * consistency. Same 600px width, header copy, and footer treatment.
+ * --------------------------------------------------------------------------- */
+export function AutoAnswerDisableDialog({
+  open, onCancel, onConfirm,
+}: {
+  open: boolean;
+  onCancel?: () => void;
+  onConfirm?: () => void;
+}) {
+  if (!open) return null;
+  return (
+    <div className="absolute inset-0 z-50 flex items-start justify-center pt-24">
+      <div className="absolute inset-0 bg-black/40" onClick={onCancel} aria-hidden="true" />
+      <div
+        role="dialog"
+        aria-modal="true"
+        className="relative z-10 flex w-[600px] max-w-[calc(100%-32px)] flex-col rounded-[12px] bg-white"
+        style={{ boxShadow: '0 12px 32px rgba(0,0,0,0.18), 0 2px 6px rgba(0,0,0,0.08)' }}
+      >
+        <div className="flex flex-col gap-8 px-6 pb-10 pt-6">
+          <h2 className="py-3 text-[24px] font-normal leading-[32px] text-[var(--sui-colors-neutral-b1)]">
+            Turn off Auto-answer calls for your organization?
+          </h2>
+          <p className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+            This feature will be turned off for your account and no longer available to users.
+            <br />
+            When turned back on, previous user settings can be restored.
+          </p>
+        </div>
+        <div className="border-t border-[var(--sui-colors-neutral-b4)]/50" />
+        <div className="flex justify-end gap-2 px-6 pt-5 pb-5">
+          <button
+            type="button"
+            onClick={onCancel}
+            className="inline-flex h-[36px] min-w-[60px] cursor-pointer items-center justify-center rounded-[10px] border border-black/20 bg-white px-4 text-[15px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b0)] transition-colors hover:bg-[var(--sui-colors-neutral-b4)]/40"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={onConfirm}
+            className="inline-flex h-[36px] min-w-[60px] cursor-pointer items-center justify-center rounded-[10px] bg-[var(--sui-colors-primary-b)] px-4 text-[15px] font-medium leading-[20px] text-white transition-colors hover:bg-[var(--sui-colors-primary-b-high-contrast)]"
+          >
+            Turn off
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* -----------------------------------------------------------------------------
+ * Auto-answer calls — Turn back on dialog. Mirrors `SpringReEnableDialog`
+ * (custom-users question) AND adds the Feature settings (Auto-answer delay)
+ * section right inside, identical styling to `AutoAnswerManageDialog`.
+ * --------------------------------------------------------------------------- */
+export function AutoAnswerReEnableDialog({
+  open,
+  delay = 'Immediately',
+  customCount = 0,
+  totalUsers = 98,
+  onCancel,
+  onConfirm,
+}: {
+  open: boolean;
+  delay?: AutoAnswerDelay;
+  customCount?: number;
+  totalUsers?: number;
+  onCancel?: () => void;
+  onConfirm?: (result: {
+    defaultValue: 'On' | 'Off';
+    allowChange: boolean;
+    customAction: 'reset' | 'restore';
+    delay: AutoAnswerDelay;
+  }) => void;
+}) {
+  const [defaultValue, setDefaultValue] = React.useState<'On' | 'Off'>('Off');
+  const [allowChange, setAllowChange] = React.useState(true);
+  const [customAction, setCustomAction] = React.useState<'reset' | 'restore'>('reset');
+  const [del, setDel] = React.useState<AutoAnswerDelay>(delay);
+  React.useEffect(() => {
+    if (open) setDel(delay);
+  }, [open, delay]);
+  const total = totalUsers;
+  const defaultCount = Math.max(0, total - (customCount || 0));
+
+  if (!open) return null;
+  return (
+    <div className="absolute inset-0 z-50 flex items-start justify-center bg-black/40 px-4 py-[60px]">
+      <div className="absolute inset-0" onClick={onCancel} aria-hidden="true" />
+      <div
+        role="dialog"
+        aria-modal="true"
+        className="relative z-10 flex max-h-full min-h-0 w-[820px] max-w-[calc(100%-32px)] flex-col overflow-hidden rounded-[10px] bg-white"
+        style={{ boxShadow: '0 10px 30px rgba(0,0,0,0.2)' }}
+      >
+        <div className="flex min-h-0 flex-1 flex-col gap-6 overflow-y-auto px-6 pb-8 pt-9">
+          <div className="py-3">
+            <h2 className="text-[24px] font-normal leading-[32px] text-[var(--sui-colors-neutral-b0)]">
+              Turn on Auto-answer calls?
+            </h2>
+          </div>
+
+          <p className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+            This feature will be enabled for your account. Configure how it should be deployed to users below.
+          </p>
+
+          {/* User deployment — IDENTICAL to AutoAnswerManageDialog / SpringReEnableDialog */}
+          <div className="flex flex-col gap-2">
+            <h3 className="text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b2)]">
+              User deployment
+            </h3>
+            <div className="flex flex-col gap-4 rounded-[10px] border border-[#9E9FA4]/35 bg-white p-4">
+              <div className="flex w-full items-center justify-between gap-4">
+                <div className="flex h-[32px] items-center gap-4 pr-4">
+                  <span className="text-[14px] font-semibold leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                    Default in user settings:
+                  </span>
+                  <div className="flex items-center gap-5">
+                    <SpringRadio checked={defaultValue === 'On'} onChange={() => setDefaultValue('On')} label="On" />
+                    <SpringRadio checked={defaultValue === 'Off'} onChange={() => setDefaultValue('Off')} label="Off" />
+                  </div>
+                </div>
+                <div className="flex h-[32px] items-center rounded-[10px] bg-[var(--sui-colors-neutral-b5)] px-3">
+                  <p className="whitespace-nowrap text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                    <button type="button" className="cursor-pointer text-[var(--sui-colors-primary-b)] underline">
+                      {defaultCount}/{total} users
+                    </button>{' '}
+                    are using the default
+                  </p>
+                </div>
+              </div>
+
+              <div className="border-t border-[var(--sui-colors-neutral-b4)]" />
+
+              <div className="flex h-[32px] items-center gap-4">
+                <span className="text-[14px] font-semibold leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                  User access:
+                </span>
+                <label className="flex cursor-pointer items-center gap-2">
+                  <SpringCheckbox checked={allowChange} onChange={setAllowChange} />
+                  <span className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                    Allow users to change this setting
+                  </span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          {/* Feature settings — Auto-answer delay (mirrors AutoAnswerManageDialog) */}
+          <div className="flex flex-col gap-2">
+            <span className="text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b2)]">
+              Feature settings
+            </span>
+            <div className="flex flex-col gap-4 rounded-[10px] border border-[var(--sui-colors-neutral-b4)] p-4">
+              <div className="flex items-start justify-between gap-8">
+                <div className="flex min-w-0 flex-col gap-1 pr-6">
+                  <span className="flex h-[32px] items-center text-[14px] font-semibold leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                    Auto-answer delay
+                  </span>
+                  <p className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b2)]">
+                    Select how long users’ incoming calls will ring before being auto-answered.
+                    This setting won’t apply while users are on an active call.
+                  </p>
+                </div>
+                <SpringSelect
+                  value={del}
+                  width={200}
+                  options={AUTO_ANSWER_DELAY_OPTIONS as unknown as string[]}
+                  onChange={(v) => setDel(v as AutoAnswerDelay)}
+                />
+              </div>
+            </div>
+          </div>
+
+          {customCount > 0 && (
+            <div className="flex flex-col gap-3">
+              <p className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                <button type="button" className="cursor-pointer text-[var(--sui-colors-primary-b)] underline">
+                  {customCount}/{total} users
+                </button>{' '}
+                have custom settings for this feature. What would you like to do with these users?
+              </p>
+              <div className="flex items-center gap-8">
+                <SpringRadio
+                  checked={customAction === 'reset'}
+                  onChange={() => setCustomAction('reset')}
+                  label="Reset all to default"
+                />
+                <SpringRadio
+                  checked={customAction === 'restore'}
+                  onChange={() => setCustomAction('restore')}
+                  label="Restore their custom settings"
+                />
+              </div>
+            </div>
+          )}
+        </div>
+
+        <div className="border-t border-[var(--sui-colors-neutral-b4)]/50" />
+        <div className="flex shrink-0 items-center justify-end gap-2 bg-white px-6 pt-5 pb-5">
+          <button
+            type="button"
+            onClick={onCancel}
+            className="inline-flex h-[36px] min-w-[60px] cursor-pointer items-center justify-center rounded-[10px] border border-black/20 bg-white px-4 text-[15px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b0)] transition-colors hover:bg-[var(--sui-colors-neutral-b4)]/40"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={() => onConfirm?.({ defaultValue, allowChange, customAction, delay: del })}
+            className="inline-flex h-[36px] min-w-[60px] cursor-pointer items-center justify-center rounded-[10px] bg-[var(--sui-colors-primary-b)] px-4 text-[15px] font-medium leading-[20px] text-white transition-colors hover:bg-[var(--sui-colors-primary-b-high-contrast)]"
+          >
+            Turn on
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
