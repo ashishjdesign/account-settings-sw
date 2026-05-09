@@ -2072,6 +2072,327 @@ export function AutoAnswerReEnableDialog({
   );
 }
 
+/* Conference calls — Manage modal. Mirrors AutoAnswerManageDialog exactly
+ * (cross-feature consistency is the #1 priority). Conference has no Feature
+ * settings section because there are no per-feature controls beyond
+ * deployment. */
+export function ConferenceManageDialog({
+  open,
+  defaultVal,
+  allowChange,
+  customCount = 0,
+  totalUsers = 98,
+  onCancel,
+  onConfirm,
+  error,
+}: {
+  open: boolean;
+  defaultVal: 'On' | 'Off';
+  allowChange: boolean;
+  customCount?: number;
+  totalUsers?: number;
+  onCancel: () => void;
+  onConfirm: (result: { defaultVal: 'On' | 'Off'; allowChange: boolean }) => void;
+  error?: boolean;
+}) {
+  const [value, setValue] = useState<'On' | 'Off'>(defaultVal);
+  const [allow, setAllow] = useState(allowChange);
+  const [usersOpen, setUsersOpen] = useState(false);
+  const total = totalUsers;
+  const defaultCount = Math.max(0, total - (customCount || 0));
+
+  useEffect(() => {
+    if (open) {
+      setValue(defaultVal);
+      setAllow(allowChange);
+      setUsersOpen(false);
+    }
+  }, [open, defaultVal, allowChange]);
+
+  const dirty = value !== defaultVal || allow !== allowChange;
+  const saveDisabled = !dirty && !error;
+
+  return (
+    <DialogPrimitives.Root open={open} onOpenChange={(o) => !o && onCancel()}>
+      <DialogPrimitives.Portal>
+        <DialogPrimitives.Overlay className="fixed inset-0 z-50 flex items-start justify-center bg-black/40 px-4 py-[60px] data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0">
+          <DialogPrimitives.Content
+            aria-label="Manage Conference calls"
+            className="relative z-10 flex max-h-full min-h-0 w-[800px] max-w-[calc(100%-32px)] flex-col overflow-hidden rounded-[12px] bg-white shadow-[0_12px_32px_rgba(0,0,0,0.18),0_2px_6px_rgba(0,0,0,0.08)] data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95"
+          >
+            <div className="flex min-h-0 flex-1 flex-col gap-6 overflow-y-auto px-6 pb-8 pt-6">
+              <DialogPrimitives.Title className="py-3 text-[24px] font-normal leading-[32px] text-[var(--sui-colors-neutral-b1)]">
+                Manage Conference calls
+              </DialogPrimitives.Title>
+
+              {/* User deployment — IDENTICAL to AutoAnswerManageDialog */}
+              <div className="flex flex-col gap-2">
+                <h3 className="text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b2)]">
+                  User deployment
+                </h3>
+
+                <div className="flex flex-col gap-4 rounded-[10px] border border-[#9E9FA4]/35 bg-white p-4">
+                  <div className="flex w-full items-center justify-between gap-4">
+                    <div className="flex h-[32px] items-center gap-4 pr-4">
+                      <span className="text-[14px] font-semibold leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                        Default in user settings:
+                      </span>
+                      <div className="flex items-center gap-5">
+                        <SpringRadio checked={value === 'On'} onChange={() => setValue('On')} label="On" />
+                        <SpringRadio checked={value === 'Off'} onChange={() => setValue('Off')} label="Off" />
+                      </div>
+                    </div>
+                    <div className="flex h-[32px] items-center rounded-[10px] bg-[var(--sui-colors-neutral-b5)] px-3">
+                      <p className="whitespace-nowrap text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                        <button
+                          type="button"
+                          onClick={() => setUsersOpen(true)}
+                          className="cursor-pointer text-[var(--sui-colors-primary-b)] underline hover:text-[var(--sui-colors-primary-b-high-contrast)] focus:outline-none focus:ring-2 focus:ring-[var(--sui-colors-primary-b)]/30 rounded-sm"
+                        >
+                          {defaultCount}/{total} users
+                        </button>{' '}
+                        are using the default
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="border-t border-[var(--sui-colors-neutral-b4)]" />
+
+                  <div className="flex h-[32px] items-center gap-4">
+                    <span className="text-[14px] font-semibold leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                      User access:
+                    </span>
+                    <label className="flex cursor-pointer items-center gap-2">
+                      <div className="relative flex h-[20px] w-[20px] items-center justify-center">
+                        <input
+                          type="checkbox"
+                          className="peer sr-only"
+                          checked={allow}
+                          onChange={(e) => setAllow(e.target.checked)}
+                        />
+                        <div className="absolute inset-0 rounded-[4px] border-[1.2px] border-[var(--sui-colors-neutral-b2)] bg-white peer-focus-visible:ring-2 peer-focus-visible:ring-[var(--sui-colors-primary-b)]/30 peer-checked:bg-[var(--sui-colors-primary-b)] peer-checked:border-transparent flex items-center justify-center transition-colors">
+                          {allow && <Check className="h-3 w-3 text-white" strokeWidth={3} />}
+                        </div>
+                      </div>
+                      <span className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                        Allow users to change this setting
+                      </span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              {error && (
+                <div className="flex items-center gap-2 rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-800">
+                  <Info className="h-4 w-4 shrink-0 text-red-600" />
+                  <span>Couldn't save settings. Try again.</span>
+                </div>
+              )}
+            </div>
+
+            <div className="flex shrink-0 justify-end gap-2 border-t border-[var(--sui-colors-neutral-b4)]/50 bg-white px-6 pt-5 pb-5">
+              <DialogPrimitives.Close asChild>
+                <button
+                  type="button"
+                  className="inline-flex h-[36px] min-w-[60px] cursor-pointer items-center justify-center rounded-[10px] border border-black/20 bg-white px-4 text-[15px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b0)] transition-colors hover:bg-[var(--sui-colors-neutral-b4)]/40 focus:outline-none focus:ring-2 focus:ring-[var(--sui-colors-primary-b)]/30"
+                >
+                  Cancel
+                </button>
+              </DialogPrimitives.Close>
+              <button
+                type="button"
+                onClick={() => onConfirm({ defaultVal: value, allowChange: allow })}
+                disabled={saveDisabled}
+                className="inline-flex h-[36px] min-w-[60px] items-center justify-center rounded-[10px] bg-[var(--sui-colors-primary-b)] px-4 text-[15px] font-medium leading-[20px] text-white transition-colors hover:bg-[var(--sui-colors-primary-b-high-contrast)] focus:outline-none focus:ring-2 focus:ring-[var(--sui-colors-primary-b)]/30 disabled:cursor-not-allowed disabled:bg-[var(--sui-colors-neutral-b3)] disabled:hover:bg-[var(--sui-colors-neutral-b3)] enabled:cursor-pointer"
+              >
+                {error ? 'Retry' : 'Save'}
+              </button>
+            </div>
+          </DialogPrimitives.Content>
+        </DialogPrimitives.Overlay>
+      </DialogPrimitives.Portal>
+      <SpringUsersConfigDialog
+        open={usersOpen}
+        featureLabel="Conference calls"
+        variant="default"
+        onClose={() => setUsersOpen(false)}
+        defaultUsersCount={defaultCount}
+        customUsersCount={customCount}
+        totalUsersCount={total}
+      />
+    </DialogPrimitives.Root>
+  );
+}
+
+/* Conference calls — Turn back on dialog. Mirrors AutoAnswerReEnableDialog
+ * but without the Feature settings (delay) section. User deployment block is
+ * IDENTICAL to ConferenceManageDialog and AutoAnswer counterparts. */
+export function ConferenceReEnableDialog({
+  open,
+  customCount = 0,
+  totalUsers = 98,
+  onCancel,
+  onConfirm,
+}: {
+  open: boolean;
+  customCount?: number;
+  totalUsers?: number;
+  onCancel: () => void;
+  onConfirm: (result: {
+    defaultVal: 'On' | 'Off';
+    allowChange: boolean;
+    customAction: 'reset' | 'restore';
+  }) => void;
+}) {
+  const [value, setValue] = useState<'On' | 'Off'>('Off');
+  const [allow, setAllow] = useState(true);
+  const [customAction, setCustomAction] = useState<'reset' | 'restore'>('reset');
+  const [usersOpen, setUsersOpen] = useState<null | 'default' | 'custom'>(null);
+  const total = totalUsers;
+  const defaultCount = Math.max(0, total - (customCount || 0));
+
+  useEffect(() => {
+    if (open) {
+      setValue('Off');
+      setAllow(true);
+      setCustomAction('reset');
+    }
+  }, [open]);
+
+  return (
+    <DialogPrimitives.Root open={open} onOpenChange={(o) => !o && onCancel()}>
+      <DialogPrimitives.Portal>
+        <DialogPrimitives.Overlay className="fixed inset-0 z-50 flex items-start justify-center bg-black/40 px-4 py-[60px] data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0">
+          <DialogPrimitives.Content
+            aria-label="Turn on Conference calls"
+            className="relative z-10 flex max-h-full min-h-0 w-[820px] max-w-[calc(100%-32px)] flex-col overflow-hidden rounded-[10px] bg-white shadow-[0_10px_30px_rgba(0,0,0,0.2)] data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95"
+          >
+            <div className="flex min-h-0 flex-1 flex-col gap-6 overflow-y-auto px-6 pb-8 pt-9">
+              <DialogPrimitives.Title className="py-3 text-[24px] font-normal leading-[32px] text-[var(--sui-colors-neutral-b0)]">
+                Turn on Conference calls?
+              </DialogPrimitives.Title>
+
+              <p className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                This feature will be enabled for your account. Configure how it should be deployed to users below.
+              </p>
+
+              {/* User deployment — IDENTICAL to ConferenceManageDialog */}
+              <div className="flex flex-col gap-2">
+                <h3 className="text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b2)]">
+                  User deployment
+                </h3>
+                <div className="flex flex-col gap-4 rounded-[10px] border border-[#9E9FA4]/35 bg-white p-4">
+                  <div className="flex w-full items-center justify-between gap-4">
+                    <div className="flex h-[32px] items-center gap-4 pr-4">
+                      <span className="text-[14px] font-semibold leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                        Default in user settings:
+                      </span>
+                      <div className="flex items-center gap-5">
+                        <SpringRadio checked={value === 'On'} onChange={() => setValue('On')} label="On" />
+                        <SpringRadio checked={value === 'Off'} onChange={() => setValue('Off')} label="Off" />
+                      </div>
+                    </div>
+                    <div className="flex h-[32px] items-center rounded-[10px] bg-[var(--sui-colors-neutral-b5)] px-3">
+                      <p className="whitespace-nowrap text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                        <button
+                          type="button"
+                          onClick={() => setUsersOpen('default')}
+                          className="cursor-pointer text-[var(--sui-colors-primary-b)] underline hover:text-[var(--sui-colors-primary-b-high-contrast)] focus:outline-none focus:ring-2 focus:ring-[var(--sui-colors-primary-b)]/30 rounded-sm"
+                        >
+                          {defaultCount}/{total} users
+                        </button>{' '}
+                        are using the default
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="border-t border-[var(--sui-colors-neutral-b4)]" />
+
+                  <div className="flex h-[32px] items-center gap-4">
+                    <span className="text-[14px] font-semibold leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                      User access:
+                    </span>
+                    <label className="flex cursor-pointer items-center gap-2">
+                      <div className="relative flex h-[20px] w-[20px] items-center justify-center">
+                        <input
+                          type="checkbox"
+                          className="peer sr-only"
+                          checked={allow}
+                          onChange={(e) => setAllow(e.target.checked)}
+                        />
+                        <div className="absolute inset-0 rounded-[4px] border-[1.2px] border-[var(--sui-colors-neutral-b2)] bg-white peer-focus-visible:ring-2 peer-focus-visible:ring-[var(--sui-colors-primary-b)]/30 peer-checked:bg-[var(--sui-colors-primary-b)] peer-checked:border-transparent flex items-center justify-center transition-colors">
+                          {allow && <Check className="h-3 w-3 text-white" strokeWidth={3} />}
+                        </div>
+                      </div>
+                      <span className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                        Allow users to change this setting
+                      </span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              {customCount > 0 && (
+                <div className="flex flex-col gap-3">
+                  <p className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                    <button
+                      type="button"
+                      onClick={() => setUsersOpen('custom')}
+                      className="cursor-pointer text-[var(--sui-colors-primary-b)] underline hover:text-[var(--sui-colors-primary-b-high-contrast)] focus:outline-none focus:ring-2 focus:ring-[var(--sui-colors-primary-b)]/30 rounded-sm"
+                    >
+                      {customCount}/{total} users
+                    </button>{' '}
+                    have custom settings for this feature. What would you like to do with these users?
+                  </p>
+                  <div className="flex items-center gap-8">
+                    <SpringRadio
+                      checked={customAction === 'reset'}
+                      onChange={() => setCustomAction('reset')}
+                      label="Reset all to default"
+                    />
+                    <SpringRadio
+                      checked={customAction === 'restore'}
+                      onChange={() => setCustomAction('restore')}
+                      label="Restore their custom settings"
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="flex shrink-0 justify-end gap-2 border-t border-[var(--sui-colors-neutral-b4)]/50 bg-white px-6 pt-5 pb-5">
+              <DialogPrimitives.Close asChild>
+                <button
+                  type="button"
+                  className="inline-flex h-[36px] min-w-[60px] cursor-pointer items-center justify-center rounded-[10px] border border-black/20 bg-white px-4 text-[15px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b0)] transition-colors hover:bg-[var(--sui-colors-neutral-b4)]/40 focus:outline-none focus:ring-2 focus:ring-[var(--sui-colors-primary-b)]/30"
+                >
+                  Cancel
+                </button>
+              </DialogPrimitives.Close>
+              <button
+                type="button"
+                onClick={() => onConfirm({ defaultVal: value, allowChange: allow, customAction })}
+                className="inline-flex h-[36px] min-w-[60px] cursor-pointer items-center justify-center rounded-[10px] bg-[var(--sui-colors-primary-b)] px-4 text-[15px] font-medium leading-[20px] text-white transition-colors hover:bg-[var(--sui-colors-primary-b-high-contrast)] focus:outline-none focus:ring-2 focus:ring-[var(--sui-colors-primary-b)]/30"
+              >
+                Turn on
+              </button>
+            </div>
+          </DialogPrimitives.Content>
+        </DialogPrimitives.Overlay>
+      </DialogPrimitives.Portal>
+      <SpringUsersConfigDialog
+        open={usersOpen !== null}
+        featureLabel="Conference calls"
+        variant={usersOpen ?? 'default'}
+        onClose={() => setUsersOpen(null)}
+        defaultUsersCount={defaultCount}
+        customUsersCount={customCount}
+        totalUsersCount={total}
+      />
+    </DialogPrimitives.Root>
+  );
+}
+
 export function showToast(message: string, _onUndo?: () => void) {
   toast.custom(
     (id) => (

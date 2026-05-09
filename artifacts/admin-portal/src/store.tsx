@@ -58,7 +58,7 @@ export type PhoneState = {
   externalAppOn: boolean;
   extApp: ExtAppConfig;
   autoAnswer: AutoAnswerConfig;
-  conferenceCallsOn: boolean;
+  conference: FeatureConfig;
 };
 
 export type AiState = {
@@ -106,7 +106,7 @@ const initialState: AppState = {
       everEnabled: false,
     },
     autoAnswer: { on: true, defaultVal: 'Off', allowChange: true, customUsers: 26, delay: 'Immediately' },
-    conferenceCallsOn: false,
+    conference: { on: true, defaultVal: 'On', allowChange: true, customUsers: 26 },
   },
   ai: {
     masterOn: true,
@@ -150,7 +150,7 @@ type Action =
   | { type: 'SET_GENERAL_USER_ACTIVATION'; payload: boolean }
   | { type: 'SET_PHONE_EXTERNAL_APP'; payload: boolean }
   | { type: 'PATCH_PHONE_EXT_APP'; payload: Partial<ExtAppConfig> }
-  | { type: 'SET_PHONE_CONFERENCE'; payload: boolean }
+  | { type: 'PATCH_PHONE_CONFERENCE'; payload: Partial<FeatureConfig> }
   | { type: 'PATCH_PHONE_AUTO_ANSWER'; payload: Partial<AutoAnswerConfig> }
   | { type: 'PATCH_AI_ASSISTANT'; payload: Partial<FeatureConfig> }
   | { type: 'PATCH_AI_AUTO_NOTES'; payload: Partial<FeatureConfig> }
@@ -224,8 +224,14 @@ function reducer(state: AppState, action: Action): AppState {
         },
       };
     }
-    case 'SET_PHONE_CONFERENCE':
-      return { ...withSnapshot(state), phone: { ...state.phone, conferenceCallsOn: action.payload } };
+    case 'PATCH_PHONE_CONFERENCE':
+      return {
+        ...withSnapshot(state),
+        phone: {
+          ...state.phone,
+          conference: applyFeaturePatch(state.phone.conference, action.payload),
+        },
+      };
     case 'PATCH_PHONE_AUTO_ANSWER': {
       const next = applyFeaturePatch(state.phone.autoAnswer, action.payload) as AutoAnswerConfig;
       next.delay = action.payload.delay ?? state.phone.autoAnswer.delay;
