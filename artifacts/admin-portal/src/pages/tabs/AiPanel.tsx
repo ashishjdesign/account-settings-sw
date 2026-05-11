@@ -1,5 +1,14 @@
 import React, { useState } from 'react';
-import { Captions, Mic, FileText, Voicemail, PenLine, ListChecks, Languages } from 'lucide-react';
+import {
+  AiStarsMd,
+  AiLightBulbMd,
+  AiWriterMd,
+  AiSummaryMd,
+  ClosedCaptionsMd,
+  TranscriptMd,
+  VoicemailMd,
+  GlobeMd,
+} from '@ringcentral/spring-icon';
 import { useSettings } from '../../store';
 import type { AiFeatureKey } from '../../store';
 import {
@@ -15,10 +24,17 @@ import {
 
 const RETENTION_OPTIONS = ['30 days', '90 days', '365 days'] as const;
 
+/* Spring DS icons render as 32×32 SVG with no fill — render at 20×20 with
+ * fill="currentColor" so they inherit the SettingCard icon-slot color. */
+type SpringIconCmp = React.ComponentType<React.SVGProps<SVGSVGElement>>;
+const SpringIcon = ({ as: Cmp }: { as: SpringIconCmp }) => (
+  <Cmp width={20} height={20} fill="currentColor" aria-hidden focusable={false} />
+);
+
 type FeatureItem = {
   key: AiFeatureKey;
   title: string;
-  icon: string | React.ReactNode;
+  icon: React.ReactNode;
   description: React.ReactNode;
 };
 
@@ -26,25 +42,25 @@ const PHONE_ITEMS: FeatureItem[] = [
   {
     key: 'closedCaptioning',
     title: 'Closed captioning',
-    icon: <Captions className="h-5 w-5" />,
+    icon: <SpringIcon as={ClosedCaptionsMd} />,
     description: 'Uses AI to display real-time captions during phone calls.',
   },
   {
     key: 'liveTranscripts',
     title: 'Live transcripts',
-    icon: <Mic className="h-5 w-5" />,
+    icon: <SpringIcon as={TranscriptMd} />,
     description: 'Provides real-time AI-generated call transcripts.',
   },
   {
     key: 'aiNotes',
     title: 'AI notes',
-    icon: 'ai-writer',
+    icon: <SpringIcon as={AiWriterMd} />,
     description: 'Generate call notes automatically for all your devices.',
   },
   {
     key: 'aiVoicemailSummaries',
     title: 'AI voicemail summaries',
-    icon: <Voicemail className="h-5 w-5" />,
+    icon: <SpringIcon as={VoicemailMd} />,
     description:
       'Delivers AI-generated summaries of voicemails, including key details and follow-up items.',
   },
@@ -54,20 +70,20 @@ const CHAT_ITEMS: FeatureItem[] = [
   {
     key: 'aiWriterMessaging',
     title: 'AI writer for messaging',
-    icon: <PenLine className="h-5 w-5" />,
+    icon: <SpringIcon as={AiWriterMd} />,
     description:
       'Uses AI to draft and refine messages — check grammar, adjust tone or length, and translate to other languages.',
   },
   {
     key: 'aiSummary',
     title: 'AI summary',
-    icon: <ListChecks className="h-5 w-5" />,
+    icon: <SpringIcon as={AiSummaryMd} />,
     description: 'Provides AI summaries that highlight key conversation points.',
   },
   {
     key: 'aiTranslation',
     title: 'AI translation',
-    icon: <Languages className="h-5 w-5" />,
+    icon: <SpringIcon as={GlobeMd} />,
     description: 'Uses AI to translate chats, messages, and transcripts across languages.',
   },
 ];
@@ -76,7 +92,7 @@ const SMS_ITEMS: FeatureItem[] = [
   {
     key: 'aiWriterSms',
     title: 'AI writer for SMS',
-    icon: <PenLine className="h-5 w-5" />,
+    icon: <SpringIcon as={AiWriterMd} />,
     description:
       'Uses AI to draft and refine messages — check grammar, adjust tone or length, and translate to other languages.',
   },
@@ -190,7 +206,7 @@ export default function AiPanel() {
       <SettingCard
         title="AI features"
         switchOn={masterOn}
-        icon="ai-stars"
+        icon={<SpringIcon as={AiStarsMd} />}
         description="Turn on AI support for calls, messages and video meetings. Deliver real-time answers, call notes, transcripts and meeting recaps to help teams stay focused and organized. Empower users to communicate clearly with built-in writing and polishing tools."
         summary={[{ label: 'AI data custom retention period:', value: retentionDisplay }]}
         onManage={openManageAiFeatures}
@@ -202,7 +218,7 @@ export default function AiPanel() {
         title="AI Assistant"
         switchOn={aiAssistant.on && masterOn}
         disabled={!masterOn}
-        icon="ai-lightbulb"
+        icon={<SpringIcon as={AiLightBulbMd} />}
         description="A personal assistant that helps you boost productivity."
         summary={[
           { label: 'User default:', value: aiAssistant.defaultVal },

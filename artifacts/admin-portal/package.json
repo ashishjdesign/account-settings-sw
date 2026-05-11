@@ -73,5 +73,9 @@
     "vite": "catalog:",
     "wouter": "^3.3.5",
     "zod": "catalog:"
+  },
+  "dependencies": {
+    "@mui/base": "5.0.0-beta.70",
+    "@ringcentral/spring-icon": "^1.9.2"
   }
 }

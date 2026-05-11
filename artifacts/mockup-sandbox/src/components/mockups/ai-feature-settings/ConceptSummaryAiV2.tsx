@@ -1,13 +1,15 @@
 import React from 'react';
+import { X } from 'lucide-react';
 import {
-  Captions,
-  Mic,
-  Voicemail,
-  PenLine,
-  ListChecks,
-  Languages,
-  X,
-} from 'lucide-react';
+  AiStarsMd,
+  AiLightBulbMd,
+  AiWriterMd,
+  AiSummaryMd,
+  ClosedCaptionsMd,
+  TranscriptMd,
+  VoicemailMd,
+  GlobeMd,
+} from '@ringcentral/spring-icon';
 import {
   FeatureSettingsShell,
   SpringSelect,
@@ -17,6 +19,13 @@ import {
   UserPermissionsRow,
 } from './_shared';
 import { PillTabs, SettingCard, SectionHeading } from './_chrome';
+
+/* Spring DS icons render as 32×32 SVG with no fill — render at 20×20 with
+ * fill="currentColor" so they inherit the SettingCard icon-slot color. */
+type IconCmp = React.ComponentType<React.SVGProps<SVGSVGElement>>;
+const SpringIcon = ({ as: Cmp }: { as: IconCmp }) => (
+  <Cmp width={20} height={20} fill="currentColor" aria-hidden focusable={false} />
+);
 
 /* -----------------------------------------------------------------------------
  * AI Feature Settings — V2 (Figma 2010-39488 "AI Features V2")
@@ -95,37 +104,6 @@ type ModalKey =
   | 'ai-writer-sms'
   | null;
 
-const StarsIcon = () => (
-  <img
-    src="/__mockup/figma-ref/icons/ai-stars.svg"
-    alt=""
-    aria-hidden="true"
-    width={20}
-    height={20}
-    className="block h-5 w-5"
-  />
-);
-const LightbulbIcon = () => (
-  <img
-    src="/__mockup/figma-ref/icons/ai-lightbulb.svg"
-    alt=""
-    aria-hidden="true"
-    width={20}
-    height={20}
-    className="block h-5 w-5"
-  />
-);
-const WriterIcon = () => (
-  <img
-    src="/__mockup/figma-ref/icons/ai-writer.svg"
-    alt=""
-    aria-hidden="true"
-    width={20}
-    height={20}
-    className="block h-5 w-5"
-  />
-);
-
 export function ConceptSummaryAiV2() {
   const [modal, setModal] = React.useState<ModalKey>(null);
   const close = () => setModal(null);
@@ -170,7 +148,7 @@ export function ConceptSummaryAiV2() {
         {/* Top — ungrouped */}
         <SettingCard
           title="AI features"
-          icon={<StarsIcon />}
+          icon={<SpringIcon as={AiStarsMd} />}
           switchOn
           description="Turn on AI support for calls, messages and video meetings. Deliver real-time answers, call notes, transcripts and meeting recaps to help teams stay focused and organized. Empower users to communicate clearly with built-in writing and polishing tools."
           summary={[{ label: 'AI data custom retention period:', value: 'Disabled' }]}
@@ -178,7 +156,7 @@ export function ConceptSummaryAiV2() {
         />
         <SettingCard
           title="AI Assistant"
-          icon={<LightbulbIcon />}
+          icon={<SpringIcon as={AiLightBulbMd} />}
           switchOn
           description="A personal assistant that helps you boost productivity."
           summary={[
@@ -192,7 +170,7 @@ export function ConceptSummaryAiV2() {
         <SectionHeading>Phone</SectionHeading>
         <SettingCard
           title="Closed captioning"
-          icon={<Captions className="h-5 w-5" />}
+          icon={<SpringIcon as={ClosedCaptionsMd} />}
           switchOn
           description="Uses AI to display real-time captions during phone calls."
           summary={[
@@ -203,7 +181,7 @@ export function ConceptSummaryAiV2() {
         />
         <SettingCard
           title="Live transcripts"
-          icon={<Mic className="h-5 w-5" />}
+          icon={<SpringIcon as={TranscriptMd} />}
           switchOn
           description="Provides real-time AI-generated call transcripts."
           summary={[
@@ -214,7 +192,7 @@ export function ConceptSummaryAiV2() {
         />
         <SettingCard
           title="AI notes"
-          icon={<WriterIcon />}
+          icon={<SpringIcon as={AiWriterMd} />}
           switchOn
           description="Generate call notes automatically for all your devices."
           summary={[
@@ -225,7 +203,7 @@ export function ConceptSummaryAiV2() {
         />
         <SettingCard
           title="AI voicemail summaries"
-          icon={<Voicemail className="h-5 w-5" />}
+          icon={<SpringIcon as={VoicemailMd} />}
           switchOn
           description="Delivers AI-generated summaries of voicemails, including key details and follow-up items."
           summary={[
@@ -239,7 +217,7 @@ export function ConceptSummaryAiV2() {
         <SectionHeading>Chat</SectionHeading>
         <SettingCard
           title="AI writer for messaging"
-          icon={<PenLine className="h-5 w-5" />}
+          icon={<SpringIcon as={AiWriterMd} />}
           switchOn
           description="Uses AI to draft and refine messages — check grammar, adjust tone or length, and translate to other languages."
           summary={[
@@ -250,7 +228,7 @@ export function ConceptSummaryAiV2() {
         />
         <SettingCard
           title="AI summary"
-          icon={<ListChecks className="h-5 w-5" />}
+          icon={<SpringIcon as={AiSummaryMd} />}
           switchOn
           description="Provides AI summaries that highlight key conversation points."
           summary={[
@@ -261,7 +239,7 @@ export function ConceptSummaryAiV2() {
         />
         <SettingCard
           title="AI translation"
-          icon={<Languages className="h-5 w-5" />}
+          icon={<SpringIcon as={GlobeMd} />}
           switchOn
           description="Uses AI to translate chats, messages, and transcripts across languages."
           summary={[
@@ -275,7 +253,7 @@ export function ConceptSummaryAiV2() {
         <SectionHeading>SMS</SectionHeading>
         <SettingCard
           title="AI writer for SMS"
-          icon={<PenLine className="h-5 w-5" />}
+          icon={<SpringIcon as={AiWriterMd} />}
           switchOn
           description="Uses AI to draft and refine messages — check grammar, adjust tone or length, and translate to other languages."
           summary={[
