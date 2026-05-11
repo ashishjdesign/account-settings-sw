@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
+import { Captions, Mic, FileText, Voicemail, PenLine, ListChecks, Languages } from 'lucide-react';
 import { useSettings } from '../../store';
+import type { AiFeatureKey } from '../../store';
 import {
   SettingCard,
   SpringConfirmDialog,
@@ -13,34 +15,93 @@ import {
 
 const RETENTION_OPTIONS = ['30 days', '90 days', '365 days'] as const;
 
+type FeatureItem = {
+  key: AiFeatureKey;
+  title: string;
+  icon: string | React.ReactNode;
+  description: React.ReactNode;
+};
+
+const PHONE_ITEMS: FeatureItem[] = [
+  {
+    key: 'closedCaptioning',
+    title: 'Closed captioning',
+    icon: <Captions className="h-5 w-5" />,
+    description: 'Uses AI to display real-time captions during phone calls.',
+  },
+  {
+    key: 'liveTranscripts',
+    title: 'Live transcripts',
+    icon: <Mic className="h-5 w-5" />,
+    description: 'Provides real-time AI-generated call transcripts.',
+  },
+  {
+    key: 'aiNotes',
+    title: 'AI notes',
+    icon: 'ai-writer',
+    description: 'Generate call notes automatically for all your devices.',
+  },
+  {
+    key: 'aiVoicemailSummaries',
+    title: 'AI voicemail summaries',
+    icon: <Voicemail className="h-5 w-5" />,
+    description:
+      'Delivers AI-generated summaries of voicemails, including key details and follow-up items.',
+  },
+];
+
+const CHAT_ITEMS: FeatureItem[] = [
+  {
+    key: 'aiWriterMessaging',
+    title: 'AI writer for messaging',
+    icon: <PenLine className="h-5 w-5" />,
+    description:
+      'Uses AI to draft and refine messages — check grammar, adjust tone or length, and translate to other languages.',
+  },
+  {
+    key: 'aiSummary',
+    title: 'AI summary',
+    icon: <ListChecks className="h-5 w-5" />,
+    description: 'Provides AI summaries that highlight key conversation points.',
+  },
+  {
+    key: 'aiTranslation',
+    title: 'AI translation',
+    icon: <Languages className="h-5 w-5" />,
+    description: 'Uses AI to translate chats, messages, and transcripts across languages.',
+  },
+];
+
+const SMS_ITEMS: FeatureItem[] = [
+  {
+    key: 'aiWriterSms',
+    title: 'AI writer for SMS',
+    icon: <PenLine className="h-5 w-5" />,
+    description:
+      'Uses AI to draft and refine messages — check grammar, adjust tone or length, and translate to other languages.',
+  },
+];
+
+function GroupLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="px-1 pt-2 text-[12px] font-medium leading-[16px] text-[var(--sui-colors-neutral-b2)]">
+      {children}
+    </div>
+  );
+}
+
 export default function AiPanel() {
   const { state, dispatch } = useSettings();
-  const { masterOn, aiAssistant, autoCallNotes } = state.ai;
+  const { masterOn, aiAssistant } = state.ai;
 
-  type AiKey = 'aiAssistant' | 'autoCallNotes';
-  type ManageKey = 'aiFeatures' | AiKey;
   const [masterConfirmOpen, setMasterConfirmOpen] = useState(false);
-  const [manageModal, setManageModal] = useState<ManageKey | null>(null);
-
-  const manageLabels: Record<ManageKey, string> = {
-    aiFeatures: 'AI features',
-    aiAssistant: 'AI Assistant',
-    autoCallNotes: 'Automatic call notes',
-  };
-
-  const dispatchPatch = (key: AiKey, payload: Partial<typeof aiAssistant>) => {
-    if (key === 'aiAssistant') dispatch({ type: 'PATCH_AI_ASSISTANT', payload });
-    else if (key === 'autoCallNotes') dispatch({ type: 'PATCH_AI_AUTO_NOTES', payload });
-  };
-
+  const [manageModal, setManageModal] = useState<'aiFeatures' | 'aiAssistant' | null>(null);
   const [editRetention, setEditRetention] = useState<'30 days' | '90 days' | '365 days'>('365 days');
 
-  const openManage = (key: ManageKey) => {
-    if (key === 'aiFeatures') {
-      const r = aiAssistant.customize.transcriptRetention;
-      setEditRetention(r === '' ? '365 days' : r);
-    }
-    setManageModal(key);
+  const openManageAiFeatures = () => {
+    const r = aiAssistant.customize.transcriptRetention;
+    setEditRetention(r === '' ? '365 days' : r);
+    setManageModal('aiFeatures');
   };
 
   const handleSaveAiFeatures = () => {
@@ -56,15 +117,15 @@ export default function AiPanel() {
     showToast('Settings were updated.', () => dispatch({ type: 'UNDO' }));
   };
 
-  const handleSaveFeatureManage = (
-    key: AiKey,
-    result: { defaultVal: 'On' | 'Off'; allowChange: boolean },
-  ) => {
+  const handleSaveAssistant = (result: { defaultVal: 'On' | 'Off'; allowChange: boolean }) => {
     if (state.simulateError) {
       dispatch({ type: 'TOGGLE_SIMULATE_ERROR' });
       return;
     }
-    dispatchPatch(key, { defaultVal: result.defaultVal, allowChange: result.allowChange });
+    dispatch({
+      type: 'PATCH_AI_ASSISTANT',
+      payload: { defaultVal: result.defaultVal, allowChange: result.allowChange },
+    });
     setManageModal(null);
     showToast('Settings were updated.', () => dispatch({ type: 'UNDO' }));
   };
@@ -84,26 +145,59 @@ export default function AiPanel() {
     showToast('AI features turned off', () => dispatch({ type: 'UNDO' }));
   };
 
-  const toggleChild = (key: AiKey) => {
+  const toggleSubFeature = (key: Exclude<AiFeatureKey, 'aiAssistant'>, label: string) => {
     if (!masterOn) return;
     const cur = state.ai[key].on;
-    dispatchPatch(key, { on: !cur });
-    showToast(`${manageLabels[key]} turned ${cur ? 'off' : 'on'}`, () => dispatch({ type: 'UNDO' }));
+    dispatch({ type: 'PATCH_AI_FEATURE', key, payload: { on: !cur } });
+    showToast(`${label} turned ${cur ? 'off' : 'on'}`, () => dispatch({ type: 'UNDO' }));
   };
+
+  const renderFeatureCard = (item: FeatureItem) => {
+    const cfg =
+      item.key === 'aiAssistant' ? aiAssistant : state.ai[item.key as Exclude<AiFeatureKey, 'aiAssistant'>];
+    return (
+      <SettingCard
+        key={item.key}
+        title={item.title}
+        switchOn={cfg.on && masterOn}
+        disabled={!masterOn}
+        icon={item.icon}
+        description={item.description}
+        summary={[
+          { label: 'User default:', value: cfg.defaultVal },
+          { label: 'User access:', value: cfg.allowChange ? 'Allowed' : 'Restricted' },
+        ]}
+        onManage={() =>
+          showToast(`Manage ${item.title} — coming soon`)
+        }
+        onSwitchClick={
+          item.key === 'aiAssistant'
+            ? undefined
+            : () => toggleSubFeature(item.key as Exclude<AiFeatureKey, 'aiAssistant'>, item.title)
+        }
+      />
+    );
+  };
+
+  const retentionDisplay =
+    aiAssistant.customize.transcriptRetention === '' || aiAssistant.customize.transcriptRetention === '365 days'
+      ? 'Disabled'
+      : aiAssistant.customize.transcriptRetention;
 
   return (
     <div className="flex flex-col gap-4">
+      {/* AI features (master) */}
       <SettingCard
         title="AI features"
         switchOn={masterOn}
         icon="ai-stars"
         description="Turn on AI support for calls, messages and video meetings. Deliver real-time answers, call notes, transcripts and meeting recaps to help teams stay focused and organized. Empower users to communicate clearly with built-in writing and polishing tools."
-        summary={[
-          { label: 'Data retention period:', value: aiAssistant.customize.transcriptRetention || '365 days' },
-        ]}
-        onManage={() => openManage('aiFeatures')}
+        summary={[{ label: 'AI data custom retention period:', value: retentionDisplay }]}
+        onManage={openManageAiFeatures}
         onSwitchClick={handleMasterToggle}
       />
+
+      {/* AI Assistant */}
       <SettingCard
         title="AI Assistant"
         switchOn={aiAssistant.on && masterOn}
@@ -114,22 +208,23 @@ export default function AiPanel() {
           { label: 'User default:', value: aiAssistant.defaultVal },
           { label: 'User access:', value: aiAssistant.allowChange ? 'Allowed' : 'Restricted' },
         ]}
-        onManage={() => openManage('aiAssistant')}
-        onSwitchClick={() => toggleChild('aiAssistant')}
+        onManage={() => setManageModal('aiAssistant')}
+        onSwitchClick={() => {
+          if (!masterOn) return;
+          const cur = aiAssistant.on;
+          dispatch({ type: 'PATCH_AI_ASSISTANT', payload: { on: !cur } });
+          showToast(`AI Assistant turned ${cur ? 'off' : 'on'}`, () => dispatch({ type: 'UNDO' }));
+        }}
       />
-      <SettingCard
-        title="Automatic call notes"
-        switchOn={autoCallNotes.on && masterOn}
-        disabled={!masterOn}
-        icon="ai-writer"
-        description="Generate call notes automatically for all your devices."
-        summary={[
-          { label: 'User default:', value: autoCallNotes.defaultVal },
-          { label: 'User access:', value: autoCallNotes.allowChange ? 'Allowed' : 'Restricted' },
-        ]}
-        onManage={() => openManage('autoCallNotes')}
-        onSwitchClick={() => toggleChild('autoCallNotes')}
-      />
+
+      <GroupLabel>Phone</GroupLabel>
+      {PHONE_ITEMS.map(renderFeatureCard)}
+
+      <GroupLabel>Chat</GroupLabel>
+      {CHAT_ITEMS.map(renderFeatureCard)}
+
+      <GroupLabel>SMS</GroupLabel>
+      {SMS_ITEMS.map(renderFeatureCard)}
 
       <SpringConfirmDialog
         open={masterConfirmOpen}
@@ -162,23 +257,12 @@ export default function AiPanel() {
 
       <SpringFeatureManageDialog
         open={manageModal === 'aiAssistant'}
-        title={`Manage ${manageLabels.aiAssistant} settings`}
+        title="Manage AI Assistant settings"
         defaultVal={aiAssistant.defaultVal}
         allowChange={aiAssistant.allowChange}
         customCount={aiAssistant.customUsers}
         onCancel={() => setManageModal(null)}
-        onConfirm={(r) => handleSaveFeatureManage('aiAssistant', r)}
-        error={state.simulateError}
-      />
-
-      <SpringFeatureManageDialog
-        open={manageModal === 'autoCallNotes'}
-        title={`Manage ${manageLabels.autoCallNotes} settings`}
-        defaultVal={autoCallNotes.defaultVal}
-        allowChange={autoCallNotes.allowChange}
-        customCount={autoCallNotes.customUsers}
-        onCancel={() => setManageModal(null)}
-        onConfirm={(r) => handleSaveFeatureManage('autoCallNotes', r)}
+        onConfirm={handleSaveAssistant}
         error={state.simulateError}
       />
     </div>
