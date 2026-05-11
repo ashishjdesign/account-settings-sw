@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import {
   AiStarsMd,
   AiLightBulbMd,
-  AiWriterMd,
+  AiWriterAltMd,
   AiSummaryMd,
   SmartNotesMd,
   ClosedCaptionsMd,
@@ -71,7 +71,7 @@ const CHAT_ITEMS: FeatureItem[] = [
   {
     key: 'aiWriterMessaging',
     title: 'AI writer for messaging',
-    icon: <SpringIcon as={AiWriterMd} />,
+    icon: <SpringIcon as={AiWriterAltMd} />,
     description:
       'Uses AI to draft and refine messages — check grammar, adjust tone or length, and translate to other languages.',
   },
@@ -93,7 +93,7 @@ const SMS_ITEMS: FeatureItem[] = [
   {
     key: 'aiWriterSms',
     title: 'AI writer for SMS',
-    icon: <SpringIcon as={AiWriterMd} />,
+    icon: <SpringIcon as={AiWriterAltMd} />,
     description:
       'Uses AI to draft and refine messages — check grammar, adjust tone or length, and translate to other languages.',
   },

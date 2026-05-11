@@ -3,7 +3,7 @@ import { X } from 'lucide-react';
 import {
   AiStarsMd,
   AiLightBulbMd,
-  AiWriterMd,
+  AiWriterAltMd,
   AiSummaryMd,
   SmartNotesMd,
   ClosedCaptionsMd,
@@ -218,7 +218,7 @@ export function ConceptSummaryAiV2() {
         <SectionHeading>Chat</SectionHeading>
         <SettingCard
           title="AI writer for messaging"
-          icon={<SpringIcon as={AiWriterMd} />}
+          icon={<SpringIcon as={AiWriterAltMd} />}
           switchOn
           description="Uses AI to draft and refine messages — check grammar, adjust tone or length, and translate to other languages."
           summary={[
@@ -254,7 +254,7 @@ export function ConceptSummaryAiV2() {
         <SectionHeading>SMS</SectionHeading>
         <SettingCard
           title="AI writer for SMS"
-          icon={<SpringIcon as={AiWriterMd} />}
+          icon={<SpringIcon as={AiWriterAltMd} />}
           switchOn
           description="Uses AI to draft and refine messages — check grammar, adjust tone or length, and translate to other languages."
           summary={[
