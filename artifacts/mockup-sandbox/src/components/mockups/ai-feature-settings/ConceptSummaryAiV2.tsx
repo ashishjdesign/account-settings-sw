@@ -5,6 +5,7 @@ import {
   AiLightBulbMd,
   AiWriterMd,
   AiSummaryMd,
+  SmartNotesMd,
   ClosedCaptionsMd,
   TranscriptMd,
   VoicemailMd,
@@ -192,7 +193,7 @@ export function ConceptSummaryAiV2() {
         />
         <SettingCard
           title="AI notes"
-          icon={<SpringIcon as={AiWriterMd} />}
+          icon={<SpringIcon as={SmartNotesMd} />}
           switchOn
           description="Generate call notes automatically for all your devices."
           summary={[

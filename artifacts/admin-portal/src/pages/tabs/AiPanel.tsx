@@ -4,6 +4,7 @@ import {
   AiLightBulbMd,
   AiWriterMd,
   AiSummaryMd,
+  SmartNotesMd,
   ClosedCaptionsMd,
   TranscriptMd,
   VoicemailMd,
@@ -54,7 +55,7 @@ const PHONE_ITEMS: FeatureItem[] = [
   {
     key: 'aiNotes',
     title: 'AI notes',
-    icon: <SpringIcon as={AiWriterMd} />,
+    icon: <SpringIcon as={SmartNotesMd} />,
     description: 'Generate call notes automatically for all your devices.',
   },
   {
