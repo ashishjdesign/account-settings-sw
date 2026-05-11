@@ -1527,3 +1527,258 @@ export function ConferenceReEnableDialog({
     </div>
   );
 }
+
+/* -----------------------------------------------------------------------------
+ * ExtAppEnableCombinedDialog — Single combined first-enable / re-enable dialog
+ * for "Launch an external app for incoming calls". Mirrors the production
+ * component in admin-portal/src/components/shared.tsx (Figma node 2013:40428).
+ *
+ * Mockup-sandbox version uses an absolute overlay so it renders inside the
+ * iframe instead of the page-level fixed overlay used in production.
+ * --------------------------------------------------------------------------- */
+export function ExtAppEnableCombinedDialog({
+  open,
+  initialUrl = '',
+  initialTrigger = 'A call begins to ring',
+  customCount = 0,
+  totalUsers = 98,
+  onCancel,
+  onConfirm,
+}: {
+  open: boolean;
+  initialUrl?: string;
+  initialTrigger?: 'A call begins to ring' | 'A call is answered';
+  customCount?: number;
+  totalUsers?: number;
+  onCancel?: () => void;
+  onConfirm?: (result: {
+    defaultVal: 'On' | 'Off';
+    allowChange: boolean;
+    launchUrl: string;
+    trigger: 'A call begins to ring' | 'A call is answered';
+    customAction: 'reset' | 'restore';
+  }) => void;
+}) {
+  const [value, setValue] = React.useState<'On' | 'Off'>('On');
+  const [allow, setAllow] = React.useState(true);
+  const [url, setUrl] = React.useState(initialUrl);
+  const [trig, setTrig] = React.useState<'A call begins to ring' | 'A call is answered'>(initialTrigger);
+  const [expanded, setExpanded] = React.useState(false);
+  const [customAction, setCustomAction] = React.useState<'reset' | 'restore'>('reset');
+  React.useEffect(() => {
+    if (open) {
+      setValue('On');
+      setAllow(true);
+      setUrl(initialUrl);
+      setTrig(initialTrigger);
+      setExpanded(false);
+      setCustomAction('reset');
+    }
+  }, [open, initialUrl, initialTrigger]);
+
+  const total = totalUsers;
+  const defaultCount = Math.max(0, total - (customCount || 0));
+  const urlEmpty = url.trim().length === 0;
+  const turnOnDisabled = value === 'On' && urlEmpty;
+
+  if (!open) return null;
+  return (
+    <div className="absolute inset-0 z-50 flex items-start justify-center bg-black/40 px-4 py-[60px]">
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-label="Turn on Launch an external app for incoming calls for your organization"
+        className="flex max-h-full min-h-0 w-[820px] max-w-[calc(100%-32px)] flex-col overflow-hidden rounded-[10px] bg-white"
+        style={{ boxShadow: '0 10px 30px rgba(0,0,0,0.2)' }}
+      >
+        <div className="flex min-h-0 flex-1 flex-col gap-8 overflow-y-auto px-6 pb-10 pt-9">
+          <div className="flex flex-col gap-6">
+            <h2 className="py-3 text-[24px] font-normal leading-[32px] text-[var(--sui-colors-neutral-b0)]">
+              Turn on Launch an external app for incoming calls for your organization?
+            </h2>
+
+            <p className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+              This feature will be enabled for your account. Configure how it should be deployed to users below.
+            </p>
+
+            {/* User deployment */}
+            <div className="flex flex-col gap-2">
+              <h3 className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b2)]">
+                User deployment
+              </h3>
+              <div className="flex flex-col gap-4 rounded-[10px] border border-[#9E9FA4]/35 bg-white p-4">
+                <div className="flex w-full items-center justify-between gap-4">
+                  <div className="flex h-[32px] items-center gap-4 pr-4">
+                    <span className="text-[14px] font-semibold leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                      Default in user settings:
+                    </span>
+                    <div className="flex items-center gap-5">
+                      <SpringRadio checked={value === 'On'} onChange={() => setValue('On')} label="On" />
+                      <SpringRadio checked={value === 'Off'} onChange={() => setValue('Off')} label="Off" />
+                    </div>
+                  </div>
+                  <div className="flex h-[32px] items-center rounded-[10px] bg-[var(--sui-colors-neutral-b5)] px-3">
+                    <p className="whitespace-nowrap text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                      <button type="button" className="cursor-pointer text-[var(--sui-colors-primary-b)] underline">
+                        {defaultCount}/{total} users
+                      </button>{' '}
+                      are using the default
+                    </p>
+                  </div>
+                </div>
+
+                <div className="border-t border-[var(--sui-colors-neutral-b4)]" />
+
+                <div className="flex h-[32px] items-center gap-4">
+                  <span className="text-[14px] font-semibold leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                    User access:
+                  </span>
+                  <label className="flex cursor-pointer items-center gap-2">
+                    <SpringCheckbox checked={allow} onChange={setAllow} />
+                    <span className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                      Allow users to change this setting
+                    </span>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            {/* Feature settings */}
+            <div className="flex flex-col gap-2">
+              <h3 className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b2)]">
+                Feature settings
+              </h3>
+
+              <div
+                className="flex min-h-[48px] items-center gap-2 rounded-[10px] border border-[var(--sui-colors-neutral-b2)] px-4 py-2"
+                style={{ background: 'rgba(221,223,229,0.5)' }}
+              >
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                  className="h-5 w-5 shrink-0 text-[var(--sui-colors-neutral-b1)]"
+                >
+                  <circle cx="12" cy="12" r="10" />
+                  <line x1="12" y1="16" x2="12" y2="12" />
+                  <line x1="12" y1="8" x2="12.01" y2="8" />
+                </svg>
+                <p className="flex-1 text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b0)]">
+                  Launching an external app may impact the performance of RingCentral services.
+                </p>
+              </div>
+
+              <div className="mt-2 flex flex-col gap-4 rounded-[10px] border border-[var(--sui-colors-neutral-b4)] p-4">
+                <div className="flex h-[32px] items-center gap-2">
+                  <span className="text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                    Launch
+                  </span>
+                  <div className="flex h-[32px] flex-1 items-center rounded-[10px] border border-black/20 bg-white px-2.5">
+                    <input
+                      type="text"
+                      value={url}
+                      onChange={(e) => setUrl(e.target.value)}
+                      placeholder="Enter an external app or website URL"
+                      aria-label="Launch URL or external app path"
+                      className="w-full bg-transparent text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)] placeholder-[var(--sui-colors-neutral-b2)] outline-none"
+                    />
+                  </div>
+                  <span className="text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                    when
+                  </span>
+                  <SpringSelect
+                    value={trig}
+                    width={240}
+                    options={['A call begins to ring', 'A call is answered']}
+                    onChange={(v) => setTrig(v as typeof trig)}
+                  />
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setExpanded((v) => !v)}
+                  aria-expanded={expanded}
+                  className="self-start cursor-pointer rounded-[4px] px-1 py-0.5 text-[12px] font-medium leading-[17px] text-[var(--sui-colors-primary-b)] hover:underline"
+                >
+                  {expanded ? 'Hide reference parameters' : 'Show reference parameters'}
+                </button>
+                {expanded && <ReferenceParametersTable />}
+              </div>
+            </div>
+
+            {/* Custom users decision — only on re-enable */}
+            {customCount > 0 && (
+              <div className="flex flex-col gap-4">
+                <p className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                  <button type="button" className="cursor-pointer text-[var(--sui-colors-primary-b)] underline">
+                    {customCount}/{total} users
+                  </button>{' '}
+                  have custom settings for this feature. What would you like to do with these users?
+                </p>
+                <div className="flex items-center gap-8">
+                  <SpringRadio
+                    checked={customAction === 'reset'}
+                    onChange={() => setCustomAction('reset')}
+                    label="Reset all to default"
+                  />
+                  <SpringRadio
+                    checked={customAction === 'restore'}
+                    onChange={() => setCustomAction('restore')}
+                    label="Restore their custom settings"
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="flex shrink-0 justify-end gap-2 border-t border-[var(--sui-colors-neutral-b4)]/50 bg-white px-6 pt-5 pb-5">
+          <button
+            type="button"
+            onClick={onCancel}
+            className="inline-flex h-[36px] min-w-[60px] cursor-pointer items-center justify-center rounded-[10px] border border-black/20 bg-white px-4 text-[15px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b0)] transition-colors hover:bg-[var(--sui-colors-neutral-b4)]/40"
+          >
+            Cancel
+          </button>
+          <div className="group relative inline-flex">
+            <button
+              type="button"
+              onClick={() =>
+                onConfirm?.({
+                  defaultVal: value,
+                  allowChange: allow,
+                  launchUrl: url.trim(),
+                  trigger: trig,
+                  customAction,
+                })
+              }
+              disabled={turnOnDisabled}
+              className={`inline-flex h-[36px] min-w-[60px] items-center justify-center rounded-[10px] px-4 text-[15px] font-medium leading-[20px] text-white transition-colors ${
+                turnOnDisabled
+                  ? 'cursor-not-allowed bg-[var(--sui-colors-neutral-b3)]'
+                  : 'cursor-pointer bg-[var(--sui-colors-primary-b)] hover:bg-[var(--sui-colors-primary-b-high-contrast)]'
+              }`}
+            >
+              Turn on
+            </button>
+            {turnOnDisabled && (
+              <div
+                role="tooltip"
+                className="pointer-events-none absolute bottom-[calc(100%+8px)] right-0 z-50 hidden w-[260px] rounded-md bg-[var(--sui-colors-neutral-b1)] px-3 py-2 text-[12px] font-normal leading-[16px] text-white shadow-md group-hover:block group-focus-within:block"
+              >
+                Set up an external app or website URL to turn this on for users.
+                <span
+                  aria-hidden="true"
+                  className="absolute right-4 top-full h-0 w-0 border-x-[6px] border-t-[6px] border-x-transparent border-t-[var(--sui-colors-neutral-b1)]"
+                />
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
