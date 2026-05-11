@@ -2,9 +2,8 @@ import React, { useState } from 'react';
 import { useSettings, type AutoAnswerDelay } from '../../store';
 import {
   SettingCard,
-  SpringFeatureEnableDialog,
   SpringConfirmDialog,
-  ExtAppFirstEnableCombinedDialog,
+  ExtAppEnableCombinedDialog,
   ExtAppManageDialog,
   AutoAnswerManageDialog,
   AutoAnswerReEnableDialog,
@@ -189,57 +188,34 @@ export default function PhonePanel() {
         }}
       />
 
-      {/* Launch external app — first-time enable + Manage. The first-time
-          flow is now a single combined dialog (User deployment + Feature
-          settings on one screen). When the admin chose "Default: On" the
-          Turn on button is disabled (with a tooltip) until a Launch URL is
-          provided; when "Off" the URL is optional and Turn on stays
-          enabled. After the admin has completed onboarding once
-          (`everEnabled`), subsequent re-enables use the deployment-only
-          dialog because URL/trigger are preserved. */}
-      {!extApp.everEnabled ? (
-        <ExtAppFirstEnableCombinedDialog
-          open={extEnableOpen}
-          onCancel={() => setExtEnableOpen(false)}
-          onConfirm={(result) => {
-            dispatch({
-              type: 'PATCH_PHONE_EXT_APP',
-              payload: {
-                on: true,
-                defaultVal: result.defaultVal,
-                allowChange: result.allowChange,
-                launchUrl: result.launchUrl,
-                trigger: result.trigger,
-                everEnabled: true,
-              },
-            });
-            setExtEnableOpen(false);
-            showToast('Launch an external app for incoming calls is on.');
-          }}
-        />
-      ) : (
-        <SpringFeatureEnableDialog
-          open={extEnableOpen}
-          title="Turn on Launch an external app for incoming calls?"
-          customCount={extApp.customUsers}
-          onCancel={() => setExtEnableOpen(false)}
-          onConfirm={(result) => {
-            // Re-enable: commit deployment + custom-user choice atomically;
-            // no follow-on settings dialog because URL/trigger are preserved.
-            dispatch({
-              type: 'PATCH_PHONE_EXT_APP',
-              payload: {
-                on: true,
-                defaultVal: result.defaultVal,
-                allowChange: result.allowChange,
-                ...(result.customAction === 'reset' ? { customUsers: 0 } : {}),
-              },
-            });
-            setExtEnableOpen(false);
-            showToast('Launch an external app for incoming calls is on.');
-          }}
-        />
-      )}
+      {/* Launch external app — single combined enable dialog (Figma node
+          2013:40428). Shown for both first-time enable and re-enable; the
+          custom-users decision section auto-hides when there are no
+          custom users. URL is required when Default = On (button stays
+          disabled with a tooltip until a URL is provided). */}
+      <ExtAppEnableCombinedDialog
+        open={extEnableOpen}
+        initialUrl={extApp.launchUrl}
+        initialTrigger={extApp.trigger}
+        customCount={extApp.customUsers}
+        onCancel={() => setExtEnableOpen(false)}
+        onConfirm={(result) => {
+          dispatch({
+            type: 'PATCH_PHONE_EXT_APP',
+            payload: {
+              on: true,
+              defaultVal: result.defaultVal,
+              allowChange: result.allowChange,
+              launchUrl: result.launchUrl,
+              trigger: result.trigger,
+              everEnabled: true,
+              ...(result.customAction === 'reset' ? { customUsers: 0 } : {}),
+            },
+          });
+          setExtEnableOpen(false);
+          showToast('Launch an external app for incoming calls is on.');
+        }}
+      />
       <ExtAppManageDialog
         open={extManageOpen}
         defaultVal={extApp.defaultVal}
