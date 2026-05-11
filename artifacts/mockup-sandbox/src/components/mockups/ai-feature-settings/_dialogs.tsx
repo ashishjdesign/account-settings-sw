@@ -1540,6 +1540,7 @@ export function ExtAppEnableCombinedDialog({
   open,
   initialUrl = '',
   initialTrigger = 'A call begins to ring',
+  initialExpanded = false,
   customCount = 0,
   totalUsers = 98,
   onCancel,
@@ -1548,6 +1549,7 @@ export function ExtAppEnableCombinedDialog({
   open: boolean;
   initialUrl?: string;
   initialTrigger?: 'A call begins to ring' | 'A call is answered';
+  initialExpanded?: boolean;
   customCount?: number;
   totalUsers?: number;
   onCancel?: () => void;
@@ -1563,7 +1565,7 @@ export function ExtAppEnableCombinedDialog({
   const [allow, setAllow] = React.useState(true);
   const [url, setUrl] = React.useState(initialUrl);
   const [trig, setTrig] = React.useState<'A call begins to ring' | 'A call is answered'>(initialTrigger);
-  const [expanded, setExpanded] = React.useState(false);
+  const [expanded, setExpanded] = React.useState(initialExpanded);
   const [customAction, setCustomAction] = React.useState<'reset' | 'restore'>('reset');
   React.useEffect(() => {
     if (open) {
@@ -1571,10 +1573,10 @@ export function ExtAppEnableCombinedDialog({
       setAllow(true);
       setUrl(initialUrl);
       setTrig(initialTrigger);
-      setExpanded(false);
+      setExpanded(initialExpanded);
       setCustomAction('reset');
     }
-  }, [open, initialUrl, initialTrigger]);
+  }, [open, initialUrl, initialTrigger, initialExpanded]);
 
   const total = totalUsers;
   const defaultCount = Math.max(0, total - (customCount || 0));

@@ -19,6 +19,7 @@ export const modules: ModuleMap = {
   "./components/mockups/ai-feature-settings/ConceptPhoneConferenceReEnable.tsx": () => import("../components/mockups/ai-feature-settings/ConceptPhoneConferenceReEnable.tsx"),
   "./components/mockups/ai-feature-settings/ConceptPhoneExtAppEnable.tsx": () => import("../components/mockups/ai-feature-settings/ConceptPhoneExtAppEnable.tsx"),
   "./components/mockups/ai-feature-settings/ConceptPhoneExtAppEnableCombined.tsx": () => import("../components/mockups/ai-feature-settings/ConceptPhoneExtAppEnableCombined.tsx"),
+  "./components/mockups/ai-feature-settings/ConceptPhoneExtAppEnableCombinedExpanded.tsx": () => import("../components/mockups/ai-feature-settings/ConceptPhoneExtAppEnableCombinedExpanded.tsx"),
   "./components/mockups/ai-feature-settings/ConceptPhoneExtAppFeatureSettings.tsx": () => import("../components/mockups/ai-feature-settings/ConceptPhoneExtAppFeatureSettings.tsx"),
   "./components/mockups/ai-feature-settings/ConceptPhoneExtAppManage.tsx": () => import("../components/mockups/ai-feature-settings/ConceptPhoneExtAppManage.tsx"),
   "./components/mockups/ai-feature-settings/ConceptPhoneExtAppManageConfirmOff.tsx": () => import("../components/mockups/ai-feature-settings/ConceptPhoneExtAppManageConfirmOff.tsx"),
