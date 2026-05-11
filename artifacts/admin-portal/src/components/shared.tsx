@@ -1181,6 +1181,202 @@ export function SpringFirstEnableDialog({
 }
 
 /* -----------------------------------------------------------------------------
+ * ExtAppFirstEnableCombinedDialog — single-screen first-time enable for
+ * "Launch an external app for incoming calls". Combines User deployment
+ * (Default + User access) with Feature settings (Launch URL + trigger) so
+ * the admin can configure both before turning the feature on.
+ *
+ * Rule: when "Default in user settings: On" is selected, the URL is
+ * required — Turn on stays disabled (with a tooltip) until a URL is
+ * entered. When "Off" is selected, Turn on is always enabled (URL is
+ * optional and can be configured later from Manage).
+ * --------------------------------------------------------------------------- */
+export function ExtAppFirstEnableCombinedDialog({
+  open,
+  onCancel,
+  onConfirm,
+}: {
+  open: boolean;
+  onCancel: () => void;
+  onConfirm: (result: {
+    defaultVal: 'On' | 'Off';
+    allowChange: boolean;
+    launchUrl: string;
+    trigger: 'A call begins to ring' | 'A call is answered';
+  }) => void;
+}) {
+  const [value, setValue] = useState<'On' | 'Off'>('On');
+  const [allow, setAllow] = useState(true);
+  const [url, setUrl] = useState('');
+  const [trig, setTrig] = useState<'A call begins to ring' | 'A call is answered'>('A call begins to ring');
+  const [expanded, setExpanded] = useState(false);
+
+  useEffect(() => {
+    if (open) {
+      setValue('On');
+      setAllow(true);
+      setUrl('');
+      setTrig('A call begins to ring');
+      setExpanded(false);
+    }
+  }, [open]);
+
+  const urlEmpty = url.trim().length === 0;
+  // URL is required only when the admin is turning the feature on for users.
+  // Off → URL is optional, button always enabled.
+  const turnOnDisabled = value === 'On' && urlEmpty;
+
+  const turnOnButton = (
+    <button
+      type="button"
+      onClick={() => onConfirm({ defaultVal: value, allowChange: allow, launchUrl: url.trim(), trigger: trig })}
+      disabled={turnOnDisabled}
+      className="inline-flex h-[36px] min-w-[60px] items-center justify-center rounded-[10px] bg-[var(--sui-colors-primary-b)] px-4 text-[15px] font-medium leading-[20px] text-white transition-colors hover:bg-[var(--sui-colors-primary-b-high-contrast)] focus:outline-none focus:ring-2 focus:ring-[var(--sui-colors-primary-b)]/30 disabled:cursor-not-allowed disabled:bg-[var(--sui-colors-neutral-b3)] disabled:hover:bg-[var(--sui-colors-neutral-b3)] enabled:cursor-pointer"
+    >
+      Turn on
+    </button>
+  );
+
+  return (
+    <DialogPrimitives.Root open={open} onOpenChange={(o) => !o && onCancel()}>
+      <DialogPrimitives.Portal>
+        <DialogPrimitives.Overlay className="fixed inset-0 z-50 flex items-start justify-center bg-black/40 px-4 py-[60px] data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0">
+          <DialogPrimitives.Content
+            aria-label="Turn on Launch an external app for incoming calls"
+            className="relative z-10 flex max-h-full min-h-0 w-[800px] max-w-[calc(100%-32px)] flex-col overflow-hidden rounded-[12px] bg-white shadow-[0_12px_32px_rgba(0,0,0,0.18),0_2px_6px_rgba(0,0,0,0.08)] data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95"
+          >
+            <div className="flex min-h-0 flex-1 flex-col gap-6 overflow-y-auto px-6 pb-8 pt-6">
+              <DialogPrimitives.Title className="py-3 text-[24px] font-normal leading-[32px] text-[var(--sui-colors-neutral-b1)]">
+                Turn on Launch an external app for incoming calls?
+              </DialogPrimitives.Title>
+
+              {/* User deployment — same layout as ExtAppManageDialog minus the
+                  user-count link (no users yet on first enable). */}
+              <div className="flex flex-col gap-2">
+                <h3 className="text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b2)]">
+                  User deployment
+                </h3>
+                <div className="flex flex-col gap-4 rounded-[10px] border border-[#9E9FA4]/35 bg-white p-4">
+                  <div className="flex h-[32px] items-center gap-4">
+                    <span className="text-[14px] font-semibold leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                      Default in user settings:
+                    </span>
+                    <div className="flex items-center gap-5">
+                      <SpringRadio checked={value === 'On'} onChange={() => setValue('On')} label="On" />
+                      <SpringRadio checked={value === 'Off'} onChange={() => setValue('Off')} label="Off" />
+                    </div>
+                  </div>
+                  <div className="border-t border-[var(--sui-colors-neutral-b4)]" />
+                  <div className="flex h-[32px] items-center gap-4">
+                    <span className="text-[14px] font-semibold leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                      User access:
+                    </span>
+                    <label className="flex cursor-pointer items-center gap-2">
+                      <div className="relative flex h-[20px] w-[20px] items-center justify-center">
+                        <input
+                          type="checkbox"
+                          className="peer sr-only"
+                          checked={allow}
+                          onChange={(e) => setAllow(e.target.checked)}
+                        />
+                        <div className="absolute inset-0 rounded-[4px] border-[1.2px] border-[var(--sui-colors-neutral-b2)] bg-white peer-focus-visible:ring-2 peer-focus-visible:ring-[var(--sui-colors-primary-b)]/30 peer-checked:bg-[var(--sui-colors-primary-b)] peer-checked:border-transparent flex items-center justify-center transition-colors">
+                          {allow && <Check className="h-3 w-3 text-white" strokeWidth={3} />}
+                        </div>
+                      </div>
+                      <span className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                        Allow users to change this setting
+                      </span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              {/* Feature settings — Launch URL + trigger + reference params */}
+              <div className="flex flex-col gap-2">
+                <h3 className="text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b2)]">
+                  Feature settings
+                </h3>
+                <div className="flex flex-col gap-4 rounded-[10px] border border-[var(--sui-colors-neutral-b4)] p-4">
+                  <div className="flex h-[32px] items-center gap-2">
+                    <span className="text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                      Launch
+                    </span>
+                    <div className="flex h-[32px] flex-1 items-center rounded-[10px] border border-black/20 bg-white px-2.5 focus-within:ring-2 focus-within:ring-[var(--sui-colors-primary-b)]/30">
+                      <input
+                        type="text"
+                        value={url}
+                        onChange={(e) => setUrl(e.target.value)}
+                        placeholder="Enter an external app or website URL"
+                        aria-label="Launch URL or external app path"
+                        className="w-full bg-transparent text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)] placeholder-[var(--sui-colors-neutral-b2)] outline-none"
+                      />
+                    </div>
+                    <span className="text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                      when
+                    </span>
+                    <SpringSelect
+                      value={trig}
+                      width={240}
+                      options={['A call begins to ring', 'A call is answered']}
+                      onChange={(v) => setTrig(v as typeof trig)}
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setExpanded((v) => !v)}
+                    aria-expanded={expanded}
+                    className="self-start cursor-pointer rounded-[4px] px-1 py-0.5 text-[12px] font-medium leading-[17px] text-[var(--sui-colors-primary-b)] hover:underline focus:outline-none focus:ring-2 focus:ring-[var(--sui-colors-primary-b)]/30"
+                  >
+                    {expanded ? 'Hide reference parameters' : 'Show reference parameters'}
+                  </button>
+                  {expanded && <ReferenceParametersTable />}
+                </div>
+              </div>
+            </div>
+
+            <div className="flex shrink-0 justify-end gap-2 border-t border-[var(--sui-colors-neutral-b4)]/50 bg-white px-6 pt-5 pb-5">
+              <DialogPrimitives.Close asChild>
+                <button
+                  type="button"
+                  className="inline-flex h-[36px] min-w-[60px] cursor-pointer items-center justify-center rounded-[10px] border border-black/20 bg-white px-4 text-[15px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b0)] transition-colors hover:bg-[var(--sui-colors-neutral-b4)]/40 focus:outline-none focus:ring-2 focus:ring-[var(--sui-colors-primary-b)]/30"
+                >
+                  Cancel
+                </button>
+              </DialogPrimitives.Close>
+              {turnOnDisabled ? (
+                <TooltipPrimitives.Provider delayDuration={200}>
+                  <TooltipPrimitives.Root>
+                    <TooltipPrimitives.Trigger asChild>
+                      {/* Wrap disabled button so the tooltip can still trigger
+                          on hover/focus (disabled buttons don't emit events). */}
+                      <span tabIndex={0} className="inline-flex">
+                        {turnOnButton}
+                      </span>
+                    </TooltipPrimitives.Trigger>
+                    <TooltipPrimitives.Portal>
+                      <TooltipPrimitives.Content
+                        side="top"
+                        sideOffset={6}
+                        className="z-50 max-w-xs rounded-md bg-gray-900 px-3 py-2 text-sm text-white shadow-md animate-in fade-in-0 zoom-in-95"
+                      >
+                        Set up an external app or website URL to turn this on for users.
+                        <TooltipPrimitives.Arrow className="fill-gray-900" />
+                      </TooltipPrimitives.Content>
+                    </TooltipPrimitives.Portal>
+                  </TooltipPrimitives.Root>
+                </TooltipPrimitives.Provider>
+              ) : (
+                turnOnButton
+              )}
+            </div>
+          </DialogPrimitives.Content>
+        </DialogPrimitives.Overlay>
+      </DialogPrimitives.Portal>
+    </DialogPrimitives.Root>
+  );
+}
+
+/* -----------------------------------------------------------------------------
  * ExtAppFeatureSettingsDialog — Set up Launch URL + trigger for the
  * "Launch an external app for incoming calls" feature. Includes a
  * collapsible reference parameters table (Figma node 1981:38965).

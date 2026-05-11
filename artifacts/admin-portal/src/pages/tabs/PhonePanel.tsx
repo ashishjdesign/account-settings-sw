@@ -4,13 +4,12 @@ import {
   SettingCard,
   SpringFeatureEnableDialog,
   SpringConfirmDialog,
-  ExtAppFeatureSettingsDialog,
+  ExtAppFirstEnableCombinedDialog,
   ExtAppManageDialog,
   AutoAnswerManageDialog,
   AutoAnswerReEnableDialog,
   ConferenceManageDialog,
   ConferenceReEnableDialog,
-  SpringFirstEnableDialog,
   showToast,
 } from '../../components/shared';
 
@@ -26,14 +25,7 @@ export default function PhonePanel() {
   const [conferenceDisableOpen, setConferenceDisableOpen] = useState(false);
   const [extEnableOpen, setExtEnableOpen] = useState(false);
   const [extDisableOpen, setExtDisableOpen] = useState(false);
-  const [extSettingsOpen, setExtSettingsOpen] = useState(false);
   const [extManageOpen, setExtManageOpen] = useState(false);
-  // Stage the first-enable deployment choices until the user finishes (or
-  // skips) the follow-on settings dialog. Cancel must abort onboarding fully.
-  const [pendingEnable, setPendingEnable] = useState<
-    | { defaultVal: 'On' | 'Off'; allowChange: boolean }
-    | null
-  >(null);
 
   const handleSaveManage = (result: { defaultVal: 'On' | 'Off'; allowChange: boolean; delay: AutoAnswerDelay }) => {
     if (state.simulateError) {
@@ -197,21 +189,32 @@ export default function PhonePanel() {
         }}
       />
 
-      {/* Launch external app — first-time enable + Manage */}
-      {/* First-time enablement: bare-bones dialog (no user-count link, no
-          custom-users section). After the admin has completed onboarding once
-          (`everEnabled`), subsequent re-enables use the full deployment dialog
-          which validates custom users. */}
+      {/* Launch external app — first-time enable + Manage. The first-time
+          flow is now a single combined dialog (User deployment + Feature
+          settings on one screen). When the admin chose "Default: On" the
+          Turn on button is disabled (with a tooltip) until a Launch URL is
+          provided; when "Off" the URL is optional and Turn on stays
+          enabled. After the admin has completed onboarding once
+          (`everEnabled`), subsequent re-enables use the deployment-only
+          dialog because URL/trigger are preserved. */}
       {!extApp.everEnabled ? (
-        <SpringFirstEnableDialog
+        <ExtAppFirstEnableCombinedDialog
           open={extEnableOpen}
-          title="Turn on Launch an external app for incoming calls?"
-          body="This feature will be enabled for your account. Configure how it should be deployed to users below."
           onCancel={() => setExtEnableOpen(false)}
           onConfirm={(result) => {
-            setPendingEnable({ defaultVal: result.defaultVal, allowChange: result.allowChange });
+            dispatch({
+              type: 'PATCH_PHONE_EXT_APP',
+              payload: {
+                on: true,
+                defaultVal: result.defaultVal,
+                allowChange: result.allowChange,
+                launchUrl: result.launchUrl,
+                trigger: result.trigger,
+                everEnabled: true,
+              },
+            });
             setExtEnableOpen(false);
-            setExtSettingsOpen(true);
+            showToast('Launch an external app for incoming calls is on.');
           }}
         />
       ) : (
@@ -237,52 +240,6 @@ export default function PhonePanel() {
           }}
         />
       )}
-      <ExtAppFeatureSettingsDialog
-        open={extSettingsOpen}
-        initialUrl={extApp.launchUrl}
-        initialTrigger={extApp.trigger}
-        requireSave={pendingEnable?.defaultVal === 'On'}
-        onBack={() => {
-          // Back returns to the prior first-enable dialog, preserving the
-          // admin's deployment choices so they aren't re-entered.
-          setExtSettingsOpen(false);
-          setExtEnableOpen(true);
-        }}
-        onSkip={() => {
-          if (pendingEnable) {
-            dispatch({
-              type: 'PATCH_PHONE_EXT_APP',
-              payload: {
-                on: true,
-                defaultVal: pendingEnable.defaultVal,
-                allowChange: pendingEnable.allowChange,
-                everEnabled: true,
-              },
-            });
-          }
-          setPendingEnable(null);
-          setExtSettingsOpen(false);
-          showToast('Launch an external app for incoming calls is on.');
-        }}
-        onSave={(result) => {
-          dispatch({
-            type: 'PATCH_PHONE_EXT_APP',
-            payload: pendingEnable
-              ? {
-                  on: true,
-                  defaultVal: pendingEnable.defaultVal,
-                  allowChange: pendingEnable.allowChange,
-                  launchUrl: result.launchUrl,
-                  trigger: result.trigger,
-                  everEnabled: true,
-                }
-              : { launchUrl: result.launchUrl, trigger: result.trigger },
-          });
-          setPendingEnable(null);
-          setExtSettingsOpen(false);
-          showToast('Settings were saved.');
-        }}
-      />
       <ExtAppManageDialog
         open={extManageOpen}
         defaultVal={extApp.defaultVal}
