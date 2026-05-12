@@ -1,8 +1,7 @@
 import React from 'react';
-import { CaretDownMd } from '@ringcentral/spring-icon';
-import { Check } from 'lucide-react';
+import { CaretDownMd, InfoMd, CheckMd } from '@ringcentral/spring-icon';
 import { cn } from '../../lib/utils';
-import { InfoIcon, SpringSwitch } from '../../components/shared';
+import { SpringSwitch } from '../../components/shared';
 import type { AiRetentionPeriod } from '../../store';
 
 /* -----------------------------------------------------------------------------
@@ -265,7 +264,9 @@ export function RetentionConfirmDialog({
               </h2>
             </div>
             <div className="flex min-h-[48px] w-full items-center gap-2 rounded-[10px] border border-[var(--sui-colors-neutral-b2)] bg-[var(--sui-colors-neutral-b4)]/50 px-4 py-2 shadow-[0_10px_20px_-5px_rgba(0,0,0,0.1)] backdrop-blur-[10px]">
-              <InfoIcon />
+              <span className="flex h-5 w-5 shrink-0 items-center justify-center text-[var(--sui-colors-neutral-b0)]">
+                <InfoMd width={20} height={20} fill="currentColor" aria-hidden focusable={false} />
+              </span>
               <p className="flex-1 text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b0)]">
                 {snackbar}
               </p>
@@ -285,8 +286,7 @@ export function RetentionConfirmDialog({
             )}
           </div>
           <label className="flex w-[534px] max-w-full cursor-pointer items-start gap-2">
-            <button
-              type="button"
+            <span
               role="checkbox"
               aria-checked={acknowledged}
               onClick={() => setAcknowledged((v) => !v)}
@@ -297,8 +297,16 @@ export function RetentionConfirmDialog({
                   : 'border-[var(--sui-colors-neutral-b2)] bg-white',
               )}
             >
-              {acknowledged && <Check className="h-3 w-3" strokeWidth={3} />}
-            </button>
+              {acknowledged && (
+                <CheckMd width={14} height={14} fill="currentColor" aria-hidden focusable={false} />
+              )}
+            </span>
+            <input
+              type="checkbox"
+              className="sr-only"
+              checked={acknowledged}
+              onChange={(e) => setAcknowledged(e.target.checked)}
+            />
             <span className="flex-1 text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
               I understand this action may result in data loss.
             </span>
