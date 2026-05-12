@@ -87,7 +87,7 @@ export function SettingCard({
 
 export function SectionHeading({ children }: React.PropsWithChildren) {
   return (
-    <h2 className="mt-2 text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b2)]">
+    <h2 className="mt-4 text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b2)]">
       {children}
     </h2>
   );
