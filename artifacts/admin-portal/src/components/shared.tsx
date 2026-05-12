@@ -278,7 +278,7 @@ export function SettingCard({
   onResetOverrides?: () => void;
 }) {
   return (
-    <section className={cn("flex items-start gap-4 rounded-[8px] border border-[var(--sui-colors-neutral-b4)] bg-white p-4 transition-opacity", (!switchOn && summary) && "opacity-50")}>
+    <section className="flex items-start gap-4 rounded-[8px] border border-[var(--sui-colors-neutral-b4)] bg-white p-4">
       {icon && (
         <div className="flex h-[32px] items-center justify-center shrink-0 text-[var(--sui-colors-neutral-b1)]">
           {typeof icon === 'string' ? (
