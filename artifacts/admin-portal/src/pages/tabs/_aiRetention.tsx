@@ -109,13 +109,18 @@ export function RetentionPeriodSelect({
  * Custom storage duration select. Save is dirty-aware.
  * --------------------------------------------------------------------------- */
 export function ManageAiFeaturesDialog({
-  open, initialRetentionOn, initialPeriod, onCancel, onSave,
+  open, initialRetentionOn, initialPeriod, onCancel, onSave, onRequestTurnOn,
 }: {
   open: boolean;
   initialRetentionOn: boolean;
   initialPeriod: AiRetentionPeriod;
   onCancel: () => void;
   onSave: (next: { retentionOn: boolean; period: AiRetentionPeriod }) => void;
+  /** When the user flips the retention switch from off → on, the parent
+   * should open the "Turn on retention confirm" dialog overlaid on top of
+   * this modal. The toggle stays visually off until the parent confirms
+   * (which flips `initialRetentionOn` and re-syncs via useEffect). */
+  onRequestTurnOn?: (period: AiRetentionPeriod) => void;
 }) {
   const [retentionOn, setRetentionOn] = React.useState(initialRetentionOn);
   const [period, setPeriod] = React.useState<AiRetentionPeriod>(initialPeriod);
@@ -158,7 +163,16 @@ export function ManageAiFeaturesDialog({
                     </p>
                     <SpringSwitch
                       checked={retentionOn}
-                      onCheckedChange={setRetentionOn}
+                      onCheckedChange={(next) => {
+                        // off → on: defer to parent for the Turn-on confirm.
+                        // The local toggle stays off until the parent commits
+                        // and re-syncs `initialRetentionOn` via useEffect.
+                        if (next && !retentionOn && onRequestTurnOn) {
+                          onRequestTurnOn(period);
+                          return;
+                        }
+                        setRetentionOn(next);
+                      }}
                       aria-label="AI data custom retention period"
                     />
                   </div>

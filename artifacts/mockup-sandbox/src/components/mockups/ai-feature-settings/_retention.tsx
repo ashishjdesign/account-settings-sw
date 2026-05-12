@@ -126,12 +126,18 @@ export function ManageAiFeaturesDialog({
   initialPeriod,
   onCancel,
   onSave,
+  onRequestTurnOn,
 }: {
   open: boolean;
   initialRetentionOn: boolean;
   initialPeriod: RetentionValue;
   onCancel: () => void;
   onSave: (next: { retentionOn: boolean; period: RetentionValue }) => void;
+  /** When the user flips the retention switch from off → on, the parent
+   * should open the "Turn on retention confirm" dialog overlaid on top of
+   * this modal. The toggle stays visually off until the parent commits
+   * (which flips `initialRetentionOn` and re-syncs via useEffect). */
+  onRequestTurnOn?: (period: RetentionValue) => void;
 }) {
   const [retentionOn, setRetentionOn] = React.useState(initialRetentionOn);
   const [period, setPeriod] = React.useState<RetentionValue>(initialPeriod);
@@ -179,7 +185,16 @@ export function ManageAiFeaturesDialog({
                         AI data custom retention period
                       </p>
                     </div>
-                    <SpringSwitch on={retentionOn} onChange={setRetentionOn} />
+                    <SpringSwitch
+                      on={retentionOn}
+                      onChange={(next) => {
+                        if (next && !retentionOn && onRequestTurnOn) {
+                          onRequestTurnOn(period);
+                          return;
+                        }
+                        setRetentionOn(next);
+                      }}
+                    />
                   </div>
                   <div className="flex w-full items-center pr-[130px]">
                     <p className="flex-1 text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b2)]">

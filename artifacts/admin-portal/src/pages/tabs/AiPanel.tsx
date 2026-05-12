@@ -121,6 +121,11 @@ export default function AiPanel() {
   const [aiTurnOnConfirmOpen, setAiTurnOnConfirmOpen] = useState(false);
   const [aiChangeConfirmOpen, setAiChangeConfirmOpen] = useState(false);
 
+  // True when the turn-on confirm was triggered by the toggle inside the
+  // Manage modal (we keep the Manage modal open after committing, so the user
+  // sees the "retention enabled" state). False when triggered by Save.
+  const [turnOnFromToggle, setTurnOnFromToggle] = useState(false);
+
   const handleManageSave = ({
     retentionOn, period,
   }: { retentionOn: boolean; period: AiRetentionPeriod }) => {
@@ -133,7 +138,10 @@ export default function AiPanel() {
       return;
     }
     if (!wasOn && retentionOn) {
+      // Save with retention freshly toggled on (rare — the toggle normally
+      // intercepts via onRequestTurnOn, but kept as a safety net).
       setPending({ on: true, period });
+      setTurnOnFromToggle(false);
       setAiTurnOnConfirmOpen(true);
       return;
     }
@@ -152,10 +160,12 @@ export default function AiPanel() {
         payload: { on: pending.on, period: pending.period },
       });
     }
+    const keepManageOpen = aiTurnOnConfirmOpen && turnOnFromToggle;
     setPending(null);
     setAiTurnOnConfirmOpen(false);
     setAiChangeConfirmOpen(false);
-    setManageModal(null);
+    setTurnOnFromToggle(false);
+    if (!keepManageOpen) setManageModal(null);
     showToast('Settings were updated.', () => dispatch({ type: 'UNDO' }));
   };
 
@@ -297,6 +307,11 @@ export default function AiPanel() {
         initialPeriod={customRetention.period}
         onCancel={() => setManageModal(null)}
         onSave={handleManageSave}
+        onRequestTurnOn={(p) => {
+          setPending({ on: true, period: p });
+          setTurnOnFromToggle(true);
+          setAiTurnOnConfirmOpen(true);
+        }}
       />
 
       <RetentionConfirmDialog

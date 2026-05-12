@@ -82,11 +82,16 @@ export function ConceptSummaryAiV2ManageMainModal() {
       after={
         <div className="spring-scope">
           <ManageAiFeaturesDialog
-            open={step.kind === 'manage'}
+            open={
+              step.kind === 'manage' ||
+              step.kind === 'turn-on-confirm' ||
+              step.kind === 'change-confirm'
+            }
             initialRetentionOn={retentionOn}
             initialPeriod={period}
             onCancel={() => setStep({ kind: 'closed' })}
             onSave={handleManageSave}
+            onRequestTurnOn={(p) => setStep({ kind: 'turn-on-confirm', pendingPeriod: p })}
           />
 
           <TurnOnRetentionConfirmDialog
