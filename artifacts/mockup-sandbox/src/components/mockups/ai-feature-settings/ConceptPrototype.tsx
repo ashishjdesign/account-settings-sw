@@ -9,6 +9,7 @@ import {
 import * as SwitchPrimitives from '@radix-ui/react-switch';
 import { cn } from '@/lib/utils';
 import { SpringEnableDialog, SpringManageDialogV2 } from './ConceptGuidesEnable';
+import { RetentionPeriodSelect, RETENTION_PERIODS, type RetentionValue } from './_retention';
 
 /* -----------------------------------------------------------------------------
  * Scoped tokens — Service Web UI Library (chrome) and Spring DS (content panel)
@@ -554,7 +555,17 @@ function PhonePanel() {
   );
 }
 
-function AiPanel({ onManage }: { onManage: (k: 'ai-features' | 'ai-assistant' | 'auto-call-notes') => void }) {
+function AiPanel({
+  onManage,
+  retentionOn,
+  retentionPeriod,
+}: {
+  onManage: (k: 'ai-features' | 'ai-assistant' | 'auto-call-notes') => void;
+  retentionOn: boolean;
+  retentionPeriod: RetentionValue;
+}) {
+  const periodLabel = RETENTION_PERIODS.find((p) => p.value === retentionPeriod)?.label
+    ?? `${retentionPeriod} days`;
   return (
     <div className="flex flex-col gap-4">
       <SettingCard
@@ -563,7 +574,10 @@ function AiPanel({ onManage }: { onManage: (k: 'ai-features' | 'ai-assistant' | 
         icon="ai-stars"
         description="Turn on AI support for calls, messages and video meetings. Deliver real-time answers, call notes, transcripts and meeting recaps to help teams stay focused and organized. Empower users to communicate clearly with built-in writing and polishing tools."
         summary={[
-          { label: 'Data retention period:', value: '365 days' },
+          {
+            label: 'AI data custom retention period:',
+            value: retentionOn ? periodLabel : 'Disabled',
+          },
         ]}
         onManage={() => onManage('ai-features')}
       />
@@ -660,6 +674,16 @@ export function ConceptPrototype() {
   const [guidesDisableConfirmOpen, setGuidesDisableConfirmOpen] = React.useState(false);
   const [guidesEnableConfirmOpen, setGuidesEnableConfirmOpen] = React.useState(false);
   const [guidesManageOpen, setGuidesManageOpen] = React.useState(false);
+
+  // AI features — custom data retention
+  const [aiRetentionOn, setAiRetentionOn] = React.useState(false);
+  const [aiRetentionPeriod, setAiRetentionPeriod] = React.useState<RetentionValue>('365');
+  const [aiManageOpen, setAiManageOpen] = React.useState(false);
+  // Pending values awaiting confirm dialog approval
+  const pendingRef = React.useRef<{ on: boolean; period: RetentionValue } | null>(null);
+  const [aiTurnOnConfirmOpen, setAiTurnOnConfirmOpen] = React.useState(false);
+  const [aiChangeConfirmOpen, setAiChangeConfirmOpen] = React.useState(false);
+
   const [toastOpen, setToastOpen] = React.useState(false);
   const toastTimerRef = React.useRef<number | null>(null);
 
@@ -770,7 +794,16 @@ export function ConceptPrototype() {
               />
             )}
             {tab === 'phone' && <PhonePanel />}
-            {tab === 'ai' && <AiPanel onManage={(k) => setModal(k)} />}
+            {tab === 'ai' && (
+              <AiPanel
+                onManage={(k) => {
+                  if (k === 'ai-features') setAiManageOpen(true);
+                  else setModal(k);
+                }}
+                retentionOn={aiRetentionOn}
+                retentionPeriod={aiRetentionPeriod}
+              />
+            )}
             {tab === 'sms' && <SmsPanel />}
             {tab === 'fax' && <FaxPanel />}
 
@@ -786,16 +819,81 @@ export function ConceptPrototype() {
 
       {/* Modals (Spring scope so tokens resolve) */}
       <div className="spring-scope">
-        <SpringDialog
-          open={modal === 'ai-features'}
-          title="Manage AI features"
-          onClose={() => setModal(null)}
-        >
-          <SubRow>
-            <LabelWithInfo>AI notes and transcriptions retention period</LabelWithInfo>
-            <SpringSelect value="365 days (Default)" width={200} />
-          </SubRow>
-        </SpringDialog>
+        <ManageAiFeaturesDialog
+          open={aiManageOpen}
+          initialRetentionOn={aiRetentionOn}
+          initialPeriod={aiRetentionPeriod}
+          onCancel={() => setAiManageOpen(false)}
+          onSave={({ retentionOn, period }) => {
+            const wasOn = aiRetentionOn;
+            // Turning OFF — commit directly
+            if (wasOn && !retentionOn) {
+              setAiRetentionOn(false);
+              setAiManageOpen(false);
+              showToast();
+              return;
+            }
+            // Turning ON from OFF — confirm
+            if (!wasOn && retentionOn) {
+              pendingRef.current = { on: true, period };
+              setAiTurnOnConfirmOpen(true);
+              return;
+            }
+            // Already on, period changed — confirm
+            if (wasOn && retentionOn && period !== aiRetentionPeriod) {
+              pendingRef.current = { on: true, period };
+              setAiChangeConfirmOpen(true);
+              return;
+            }
+            // No effective change — just close
+            setAiManageOpen(false);
+          }}
+        />
+
+        <RetentionConfirmDialog
+          open={aiTurnOnConfirmOpen}
+          variant="turn-on"
+          period={pendingRef.current?.period ?? aiRetentionPeriod}
+          onPeriodChange={(p) => {
+            if (pendingRef.current) pendingRef.current.period = p;
+          }}
+          onCancel={() => {
+            setAiTurnOnConfirmOpen(false);
+            pendingRef.current = null;
+          }}
+          onConfirm={() => {
+            const p = pendingRef.current;
+            if (p) {
+              setAiRetentionOn(p.on);
+              setAiRetentionPeriod(p.period);
+            }
+            pendingRef.current = null;
+            setAiTurnOnConfirmOpen(false);
+            setAiManageOpen(false);
+            showToast();
+          }}
+        />
+
+        <RetentionConfirmDialog
+          open={aiChangeConfirmOpen}
+          variant="change"
+          period={pendingRef.current?.period ?? aiRetentionPeriod}
+          onCancel={() => {
+            setAiChangeConfirmOpen(false);
+            pendingRef.current = null;
+          }}
+          onConfirm={() => {
+            const p = pendingRef.current;
+            if (p) {
+              setAiRetentionOn(p.on);
+              setAiRetentionPeriod(p.period);
+            }
+            pendingRef.current = null;
+            setAiChangeConfirmOpen(false);
+            setAiManageOpen(false);
+            showToast();
+          }}
+        />
 
         <SpringDialog
           open={modal === 'ai-assistant'}
@@ -885,6 +983,235 @@ export function ConceptPrototype() {
 
       {/* Success toast (Service Web style) */}
       <SuccessToast open={toastOpen} message="Settings were updated." />
+    </div>
+  );
+}
+
+/* -----------------------------------------------------------------------------
+ * Manage AI features dialog — Figma 1969-7046 / 2015-10201
+ *
+ * Hosts the "AI data custom retention period" toggle and, when on, the
+ * Custom storage duration select. Save is dirty-aware (toggling the switch
+ * or changing the period both light it up).
+ * --------------------------------------------------------------------------- */
+function ManageAiFeaturesDialog({
+  open, initialRetentionOn, initialPeriod, onCancel, onSave,
+}: {
+  open: boolean;
+  initialRetentionOn: boolean;
+  initialPeriod: RetentionValue;
+  onCancel: () => void;
+  onSave: (next: { retentionOn: boolean; period: RetentionValue }) => void;
+}) {
+  const [retentionOn, setRetentionOn] = React.useState(initialRetentionOn);
+  const [period, setPeriod] = React.useState<RetentionValue>(initialPeriod);
+  React.useEffect(() => {
+    if (open) {
+      setRetentionOn(initialRetentionOn);
+      setPeriod(initialPeriod);
+    }
+  }, [open, initialRetentionOn, initialPeriod]);
+  if (!open) return null;
+  const dirty = retentionOn !== initialRetentionOn || period !== initialPeriod;
+  return (
+    <div className="absolute inset-0 z-50 flex items-start justify-center pt-24">
+      <div className="absolute inset-0 bg-black/40" onClick={onCancel} aria-hidden="true" />
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="manage-ai-features-title"
+        className="relative z-10 flex w-[820px] max-w-[calc(100%-32px)] flex-col rounded-[10px] bg-white shadow-[0_10px_10px_rgba(0,0,0,0.2)]"
+      >
+        <div className="flex flex-col gap-8 px-6 pb-10 pt-9">
+          <div className="flex flex-col gap-6">
+            <div className="flex items-start py-3">
+              <h2
+                id="manage-ai-features-title"
+                className="flex-1 text-[24px] font-normal leading-[32px] text-[var(--sui-colors-neutral-b0)]"
+              >
+                Manage AI features
+              </h2>
+            </div>
+            <div className="flex flex-col gap-2">
+              <p className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b2)]">
+                Feature settings
+              </p>
+              <div className="flex flex-col gap-4 rounded-[8px] border border-[var(--sui-colors-neutral-b4)] p-4">
+                <div className="flex w-full flex-col items-start justify-center gap-1">
+                  <div className="flex min-h-[32px] w-full items-center gap-4">
+                    <p className="flex-1 text-[15px] font-bold leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                      AI data custom retention period
+                    </p>
+                    <SpringSwitch
+                      checked={retentionOn}
+                      onCheckedChange={setRetentionOn}
+                      aria-label="AI data custom retention period"
+                    />
+                  </div>
+                  <div className="flex w-full items-center pr-[130px]">
+                    <p className="flex-1 text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b2)]">
+                      Enable custom data retention to set an AI-specific storage period including AI notes and transcriptions.{' '}
+                      <a
+                        href="#"
+                        onClick={(e) => e.preventDefault()}
+                        className="text-[var(--sui-colors-primary-b)] underline"
+                      >
+                        Learn more
+                      </a>
+                    </p>
+                  </div>
+                </div>
+                {retentionOn && (
+                  <div className="flex w-full items-center border-t border-[var(--sui-colors-neutral-b4)] pt-4">
+                    <div className="flex flex-1 items-center justify-between">
+                      <p className="text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                        Custom storage duration
+                      </p>
+                      <RetentionPeriodSelect value={period} onChange={setPeriod} />
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="flex w-full items-start justify-end overflow-clip border-t border-[#DDDFE5]/50 px-6 pt-5">
+          <div className="flex flex-1 items-center justify-end">
+            <div className="flex items-center gap-2 pb-5">
+              <button
+                type="button"
+                onClick={onCancel}
+                className="inline-flex h-[36px] min-w-[60px] cursor-pointer items-center justify-center rounded-[10px] border border-[var(--sui-colors-neutral-b0)]/20 bg-white px-4 text-[15px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b0)] transition-colors hover:bg-[var(--sui-colors-neutral-b4)]/40"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => onSave({ retentionOn, period })}
+                disabled={!dirty}
+                className={cn(
+                  'inline-flex h-[36px] min-w-[60px] items-center justify-center rounded-[10px] px-4 text-[15px] font-medium leading-[20px] text-white transition-colors',
+                  dirty
+                    ? 'cursor-pointer bg-[var(--sui-colors-primary-b)] hover:bg-[var(--sui-colors-primary-b-high-contrast)]'
+                    : 'cursor-not-allowed bg-[var(--sui-colors-neutral-b3)]',
+                )}
+              >
+                Save
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* -----------------------------------------------------------------------------
+ * Retention confirm dialog — Figma 2015-10396 (turn-on) / 2030-40238 (change)
+ * --------------------------------------------------------------------------- */
+function RetentionConfirmDialog({
+  open, variant, period, onPeriodChange, onCancel, onConfirm,
+}: {
+  open: boolean;
+  variant: 'turn-on' | 'change';
+  period: RetentionValue;
+  onPeriodChange?: (next: RetentionValue) => void;
+  onCancel: () => void;
+  onConfirm: () => void;
+}) {
+  const [acknowledged, setAcknowledged] = React.useState(false);
+  React.useEffect(() => { if (open) setAcknowledged(false); }, [open]);
+  if (!open) return null;
+  const isTurnOn = variant === 'turn-on';
+  const title = isTurnOn
+    ? 'Turn on AI data custom retention period for AI features?'
+    : 'Change custom retention period for AI features?';
+  const snackbar = isTurnOn
+    ? 'Setting a custom retention period may permanently delete older AI data.'
+    : 'Changing a custom retention period may permanently delete older AI data.';
+  const confirmLabel = isTurnOn ? 'Turn on' : 'Confirm';
+  return (
+    <div className="absolute inset-0 z-[60] flex items-start justify-center pt-24">
+      <div className="absolute inset-0 bg-black/40" onClick={onCancel} aria-hidden="true" />
+      <div
+        role="dialog"
+        aria-modal="true"
+        className="relative z-10 flex w-[820px] max-w-[calc(100%-32px)] flex-col rounded-[10px] bg-white shadow-[0_10px_10px_rgba(0,0,0,0.2)]"
+      >
+        <div className="flex flex-col gap-8 px-6 pb-[60px] pt-9">
+          <div className="flex flex-col gap-8">
+            <div className="flex items-start py-3">
+              <h2 className="flex-1 text-[24px] font-normal leading-[32px] text-[var(--sui-colors-neutral-b0)]">
+                {title}
+              </h2>
+            </div>
+            <div className="flex min-h-[48px] w-full items-center gap-2 rounded-[10px] border border-[var(--sui-colors-neutral-b2)] bg-[var(--sui-colors-neutral-b4)]/50 px-4 py-2 shadow-[0_10px_20px_-5px_rgba(0,0,0,0.1)] backdrop-blur-[10px]">
+              <InfoIcon />
+              <p className="flex-1 text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b0)]">
+                {snackbar}
+              </p>
+            </div>
+            <p className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+              Selecting a shorter retention period than your current policy may result in the removal of previously stored AI data that falls outside the new limit.
+            </p>
+            {isTurnOn && onPeriodChange && (
+              <div className="flex w-full flex-col gap-4 rounded-[8px] border border-[var(--sui-colors-neutral-b4)] p-4">
+                <div className="flex w-full items-center justify-between">
+                  <p className="text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                    Custom storage duration
+                  </p>
+                  <RetentionPeriodSelect value={period} onChange={onPeriodChange} />
+                </div>
+              </div>
+            )}
+          </div>
+          <label className="flex w-[534px] max-w-full cursor-pointer items-start gap-2">
+            <button
+              type="button"
+              role="checkbox"
+              aria-checked={acknowledged}
+              onClick={() => setAcknowledged((v) => !v)}
+              className={cn(
+                'mt-px flex h-5 w-5 shrink-0 items-center justify-center rounded-[4px] border-[1.2px] transition-colors',
+                acknowledged
+                  ? 'border-[var(--sui-colors-primary-b)] bg-[var(--sui-colors-primary-b)] text-white'
+                  : 'border-[var(--sui-colors-neutral-b2)] bg-white',
+              )}
+            >
+              {acknowledged && <Check className="h-3 w-3" strokeWidth={3} />}
+            </button>
+            <span className="flex-1 text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+              I understand this action may result in data loss.
+            </span>
+          </label>
+        </div>
+        <div className="flex w-full items-start justify-end overflow-clip border-t border-[#DDDFE5]/50 px-6 pt-5">
+          <div className="flex flex-1 items-center justify-end">
+            <div className="flex items-center gap-2 pb-5">
+              <button
+                type="button"
+                onClick={onCancel}
+                className="inline-flex h-[36px] min-w-[60px] cursor-pointer items-center justify-center rounded-[10px] border border-[var(--sui-colors-neutral-b4)] bg-white px-[18px] text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b0)] transition-colors hover:bg-[var(--sui-colors-neutral-b4)]/40"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={onConfirm}
+                disabled={!acknowledged}
+                className={cn(
+                  'inline-flex h-[36px] min-w-[60px] items-center justify-center rounded-[10px] px-4 text-[15px] font-medium leading-[20px] text-white transition-colors',
+                  acknowledged
+                    ? 'cursor-pointer bg-[var(--sui-colors-primary-b)] hover:bg-[var(--sui-colors-primary-b-high-contrast)]'
+                    : 'cursor-not-allowed bg-[var(--sui-colors-neutral-b3)]',
+                )}
+              >
+                {confirmLabel}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
