@@ -13,14 +13,11 @@ import {
 } from '@ringcentral/spring-icon';
 import { FeatureSettingsShell } from './_shared';
 import { PillTabs, SettingCard, SectionHeading } from './_chrome';
+import { RetentionPeriodSelect, RETENTION_PERIODS } from './_retention';
 
 /* -----------------------------------------------------------------------------
  * AI Feature Settings — V2 — "Manage AI features" modal, retention enabled
- * (Figma 1969-7046)
- *
- * Same modal as ConceptSummaryAiV2ManageMainModal but with the
- * "AI data custom retention period" toggle ON, which reveals a second row
- * with a "Custom storage duration" select defaulted to "365 days (Default)".
+ * (Figma 1969-7046, popper Figma 2015-39944)
  * --------------------------------------------------------------------------- */
 
 type IconCmp = React.ComponentType<React.SVGProps<SVGSVGElement>>;
@@ -49,14 +46,15 @@ function SpringSwitch({ on }: { on: boolean }) {
 }
 
 function ManageAiFeaturesDialog({
-  open, onCancel, onSave, dirty = false,
+  open, onCancel, onSave,
 }: {
   open: boolean;
   onCancel: () => void;
   onSave: () => void;
-  dirty?: boolean;
 }) {
+  const [period, setPeriod] = React.useState(RETENTION_PERIODS[0].value);
   if (!open) return null;
+  const dirty = period !== RETENTION_PERIODS[0].value;
   return (
     <div className="absolute inset-0 z-50 flex items-start justify-center pt-24">
       <div className="absolute inset-0 bg-black/40" onClick={onCancel} aria-hidden="true" />
@@ -66,7 +64,7 @@ function ManageAiFeaturesDialog({
         aria-labelledby="manage-ai-features-title"
         className="relative z-10 flex w-[820px] max-w-[calc(100%-32px)] flex-col rounded-[10px] bg-white shadow-[0_10px_10px_rgba(0,0,0,0.2)]"
       >
-        <div className="flex flex-col gap-8 overflow-y-auto px-6 pb-10 pt-9">
+        <div className="flex flex-col gap-8 overflow-visible px-6 pb-10 pt-9">
           <div className="flex flex-col gap-6">
             <div className="flex items-start py-3">
               <h2
@@ -111,18 +109,7 @@ function ManageAiFeaturesDialog({
                     <p className="text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b1)]">
                       Custom storage duration
                     </p>
-                    <button
-                      type="button"
-                      onClick={(e) => e.preventDefault()}
-                      className="flex h-[32px] w-[200px] cursor-pointer items-center rounded-[10px] border border-[var(--sui-colors-neutral-b0)]/20 bg-white pl-[10px] pr-[6px] text-left transition-colors hover:bg-[var(--sui-colors-neutral-b4)]/30"
-                    >
-                      <span className="flex-1 text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b0)]">
-                        365 days (Default)
-                      </span>
-                      <span className="flex h-[24px] w-[24px] items-center justify-center text-[var(--sui-colors-neutral-b1)]">
-                        <CaretDownMd width={16} height={16} fill="currentColor" aria-hidden focusable={false} />
-                      </span>
-                    </button>
+                    <RetentionPeriodSelect value={period} onChange={setPeriod} />
                   </div>
                 </div>
               </div>
@@ -163,6 +150,8 @@ function ManageAiFeaturesDialog({
 
 export function ConceptSummaryAiV2ManageMainModalEnabled() {
   const [open, setOpen] = React.useState(true);
+  // Suppress unused-import warnings (kept for visual parity with siblings).
+  void CaretDownMd;
 
   return (
     <FeatureSettingsShell
@@ -172,7 +161,6 @@ export function ConceptSummaryAiV2ManageMainModalEnabled() {
         <div className="spring-scope">
           <ManageAiFeaturesDialog
             open={open}
-            dirty={false}
             onCancel={() => setOpen(false)}
             onSave={() => setOpen(false)}
           />
