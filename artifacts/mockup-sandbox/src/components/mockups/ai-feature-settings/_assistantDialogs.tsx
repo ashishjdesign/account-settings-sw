@@ -349,12 +349,17 @@ export function AssistantManageDefaultOffConfirm({
  * --------------------------------------------------------------------------- */
 
 export function FeatureDisableConfirm({
-  open, featureName, onCancel, onConfirm,
+  open, featureName, onCancel, onConfirm, dependentNote,
 }: {
   open: boolean;
   featureName: string;
   onCancel: () => void;
   onConfirm: () => void;
+  /**
+   * Optional note rendered after the standard paragraph — used to call out
+   * dependent features that will also be turned off (e.g. Email-to-Fax for Fax).
+   */
+  dependentNote?: React.ReactNode;
 }) {
   return (
     <DialogShell open={open} ariaLabel={`Turn off ${featureName}`} onClose={onCancel} width={620}>
@@ -362,10 +367,15 @@ export function FeatureDisableConfirm({
         <h2 className="py-3 text-[24px] font-normal leading-[32px] text-[var(--sui-colors-neutral-b0)]">
           Turn off {featureName} for your organization?
         </h2>
-        <p className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
-          This feature will be turned off for your account and no longer available to users.
-          When turned back on, previous user settings can be restored.
-        </p>
+        {/* The two paragraphs sit close together (Figma); the outer gap-6 stays
+            so the title↔body rhythm matches the rest of the disable confirms. */}
+        <div className="flex flex-col gap-2 text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+          <p>
+            This feature will be turned off for your account and no longer available to users.
+            When turned back on, previous user settings can be restored.
+          </p>
+          {dependentNote && <p>{dependentNote}</p>}
+        </div>
       </div>
       <DialogFooter onCancel={onCancel} onConfirm={onConfirm} confirmLabel="Turn off" />
     </DialogShell>
