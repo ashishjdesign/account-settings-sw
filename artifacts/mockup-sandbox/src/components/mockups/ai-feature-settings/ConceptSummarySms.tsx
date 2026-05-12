@@ -74,16 +74,16 @@ const SpringSwitch = React.forwardRef<
       'peer inline-flex h-[24px] w-[40px] shrink-0 cursor-pointer items-center rounded-full transition-colors',
       'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sui-colors-primary-b-high-contrast)] focus-visible:ring-offset-2',
       'data-[state=checked]:bg-[var(--sui-colors-primary-b)] data-[state=unchecked]:bg-[var(--sui-colors-neutral-b3)]',
-      // Disabled: keep thumb at full opacity, soften only the track. Checked-disabled
-      // becomes a light blue (not washed grey); unchecked-disabled stays a pale grey.
+      // Disabled: track = primary blue @ 60%, thumb = white @ 60% (per spec).
       'disabled:cursor-not-allowed',
-      'disabled:data-[state=checked]:bg-[#a8d4eb]',
-      'disabled:data-[state=unchecked]:bg-[var(--sui-colors-neutral-b4)]',
+      'disabled:data-[state=checked]:bg-[var(--sui-colors-primary-b)]/60',
+      'disabled:data-[state=unchecked]:bg-[var(--sui-colors-neutral-b3)]/60',
+      'group',
       className,
     )}
     {...props}
   >
-    <SwitchPrimitives.Thumb className="pointer-events-none block h-[20px] w-[20px] rounded-full bg-white shadow-sm transition-transform data-[state=checked]:translate-x-[18px] data-[state=unchecked]:translate-x-[2px]" />
+    <SwitchPrimitives.Thumb className="pointer-events-none block h-[20px] w-[20px] rounded-full bg-white shadow-sm transition-transform data-[state=checked]:translate-x-[18px] data-[state=unchecked]:translate-x-[2px] group-disabled:bg-white/60" />
   </SwitchPrimitives.Root>
 ));
 SpringSwitch.displayName = 'SpringSwitch';
