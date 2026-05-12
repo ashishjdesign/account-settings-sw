@@ -94,13 +94,15 @@ export function ConceptSummaryAiV2DisableConfirm() {
             body={
               <>
                 <p>This will disable all AI features across your entire account and hide it from all users.</p>
-                <p>
-                  <span className="font-bold">AI Assistant </span>
-                  with <span className="font-bold">phone, chat </span>
-                  and <span className="font-bold">SMS AI features </span>
-                  will also be turned off.
-                </p>
-                <p>If you turn it back on, previous user settings will be restored.</p>
+                <div className="flex flex-col gap-0">
+                  <p>
+                    <span className="font-bold">AI Assistant </span>
+                    with <span className="font-bold">phone, chat </span>
+                    and <span className="font-bold">SMS AI features </span>
+                    will also be turned off.
+                  </p>
+                  <p>If you turn it back on, previous user settings will be restored.</p>
+                </div>
               </>
             }
             onCancel={() => setConfirmOpen(false)}
