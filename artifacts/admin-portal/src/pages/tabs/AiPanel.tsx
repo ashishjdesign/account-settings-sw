@@ -298,22 +298,32 @@ export default function AiPanel() {
             switchOn={aiAssistant.on}
             icon={<SpringIcon as={AiLightBulbMd} />}
             description="A personal assistant that helps you boost productivity."
-            summary={[
-              { label: 'User default:', value: aiAssistant.defaultVal },
-              { label: 'User access:', value: aiAssistant.allowChange ? 'Allowed' : 'Restricted' },
-            ]}
+            summary={
+              aiAssistant.on
+                ? [
+                    { label: 'User default:', value: aiAssistant.defaultVal },
+                    { label: 'User access:', value: aiAssistant.allowChange ? 'Allowed' : 'Restricted' },
+                  ]
+                : undefined
+            }
             onManage={() => setManageModal('aiAssistant')}
             onSwitchClick={handleAssistantToggle}
           />
 
-          <GroupLabel>Phone</GroupLabel>
-          {PHONE_ITEMS.map(renderFeatureCard)}
+          {/* Phone / Chat / SMS sub-features depend on AI Assistant — hidden
+           * entirely when the assistant is off, mirroring the master toggle. */}
+          {aiAssistant.on && (
+            <>
+              <GroupLabel>Phone</GroupLabel>
+              {PHONE_ITEMS.map(renderFeatureCard)}
 
-          <GroupLabel>Chat</GroupLabel>
-          {CHAT_ITEMS.map(renderFeatureCard)}
+              <GroupLabel>Chat</GroupLabel>
+              {CHAT_ITEMS.map(renderFeatureCard)}
 
-          <GroupLabel>SMS</GroupLabel>
-          {SMS_ITEMS.map(renderFeatureCard)}
+              <GroupLabel>SMS</GroupLabel>
+              {SMS_ITEMS.map(renderFeatureCard)}
+            </>
+          )}
         </>
       )}
 
