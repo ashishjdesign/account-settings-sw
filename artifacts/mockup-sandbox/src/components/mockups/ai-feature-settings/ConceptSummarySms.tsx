@@ -74,7 +74,11 @@ const SpringSwitch = React.forwardRef<
       'peer inline-flex h-[24px] w-[40px] shrink-0 cursor-pointer items-center rounded-full transition-colors',
       'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sui-colors-primary-b-high-contrast)] focus-visible:ring-offset-2',
       'data-[state=checked]:bg-[var(--sui-colors-primary-b)] data-[state=unchecked]:bg-[var(--sui-colors-neutral-b3)]',
-      'disabled:cursor-not-allowed disabled:opacity-40',
+      // Disabled: keep thumb at full opacity, soften only the track. Checked-disabled
+      // becomes a light blue (not washed grey); unchecked-disabled stays a pale grey.
+      'disabled:cursor-not-allowed',
+      'disabled:data-[state=checked]:bg-[#a8d4eb]',
+      'disabled:data-[state=unchecked]:bg-[var(--sui-colors-neutral-b4)]',
       className,
     )}
     {...props}
@@ -220,17 +224,21 @@ function SettingCard({
           <h3 className="flex-1 truncate text-[15px] font-bold leading-[20px] text-[var(--sui-colors-neutral-b1)]">
             {title}
           </h3>
-          {info && (
-            <button
-              type="button"
-              aria-label={infoTooltip ?? `More info about ${title}`}
-              title={infoTooltip}
-              className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[var(--sui-colors-neutral-b2)] transition-colors hover:text-[var(--sui-colors-neutral-b1)] focus:outline-none focus:ring-2 focus:ring-[var(--sui-colors-primary-b)]/30"
-            >
-              <InfoIcon />
-            </button>
-          )}
-          <SpringSwitch checked={switchOn} disabled={disabled} aria-label={title} />
+          {/* Info + switch live in a tight cluster so the tooltip sits right next
+              to the toggle (matches Figma 2040-41982). */}
+          <div className="flex shrink-0 items-center gap-2">
+            {info && (
+              <button
+                type="button"
+                aria-label={infoTooltip ?? `More info about ${title}`}
+                title={infoTooltip}
+                className="flex h-6 w-6 items-center justify-center rounded-full text-[var(--sui-colors-neutral-b2)] transition-colors hover:text-[var(--sui-colors-neutral-b1)] focus:outline-none focus:ring-2 focus:ring-[var(--sui-colors-primary-b)]/30"
+              >
+                <InfoIcon />
+              </button>
+            )}
+            <SpringSwitch checked={switchOn} disabled={disabled} aria-label={title} />
+          </div>
         </div>
 
         <p className="pr-[130px] text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b2)]">
