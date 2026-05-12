@@ -23,6 +23,7 @@ import {
   RetentionConfirmDialog,
   periodLabel,
 } from './_aiRetention';
+import { AssistantEnableConfirmDialog } from './_assistantConfirms';
 
 /* Spring DS icons render as 32×32 SVG with no fill — render at 20×20 with
  * fill="currentColor" so they inherit the SettingCard icon-slot color. */
@@ -113,6 +114,8 @@ export default function AiPanel() {
   const customRetention = state.ai.customRetention;
   const [masterConfirmOpen, setMasterConfirmOpen] = useState(false);
   const [masterEnableConfirmOpen, setMasterEnableConfirmOpen] = useState(false);
+  const [assistantDisableConfirmOpen, setAssistantDisableConfirmOpen] = useState(false);
+  const [assistantEnableConfirmOpen, setAssistantEnableConfirmOpen] = useState(false);
   const [manageModal, setManageModal] = useState<'aiFeatures' | 'aiAssistant' | null>(null);
 
   // Pending values awaiting confirm-dialog approval (turn-on / change).
@@ -203,6 +206,39 @@ export default function AiPanel() {
     showToast('AI features turned on', () => dispatch({ type: 'UNDO' }));
   };
 
+  const handleAssistantToggle = () => {
+    if (aiAssistant.on) {
+      setAssistantDisableConfirmOpen(true);
+    } else {
+      setAssistantEnableConfirmOpen(true);
+    }
+  };
+
+  const confirmAssistantOff = () => {
+    dispatch({ type: 'PATCH_AI_ASSISTANT', payload: { on: false } });
+    setAssistantDisableConfirmOpen(false);
+    showToast('AI Assistant turned off', () => dispatch({ type: 'UNDO' }));
+  };
+
+  const confirmAssistantOn = (result: {
+    defaultVal: 'On' | 'Off';
+    allowChange: boolean;
+    customAction: 'reset' | 'restore';
+  }) => {
+    dispatch({
+      type: 'PATCH_AI_ASSISTANT',
+      payload: {
+        on: true,
+        defaultVal: result.defaultVal,
+        allowChange: result.allowChange,
+        // 'reset' clears custom-user overrides; 'restore' keeps them
+        customUsers: result.customAction === 'reset' ? 0 : aiAssistant.customUsers,
+      },
+    });
+    setAssistantEnableConfirmOpen(false);
+    showToast('AI Assistant turned on', () => dispatch({ type: 'UNDO' }));
+  };
+
   const toggleSubFeature = (key: Exclude<AiFeatureKey, 'aiAssistant'>, label: string) => {
     if (!masterOn) return;
     const cur = state.ai[key].on;
@@ -267,21 +303,23 @@ export default function AiPanel() {
               { label: 'User access:', value: aiAssistant.allowChange ? 'Allowed' : 'Restricted' },
             ]}
             onManage={() => setManageModal('aiAssistant')}
-            onSwitchClick={() => {
-              const cur = aiAssistant.on;
-              dispatch({ type: 'PATCH_AI_ASSISTANT', payload: { on: !cur } });
-              showToast(`AI Assistant turned ${cur ? 'off' : 'on'}`, () => dispatch({ type: 'UNDO' }));
-            }}
+            onSwitchClick={handleAssistantToggle}
           />
 
-          <GroupLabel>Phone</GroupLabel>
-          {PHONE_ITEMS.map(renderFeatureCard)}
+          {/* Phone / Chat / SMS AI features depend on AI Assistant — when it's
+           * off the entire group disappears (mirrors the master toggle). */}
+          {aiAssistant.on && (
+            <>
+              <GroupLabel>Phone</GroupLabel>
+              {PHONE_ITEMS.map(renderFeatureCard)}
 
-          <GroupLabel>Chat</GroupLabel>
-          {CHAT_ITEMS.map(renderFeatureCard)}
+              <GroupLabel>Chat</GroupLabel>
+              {CHAT_ITEMS.map(renderFeatureCard)}
 
-          <GroupLabel>SMS</GroupLabel>
-          {SMS_ITEMS.map(renderFeatureCard)}
+              <GroupLabel>SMS</GroupLabel>
+              {SMS_ITEMS.map(renderFeatureCard)}
+            </>
+          )}
         </>
       )}
 
@@ -354,9 +392,38 @@ export default function AiPanel() {
         onConfirm={commitPending}
       />
 
+      <SpringConfirmDialog
+        open={assistantDisableConfirmOpen}
+        confirmLabel="Turn off"
+        title={<>Turn off AI Assistant for your organization?</>}
+        body={
+          <>
+            <p>
+              This feature will be turned off for your account and no longer available to users.
+              When turned back on, previous user settings can be restored.
+            </p>
+            <p>
+              <span className="font-bold">Phone, chat</span> and{' '}
+              <span className="font-bold">SMS AI features</span> will also be turned off.
+            </p>
+          </>
+        }
+        onCancel={() => setAssistantDisableConfirmOpen(false)}
+        onConfirm={confirmAssistantOff}
+      />
+
+      <AssistantEnableConfirmDialog
+        open={assistantEnableConfirmOpen}
+        initialDefaultVal={aiAssistant.defaultVal}
+        initialAllowChange={aiAssistant.allowChange}
+        customCount={aiAssistant.customUsers}
+        onCancel={() => setAssistantEnableConfirmOpen(false)}
+        onConfirm={confirmAssistantOn}
+      />
+
       <SpringFeatureManageDialog
         open={manageModal === 'aiAssistant'}
-        title="Manage AI Assistant settings"
+        title="Manage AI Assistant"
         defaultVal={aiAssistant.defaultVal}
         allowChange={aiAssistant.allowChange}
         customCount={aiAssistant.customUsers}
