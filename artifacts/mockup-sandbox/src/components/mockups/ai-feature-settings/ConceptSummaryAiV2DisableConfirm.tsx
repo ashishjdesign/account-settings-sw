@@ -91,6 +91,7 @@ export function ConceptSummaryAiV2DisableConfirm() {
             open={confirmOpen}
             confirmLabel="Confirm"
             title={<><span className="font-normal">Turn off </span><span className="font-normal">AI features</span><span className="font-normal"> for your organization?</span></>}
+            body={<>This will disable all AI features across your entire account and hide it from all users.</>}
             onCancel={() => setConfirmOpen(false)}
             onConfirm={() => { setAiOn(false); setConfirmOpen(false); }}
           />
