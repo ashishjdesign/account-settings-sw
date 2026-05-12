@@ -221,8 +221,10 @@ export function SpringConfirmDialog({
               <DialogPrimitives.Title className="py-3 text-[24px] font-normal leading-[32px] text-[var(--sui-colors-neutral-b1)]">
                 {title}
               </DialogPrimitives.Title>
-              <DialogPrimitives.Description className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
-                {body}
+              <DialogPrimitives.Description asChild>
+                <div className="flex flex-col gap-4 text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                  {body}
+                </div>
               </DialogPrimitives.Description>
               {error && (
                 <div className="rounded-md bg-red-50 p-3 flex items-center gap-2 text-sm text-red-800 border border-red-200">
