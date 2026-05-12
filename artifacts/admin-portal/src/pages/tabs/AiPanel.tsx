@@ -231,7 +231,7 @@ export default function AiPanel() {
         switchOn={masterOn}
         icon={<SpringIcon as={AiStarsMd} />}
         description="Turn on AI support for calls, messages and video meetings. Deliver real-time answers, call notes, transcripts and meeting recaps to help teams stay focused and organized. Empower users to communicate clearly with built-in writing and polishing tools."
-        summary={[{ label: 'AI data custom retention period:', value: retentionDisplay }]}
+        summary={masterOn ? [{ label: 'AI data custom retention period:', value: retentionDisplay }] : undefined}
         onManage={() => setManageModal('aiFeatures')}
         onSwitchClick={handleMasterToggle}
       />
