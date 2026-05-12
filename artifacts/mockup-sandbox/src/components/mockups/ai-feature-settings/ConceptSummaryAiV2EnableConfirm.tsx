@@ -90,7 +90,7 @@ export function ConceptSummaryAiV2EnableConfirm() {
             open={confirmOpen}
             confirmLabel="Confirm"
             title={<><span className="font-normal">Turn on </span><span className="font-normal">AI features</span><span className="font-normal"> for your organization?</span></>}
-            body={<>This will turn on all AI features across your entire account and make them visible to all users.<br />Previous user settings will be restored.</>}
+            body={<>This will turn AI features back on across your entire account.<br />Previous user settings will be restored.</>}
             onCancel={() => setConfirmOpen(false)}
             onConfirm={() => { setAiOn(true); setConfirmOpen(false); }}
           />
