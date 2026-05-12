@@ -25,11 +25,13 @@ const SpringIcon = ({ as: Cmp }: { as: IconCmp }) => (
   <Cmp width={20} height={20} fill="currentColor" aria-hidden focusable={false} />
 );
 
-function SpringSwitch({ on }: { on: boolean }) {
+function SpringSwitch({ on, onChange }: { on: boolean; onChange?: (next: boolean) => void }) {
   return (
-    <span
+    <button
+      type="button"
       role="switch"
       aria-checked={on}
+      onClick={() => onChange?.(!on)}
       className={[
         'relative inline-flex h-[24px] w-[40px] shrink-0 cursor-pointer items-center rounded-full transition-colors',
         on ? 'bg-[var(--sui-colors-primary-b)]' : 'bg-[var(--sui-colors-neutral-b3)]',
@@ -41,7 +43,7 @@ function SpringSwitch({ on }: { on: boolean }) {
           on ? 'left-[18px]' : 'left-[2px]',
         ].join(' ')}
       />
-    </span>
+    </button>
   );
 }
 
@@ -53,8 +55,9 @@ function ManageAiFeaturesDialog({
   onSave: () => void;
 }) {
   const [period, setPeriod] = React.useState(RETENTION_PERIODS[0].value);
+  const [retentionOn, setRetentionOn] = React.useState(true);
   if (!open) return null;
-  const dirty = period !== RETENTION_PERIODS[0].value;
+  const dirty = !retentionOn || period !== RETENTION_PERIODS[0].value;
   return (
     <div className="absolute inset-0 z-50 flex items-start justify-center pt-24">
       <div className="absolute inset-0 bg-black/40" onClick={onCancel} aria-hidden="true" />
@@ -88,7 +91,7 @@ function ManageAiFeaturesDialog({
                         AI data custom retention period
                       </p>
                     </div>
-                    <SpringSwitch on />
+                    <SpringSwitch on={retentionOn} onChange={setRetentionOn} />
                   </div>
                   <div className="flex w-full items-center pr-[130px]">
                     <p className="flex-1 text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b2)]">
