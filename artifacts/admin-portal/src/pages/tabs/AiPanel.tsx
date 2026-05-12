@@ -236,34 +236,38 @@ export default function AiPanel() {
         onSwitchClick={handleMasterToggle}
       />
 
-      {/* AI Assistant */}
-      <SettingCard
-        title="AI Assistant"
-        switchOn={aiAssistant.on && masterOn}
-        disabled={!masterOn}
-        icon={<SpringIcon as={AiLightBulbMd} />}
-        description="A personal assistant that helps you boost productivity."
-        summary={[
-          { label: 'User default:', value: aiAssistant.defaultVal },
-          { label: 'User access:', value: aiAssistant.allowChange ? 'Allowed' : 'Restricted' },
-        ]}
-        onManage={() => setManageModal('aiAssistant')}
-        onSwitchClick={() => {
-          if (!masterOn) return;
-          const cur = aiAssistant.on;
-          dispatch({ type: 'PATCH_AI_ASSISTANT', payload: { on: !cur } });
-          showToast(`AI Assistant turned ${cur ? 'off' : 'on'}`, () => dispatch({ type: 'UNDO' }));
-        }}
-      />
+      {/* When the master AI features toggle is off, hide AI Assistant and all
+       * sub-feature cards entirely (they are not just disabled — they're gone). */}
+      {masterOn && (
+        <>
+          {/* AI Assistant */}
+          <SettingCard
+            title="AI Assistant"
+            switchOn={aiAssistant.on}
+            icon={<SpringIcon as={AiLightBulbMd} />}
+            description="A personal assistant that helps you boost productivity."
+            summary={[
+              { label: 'User default:', value: aiAssistant.defaultVal },
+              { label: 'User access:', value: aiAssistant.allowChange ? 'Allowed' : 'Restricted' },
+            ]}
+            onManage={() => setManageModal('aiAssistant')}
+            onSwitchClick={() => {
+              const cur = aiAssistant.on;
+              dispatch({ type: 'PATCH_AI_ASSISTANT', payload: { on: !cur } });
+              showToast(`AI Assistant turned ${cur ? 'off' : 'on'}`, () => dispatch({ type: 'UNDO' }));
+            }}
+          />
 
-      <GroupLabel>Phone</GroupLabel>
-      {PHONE_ITEMS.map(renderFeatureCard)}
+          <GroupLabel>Phone</GroupLabel>
+          {PHONE_ITEMS.map(renderFeatureCard)}
 
-      <GroupLabel>Chat</GroupLabel>
-      {CHAT_ITEMS.map(renderFeatureCard)}
+          <GroupLabel>Chat</GroupLabel>
+          {CHAT_ITEMS.map(renderFeatureCard)}
 
-      <GroupLabel>SMS</GroupLabel>
-      {SMS_ITEMS.map(renderFeatureCard)}
+          <GroupLabel>SMS</GroupLabel>
+          {SMS_ITEMS.map(renderFeatureCard)}
+        </>
+      )}
 
       <SpringConfirmDialog
         open={masterConfirmOpen}
