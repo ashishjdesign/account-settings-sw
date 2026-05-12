@@ -343,6 +343,172 @@ export function AssistantManageDefaultOffConfirm({
 }
 
 /* -----------------------------------------------------------------------------
+ * Generic feature dialogs (Closed captioning, Live transcripts, AI notes, …)
+ * — same chrome as the AI Assistant equivalents, just parameterized by the
+ * feature label so they can be reused across all simple user-level sub-features.
+ * --------------------------------------------------------------------------- */
+
+export function FeatureDisableConfirm({
+  open, featureName, onCancel, onConfirm,
+}: {
+  open: boolean;
+  featureName: string;
+  onCancel: () => void;
+  onConfirm: () => void;
+}) {
+  return (
+    <DialogShell open={open} ariaLabel={`Turn off ${featureName}`} onClose={onCancel} width={620}>
+      <div className="flex flex-col gap-6 px-6 pb-8 pt-9">
+        <h2 className="py-3 text-[24px] font-normal leading-[32px] text-[var(--sui-colors-neutral-b0)]">
+          Turn off {featureName} for your organization?
+        </h2>
+        <p className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+          This feature will be turned off for your account and no longer available to users.
+          When turned back on, previous user settings can be restored.
+        </p>
+      </div>
+      <DialogFooter onCancel={onCancel} onConfirm={onConfirm} confirmLabel="Turn off" />
+    </DialogShell>
+  );
+}
+
+export function FeatureEnableConfirm({
+  open, featureName, onCancel, onConfirm,
+  initialDefaultVal = 'On',
+  initialAllowChange = true,
+  customUsersCount = 26,
+}: {
+  open: boolean;
+  featureName: string;
+  onCancel: () => void;
+  onConfirm: (result: {
+    defaultVal: 'On' | 'Off';
+    allowChange: boolean;
+    customAction: 'reset' | 'restore';
+  }) => void;
+  initialDefaultVal?: 'On' | 'Off';
+  initialAllowChange?: boolean;
+  customUsersCount?: number;
+}) {
+  const [defaultVal, setDefaultVal] = React.useState<'On' | 'Off'>(initialDefaultVal);
+  const [allowChange, setAllowChange] = React.useState(initialAllowChange);
+  const [customAction, setCustomAction] = React.useState<'reset' | 'restore'>('reset');
+
+  React.useEffect(() => {
+    if (open) {
+      setDefaultVal(initialDefaultVal);
+      setAllowChange(initialAllowChange);
+      setCustomAction('reset');
+    }
+  }, [open, initialDefaultVal, initialAllowChange]);
+
+  const defaultUsersCount = Math.max(0, TOTAL_USERS - customUsersCount);
+
+  return (
+    <DialogShell open={open} ariaLabel={`Turn on ${featureName}`} onClose={onCancel}>
+      <div className="flex flex-col gap-6 px-6 pb-8 pt-9">
+        <h2 className="py-3 text-[24px] font-normal leading-[32px] text-[var(--sui-colors-neutral-b0)]">
+          Turn on {featureName} for your organization?
+        </h2>
+        <p className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+          This feature will be enabled for your account. Configure how it should be deployed to
+          users below.
+        </p>
+
+        <UserDeploymentCard
+          defaultVal={defaultVal}
+          onDefaultValChange={setDefaultVal}
+          allowChange={allowChange}
+          onAllowChangeChange={setAllowChange}
+          defaultUsersCount={defaultUsersCount}
+        />
+
+        {customUsersCount > 0 && (
+          <div className="flex flex-col gap-3">
+            <p className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+              <button
+                type="button"
+                className="cursor-pointer text-[var(--sui-colors-primary-b)] underline hover:text-[var(--sui-colors-primary-b-high-contrast)]"
+              >
+                {customUsersCount}/{TOTAL_USERS} users
+              </button>{' '}
+              have custom settings for this feature. What would you like to do with these users?
+            </p>
+            <div className="flex items-center gap-6">
+              <Radio
+                checked={customAction === 'reset'}
+                onChange={() => setCustomAction('reset')}
+                label="Reset all to default"
+              />
+              <Radio
+                checked={customAction === 'restore'}
+                onChange={() => setCustomAction('restore')}
+                label="Restore their custom settings"
+              />
+            </div>
+          </div>
+        )}
+      </div>
+      <DialogFooter
+        onCancel={onCancel}
+        onConfirm={() => onConfirm({ defaultVal, allowChange, customAction })}
+        confirmLabel="Turn on"
+      />
+    </DialogShell>
+  );
+}
+
+export function FeatureManageDialog({
+  open, featureName, onCancel, onSave,
+  initialDefaultVal, initialAllowChange,
+  customUsersCount = 26,
+}: {
+  open: boolean;
+  featureName: string;
+  onCancel: () => void;
+  onSave: (result: { defaultVal: 'On' | 'Off'; allowChange: boolean }) => void;
+  initialDefaultVal: 'On' | 'Off';
+  initialAllowChange: boolean;
+  customUsersCount?: number;
+}) {
+  const [defaultVal, setDefaultVal] = React.useState<'On' | 'Off'>(initialDefaultVal);
+  const [allowChange, setAllowChange] = React.useState(initialAllowChange);
+
+  React.useEffect(() => {
+    if (open) {
+      setDefaultVal(initialDefaultVal);
+      setAllowChange(initialAllowChange);
+    }
+  }, [open, initialDefaultVal, initialAllowChange]);
+
+  const defaultUsersCount = Math.max(0, TOTAL_USERS - customUsersCount);
+  const dirty = defaultVal !== initialDefaultVal || allowChange !== initialAllowChange;
+
+  return (
+    <DialogShell open={open} ariaLabel={`Manage ${featureName}`} onClose={onCancel}>
+      <div className="flex flex-col gap-6 px-6 pb-8 pt-9">
+        <h2 className="py-3 text-[24px] font-normal leading-[32px] text-[var(--sui-colors-neutral-b0)]">
+          Manage {featureName}
+        </h2>
+        <UserDeploymentCard
+          defaultVal={defaultVal}
+          onDefaultValChange={setDefaultVal}
+          allowChange={allowChange}
+          onAllowChangeChange={setAllowChange}
+          defaultUsersCount={defaultUsersCount}
+        />
+      </div>
+      <DialogFooter
+        onCancel={onCancel}
+        onConfirm={() => onSave({ defaultVal, allowChange })}
+        confirmLabel="Save"
+        confirmDisabled={!dirty}
+      />
+    </DialogShell>
+  );
+}
+
+/* -----------------------------------------------------------------------------
  * AssistantManageDialog (Figma 2035-40810) — Manage AI Assistant.
  * Same User deployment card as the enable confirm. Save is disabled when the
  * form is not dirty.

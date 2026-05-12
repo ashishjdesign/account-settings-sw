@@ -26,6 +26,7 @@ import {
 import {
   AssistantEnableConfirmDialog,
   AssistantManageDefaultOffConfirmDialog,
+  FeatureEnableConfirmDialog,
 } from './_assistantConfirms';
 
 /* Spring DS icons render as 32×32 SVG with no fill — render at 20×20 with
@@ -125,6 +126,13 @@ export default function AiPanel() {
     { defaultVal: 'On' | 'Off'; allowChange: boolean } | null
   >(null);
   const [manageModal, setManageModal] = useState<'aiFeatures' | 'aiAssistant' | null>(null);
+
+  // Sub-feature (Phone / Chat / SMS) flow state. Each holds the AiFeatureKey
+  // currently being managed / disabled / enabled. Only one is active at a time.
+  type SubKey = Exclude<AiFeatureKey, 'aiAssistant'>;
+  const [subManageKey, setSubManageKey] = useState<SubKey | null>(null);
+  const [subDisableKey, setSubDisableKey] = useState<SubKey | null>(null);
+  const [subEnableKey, setSubEnableKey] = useState<SubKey | null>(null);
 
   // Pending values awaiting confirm-dialog approval (turn-on / change).
   // Use state (not ref) so the period <select> in the turn-on confirm
@@ -273,11 +281,58 @@ export default function AiPanel() {
     showToast('AI Assistant turned on', () => dispatch({ type: 'UNDO' }));
   };
 
-  const toggleSubFeature = (key: Exclude<AiFeatureKey, 'aiAssistant'>, label: string) => {
+  const toggleSubFeature = (key: SubKey) => {
     if (!masterOn) return;
     const cur = state.ai[key].on;
-    dispatch({ type: 'PATCH_AI_FEATURE', key, payload: { on: !cur } });
-    showToast(`${label} turned ${cur ? 'off' : 'on'}`, () => dispatch({ type: 'UNDO' }));
+    if (cur) setSubDisableKey(key);
+    else setSubEnableKey(key);
+  };
+
+  // Lookup of feature title by key — used by sub-feature dialogs so we don't
+  // need to thread the label through every confirm.
+  const ALL_SUB_ITEMS: FeatureItem[] = [...PHONE_ITEMS, ...CHAT_ITEMS, ...SMS_ITEMS];
+  const labelFor = (key: SubKey) =>
+    ALL_SUB_ITEMS.find((i) => i.key === key)?.title ?? String(key);
+
+  const confirmSubDisable = () => {
+    if (!subDisableKey) return;
+    const key = subDisableKey;
+    dispatch({ type: 'PATCH_AI_FEATURE', key, payload: { on: false } });
+    setSubDisableKey(null);
+    showToast(`${labelFor(key)} turned off`, () => dispatch({ type: 'UNDO' }));
+  };
+
+  const confirmSubEnable = (
+    result: { defaultVal: 'On' | 'Off'; allowChange: boolean; customAction: 'reset' | 'restore' },
+  ) => {
+    if (!subEnableKey) return;
+    const key = subEnableKey;
+    dispatch({
+      type: 'PATCH_AI_FEATURE',
+      key,
+      payload: {
+        on: true,
+        defaultVal: result.defaultVal,
+        allowChange: result.allowChange,
+        customUsers: result.customAction === 'reset' ? 0 : state.ai[key].customUsers,
+      },
+    });
+    setSubEnableKey(null);
+    showToast(`${labelFor(key)} turned on`, () => dispatch({ type: 'UNDO' }));
+  };
+
+  const saveSubManage = (
+    result: { defaultVal: 'On' | 'Off'; allowChange: boolean },
+  ) => {
+    if (!subManageKey) return;
+    const key = subManageKey;
+    dispatch({
+      type: 'PATCH_AI_FEATURE',
+      key,
+      payload: { defaultVal: result.defaultVal, allowChange: result.allowChange },
+    });
+    setSubManageKey(null);
+    showToast('Settings were updated.', () => dispatch({ type: 'UNDO' }));
   };
 
   const renderFeatureCard = (item: FeatureItem) => {
@@ -295,13 +350,11 @@ export default function AiPanel() {
           { label: 'User default:', value: cfg.defaultVal },
           { label: 'User access:', value: cfg.allowChange ? 'Allowed' : 'Restricted' },
         ]}
-        onManage={() =>
-          showToast(`Manage ${item.title} — coming soon`)
-        }
+        onManage={() => setSubManageKey(item.key as SubKey)}
         onSwitchClick={
           item.key === 'aiAssistant'
             ? undefined
-            : () => toggleSubFeature(item.key as Exclude<AiFeatureKey, 'aiAssistant'>, item.title)
+            : () => toggleSubFeature(item.key as SubKey)
         }
       />
     );
@@ -474,6 +527,45 @@ export default function AiPanel() {
         open={assistantPendingSave !== null}
         onCancel={() => setAssistantPendingSave(null)}
         onConfirm={() => assistantPendingSave && commitAssistantSave(assistantPendingSave, true)}
+      />
+
+      {/* Sub-feature (Phone / Chat / SMS) Manage dialog */}
+      <SpringFeatureManageDialog
+        open={subManageKey !== null}
+        title={subManageKey ? `Manage ${labelFor(subManageKey)}` : ''}
+        defaultVal={subManageKey ? state.ai[subManageKey].defaultVal : 'On'}
+        allowChange={subManageKey ? state.ai[subManageKey].allowChange : true}
+        customCount={subManageKey ? state.ai[subManageKey].customUsers : 0}
+        onCancel={() => setSubManageKey(null)}
+        onConfirm={saveSubManage}
+      />
+
+      {/* Sub-feature Turn off confirm */}
+      <SpringConfirmDialog
+        open={subDisableKey !== null}
+        confirmLabel="Turn off"
+        title={
+          subDisableKey ? <>Turn off {labelFor(subDisableKey)} for your organization?</> : null
+        }
+        body={
+          <p>
+            This feature will be turned off for your account and no longer available to users.
+            When turned back on, previous user settings can be restored.
+          </p>
+        }
+        onCancel={() => setSubDisableKey(null)}
+        onConfirm={confirmSubDisable}
+      />
+
+      {/* Sub-feature Turn on confirm */}
+      <FeatureEnableConfirmDialog
+        open={subEnableKey !== null}
+        featureName={subEnableKey ? labelFor(subEnableKey) : ''}
+        initialDefaultVal={subEnableKey ? state.ai[subEnableKey].defaultVal : 'On'}
+        initialAllowChange={subEnableKey ? state.ai[subEnableKey].allowChange : true}
+        customCount={subEnableKey ? state.ai[subEnableKey].customUsers : 0}
+        onCancel={() => setSubEnableKey(null)}
+        onConfirm={confirmSubEnable}
       />
     </div>
   );
