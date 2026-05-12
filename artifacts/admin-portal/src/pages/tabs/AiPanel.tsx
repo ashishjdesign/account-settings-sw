@@ -112,6 +112,7 @@ export default function AiPanel() {
 
   const customRetention = state.ai.customRetention;
   const [masterConfirmOpen, setMasterConfirmOpen] = useState(false);
+  const [masterEnableConfirmOpen, setMasterEnableConfirmOpen] = useState(false);
   const [manageModal, setManageModal] = useState<'aiFeatures' | 'aiAssistant' | null>(null);
 
   // Pending values awaiting confirm-dialog approval (turn-on / change).
@@ -186,8 +187,7 @@ export default function AiPanel() {
     if (masterOn) {
       setMasterConfirmOpen(true);
     } else {
-      dispatch({ type: 'TOGGLE_MASTER_AI', payload: true });
-      showToast('AI features turned on', () => dispatch({ type: 'UNDO' }));
+      setMasterEnableConfirmOpen(true);
     }
   };
 
@@ -195,6 +195,12 @@ export default function AiPanel() {
     dispatch({ type: 'TOGGLE_MASTER_AI', payload: false });
     setMasterConfirmOpen(false);
     showToast('AI features turned off', () => dispatch({ type: 'UNDO' }));
+  };
+
+  const confirmMasterOn = () => {
+    dispatch({ type: 'TOGGLE_MASTER_AI', payload: true });
+    setMasterEnableConfirmOpen(false);
+    showToast('AI features turned on', () => dispatch({ type: 'UNDO' }));
   };
 
   const toggleSubFeature = (key: Exclude<AiFeatureKey, 'aiAssistant'>, label: string) => {
@@ -299,6 +305,15 @@ export default function AiPanel() {
         }
         onCancel={() => setMasterConfirmOpen(false)}
         onConfirm={confirmMasterOff}
+      />
+
+      <SpringConfirmDialog
+        open={masterEnableConfirmOpen}
+        confirmLabel="Turn on"
+        title={<>Turn on <span className="font-normal">AI features</span> for your organization?</>}
+        body={<p>This will turn AI features back on across your entire account.</p>}
+        onCancel={() => setMasterEnableConfirmOpen(false)}
+        onConfirm={confirmMasterOn}
       />
 
       <ManageAiFeaturesDialog
