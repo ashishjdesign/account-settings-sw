@@ -306,20 +306,14 @@ export default function AiPanel() {
             onSwitchClick={handleAssistantToggle}
           />
 
-          {/* Phone / Chat / SMS AI features depend on AI Assistant — when it's
-           * off the entire group disappears (mirrors the master toggle). */}
-          {aiAssistant.on && (
-            <>
-              <GroupLabel>Phone</GroupLabel>
-              {PHONE_ITEMS.map(renderFeatureCard)}
+          <GroupLabel>Phone</GroupLabel>
+          {PHONE_ITEMS.map(renderFeatureCard)}
 
-              <GroupLabel>Chat</GroupLabel>
-              {CHAT_ITEMS.map(renderFeatureCard)}
+          <GroupLabel>Chat</GroupLabel>
+          {CHAT_ITEMS.map(renderFeatureCard)}
 
-              <GroupLabel>SMS</GroupLabel>
-              {SMS_ITEMS.map(renderFeatureCard)}
-            </>
-          )}
+          <GroupLabel>SMS</GroupLabel>
+          {SMS_ITEMS.map(renderFeatureCard)}
         </>
       )}
 
