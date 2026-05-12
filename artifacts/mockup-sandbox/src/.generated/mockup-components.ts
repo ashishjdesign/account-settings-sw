@@ -28,6 +28,7 @@ export const modules: ModuleMap = {
   "./components/mockups/ai-feature-settings/ConceptPrototype.tsx": () => import("../components/mockups/ai-feature-settings/ConceptPrototype.tsx"),
   "./components/mockups/ai-feature-settings/ConceptSummaryAiV2.tsx": () => import("../components/mockups/ai-feature-settings/ConceptSummaryAiV2.tsx"),
   "./components/mockups/ai-feature-settings/ConceptSummaryAiV2DisableConfirm.tsx": () => import("../components/mockups/ai-feature-settings/ConceptSummaryAiV2DisableConfirm.tsx"),
+  "./components/mockups/ai-feature-settings/ConceptSummaryAiV2EnableConfirm.tsx": () => import("../components/mockups/ai-feature-settings/ConceptSummaryAiV2EnableConfirm.tsx"),
   "./components/mockups/ai-feature-settings/ConceptSummaryAiV2Off.tsx": () => import("../components/mockups/ai-feature-settings/ConceptSummaryAiV2Off.tsx"),
   "./components/mockups/ai-feature-settings/ConceptSummaryFax.tsx": () => import("../components/mockups/ai-feature-settings/ConceptSummaryFax.tsx"),
   "./components/mockups/ai-feature-settings/ConceptSummaryGeneral.tsx": () => import("../components/mockups/ai-feature-settings/ConceptSummaryGeneral.tsx"),
