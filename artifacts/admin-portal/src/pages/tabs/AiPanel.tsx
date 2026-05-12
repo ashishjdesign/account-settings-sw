@@ -11,19 +11,18 @@ import {
   GlobeMd,
 } from '@ringcentral/spring-icon';
 import { useSettings } from '../../store';
-import type { AiFeatureKey } from '../../store';
+import type { AiFeatureKey, AiRetentionPeriod } from '../../store';
 import {
   SettingCard,
   SpringConfirmDialog,
-  SpringDialog,
   SpringFeatureManageDialog,
-  SpringSelect,
-  SubRow,
-  LabelWithInfo,
   showToast,
 } from '../../components/shared';
-
-const RETENTION_OPTIONS = ['30 days', '90 days', '365 days'] as const;
+import {
+  ManageAiFeaturesDialog,
+  RetentionConfirmDialog,
+  periodLabel,
+} from './_aiRetention';
 
 /* Spring DS icons render as 32×32 SVG with no fill — render at 20×20 with
  * fill="currentColor" so they inherit the SettingCard icon-slot color. */
@@ -111,25 +110,51 @@ export default function AiPanel() {
   const { state, dispatch } = useSettings();
   const { masterOn, aiAssistant } = state.ai;
 
+  const customRetention = state.ai.customRetention;
   const [masterConfirmOpen, setMasterConfirmOpen] = useState(false);
   const [manageModal, setManageModal] = useState<'aiFeatures' | 'aiAssistant' | null>(null);
-  const [editRetention, setEditRetention] = useState<'30 days' | '90 days' | '365 days'>('365 days');
 
-  const openManageAiFeatures = () => {
-    const r = aiAssistant.customize.transcriptRetention;
-    setEditRetention(r === '' ? '365 days' : r);
-    setManageModal('aiFeatures');
-  };
+  // Pending values awaiting confirm-dialog approval (turn-on / change).
+  // Use state (not ref) so the period <select> in the turn-on confirm
+  // dialog is reactive when the user picks a different duration.
+  const [pending, setPending] = useState<{ on: boolean; period: AiRetentionPeriod } | null>(null);
+  const [aiTurnOnConfirmOpen, setAiTurnOnConfirmOpen] = useState(false);
+  const [aiChangeConfirmOpen, setAiChangeConfirmOpen] = useState(false);
 
-  const handleSaveAiFeatures = () => {
-    if (state.simulateError) {
-      dispatch({ type: 'TOGGLE_SIMULATE_ERROR' });
+  const handleManageSave = ({
+    retentionOn, period,
+  }: { retentionOn: boolean; period: AiRetentionPeriod }) => {
+    const wasOn = customRetention.on;
+    if (wasOn && !retentionOn) {
+      // Turning OFF — commit directly
+      dispatch({ type: 'PATCH_AI_CUSTOM_RETENTION', payload: { on: false } });
+      setManageModal(null);
+      showToast('Settings were updated.', () => dispatch({ type: 'UNDO' }));
       return;
     }
-    dispatch({
-      type: 'PATCH_AI_ASSISTANT_CUSTOMIZE',
-      payload: { transcriptRetention: editRetention },
-    });
+    if (!wasOn && retentionOn) {
+      setPending({ on: true, period });
+      setAiTurnOnConfirmOpen(true);
+      return;
+    }
+    if (wasOn && retentionOn && period !== customRetention.period) {
+      setPending({ on: true, period });
+      setAiChangeConfirmOpen(true);
+      return;
+    }
+    setManageModal(null);
+  };
+
+  const commitPending = () => {
+    if (pending) {
+      dispatch({
+        type: 'PATCH_AI_CUSTOM_RETENTION',
+        payload: { on: pending.on, period: pending.period },
+      });
+    }
+    setPending(null);
+    setAiTurnOnConfirmOpen(false);
+    setAiChangeConfirmOpen(false);
     setManageModal(null);
     showToast('Settings were updated.', () => dispatch({ type: 'UNDO' }));
   };
@@ -196,10 +221,7 @@ export default function AiPanel() {
     );
   };
 
-  const retentionDisplay =
-    aiAssistant.customize.transcriptRetention === '' || aiAssistant.customize.transcriptRetention === '365 days'
-      ? 'Disabled'
-      : aiAssistant.customize.transcriptRetention;
+  const retentionDisplay = customRetention.on ? periodLabel(customRetention.period) : 'Disabled';
 
   return (
     <div className="flex flex-col gap-4">
@@ -210,7 +232,7 @@ export default function AiPanel() {
         icon={<SpringIcon as={AiStarsMd} />}
         description="Turn on AI support for calls, messages and video meetings. Deliver real-time answers, call notes, transcripts and meeting recaps to help teams stay focused and organized. Empower users to communicate clearly with built-in writing and polishing tools."
         summary={[{ label: 'AI data custom retention period:', value: retentionDisplay }]}
-        onManage={openManageAiFeatures}
+        onManage={() => setManageModal('aiFeatures')}
         onSwitchClick={handleMasterToggle}
       />
 
@@ -251,26 +273,38 @@ export default function AiPanel() {
         onConfirm={confirmMasterOff}
       />
 
-      <SpringDialog
+      <ManageAiFeaturesDialog
         open={manageModal === 'aiFeatures'}
-        title="Manage AI features"
-        onClose={() => setManageModal(null)}
-        onSave={handleSaveAiFeatures}
-        error={state.simulateError}
-      >
-        <SubRow>
-          <LabelWithInfo>AI notes and transcriptions retention period</LabelWithInfo>
-          <SpringSelect
-            value={editRetention}
-            options={[...RETENTION_OPTIONS]}
-            onChange={(v) => {
-              const next = RETENTION_OPTIONS.find((o) => o === v);
-              if (next) setEditRetention(next);
-            }}
-            width={200}
-          />
-        </SubRow>
-      </SpringDialog>
+        initialRetentionOn={customRetention.on}
+        initialPeriod={customRetention.period}
+        onCancel={() => setManageModal(null)}
+        onSave={handleManageSave}
+      />
+
+      <RetentionConfirmDialog
+        open={aiTurnOnConfirmOpen}
+        variant="turn-on"
+        period={pending?.period ?? customRetention.period}
+        onPeriodChange={(p) =>
+          setPending((cur) => (cur ? { ...cur, period: p } : { on: true, period: p }))
+        }
+        onCancel={() => {
+          setAiTurnOnConfirmOpen(false);
+          setPending(null);
+        }}
+        onConfirm={commitPending}
+      />
+
+      <RetentionConfirmDialog
+        open={aiChangeConfirmOpen}
+        variant="change"
+        period={pending?.period ?? customRetention.period}
+        onCancel={() => {
+          setAiChangeConfirmOpen(false);
+          setPending(null);
+        }}
+        onConfirm={commitPending}
+      />
 
       <SpringFeatureManageDialog
         open={manageModal === 'aiAssistant'}

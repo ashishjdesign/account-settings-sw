@@ -19,6 +19,13 @@ export type AiAssistantCustomize = {
   shareWithManagers: boolean;
 };
 
+export type AiRetentionPeriod = '7' | '14' | '30' | '90' | '180' | '365';
+
+export type AiCustomRetention = {
+  on: boolean;
+  period: AiRetentionPeriod;
+};
+
 export type GeneralState = {
   userActivationOn: boolean;
   guides: FeatureConfig;
@@ -63,6 +70,7 @@ export type PhoneState = {
 
 export type AiState = {
   masterOn: boolean;
+  customRetention: AiCustomRetention;
   aiAssistant: FeatureConfig & { customize: AiAssistantCustomize };
   // Phone group
   closedCaptioning: FeatureConfig;
@@ -128,6 +136,7 @@ const initialState: AppState = {
   },
   ai: {
     masterOn: true,
+    customRetention: { on: false, period: '365' },
     aiAssistant: {
       on: true,
       defaultVal: 'On',
@@ -177,6 +186,7 @@ type Action =
   | { type: 'PATCH_AI_ASSISTANT'; payload: Partial<FeatureConfig> }
   | { type: 'PATCH_AI_FEATURE'; key: Exclude<AiFeatureKey, 'aiAssistant'>; payload: Partial<FeatureConfig> }
   | { type: 'PATCH_AI_ASSISTANT_CUSTOMIZE'; payload: Partial<AiAssistantCustomize> }
+  | { type: 'PATCH_AI_CUSTOM_RETENTION'; payload: Partial<AiCustomRetention> }
   | { type: 'SET_SMS'; payload: boolean }
   | { type: 'PATCH_FAX'; payload: Partial<FeatureConfig> }
   | { type: 'SET_EMAIL_TO_FAX'; payload: boolean }
@@ -278,6 +288,14 @@ function reducer(state: AppState, action: Action): AppState {
         ai: {
           ...state.ai,
           [action.key]: applyFeaturePatch(state.ai[action.key], action.payload),
+        },
+      };
+    case 'PATCH_AI_CUSTOM_RETENTION':
+      return {
+        ...withSnapshot(state),
+        ai: {
+          ...state.ai,
+          customRetention: { ...state.ai.customRetention, ...action.payload },
         },
       };
     case 'PATCH_AI_ASSISTANT_CUSTOMIZE':
