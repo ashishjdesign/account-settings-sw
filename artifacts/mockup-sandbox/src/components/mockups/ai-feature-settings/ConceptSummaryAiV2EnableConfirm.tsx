@@ -88,7 +88,7 @@ export function ConceptSummaryAiV2EnableConfirm() {
         <div className="spring-scope">
           <SpringConfirmDialog
             open={confirmOpen}
-            confirmLabel="Confirm"
+            confirmLabel="Turn on"
             title={<><span className="font-normal">Turn on </span><span className="font-normal">AI features</span><span className="font-normal"> for your organization?</span></>}
             body={<>This will turn AI features back on across your entire account.</>}
             onCancel={() => setConfirmOpen(false)}
