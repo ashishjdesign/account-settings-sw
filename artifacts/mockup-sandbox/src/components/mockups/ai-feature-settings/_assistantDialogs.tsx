@@ -318,6 +318,31 @@ export function AssistantEnableConfirm({
 }
 
 /* -----------------------------------------------------------------------------
+ * AssistantManageDefaultOffConfirm (Figma 2035-41300) — secondary confirm shown
+ * when the user changes "Default in user settings" from On → Off in the Manage
+ * AI Assistant dialog and presses Save. Width 620, no form — just a warning.
+ * --------------------------------------------------------------------------- */
+export function AssistantManageDefaultOffConfirm({
+  open, onCancel, onConfirm,
+}: { open: boolean; onCancel: () => void; onConfirm: () => void }) {
+  return (
+    <DialogShell open={open} ariaLabel="Set AI Assistant default to Off" onClose={onCancel} width={620}>
+      <div className="flex flex-col gap-6 px-6 pb-8 pt-9">
+        <h2 className="py-3 text-[24px] font-normal leading-[32px] text-[var(--sui-colors-neutral-b0)]">
+          Set AI Assistant default in user settings to Off?
+        </h2>
+        <p className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+          <span className="font-bold">Phone, chat</span> and{' '}
+          <span className="font-bold">SMS AI features</span> depend on AI Assistant and will also
+          default to Off in user settings.
+        </p>
+      </div>
+      <DialogFooter onCancel={onCancel} onConfirm={onConfirm} confirmLabel="Confirm" />
+    </DialogShell>
+  );
+}
+
+/* -----------------------------------------------------------------------------
  * AssistantManageDialog (Figma 2035-40810) — Manage AI Assistant.
  * Same User deployment card as the enable confirm. Save is disabled when the
  * form is not dirty.

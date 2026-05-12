@@ -30,6 +30,7 @@ export const modules: ModuleMap = {
   "./components/mockups/ai-feature-settings/ConceptSummaryAiV2AssistantDisableConfirm.tsx": () => import("../components/mockups/ai-feature-settings/ConceptSummaryAiV2AssistantDisableConfirm.tsx"),
   "./components/mockups/ai-feature-settings/ConceptSummaryAiV2AssistantEnableConfirm.tsx": () => import("../components/mockups/ai-feature-settings/ConceptSummaryAiV2AssistantEnableConfirm.tsx"),
   "./components/mockups/ai-feature-settings/ConceptSummaryAiV2AssistantManage.tsx": () => import("../components/mockups/ai-feature-settings/ConceptSummaryAiV2AssistantManage.tsx"),
+  "./components/mockups/ai-feature-settings/ConceptSummaryAiV2AssistantManageDefaultOffConfirm.tsx": () => import("../components/mockups/ai-feature-settings/ConceptSummaryAiV2AssistantManageDefaultOffConfirm.tsx"),
   "./components/mockups/ai-feature-settings/ConceptSummaryAiV2ChangeRetentionConfirm.tsx": () => import("../components/mockups/ai-feature-settings/ConceptSummaryAiV2ChangeRetentionConfirm.tsx"),
   "./components/mockups/ai-feature-settings/ConceptSummaryAiV2DisableConfirm.tsx": () => import("../components/mockups/ai-feature-settings/ConceptSummaryAiV2DisableConfirm.tsx"),
   "./components/mockups/ai-feature-settings/ConceptSummaryAiV2EnableConfirm.tsx": () => import("../components/mockups/ai-feature-settings/ConceptSummaryAiV2EnableConfirm.tsx"),

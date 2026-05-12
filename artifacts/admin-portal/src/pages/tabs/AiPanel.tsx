@@ -23,7 +23,10 @@ import {
   RetentionConfirmDialog,
   periodLabel,
 } from './_aiRetention';
-import { AssistantEnableConfirmDialog } from './_assistantConfirms';
+import {
+  AssistantEnableConfirmDialog,
+  AssistantManageDefaultOffConfirmDialog,
+} from './_assistantConfirms';
 
 /* Spring DS icons render as 32×32 SVG with no fill — render at 20×20 with
  * fill="currentColor" so they inherit the SettingCard icon-slot color. */
@@ -116,6 +119,11 @@ export default function AiPanel() {
   const [masterEnableConfirmOpen, setMasterEnableConfirmOpen] = useState(false);
   const [assistantDisableConfirmOpen, setAssistantDisableConfirmOpen] = useState(false);
   const [assistantEnableConfirmOpen, setAssistantEnableConfirmOpen] = useState(false);
+  // Pending Manage AI Assistant save awaiting the secondary "default → Off"
+  // confirm (Figma 2035-41300). Non-null while the confirm is open.
+  const [assistantPendingSave, setAssistantPendingSave] = useState<
+    { defaultVal: 'On' | 'Off'; allowChange: boolean } | null
+  >(null);
   const [manageModal, setManageModal] = useState<'aiFeatures' | 'aiAssistant' | null>(null);
 
   // Pending values awaiting confirm-dialog approval (turn-on / change).
@@ -173,17 +181,43 @@ export default function AiPanel() {
     showToast('Settings were updated.', () => dispatch({ type: 'UNDO' }));
   };
 
+  const SUB_FEATURE_KEYS: Exclude<AiFeatureKey, 'aiAssistant'>[] = [
+    'closedCaptioning', 'liveTranscripts', 'aiNotes', 'aiVoicemailSummaries',
+    'aiWriterMessaging', 'aiSummary', 'aiTranslation', 'aiWriterSms',
+  ];
+
+  const commitAssistantSave = (
+    result: { defaultVal: 'On' | 'Off'; allowChange: boolean },
+    cascadeSubFeatureDefaultsOff: boolean,
+  ) => {
+    dispatch({
+      type: 'PATCH_AI_ASSISTANT',
+      payload: { defaultVal: result.defaultVal, allowChange: result.allowChange },
+    });
+    if (cascadeSubFeatureDefaultsOff) {
+      // Phone / chat / SMS AI features depend on AI Assistant, so when its
+      // user-default flips to Off the dependents must follow (Figma 2035-41300).
+      for (const key of SUB_FEATURE_KEYS) {
+        dispatch({ type: 'PATCH_AI_FEATURE', key, payload: { defaultVal: 'Off' } });
+      }
+    }
+    setManageModal(null);
+    setAssistantPendingSave(null);
+    showToast('Settings were updated.', () => dispatch({ type: 'UNDO' }));
+  };
+
   const handleSaveAssistant = (result: { defaultVal: 'On' | 'Off'; allowChange: boolean }) => {
     if (state.simulateError) {
       dispatch({ type: 'TOGGLE_SIMULATE_ERROR' });
       return;
     }
-    dispatch({
-      type: 'PATCH_AI_ASSISTANT',
-      payload: { defaultVal: result.defaultVal, allowChange: result.allowChange },
-    });
-    setManageModal(null);
-    showToast('Settings were updated.', () => dispatch({ type: 'UNDO' }));
+    // Default flipped On → Off: warn that dependent sub-feature defaults will
+    // also become Off. Otherwise save immediately.
+    if (result.defaultVal === 'Off' && aiAssistant.defaultVal === 'On') {
+      setAssistantPendingSave(result);
+      return;
+    }
+    commitAssistantSave(result, false);
   };
 
   const handleMasterToggle = () => {
@@ -434,6 +468,12 @@ export default function AiPanel() {
         onCancel={() => setManageModal(null)}
         onConfirm={handleSaveAssistant}
         error={state.simulateError}
+      />
+
+      <AssistantManageDefaultOffConfirmDialog
+        open={assistantPendingSave !== null}
+        onCancel={() => setAssistantPendingSave(null)}
+        onConfirm={() => assistantPendingSave && commitAssistantSave(assistantPendingSave, true)}
       />
     </div>
   );
