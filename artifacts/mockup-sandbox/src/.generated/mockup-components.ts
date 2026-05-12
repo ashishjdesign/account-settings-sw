@@ -30,6 +30,7 @@ export const modules: ModuleMap = {
   "./components/mockups/ai-feature-settings/ConceptSummaryAiV2DisableConfirm.tsx": () => import("../components/mockups/ai-feature-settings/ConceptSummaryAiV2DisableConfirm.tsx"),
   "./components/mockups/ai-feature-settings/ConceptSummaryAiV2EnableConfirm.tsx": () => import("../components/mockups/ai-feature-settings/ConceptSummaryAiV2EnableConfirm.tsx"),
   "./components/mockups/ai-feature-settings/ConceptSummaryAiV2ManageMainModal.tsx": () => import("../components/mockups/ai-feature-settings/ConceptSummaryAiV2ManageMainModal.tsx"),
+  "./components/mockups/ai-feature-settings/ConceptSummaryAiV2ManageMainModalEnabled.tsx": () => import("../components/mockups/ai-feature-settings/ConceptSummaryAiV2ManageMainModalEnabled.tsx"),
   "./components/mockups/ai-feature-settings/ConceptSummaryAiV2Off.tsx": () => import("../components/mockups/ai-feature-settings/ConceptSummaryAiV2Off.tsx"),
   "./components/mockups/ai-feature-settings/ConceptSummaryAiV2OnPartial.tsx": () => import("../components/mockups/ai-feature-settings/ConceptSummaryAiV2OnPartial.tsx"),
   "./components/mockups/ai-feature-settings/ConceptSummaryFax.tsx": () => import("../components/mockups/ai-feature-settings/ConceptSummaryFax.tsx"),
