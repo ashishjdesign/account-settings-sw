@@ -346,11 +346,17 @@ export default function AiPanel() {
         disabled={!masterOn}
         icon={item.icon}
         description={item.description}
-        summary={[
-          { label: 'User default:', value: cfg.defaultVal },
-          { label: 'User access:', value: cfg.allowChange ? 'Allowed' : 'Restricted' },
-        ]}
-        onManage={() => setSubManageKey(item.key as SubKey)}
+        summary={
+          cfg.on && masterOn
+            ? [
+                { label: 'User default:', value: cfg.defaultVal },
+                { label: 'User access:', value: cfg.allowChange ? 'Allowed' : 'Restricted' },
+              ]
+            : undefined
+        }
+        onManage={
+          cfg.on && masterOn ? () => setSubManageKey(item.key as SubKey) : undefined
+        }
         onSwitchClick={
           item.key === 'aiAssistant'
             ? undefined
