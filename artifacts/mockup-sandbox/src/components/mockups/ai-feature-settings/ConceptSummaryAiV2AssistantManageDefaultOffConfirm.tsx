@@ -33,8 +33,11 @@ const SpringIcon = ({ as: Cmp }: { as: IconCmp }) => (
 );
 
 export function ConceptSummaryAiV2AssistantManageDefaultOffConfirm() {
-  const [manageOpen, setManageOpen] = React.useState(true);
-  const [confirmOpen, setConfirmOpen] = React.useState(false);
+  // This mockup mirrors Figma node 2035-41300 — the secondary confirm shown
+  // alone on top of the Feature Settings page (the Manage AI Assistant dialog
+  // is not visible underneath in the Figma frame).
+  const [manageOpen, setManageOpen] = React.useState(false);
+  const [confirmOpen, setConfirmOpen] = React.useState(true);
   const [assistantDefault, setAssistantDefault] = React.useState<'On' | 'Off'>('On');
   const [allowChange, setAllowChange] = React.useState(true);
   const [pendingDefault, setPendingDefault] = React.useState<'On' | 'Off'>('Off');
