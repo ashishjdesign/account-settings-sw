@@ -50,9 +50,9 @@ function SpringConfirmDialog({
             {title}
           </h2>
           {body && (
-            <p className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+            <div className="flex flex-col gap-4 text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
               {body}
-            </p>
+            </div>
           )}
         </div>
         <div className="border-t border-[#DDDFE5]/50" />
@@ -90,8 +90,19 @@ export function ConceptSummaryAiV2DisableConfirm() {
           <SpringConfirmDialog
             open={confirmOpen}
             confirmLabel="Turn off"
-            title={<><span className="font-normal">Turn off </span><span className="font-normal">AI features</span><span className="font-normal"> for your organization?</span></>}
-            body={<>This will turn off all AI features across your entire account and hide them from all users.</>}
+            title={<>Turn off <span className="font-normal">AI features</span> for your organization?</>}
+            body={
+              <>
+                <p>This will disable all AI features across your entire account and hide it from all users.</p>
+                <p>
+                  <span className="font-bold">AI Assistant </span>
+                  with <span className="font-bold">phone, chat </span>
+                  and <span className="font-bold">SMS AI features </span>
+                  will also be turned off.
+                </p>
+                <p>If you turn it back on, previous user settings will be restored.</p>
+              </>
+            }
             onCancel={() => setConfirmOpen(false)}
             onConfirm={() => { setAiOn(false); setConfirmOpen(false); }}
           />
