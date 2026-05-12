@@ -27,6 +27,7 @@ export const modules: ModuleMap = {
   "./components/mockups/ai-feature-settings/ConceptPhoneExtAppRefParams.tsx": () => import("../components/mockups/ai-feature-settings/ConceptPhoneExtAppRefParams.tsx"),
   "./components/mockups/ai-feature-settings/ConceptPrototype.tsx": () => import("../components/mockups/ai-feature-settings/ConceptPrototype.tsx"),
   "./components/mockups/ai-feature-settings/ConceptSummaryAiV2.tsx": () => import("../components/mockups/ai-feature-settings/ConceptSummaryAiV2.tsx"),
+  "./components/mockups/ai-feature-settings/ConceptSummaryAiV2ChangeRetentionConfirm.tsx": () => import("../components/mockups/ai-feature-settings/ConceptSummaryAiV2ChangeRetentionConfirm.tsx"),
   "./components/mockups/ai-feature-settings/ConceptSummaryAiV2DisableConfirm.tsx": () => import("../components/mockups/ai-feature-settings/ConceptSummaryAiV2DisableConfirm.tsx"),
   "./components/mockups/ai-feature-settings/ConceptSummaryAiV2EnableConfirm.tsx": () => import("../components/mockups/ai-feature-settings/ConceptSummaryAiV2EnableConfirm.tsx"),
   "./components/mockups/ai-feature-settings/ConceptSummaryAiV2ManageMainModal.tsx": () => import("../components/mockups/ai-feature-settings/ConceptSummaryAiV2ManageMainModal.tsx"),
