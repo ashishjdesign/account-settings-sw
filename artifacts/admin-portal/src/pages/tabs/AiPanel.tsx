@@ -238,6 +238,14 @@ export default function AiPanel() {
 
   const confirmMasterOff = () => {
     dispatch({ type: 'TOGGLE_MASTER_AI', payload: false });
+    // Cascade dependents off (AI Assistant + all Phone / Chat / SMS AI
+    // sub-features). When AI features is re-enabled, AI Assistant reappears
+    // OFF so the admin must explicitly re-validate it (and in turn each
+    // sub-feature) — no silent restore.
+    dispatch({ type: 'PATCH_AI_ASSISTANT', payload: { on: false } });
+    for (const key of SUB_FEATURE_KEYS) {
+      dispatch({ type: 'PATCH_AI_FEATURE', key, payload: { on: false } });
+    }
     setMasterConfirmOpen(false);
     showToast('AI features turned off', () => dispatch({ type: 'UNDO' }));
   };
