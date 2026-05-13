@@ -103,6 +103,73 @@ export type AssistantEnableResult = {
 };
 
 /* -----------------------------------------------------------------------------
+ * Generic feature "Turn off" confirm — width 620, mirrors the AssistantDisable
+ * mockup chrome (Figma file xGbu5327bj9YvYed8lxZQk, e.g. node 2040-44839 for
+ * Fax). Optionally renders a `dependentNote` paragraph after the standard
+ * body — used to call out features that will also be turned off (e.g.
+ * Email-to-Fax for Fax).
+ * --------------------------------------------------------------------------- */
+export function FeatureDisableConfirmDialog({
+  open,
+  featureName,
+  dependentNote,
+  onCancel,
+  onConfirm,
+}: {
+  open: boolean;
+  featureName: string;
+  dependentNote?: React.ReactNode;
+  onCancel: () => void;
+  onConfirm: () => void;
+}) {
+  return (
+    <DialogPrimitives.Root open={open} onOpenChange={(o) => !o && onCancel()}>
+      <DialogPrimitives.Portal>
+        <DialogPrimitives.Overlay className="fixed inset-0 z-50 flex items-start justify-center bg-black/40 pt-16 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0">
+          <DialogPrimitives.Content
+            aria-label={`Turn off ${featureName}`}
+            className="relative z-10 flex w-[620px] max-w-[calc(100%-32px)] flex-col rounded-[10px] bg-white shadow-[0_10px_10px_rgba(0,0,0,0.2)] data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95"
+          >
+            <div className="flex flex-col gap-6 px-6 pb-8 pt-9">
+              <DialogPrimitives.Title className="py-3 text-[24px] font-normal leading-[32px] text-[var(--sui-colors-neutral-b0)]">
+                Turn off {featureName} for your organization?
+              </DialogPrimitives.Title>
+              {/* Outer gap-6 keeps title↔body rhythm; inner gap-2 keeps the
+                  two paragraphs close together (Figma 2040-44839). */}
+              <div className="flex flex-col gap-2 text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                <p>
+                  This feature will be turned off for your account and no longer available to
+                  users. When turned back on, previous user settings can be restored.
+                </p>
+                {dependentNote && <p>{dependentNote}</p>}
+              </div>
+            </div>
+            <div className="border-t border-[var(--sui-colors-neutral-b4)]/50" />
+            <div className="flex justify-end gap-2 px-6 py-5">
+              <DialogPrimitives.Close asChild>
+                <button
+                  type="button"
+                  className="inline-flex h-[36px] min-w-[60px] cursor-pointer items-center justify-center rounded-[10px] border border-[var(--sui-colors-neutral-b4)] bg-white px-[18px] text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b0)] transition-colors hover:bg-[var(--sui-colors-neutral-b4)]/40"
+                >
+                  Cancel
+                </button>
+              </DialogPrimitives.Close>
+              <button
+                type="button"
+                onClick={onConfirm}
+                className="inline-flex h-[36px] min-w-[60px] cursor-pointer items-center justify-center rounded-[10px] bg-[var(--sui-colors-primary-b)] px-[18px] text-[14px] font-medium leading-[20px] text-white transition-colors hover:bg-[var(--sui-colors-primary-b-high-contrast)]"
+              >
+                Turn off
+              </button>
+            </div>
+          </DialogPrimitives.Content>
+        </DialogPrimitives.Overlay>
+      </DialogPrimitives.Portal>
+    </DialogPrimitives.Root>
+  );
+}
+
+/* -----------------------------------------------------------------------------
  * Generic feature "Turn on" confirm — same chrome as the AI Assistant variant
  * but parameterized by featureName. Used for Closed captioning, Live
  * transcripts, AI notes, etc.

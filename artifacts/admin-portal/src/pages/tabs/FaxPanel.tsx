@@ -2,13 +2,15 @@ import React, { useState } from 'react';
 import { useSettings, FaxConfig } from '../../store';
 import {
   SettingCard,
-  SpringConfirmDialog,
   SpringFeatureManageDialog,
   SpringSelect,
   showToast,
   SpringSwitch,
 } from '../../components/shared';
-import { FeatureEnableConfirmDialog } from './_assistantConfirms';
+import {
+  FeatureDisableConfirmDialog,
+  FeatureEnableConfirmDialog,
+} from './_assistantConfirms';
 import * as DialogPrimitives from '@radix-ui/react-dialog';
 import { X, Info } from 'lucide-react';
 
@@ -143,22 +145,15 @@ export default function FaxPanel() {
         error={state.simulateError}
       />
 
-      <SpringConfirmDialog
+      <FeatureDisableConfirmDialog
         open={disableConfirmOpen}
-        confirmLabel="Turn off"
-        title={<>Turn off Fax for your organization?</>}
-        body={
-          <>
-            <p>
-              This feature will be turned off for your account and no longer available to users.
-              When turned back on, previous user settings can be restored.
-            </p>
-            {emailToFaxOn && (
-              <p>
-                <span className="font-bold">Email-to-Fax</span> will also be turned off.
-              </p>
-            )}
-          </>
+        featureName="Fax"
+        dependentNote={
+          emailToFaxOn ? (
+            <>
+              <span className="font-bold">Email-to-Fax</span> will also be turned off.
+            </>
+          ) : undefined
         }
         onCancel={() => setDisableConfirmOpen(false)}
         onConfirm={confirmFaxOff}
