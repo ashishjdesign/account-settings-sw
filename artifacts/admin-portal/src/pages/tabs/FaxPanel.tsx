@@ -8,6 +8,7 @@ import {
   SpringSwitch,
 } from '../../components/shared';
 import {
+  EmailToFaxEnableConfirmDialog,
   FeatureDisableConfirmDialog,
   FeatureEnableConfirmDialog,
 } from './_assistantConfirms';
@@ -19,12 +20,17 @@ const COVER_OPTIONS = ['None', 'Standard', 'Branded'] as const;
 
 export default function FaxPanel() {
   const { state, dispatch } = useSettings();
-  const { fax, emailToFaxOn } = state.fax;
+  const { fax, emailToFax } = state.fax;
 
   const [manageOpen, setManageOpen] = useState(false);
   const [customizeOpen, setCustomizeOpen] = useState(false);
   const [disableConfirmOpen, setDisableConfirmOpen] = useState(false);
   const [enableConfirmOpen, setEnableConfirmOpen] = useState(false);
+
+  // Email-to-Fax dialogs
+  const [e2fEnableOpen, setE2fEnableOpen] = useState(false);
+  const [e2fDisableOpen, setE2fDisableOpen] = useState(false);
+  const [e2fManageOpen, setE2fManageOpen] = useState(false);
 
   const handleFaxToggle = () => {
     if (fax.on) setDisableConfirmOpen(true);
@@ -35,9 +41,54 @@ export default function FaxPanel() {
     dispatch({ type: 'PATCH_FAX', payload: { on: false } });
     // Email-to-Fax depends on Fax — turn it off too (matches the dependent
     // note shown in the disable confirm dialog).
-    if (emailToFaxOn) dispatch({ type: 'SET_EMAIL_TO_FAX', payload: false });
+    if (emailToFax.on) dispatch({ type: 'PATCH_EMAIL_TO_FAX', payload: { on: false } });
     setDisableConfirmOpen(false);
     showToast('Fax turned off', () => dispatch({ type: 'UNDO' }));
+  };
+
+  const handleEmailToFaxToggle = () => {
+    if (emailToFax.on) setE2fDisableOpen(true);
+    else setE2fEnableOpen(true);
+  };
+
+  const confirmEmailToFaxOn = (result: {
+    defaultVal: 'On' | 'Off';
+    allowChange: boolean;
+    customAction: 'reset' | 'restore';
+  }) => {
+    // First-time enable hides the custom-users section, so its `customAction`
+    // is not a real user choice — leave `customUsers` untouched. On re-enable,
+    // honor the visible reset/restore radio.
+    const firstTime = !emailToFax.everEnabled;
+    dispatch({
+      type: 'PATCH_EMAIL_TO_FAX',
+      payload: {
+        on: true,
+        defaultVal: result.defaultVal,
+        allowChange: result.allowChange,
+        ...(firstTime
+          ? {}
+          : { customUsers: result.customAction === 'reset' ? 0 : emailToFax.customUsers }),
+        everEnabled: true,
+      },
+    });
+    setE2fEnableOpen(false);
+    showToast('Email-to-Fax turned on', () => dispatch({ type: 'UNDO' }));
+  };
+
+  const confirmEmailToFaxOff = () => {
+    dispatch({ type: 'PATCH_EMAIL_TO_FAX', payload: { on: false } });
+    setE2fDisableOpen(false);
+    showToast('Email-to-Fax turned off', () => dispatch({ type: 'UNDO' }));
+  };
+
+  const handleSaveEmailToFaxManage = (result: { defaultVal: 'On' | 'Off'; allowChange: boolean }) => {
+    dispatch({
+      type: 'PATCH_EMAIL_TO_FAX',
+      payload: { defaultVal: result.defaultVal, allowChange: result.allowChange },
+    });
+    setE2fManageOpen(false);
+    showToast('Settings were updated.', () => dispatch({ type: 'UNDO' }));
   };
 
   const confirmFaxOn = (result: {
@@ -127,12 +178,50 @@ export default function FaxPanel() {
       {fax.on && (
         <SettingCard
           title="Email-to-Fax"
-          switchOn={emailToFaxOn}
+          switchOn={emailToFax.on}
           icon="email-to-fax"
           description="Allow this account to send faxes using Email-to-fax feature."
-          onSwitchClick={() => dispatch({ type: 'SET_EMAIL_TO_FAX', payload: !emailToFaxOn })}
+          // Hide user-level summary + Manage when Email-to-Fax is off (never
+          // dim, just hide — same pattern as the Fax card and AI sub-features).
+          summary={
+            emailToFax.on
+              ? [
+                  { label: 'User default:', value: emailToFax.defaultVal },
+                  { label: 'User access:', value: emailToFax.allowChange ? 'Allowed' : 'Restricted' },
+                ]
+              : undefined
+          }
+          onManage={emailToFax.on ? () => setE2fManageOpen(true) : undefined}
+          onSwitchClick={handleEmailToFaxToggle}
         />
       )}
+
+      <EmailToFaxEnableConfirmDialog
+        open={e2fEnableOpen}
+        firstTime={!emailToFax.everEnabled}
+        initialDefaultVal={emailToFax.defaultVal}
+        initialAllowChange={emailToFax.allowChange}
+        customCount={emailToFax.customUsers}
+        onCancel={() => setE2fEnableOpen(false)}
+        onConfirm={confirmEmailToFaxOn}
+      />
+
+      <FeatureDisableConfirmDialog
+        open={e2fDisableOpen}
+        featureName="Email-to-Fax"
+        onCancel={() => setE2fDisableOpen(false)}
+        onConfirm={confirmEmailToFaxOff}
+      />
+
+      <SpringFeatureManageDialog
+        open={e2fManageOpen}
+        title="Manage Email-to-Fax"
+        defaultVal={emailToFax.defaultVal}
+        allowChange={emailToFax.allowChange}
+        customCount={emailToFax.customUsers}
+        onCancel={() => setE2fManageOpen(false)}
+        onConfirm={handleSaveEmailToFaxManage}
+      />
 
       <SpringFeatureManageDialog
         open={manageOpen}

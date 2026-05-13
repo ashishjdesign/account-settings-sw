@@ -100,9 +100,17 @@ export type SmsState = {
   smsOn: boolean;
 };
 
+export type EmailToFaxConfig = FeatureConfig & {
+  // True once the admin has completed the first-time enable flow at least
+  // once. Subsequent re-enables show the deployment dialog with the
+  // "X/98 users using default" pill, the custom-users reset/restore block,
+  // and the same security snackbar + consent checkbox.
+  everEnabled: boolean;
+};
+
 export type FaxState = {
   fax: FeatureConfig & { customize: FaxConfig };
-  emailToFaxOn: boolean;
+  emailToFax: EmailToFaxConfig;
 };
 
 export type AppState = {
@@ -166,7 +174,16 @@ const initialState: AppState = {
       customUsers: 0,
       customize: { international: false, coverPage: 'Standard', retention: '90 days' },
     },
-    emailToFaxOn: false,
+    emailToFax: {
+      on: false,
+      defaultVal: 'On',
+      allowChange: true,
+      // Seed with 26 users so that after the first-time enable + a turn-off,
+      // the re-enable dialog matches the Figma mockup (72/98 default, 26/98
+      // custom). On the first-time enable the count is hidden anyway.
+      customUsers: 26,
+      everEnabled: false,
+    },
   },
   simulateError: false,
   undoSnapshot: null,
@@ -189,7 +206,7 @@ type Action =
   | { type: 'PATCH_AI_CUSTOM_RETENTION'; payload: Partial<AiCustomRetention> }
   | { type: 'SET_SMS'; payload: boolean }
   | { type: 'PATCH_FAX'; payload: Partial<FeatureConfig> }
-  | { type: 'SET_EMAIL_TO_FAX'; payload: boolean }
+  | { type: 'PATCH_EMAIL_TO_FAX'; payload: Partial<EmailToFaxConfig> }
   | { type: 'PATCH_FAX_CUSTOMIZE'; payload: Partial<FaxConfig> }
   | { type: 'RESET_OVERRIDES_AI'; payload: AiFeatureKey };
 
@@ -322,8 +339,11 @@ function reducer(state: AppState, action: Action): AppState {
           },
         },
       };
-    case 'SET_EMAIL_TO_FAX':
-      return { ...withSnapshot(state), fax: { ...state.fax, emailToFaxOn: action.payload } };
+    case 'PATCH_EMAIL_TO_FAX': {
+      const next = applyFeaturePatch(state.fax.emailToFax, action.payload) as EmailToFaxConfig;
+      next.everEnabled = action.payload.everEnabled ?? state.fax.emailToFax.everEnabled;
+      return { ...withSnapshot(state), fax: { ...state.fax, emailToFax: next } };
+    }
     case 'PATCH_FAX_CUSTOMIZE':
       return {
         ...withSnapshot(state),
