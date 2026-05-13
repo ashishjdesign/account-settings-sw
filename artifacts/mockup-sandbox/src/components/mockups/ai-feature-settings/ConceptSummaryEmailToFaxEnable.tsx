@@ -2,6 +2,7 @@ import React from 'react';
 import { FeatureSettingsShell } from './_shared';
 import { PillTabs, SettingCard } from './_chrome';
 import { DialogShell, DialogFooter, Radio, Checkbox } from './_assistantDialogs';
+// Checkbox imported for the User access row in the deployment card.
 
 /* -----------------------------------------------------------------------------
  * Email-to-Fax Feature Settings — first-time turn-on confirm
@@ -76,22 +77,16 @@ function FirstTimeUserDeploymentCard({
 
 function SecuritySnackbar() {
   return (
-    <div
-      className="flex items-start gap-3 rounded-[10px] border border-[#066FAC]/20 px-4 py-3"
-      style={{
-        background:
-          'linear-gradient(0deg, rgba(6,111,172,0.06), rgba(6,111,172,0.06)), #FFFFFF',
-      }}
-    >
+    <div className="flex min-h-[48px] w-full items-start gap-2 rounded-[10px] border border-[var(--sui-colors-neutral-b2)] bg-[var(--sui-colors-neutral-b4)]/50 px-4 py-3 shadow-[0_10px_20px_-5px_rgba(0,0,0,0.1)] backdrop-blur-[10px]">
       <svg
         width="20"
         height="20"
         viewBox="0 0 20 20"
         fill="none"
         aria-hidden="true"
-        className="mt-[2px] shrink-0"
+        className="mt-[1px] shrink-0"
       >
-        <circle cx="10" cy="10" r="8" fill="#066FAC" />
+        <circle cx="10" cy="10" r="8" fill="var(--sui-colors-neutral-b1)" />
         <rect x="9.25" y="8.5" width="1.5" height="6" rx="0.75" fill="white" />
         <circle cx="10" cy="6.25" r="0.9" fill="white" />
       </svg>
@@ -105,6 +100,44 @@ function SecuritySnackbar() {
         </button>
       </p>
     </div>
+  );
+}
+
+function ConsentRow({
+  checked, onChange,
+}: { checked: boolean; onChange: (v: boolean) => void }) {
+  return (
+    <label className="flex cursor-pointer items-start gap-3 pt-1">
+      <span className="relative mt-[2px] flex h-[20px] w-[20px] shrink-0 items-center justify-center">
+        <input
+          type="checkbox"
+          checked={checked}
+          onChange={(e) => onChange(e.target.checked)}
+          className="peer sr-only"
+        />
+        <span
+          className={[
+            'absolute inset-0 flex items-center justify-center rounded-[4px] border-[1.2px] transition-colors',
+            checked
+              ? 'border-transparent bg-[var(--sui-colors-primary-b)]'
+              : 'border-[var(--sui-colors-neutral-b2)] bg-white',
+          ].join(' ')}
+        >
+          {checked && (
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>
+              <path d="M2.5 7.2 5.6 10.3 11.5 4.4" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          )}
+        </span>
+      </span>
+      <span className="flex-1 text-[14px] leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+        By checking this box, I confirm that my email domain meets the required security
+        standards. I acknowledge and agree that it is my sole responsibility to ensure my
+        email domain remains compliant with those standards. I agree to indemnify and hold
+        harmless RingCentral, its partners, and its affiliates for any and all liability
+        resulting from my failure to comply with these requirements.
+      </span>
+    </label>
   );
 }
 
@@ -132,7 +165,7 @@ function EmailToFaxFirstTimeEnableConfirm({
       open={open}
       ariaLabel="Turn on Email-to-Fax"
       onClose={onCancel}
-      width={620}
+      width={800}
     >
       <div className="flex flex-col gap-6 px-6 pb-8 pt-9">
         <h2 className="py-3 text-[24px] font-normal leading-[32px] text-[var(--sui-colors-neutral-b0)]">
@@ -167,22 +200,7 @@ function EmailToFaxFirstTimeEnableConfirm({
             </li>
           </ul>
 
-          <div className="flex items-start gap-2 pt-1">
-            <Checkbox
-              checked={consent}
-              onChange={setConsent}
-              label={
-                <span className="text-[14px] leading-[20px] text-[var(--sui-colors-neutral-b1)]">
-                  By checking this box, I confirm that my email domain meets the required
-                  security standards. I acknowledge and agree that it is my sole
-                  responsibility to ensure my email domain remains compliant with those
-                  standards. I agree to indemnify and hold harmless RingCentral, its
-                  partners, and its affiliates for any and all liability resulting from my
-                  failure to comply with these requirements.
-                </span>
-              }
-            />
-          </div>
+          <ConsentRow checked={consent} onChange={setConsent} />
         </div>
       </div>
       <DialogFooter
