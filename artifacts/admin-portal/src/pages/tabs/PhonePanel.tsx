@@ -247,7 +247,7 @@ export default function PhonePanel() {
       <SpringConfirmDialog
         open={extDisableOpen}
         title="Turn off Launch an external app for incoming calls?"
-        body="Incoming calls will no longer open the external app or website you configured. You can turn this back on at any time."
+        body="This feature will be turned off for your account and no longer available to users. When turned back on, previous user settings can be restored."
         confirmLabel="Turn off"
         onCancel={() => setExtDisableOpen(false)}
         onConfirm={() => {
