@@ -1204,6 +1204,7 @@ export function ExtAppEnableCombinedDialog({
   initialTrigger = 'A call begins to ring',
   customCount = 0,
   totalUsers = 98,
+  isFirstTimeEnable = false,
   onCancel,
   onConfirm,
 }: {
@@ -1212,6 +1213,13 @@ export function ExtAppEnableCombinedDialog({
   initialTrigger?: 'A call begins to ring' | 'A call is answered';
   customCount?: number;
   totalUsers?: number;
+  /**
+   * First-time enablement: feature has never been on, so there are no users
+   * with custom defaults to surface. Hides the "X/XX users using default"
+   * pill in the User deployment card. On re-enable (true → false → true),
+   * the pill returns so admins can see who's currently on the default.
+   */
+  isFirstTimeEnable?: boolean;
   onCancel: () => void;
   onConfirm: (result: {
     defaultVal: 'On' | 'Off';
@@ -1305,18 +1313,23 @@ export function ExtAppEnableCombinedDialog({
                           <SpringRadio checked={value === 'Off'} onChange={() => setValue('Off')} label="Off" />
                         </div>
                       </div>
-                      <div className="flex h-[32px] items-center rounded-[10px] bg-[var(--sui-colors-neutral-b5)] px-3">
-                        <p className="whitespace-nowrap text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
-                          <button
-                            type="button"
-                            onClick={() => setUsersOpen('default')}
-                            className="cursor-pointer text-[var(--sui-colors-primary-b)] underline hover:text-[var(--sui-colors-primary-b-high-contrast)] focus:outline-none focus:ring-2 focus:ring-[var(--sui-colors-primary-b)]/30 rounded-sm"
-                          >
-                            {defaultCount}/{total} users
-                          </button>{' '}
-                          are using the default
-                        </p>
-                      </div>
+                      {/* Hide the "X/XX users using default" pill on first-time
+                          enable — there are no users with non-default settings
+                          yet, so the notion is not meaningful. */}
+                      {!isFirstTimeEnable && (
+                        <div className="flex h-[32px] items-center rounded-[10px] bg-[var(--sui-colors-neutral-b5)] px-3">
+                          <p className="whitespace-nowrap text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                            <button
+                              type="button"
+                              onClick={() => setUsersOpen('default')}
+                              className="cursor-pointer text-[var(--sui-colors-primary-b)] underline hover:text-[var(--sui-colors-primary-b-high-contrast)] focus:outline-none focus:ring-2 focus:ring-[var(--sui-colors-primary-b)]/30 rounded-sm"
+                            >
+                              {defaultCount}/{total} users
+                            </button>{' '}
+                            are using the default
+                          </p>
+                        </div>
+                      )}
                     </div>
 
                     <div className="border-t border-[var(--sui-colors-neutral-b4)]" />

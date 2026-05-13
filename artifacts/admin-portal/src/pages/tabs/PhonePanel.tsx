@@ -198,6 +198,7 @@ export default function PhonePanel() {
         initialUrl={extApp.launchUrl}
         initialTrigger={extApp.trigger}
         customCount={extApp.customUsers}
+        isFirstTimeEnable={!extApp.everEnabled}
         onCancel={() => setExtEnableOpen(false)}
         onConfirm={(result) => {
           dispatch({
