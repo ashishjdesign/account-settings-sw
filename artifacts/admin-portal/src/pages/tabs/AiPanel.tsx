@@ -258,6 +258,12 @@ export default function AiPanel() {
 
   const confirmAssistantOff = () => {
     dispatch({ type: 'PATCH_AI_ASSISTANT', payload: { on: false } });
+    // Cascade dependents off. When AI Assistant is re-enabled the Phone /
+    // Chat / SMS cards reappear in the OFF state so the admin must explicitly
+    // re-validate each one (per product direction — no silent restore).
+    for (const key of SUB_FEATURE_KEYS) {
+      dispatch({ type: 'PATCH_AI_FEATURE', key, payload: { on: false } });
+    }
     setAssistantDisableConfirmOpen(false);
     showToast('AI Assistant turned off', () => dispatch({ type: 'UNDO' }));
   };
