@@ -148,12 +148,13 @@ export default function FaxPanel() {
       <FeatureDisableConfirmDialog
         open={disableConfirmOpen}
         featureName="Fax"
+        // Email-to-Fax is a dependent feature of Fax — always call it out in
+        // the disable confirm regardless of its current on/off state, since
+        // the entire card disappears when Fax is turned off.
         dependentNote={
-          emailToFaxOn ? (
-            <>
-              <span className="font-bold">Email-to-Fax</span> will also be turned off.
-            </>
-          ) : undefined
+          <>
+            <span className="font-bold">Email-to-Fax</span> will also be turned off.
+          </>
         }
         onCancel={() => setDisableConfirmOpen(false)}
         onConfirm={confirmFaxOff}
