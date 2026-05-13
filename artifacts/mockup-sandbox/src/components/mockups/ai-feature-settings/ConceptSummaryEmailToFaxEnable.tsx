@@ -1,4 +1,5 @@
 import React from 'react';
+import { InfoMd } from '@ringcentral/spring-icon';
 import { FeatureSettingsShell } from './_shared';
 import { PillTabs, SettingCard } from './_chrome';
 import { DialogShell, DialogFooter, Radio, Checkbox } from './_assistantDialogs';
@@ -77,20 +78,11 @@ function FirstTimeUserDeploymentCard({
 
 function SecuritySnackbar() {
   return (
-    <div className="flex min-h-[48px] w-full items-start gap-2 rounded-[10px] border border-[var(--sui-colors-neutral-b2)] bg-[var(--sui-colors-neutral-b4)]/50 px-4 py-3 shadow-[0_10px_20px_-5px_rgba(0,0,0,0.1)] backdrop-blur-[10px]">
-      <svg
-        width="20"
-        height="20"
-        viewBox="0 0 20 20"
-        fill="none"
-        aria-hidden="true"
-        className="mt-[1px] shrink-0"
-      >
-        <circle cx="10" cy="10" r="8" fill="var(--sui-colors-neutral-b1)" />
-        <rect x="9.25" y="8.5" width="1.5" height="6" rx="0.75" fill="white" />
-        <circle cx="10" cy="6.25" r="0.9" fill="white" />
-      </svg>
-      <p className="flex-1 text-[14px] leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+    <div className="flex min-h-[48px] w-full items-center gap-2 rounded-[10px] border border-[var(--sui-colors-neutral-b2)] bg-[var(--sui-colors-neutral-b4)]/50 px-4 py-2 shadow-[0_10px_20px_-5px_rgba(0,0,0,0.1)] backdrop-blur-[10px]">
+      <span className="flex h-5 w-5 shrink-0 items-center justify-center text-[var(--sui-colors-neutral-b0)]">
+        <InfoMd width={20} height={20} fill="currentColor" aria-hidden focusable={false} />
+      </span>
+      <p className="flex-1 text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b0)]">
         To use Email-to-fax, your email domain needs to meet our security requirements.{' '}
         <button
           type="button"
