@@ -13,7 +13,7 @@ import { CheckMd } from '@ringcentral/spring-icon';
 
 const TOTAL_USERS = 98;
 
-function Radio({
+export function Radio({
   checked, onChange, label,
 }: { checked: boolean; onChange: () => void; label: string }) {
   return (
@@ -44,9 +44,9 @@ function Radio({
   );
 }
 
-function Checkbox({
+export function Checkbox({
   checked, onChange, label,
-}: { checked: boolean; onChange: (v: boolean) => void; label: string }) {
+}: { checked: boolean; onChange: (v: boolean) => void; label: React.ReactNode }) {
   return (
     <label className="inline-flex cursor-pointer items-center gap-2">
       <span className="relative flex h-[20px] w-[20px] items-center justify-center">
@@ -141,7 +141,7 @@ export function UserDeploymentCard({
   );
 }
 
-function DialogShell({
+export function DialogShell({
   open, ariaLabel, onClose, width = 820, children,
 }: {
   open: boolean;
@@ -167,7 +167,7 @@ function DialogShell({
   );
 }
 
-function DialogFooter({
+export function DialogFooter({
   onCancel, onConfirm, confirmLabel, confirmDisabled,
 }: {
   onCancel: () => void;
