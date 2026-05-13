@@ -76,7 +76,7 @@ function FirstTimeUserDeploymentCard({
   );
 }
 
-function SecuritySnackbar() {
+export function SecuritySnackbar() {
   return (
     <div className="flex min-h-[48px] w-full items-center gap-2 rounded-[10px] border border-[var(--sui-colors-neutral-b2)] bg-[var(--sui-colors-neutral-b4)]/50 px-4 py-2 shadow-[0_10px_20px_-5px_rgba(0,0,0,0.1)] backdrop-blur-[10px]">
       <span className="flex h-5 w-5 shrink-0 items-center justify-center text-[var(--sui-colors-neutral-b0)]">
@@ -95,7 +95,7 @@ function SecuritySnackbar() {
   );
 }
 
-function ConsentRow({
+export function ConsentRow({
   checked, onChange,
 }: { checked: boolean; onChange: (v: boolean) => void }) {
   return (

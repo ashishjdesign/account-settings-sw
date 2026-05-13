@@ -44,6 +44,7 @@ export const modules: ModuleMap = {
   "./components/mockups/ai-feature-settings/ConceptSummaryAiV2TurnOnRetentionConfirm.tsx": () => import("../components/mockups/ai-feature-settings/ConceptSummaryAiV2TurnOnRetentionConfirm.tsx"),
   "./components/mockups/ai-feature-settings/ConceptSummaryEmailToFaxDisable.tsx": () => import("../components/mockups/ai-feature-settings/ConceptSummaryEmailToFaxDisable.tsx"),
   "./components/mockups/ai-feature-settings/ConceptSummaryEmailToFaxEnable.tsx": () => import("../components/mockups/ai-feature-settings/ConceptSummaryEmailToFaxEnable.tsx"),
+  "./components/mockups/ai-feature-settings/ConceptSummaryEmailToFaxReEnable.tsx": () => import("../components/mockups/ai-feature-settings/ConceptSummaryEmailToFaxReEnable.tsx"),
   "./components/mockups/ai-feature-settings/ConceptSummaryFax.tsx": () => import("../components/mockups/ai-feature-settings/ConceptSummaryFax.tsx"),
   "./components/mockups/ai-feature-settings/ConceptSummaryFaxDisable.tsx": () => import("../components/mockups/ai-feature-settings/ConceptSummaryFaxDisable.tsx"),
   "./components/mockups/ai-feature-settings/ConceptSummaryFaxEnable.tsx": () => import("../components/mockups/ai-feature-settings/ConceptSummaryFaxEnable.tsx"),
