@@ -1,6 +1,14 @@
 import React, { useState } from 'react';
 import { useSettings, FaxConfig } from '../../store';
-import { SettingCard, SpringFeatureManageDialog, SpringSelect, showToast, SpringSwitch } from '../../components/shared';
+import {
+  SettingCard,
+  SpringConfirmDialog,
+  SpringFeatureManageDialog,
+  SpringSelect,
+  showToast,
+  SpringSwitch,
+} from '../../components/shared';
+import { FeatureEnableConfirmDialog } from './_assistantConfirms';
 import * as DialogPrimitives from '@radix-ui/react-dialog';
 import { X, Info } from 'lucide-react';
 
@@ -13,6 +21,40 @@ export default function FaxPanel() {
 
   const [manageOpen, setManageOpen] = useState(false);
   const [customizeOpen, setCustomizeOpen] = useState(false);
+  const [disableConfirmOpen, setDisableConfirmOpen] = useState(false);
+  const [enableConfirmOpen, setEnableConfirmOpen] = useState(false);
+
+  const handleFaxToggle = () => {
+    if (fax.on) setDisableConfirmOpen(true);
+    else setEnableConfirmOpen(true);
+  };
+
+  const confirmFaxOff = () => {
+    dispatch({ type: 'PATCH_FAX', payload: { on: false } });
+    // Email-to-Fax depends on Fax — turn it off too (matches the dependent
+    // note shown in the disable confirm dialog).
+    if (emailToFaxOn) dispatch({ type: 'SET_EMAIL_TO_FAX', payload: false });
+    setDisableConfirmOpen(false);
+    showToast('Fax turned off', () => dispatch({ type: 'UNDO' }));
+  };
+
+  const confirmFaxOn = (result: {
+    defaultVal: 'On' | 'Off';
+    allowChange: boolean;
+    customAction: 'reset' | 'restore';
+  }) => {
+    dispatch({
+      type: 'PATCH_FAX',
+      payload: {
+        on: true,
+        defaultVal: result.defaultVal,
+        allowChange: result.allowChange,
+        customUsers: result.customAction === 'reset' ? 0 : fax.customUsers,
+      },
+    });
+    setEnableConfirmOpen(false);
+    showToast('Fax turned on', () => dispatch({ type: 'UNDO' }));
+  };
 
   const [custDraft, setCustDraft] = useState<FaxConfig>(fax.customize);
   const [unsavedGuardOpen, setUnsavedGuardOpen] = useState(false);
@@ -77,7 +119,7 @@ export default function FaxPanel() {
             : undefined
         }
         onManage={fax.on ? () => setManageOpen(true) : undefined}
-        onSwitchClick={() => dispatch({ type: 'PATCH_FAX', payload: { on: !fax.on } })}
+        onSwitchClick={handleFaxToggle}
       />
       {/* Email-to-Fax depends on Fax — hide the row entirely when Fax is off. */}
       {fax.on && (
@@ -99,6 +141,37 @@ export default function FaxPanel() {
         onCancel={() => setManageOpen(false)}
         onConfirm={handleSaveManage}
         error={state.simulateError}
+      />
+
+      <SpringConfirmDialog
+        open={disableConfirmOpen}
+        confirmLabel="Turn off"
+        title={<>Turn off Fax for your organization?</>}
+        body={
+          <>
+            <p>
+              This feature will be turned off for your account and no longer available to users.
+              When turned back on, previous user settings can be restored.
+            </p>
+            {emailToFaxOn && (
+              <p>
+                <span className="font-bold">Email-to-Fax</span> will also be turned off.
+              </p>
+            )}
+          </>
+        }
+        onCancel={() => setDisableConfirmOpen(false)}
+        onConfirm={confirmFaxOff}
+      />
+
+      <FeatureEnableConfirmDialog
+        open={enableConfirmOpen}
+        featureName="Fax"
+        initialDefaultVal={fax.defaultVal}
+        initialAllowChange={fax.allowChange}
+        customCount={fax.customUsers}
+        onCancel={() => setEnableConfirmOpen(false)}
+        onConfirm={confirmFaxOn}
       />
 
       <DialogPrimitives.Root open={customizeOpen} onOpenChange={(o) => !o && handleCloseCustomize()}>
