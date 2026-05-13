@@ -165,7 +165,7 @@ function EmailToFaxFirstTimeEnableConfirm({
       open={open}
       ariaLabel="Turn on Email-to-Fax"
       onClose={onCancel}
-      width={800}
+      width={820}
     >
       <div className="flex flex-col gap-6 px-6 pb-8 pt-9">
         <h2 className="py-3 text-[24px] font-normal leading-[32px] text-[var(--sui-colors-neutral-b0)]">
