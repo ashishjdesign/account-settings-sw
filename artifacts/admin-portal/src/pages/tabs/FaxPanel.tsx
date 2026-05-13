@@ -66,21 +66,29 @@ export default function FaxPanel() {
         switchOn={fax.on}
         icon="fax"
         description="Allow this account to access fax settings."
-        summary={[
-          { label: 'User default:', value: fax.defaultVal },
-          { label: 'User access:', value: fax.allowChange ? 'Allowed' : 'Restricted' },
-        ]}
-        onManage={() => setManageOpen(true)}
+        // Hide user-level summary + Manage when Fax is off (consistent with the
+        // SMS / AI sub-feature pattern — never dim, just hide).
+        summary={
+          fax.on
+            ? [
+                { label: 'User default:', value: fax.defaultVal },
+                { label: 'User access:', value: fax.allowChange ? 'Allowed' : 'Restricted' },
+              ]
+            : undefined
+        }
+        onManage={fax.on ? () => setManageOpen(true) : undefined}
         onSwitchClick={() => dispatch({ type: 'PATCH_FAX', payload: { on: !fax.on } })}
       />
-      <SettingCard
-        title="Email-to-Fax"
-        switchOn={emailToFaxOn}
-        icon="email-to-fax"
-        description="Allow this account to send faxes using Email-to-fax feature."
-        disabled={!fax.on}
-        onSwitchClick={() => dispatch({ type: 'SET_EMAIL_TO_FAX', payload: !emailToFaxOn })}
-      />
+      {/* Email-to-Fax depends on Fax — hide the row entirely when Fax is off. */}
+      {fax.on && (
+        <SettingCard
+          title="Email-to-Fax"
+          switchOn={emailToFaxOn}
+          icon="email-to-fax"
+          description="Allow this account to send faxes using Email-to-fax feature."
+          onSwitchClick={() => dispatch({ type: 'SET_EMAIL_TO_FAX', payload: !emailToFaxOn })}
+        />
+      )}
 
       <SpringFeatureManageDialog
         open={manageOpen}
