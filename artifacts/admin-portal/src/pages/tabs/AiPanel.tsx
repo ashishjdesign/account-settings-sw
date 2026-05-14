@@ -24,8 +24,7 @@ import {
   periodLabel,
 } from './_aiRetention';
 import {
-  AssistantEnableConfirmDialog,
-  AssistantManageDefaultOffConfirmDialog,
+  AssistantReEnableConfirmDialog,
   FeatureEnableConfirmDialog,
 } from './_assistantConfirms';
 
@@ -120,12 +119,7 @@ export default function AiPanel() {
   const [masterEnableConfirmOpen, setMasterEnableConfirmOpen] = useState(false);
   const [assistantDisableConfirmOpen, setAssistantDisableConfirmOpen] = useState(false);
   const [assistantEnableConfirmOpen, setAssistantEnableConfirmOpen] = useState(false);
-  // Pending Manage AI Assistant save awaiting the secondary "default → Off"
-  // confirm (Figma 2035-41300). Non-null while the confirm is open.
-  const [assistantPendingSave, setAssistantPendingSave] = useState<
-    { defaultVal: 'On' | 'Off'; allowChange: boolean } | null
-  >(null);
-  const [manageModal, setManageModal] = useState<'aiFeatures' | 'aiAssistant' | null>(null);
+  const [manageModal, setManageModal] = useState<'aiFeatures' | null>(null);
 
   // Sub-feature (Phone / Chat / SMS) flow state. Each holds the AiFeatureKey
   // currently being managed / disabled / enabled. Only one is active at a time.
@@ -194,40 +188,6 @@ export default function AiPanel() {
     'aiWriterMessaging', 'aiSummary', 'aiTranslation', 'aiWriterSms',
   ];
 
-  const commitAssistantSave = (
-    result: { defaultVal: 'On' | 'Off'; allowChange: boolean },
-    cascadeSubFeatureDefaultsOff: boolean,
-  ) => {
-    dispatch({
-      type: 'PATCH_AI_ASSISTANT',
-      payload: { defaultVal: result.defaultVal, allowChange: result.allowChange },
-    });
-    if (cascadeSubFeatureDefaultsOff) {
-      // Phone / chat / SMS AI features depend on AI Assistant, so when its
-      // user-default flips to Off the dependents must follow (Figma 2035-41300).
-      for (const key of SUB_FEATURE_KEYS) {
-        dispatch({ type: 'PATCH_AI_FEATURE', key, payload: { defaultVal: 'Off' } });
-      }
-    }
-    setManageModal(null);
-    setAssistantPendingSave(null);
-    showToast('Settings were updated.', () => dispatch({ type: 'UNDO' }));
-  };
-
-  const handleSaveAssistant = (result: { defaultVal: 'On' | 'Off'; allowChange: boolean }) => {
-    if (state.simulateError) {
-      dispatch({ type: 'TOGGLE_SIMULATE_ERROR' });
-      return;
-    }
-    // Default flipped On → Off: warn that dependent sub-feature defaults will
-    // also become Off. Otherwise save immediately.
-    if (result.defaultVal === 'Off' && aiAssistant.defaultVal === 'On') {
-      setAssistantPendingSave(result);
-      return;
-    }
-    commitAssistantSave(result, false);
-  };
-
   const handleMasterToggle = () => {
     if (masterOn) {
       setMasterConfirmOpen(true);
@@ -238,14 +198,12 @@ export default function AiPanel() {
 
   const confirmMasterOff = () => {
     dispatch({ type: 'TOGGLE_MASTER_AI', payload: false });
-    // Cascade dependents off (AI Assistant + all Phone / Chat / SMS AI
-    // sub-features). When AI features is re-enabled, AI Assistant reappears
-    // OFF so the admin must explicitly re-validate it (and in turn each
-    // sub-feature) — no silent restore.
+    // Cascade AI Assistant off so that when AI features is re-enabled, the
+    // admin must explicitly re-validate AI Assistant via its re-enable
+    // confirm. Sub-feature on/off states are intentionally preserved — they
+    // will be restored to their previous values when AI Assistant is turned
+    // back on.
     dispatch({ type: 'PATCH_AI_ASSISTANT', payload: { on: false } });
-    for (const key of SUB_FEATURE_KEYS) {
-      dispatch({ type: 'PATCH_AI_FEATURE', key, payload: { on: false } });
-    }
     setMasterConfirmOpen(false);
     showToast('AI features turned off', () => dispatch({ type: 'UNDO' }));
   };
@@ -265,32 +223,18 @@ export default function AiPanel() {
   };
 
   const confirmAssistantOff = () => {
+    // Just hide the assistant + dependents. Sub-feature on/off states are
+    // intentionally preserved so they can be RESTORED when the assistant is
+    // turned back on (per product direction — Figma 2069-32183).
     dispatch({ type: 'PATCH_AI_ASSISTANT', payload: { on: false } });
-    // Cascade dependents off. When AI Assistant is re-enabled the Phone /
-    // Chat / SMS cards reappear in the OFF state so the admin must explicitly
-    // re-validate each one (per product direction — no silent restore).
-    for (const key of SUB_FEATURE_KEYS) {
-      dispatch({ type: 'PATCH_AI_FEATURE', key, payload: { on: false } });
-    }
     setAssistantDisableConfirmOpen(false);
     showToast('AI Assistant turned off', () => dispatch({ type: 'UNDO' }));
   };
 
-  const confirmAssistantOn = (result: {
-    defaultVal: 'On' | 'Off';
-    allowChange: boolean;
-    customAction: 'reset' | 'restore';
-  }) => {
-    dispatch({
-      type: 'PATCH_AI_ASSISTANT',
-      payload: {
-        on: true,
-        defaultVal: result.defaultVal,
-        allowChange: result.allowChange,
-        // 'reset' clears custom-user overrides; 'restore' keeps them
-        customUsers: result.customAction === 'reset' ? 0 : aiAssistant.customUsers,
-      },
-    });
+  const confirmAssistantOn = () => {
+    // No user-level form anymore; re-enable just flips the switch back on.
+    // Phone / chat / SMS cards reappear with their previously stored states.
+    dispatch({ type: 'PATCH_AI_ASSISTANT', payload: { on: true } });
     setAssistantEnableConfirmOpen(false);
     showToast('AI Assistant turned on', () => dispatch({ type: 'UNDO' }));
   };
@@ -399,21 +343,13 @@ export default function AiPanel() {
        * sub-feature cards entirely (they are not just disabled — they're gone). */}
       {masterOn && (
         <>
-          {/* AI Assistant */}
+          {/* AI Assistant — no user-level management (no User default /
+           * User access pills, no Manage button). Just an on/off switch. */}
           <SettingCard
             title="AI Assistant"
             switchOn={aiAssistant.on}
             icon={<SpringIcon as={AiLightBulbMd} />}
             description="A personal assistant that helps you boost productivity."
-            summary={
-              aiAssistant.on
-                ? [
-                    { label: 'User default:', value: aiAssistant.defaultVal },
-                    { label: 'User access:', value: aiAssistant.allowChange ? 'Allowed' : 'Restricted' },
-                  ]
-                : undefined
-            }
-            onManage={() => setManageModal('aiAssistant')}
             onSwitchClick={handleAssistantToggle}
           />
 
@@ -523,30 +459,10 @@ export default function AiPanel() {
         onConfirm={confirmAssistantOff}
       />
 
-      <AssistantEnableConfirmDialog
+      <AssistantReEnableConfirmDialog
         open={assistantEnableConfirmOpen}
-        initialDefaultVal={aiAssistant.defaultVal}
-        initialAllowChange={aiAssistant.allowChange}
-        customCount={aiAssistant.customUsers}
         onCancel={() => setAssistantEnableConfirmOpen(false)}
         onConfirm={confirmAssistantOn}
-      />
-
-      <SpringFeatureManageDialog
-        open={manageModal === 'aiAssistant'}
-        title="Manage AI Assistant"
-        defaultVal={aiAssistant.defaultVal}
-        allowChange={aiAssistant.allowChange}
-        customCount={aiAssistant.customUsers}
-        onCancel={() => setManageModal(null)}
-        onConfirm={handleSaveAssistant}
-        error={state.simulateError}
-      />
-
-      <AssistantManageDefaultOffConfirmDialog
-        open={assistantPendingSave !== null}
-        onCancel={() => setAssistantPendingSave(null)}
-        onConfirm={() => assistantPendingSave && commitAssistantSave(assistantPendingSave, true)}
       />
 
       {/* Sub-feature (Phone / Chat / SMS) Manage dialog */}

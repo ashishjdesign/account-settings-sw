@@ -329,6 +329,63 @@ export function FeatureEnableConfirmDialog({
   );
 }
 
+/* -----------------------------------------------------------------------------
+ * AI Assistant — Re-enable confirm (Figma file xGbu5327bj9YvYed8lxZQk, node
+ * 2069-32183). Replaces the form-based AssistantEnableConfirmDialog now that
+ * AI Assistant no longer has user-level management. Just confirms the
+ * re-enable and notes that Phone / chat / SMS AI features will also be
+ * restored to their previous on/off states.
+ * --------------------------------------------------------------------------- */
+export function AssistantReEnableConfirmDialog({
+  open, onCancel, onConfirm,
+}: { open: boolean; onCancel: () => void; onConfirm: () => void }) {
+  return (
+    <DialogPrimitives.Root open={open} onOpenChange={(o) => !o && onCancel()}>
+      <DialogPrimitives.Portal>
+        <DialogPrimitives.Overlay className="fixed inset-0 z-50 bg-black/40 pt-16 flex justify-center items-start data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0">
+          <DialogPrimitives.Content
+            aria-label="Turn on AI Assistant"
+            className="relative z-10 flex w-[620px] max-w-[calc(100%-32px)] flex-col rounded-[10px] bg-white shadow-[0_10px_10px_rgba(0,0,0,0.2)] data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95"
+          >
+            <div className="flex flex-col gap-8 px-6 pb-15 pt-9">
+              <div className="py-3">
+                <DialogPrimitives.Title className="text-[24px] font-normal leading-[32px] text-[var(--sui-colors-neutral-b0)]">
+                  Turn on AI Assistant for your organization?
+                </DialogPrimitives.Title>
+              </div>
+              <p className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                This will turn AI Assistant back on across your entire account.
+              </p>
+              <p className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                <span className="font-bold">Phone, chat</span> and{' '}
+                <span className="font-bold">SMS AI features</span> will also be restored.
+              </p>
+            </div>
+            <div className="border-t border-[var(--sui-colors-neutral-b4)]/50" />
+            <div className="flex justify-end gap-2 px-6 py-5">
+              <DialogPrimitives.Close asChild>
+                <button
+                  type="button"
+                  className="inline-flex h-[36px] min-w-[60px] cursor-pointer items-center justify-center rounded-[10px] border border-black/20 bg-white px-4 text-[15px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b0)] transition-colors hover:bg-[var(--sui-colors-neutral-b4)]/40"
+                >
+                  Cancel
+                </button>
+              </DialogPrimitives.Close>
+              <button
+                type="button"
+                onClick={onConfirm}
+                className="inline-flex h-[36px] min-w-[60px] cursor-pointer items-center justify-center rounded-[10px] bg-[var(--sui-colors-primary-b)] px-[18px] text-[14px] font-medium leading-[20px] text-white transition-colors hover:bg-[var(--sui-colors-primary-b-high-contrast)]"
+              >
+                Turn on
+              </button>
+            </div>
+          </DialogPrimitives.Content>
+        </DialogPrimitives.Overlay>
+      </DialogPrimitives.Portal>
+    </DialogPrimitives.Root>
+  );
+}
+
 export function AssistantEnableConfirmDialog({
   open,
   initialDefaultVal = 'On',

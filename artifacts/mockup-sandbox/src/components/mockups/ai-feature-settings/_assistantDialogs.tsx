@@ -571,3 +571,31 @@ export function AssistantManageDialog({
     </DialogShell>
   );
 }
+
+/* -----------------------------------------------------------------------------
+ * AssistantReEnableConfirm (Figma 2069-32183) — width 620, no form. Shown when
+ * AI Assistant is turned back on after having been disabled. Just confirms the
+ * re-enable and notes that Phone / chat / SMS AI features will also be
+ * restored to their previous states.
+ * --------------------------------------------------------------------------- */
+export function AssistantReEnableConfirm({
+  open, onCancel, onConfirm,
+}: { open: boolean; onCancel: () => void; onConfirm: () => void }) {
+  return (
+    <DialogShell open={open} ariaLabel="Turn on AI Assistant" onClose={onCancel} width={620}>
+      <div className="flex flex-col gap-8 px-6 pb-15 pt-9">
+        <h2 className="py-3 text-[24px] font-normal leading-[32px] text-[var(--sui-colors-neutral-b0)]">
+          Turn on AI Assistant for your organization?
+        </h2>
+        <p className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+          This will turn AI Assistant back on across your entire account.
+        </p>
+        <p className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+          <span className="font-bold">Phone, chat</span> and{' '}
+          <span className="font-bold">SMS AI features</span> will also be restored.
+        </p>
+      </div>
+      <DialogFooter onCancel={onCancel} onConfirm={onConfirm} confirmLabel="Turn on" />
+    </DialogShell>
+  );
+}
