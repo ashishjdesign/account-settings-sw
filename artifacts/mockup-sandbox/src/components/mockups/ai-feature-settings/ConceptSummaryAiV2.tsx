@@ -94,7 +94,6 @@ function SpringDialog({
 
 type ModalKey =
   | 'ai-features'
-  | 'ai-assistant'
   | 'closed-captioning'
   | 'live-transcripts'
   | 'ai-notes'
@@ -118,10 +117,6 @@ export function ConceptSummaryAiV2() {
               <LabelWithInfo>AI notes and transcriptions retention period</LabelWithInfo>
               <SpringSelect value="Disabled" width={200} />
             </SubRow>
-          </SpringDialog>
-          <SpringDialog open={modal === 'ai-assistant'} title="Manage AI Assistant" onClose={close}>
-            <UserDefaultsRow />
-            <UserPermissionsRow />
           </SpringDialog>
           {(
             [
@@ -155,16 +150,13 @@ export function ConceptSummaryAiV2() {
           summary={[{ label: 'AI data custom retention period:', value: 'Disabled' }]}
           onManage={() => setModal('ai-features')}
         />
+        {/* AI Assistant — no user-level management (no User default /
+         * User access pills, no Manage button). Just an on/off switch. */}
         <SettingCard
           title="AI Assistant"
           icon={<SpringIcon as={AiLightBulbMd} />}
           switchOn
           description="A personal assistant that helps you boost productivity."
-          summary={[
-            { label: 'User default:', value: 'On' },
-            { label: 'User access:', value: 'Allowed' },
-          ]}
-          onManage={() => setModal('ai-assistant')}
         />
 
         {/* Phone group */}
