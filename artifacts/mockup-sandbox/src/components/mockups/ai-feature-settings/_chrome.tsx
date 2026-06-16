@@ -1,4 +1,5 @@
 import React from 'react';
+import { CaretRightMd } from '@ringcentral/spring-icon';
 import { cn } from '@/lib/utils';
 import { FeatureSettingsShell, SpringSwitch } from './_shared';
 
@@ -80,6 +81,54 @@ export function SettingCard({
             </button>
           </div>
         )}
+      </div>
+    </section>
+  );
+}
+
+/* ParentCard — a feature that groups child features. Instead of a switch +
+ * summary + Manage, it shows an "N features" badge and a CaretRight chevron
+ * that drills into the feature's inner page (Figma 2445-5411 AVA, 2445-8025
+ * Closed captioning). */
+export function ParentCard({
+  title, description, icon, featureCount, onOpen,
+}: {
+  title: string;
+  description: React.ReactNode;
+  icon: React.ReactNode;
+  featureCount: number;
+  onOpen?: () => void;
+}) {
+  return (
+    <section className="flex items-start gap-4 rounded-[8px] border border-[var(--sui-colors-neutral-b4)] bg-white p-4">
+      <div className="flex h-[32px] w-5 items-center justify-center shrink-0 text-[var(--sui-colors-neutral-b1)]">
+        {icon}
+      </div>
+
+      <div className="flex min-w-0 flex-1 flex-col gap-2">
+        <div className="flex min-h-[32px] w-full items-center gap-4">
+          <h3 className="flex-1 truncate text-[15px] font-bold leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+            {title}
+          </h3>
+          <span className="flex h-4 items-center justify-center rounded-full bg-[var(--sui-colors-neutral-b2)] px-1 text-[10px] font-bold leading-[10px] text-white">
+            {featureCount} features
+          </span>
+          <button
+            type="button"
+            onClick={onOpen}
+            aria-label={`Open ${title}`}
+            className="flex h-6 w-6 shrink-0 cursor-pointer items-center justify-center text-[var(--sui-colors-neutral-b1)] focus:outline-none focus:ring-2 focus:ring-[var(--sui-colors-primary-b)]/30"
+          >
+            <CaretRightMd width={20} height={20} fill="currentColor" aria-hidden focusable={false} />
+          </button>
+        </div>
+
+        <p className="pr-[130px] text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b2)]">
+          {description}{' '}
+          <a href="#" className="font-normal text-[var(--sui-colors-primary-b)] underline hover:text-[var(--sui-colors-primary-b-high-contrast)]">
+            Learn more
+          </a>
+        </p>
       </div>
     </section>
   );
