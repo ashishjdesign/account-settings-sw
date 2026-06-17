@@ -8,8 +8,8 @@ import {
   AiAsAgentMd,
   ResourceCenterMd,
 } from '@ringcentral/spring-icon';
-import { cn } from '@/lib/utils';
 import { FeatureSettingsShell, SpringSwitch } from './_shared';
+import { AvaDisableConfirm } from './_assistantDialogs';
 
 /* -----------------------------------------------------------------------------
  * AI Feature Settings — V2 — AVA detail inner page (Figma 2445-6666)
@@ -21,6 +21,10 @@ import { FeatureSettingsShell, SpringSwitch } from './_shared';
  * the right so the children read as dependents of AVA. Each row carries its own
  * switch, description, "User default / User access" pills and a Manage link.
  * Children are separated from each other (and from AVA) by hairline dividers.
+ *
+ * Turning AVA off (its parent switch) opens the "Turn off AVA" confirmation
+ * (Figma 2454-8876). Confirming turns AVA off and hides its 5 dependent
+ * features. The children themselves are display-only.
  *
  * `onBack` returns to the AI tab. When rendered as its own canvas frame (no
  * onBack), the back affordance is inert.
@@ -80,12 +84,20 @@ const PILLS = [
 /* A single feature's content column: title + switch, description, pills + Manage.
  * The icon column is supplied by the row wrapper so AVA and its children can be
  * indented independently. `children` lets AVA nest its dependent features inside
- * its own content column. */
+ * its own content column. The switch defaults to a static on state; pass
+ * `checked` + `onCheckedChange` to make the parent switch interactive. */
 function FeatureBody({
   title,
   description,
+  checked = true,
+  onCheckedChange,
   children,
-}: React.PropsWithChildren<{ title: string; description: string }>) {
+}: React.PropsWithChildren<{
+  title: string;
+  description: string;
+  checked?: boolean;
+  onCheckedChange?: (next: boolean) => void;
+}>) {
   return (
     <div className="flex min-w-0 flex-1 flex-col">
       <div className="flex flex-col gap-2">
@@ -93,7 +105,7 @@ function FeatureBody({
           <h3 className="flex-1 truncate text-[15px] font-bold leading-[20px] text-[var(--sui-colors-neutral-b1)]">
             {title}
           </h3>
-          <SpringSwitch checked aria-label={title} />
+          <SpringSwitch checked={checked} onCheckedChange={onCheckedChange} aria-label={title} />
         </div>
 
         <p className="pr-[130px] text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b2)]">
@@ -140,7 +152,28 @@ function FeatureIcon({ as }: { as: IconCmp }) {
   );
 }
 
-export function ConceptSummaryAiV2AvaDetail({ onBack }: { onBack?: () => void }) {
+export function ConceptSummaryAiV2AvaDetail({
+  onBack,
+  startConfirmOpen = false,
+}: {
+  onBack?: () => void;
+  /* When true the "Turn off AVA" confirmation is shown on mount — used by the
+   * standalone canvas frame that documents the modal state. */
+  startConfirmOpen?: boolean;
+}) {
+  const [avaOn, setAvaOn] = React.useState(true);
+  const [confirmOpen, setConfirmOpen] = React.useState(startConfirmOpen);
+
+  /* Toggling the parent switch off asks for confirmation first; toggling it back
+   * on restores it directly (re-enable has no confirmation). */
+  const handleAvaSwitch = (next: boolean) => {
+    if (next) {
+      setAvaOn(true);
+    } else {
+      setConfirmOpen(true);
+    }
+  };
+
   /* When embedded in the parent AI tab, `onBack` returns to the in-page view.
    * When rendered as its own canvas frame (no onBack), navigate the iframe back
    * to the AI tab preview so the back arrow still returns to the AI tab. */
@@ -148,15 +181,30 @@ export function ConceptSummaryAiV2AvaDetail({ onBack }: { onBack?: () => void })
     onBack ??
     (() => {
       const { pathname, search } = window.location;
-      const aiTabRe = /ConceptSummaryAiV2AvaDetail\/?$/;
-      const target = aiTabRe.test(pathname)
-        ? pathname.replace(aiTabRe, 'ConceptSummaryAiV2OnPartial') + search
+      const re = /ConceptSummaryAiV2(AvaDetail|AvaDisableConfirm)\/?$/;
+      const target = re.test(pathname)
+        ? pathname.replace(re, 'ConceptSummaryAiV2OnPartial') + search
         : `${import.meta.env.BASE_URL.replace(/\/$/, '')}/preview/ai-feature-settings/ConceptSummaryAiV2OnPartial`;
       window.location.assign(target);
     });
 
   return (
-    <FeatureSettingsShell flexLayout showFooterActions={false}>
+    <FeatureSettingsShell
+      flexLayout
+      showFooterActions={false}
+      after={
+        <div className="spring-scope">
+          <AvaDisableConfirm
+            open={confirmOpen}
+            onCancel={() => setConfirmOpen(false)}
+            onConfirm={() => {
+              setAvaOn(false);
+              setConfirmOpen(false);
+            }}
+          />
+        </div>
+      }
+    >
       {/* Back row — ← AVA */}
       <button
         type="button"
@@ -171,19 +219,27 @@ export function ConceptSummaryAiV2AvaDetail({ onBack }: { onBack?: () => void })
         {/* AVA parent — its dependent features are nested inside its content column */}
         <div className="flex items-start gap-4">
           <FeatureIcon as={AVA.icon} />
-          <FeatureBody title={AVA.title} description={AVA.description}>
-            {/* Dependent features — indented to sit under AVA, divided hairlines */}
-            <div className="mt-4 flex flex-col">
-              {CHILDREN.map((child) => (
-                <div
-                  key={child.title}
-                  className="flex items-start gap-4 border-t border-[var(--sui-colors-neutral-b4)] py-4"
-                >
-                  <FeatureIcon as={child.icon} />
-                  <FeatureBody title={child.title} description={child.description} />
-                </div>
-              ))}
-            </div>
+          <FeatureBody
+            title={AVA.title}
+            description={AVA.description}
+            checked={avaOn}
+            onCheckedChange={handleAvaSwitch}
+          >
+            {/* Dependent features — hidden once AVA is turned off. Indented to
+             * sit under AVA, divided by hairlines. */}
+            {avaOn && (
+              <div className="mt-4 flex flex-col">
+                {CHILDREN.map((child) => (
+                  <div
+                    key={child.title}
+                    className="flex items-start gap-4 border-t border-[var(--sui-colors-neutral-b4)] py-4"
+                  >
+                    <FeatureIcon as={child.icon} />
+                    <FeatureBody title={child.title} description={child.description} />
+                  </div>
+                ))}
+              </div>
+            )}
           </FeatureBody>
         </div>
       </section>
