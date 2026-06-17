@@ -209,6 +209,18 @@ export default function AiPanel() {
   type SubKey = Exclude<AiFeatureKey, 'aiAssistant'>;
   const [subManageKey, setSubManageKey] = useState<SubKey | null>(null);
   const [avaManageOpen, setAvaManageOpen] = useState(false);
+  // AVA's 5 dependent features have no global store state (they're new concepts
+  // rendered display-only). Their per-feature deployment config is kept in local
+  // state, keyed by title, so each one's Manage dialog opens and persists within
+  // the page. `avaChildManage` holds which child's Manage dialog is open.
+  const [avaChildManage, setAvaChildManage] = useState<string | null>(null);
+  const [avaChildCfg, setAvaChildCfg] = useState<
+    Record<string, { defaultVal: 'On' | 'Off'; allowChange: boolean }>
+  >(() =>
+    Object.fromEntries(
+      AVA_CHILDREN.map((c) => [c.title, { defaultVal: 'On' as const, allowChange: true }]),
+    ),
+  );
   const [subDisableKey, setSubDisableKey] = useState<SubKey | null>(null);
   const [subEnableKey, setSubEnableKey] = useState<SubKey | null>(null);
 
@@ -377,6 +389,19 @@ export default function AiPanel() {
     showToast('Settings were updated.', () => dispatch({ type: 'UNDO' }));
   };
 
+  const saveAvaChildManage = (
+    result: { defaultVal: 'On' | 'Off'; allowChange: boolean },
+  ) => {
+    if (!avaChildManage) return;
+    const title = avaChildManage;
+    setAvaChildCfg((prev) => ({
+      ...prev,
+      [title]: { defaultVal: result.defaultVal, allowChange: result.allowChange },
+    }));
+    setAvaChildManage(null);
+    showToast('Settings were updated.');
+  };
+
   const renderFeatureCard = (item: FeatureItem) => {
     const cfg = state.ai[item.key as Exclude<AiFeatureKey, 'aiAssistant'>];
     return (
@@ -507,17 +532,24 @@ export default function AiPanel() {
             onSwitchClick={handleAssistantToggle}
           >
             {avaActive &&
-              AVA_CHILDREN.map((c) => (
-                <FeatureDetailRow
-                  key={c.title}
-                  nested
-                  icon={<SpringIcon as={c.icon} />}
-                  title={c.title}
-                  description={c.description}
-                  switchOn
-                  summary={ALLOWED}
-                />
-              ))}
+              AVA_CHILDREN.map((c) => {
+                const cfg = avaChildCfg[c.title];
+                return (
+                  <FeatureDetailRow
+                    key={c.title}
+                    nested
+                    icon={<SpringIcon as={c.icon} />}
+                    title={c.title}
+                    description={c.description}
+                    switchOn
+                    summary={[
+                      { label: 'User default:', value: cfg.defaultVal },
+                      { label: 'User access:', value: cfg.allowChange ? 'Allowed' : 'Restricted' },
+                    ]}
+                    onManage={() => setAvaChildManage(c.title)}
+                  />
+                );
+              })}
           </FeatureDetailRow>
         </FeatureDetailPage>
       )}
@@ -659,6 +691,19 @@ export default function AiPanel() {
         customCount={aiAssistant.customUsers}
         onCancel={() => setAvaManageOpen(false)}
         onConfirm={saveAvaManage}
+      />
+
+      {/* AVA dependent-feature Manage dialog (Query / Messaging / Integrations /
+       * Actions / Knowledge Base). One instance reused for whichever child's
+       * Manage button was clicked. */}
+      <SpringFeatureManageDialog
+        open={avaChildManage !== null}
+        title={avaChildManage ? `Manage ${avaChildManage}` : ''}
+        defaultVal={avaChildManage ? avaChildCfg[avaChildManage].defaultVal : 'On'}
+        allowChange={avaChildManage ? avaChildCfg[avaChildManage].allowChange : true}
+        customCount={26}
+        onCancel={() => setAvaChildManage(null)}
+        onConfirm={saveAvaChildManage}
       />
 
       {/* Sub-feature Turn off confirm */}

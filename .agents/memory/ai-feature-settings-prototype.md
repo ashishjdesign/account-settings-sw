@@ -60,3 +60,10 @@ defaultVal==='Off' -> "Turn off default for users?" (Figma 2454-9526); else !all
 users from changing this setting?" (Figma 2502-10410, width 600, copy "Users will no longer be able to
 change AVA." + "This restriction will also apply to Query, Messaging, Integrations, Actions and Knowledge
 Bases", confirm label "Restrict access"). Each has a standalone frame via a start<X>Open prop.
+
+**admin-portal AVA children (real app, AiPanel.tsx):** the 5 AVA dependents (Query, Messaging,
+Integrations, Actions, Knowledge Base) have NO global store entry — they are display-only concepts.
+Their Manage dialogs are wired via LOCAL component state (avaChildManage + avaChildCfg keyed by title),
+reusing SpringFeatureManageDialog; saves persist in-page only (no dispatch, toast without undo). Gotcha:
+FeatureDetailRow renders the "Manage" button whenever `summary` is set but wires onClick to `onManage`,
+so a row with a summary and no onManage shows an INERT Manage CTA — always pass onManage when summary is set.
