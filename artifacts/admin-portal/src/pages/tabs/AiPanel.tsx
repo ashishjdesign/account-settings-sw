@@ -208,6 +208,7 @@ export default function AiPanel() {
   // currently being managed / disabled / enabled. Only one is active at a time.
   type SubKey = Exclude<AiFeatureKey, 'aiAssistant'>;
   const [subManageKey, setSubManageKey] = useState<SubKey | null>(null);
+  const [avaManageOpen, setAvaManageOpen] = useState(false);
   const [subDisableKey, setSubDisableKey] = useState<SubKey | null>(null);
   const [subEnableKey, setSubEnableKey] = useState<SubKey | null>(null);
 
@@ -365,6 +366,17 @@ export default function AiPanel() {
     showToast('Settings were updated.', () => dispatch({ type: 'UNDO' }));
   };
 
+  const saveAvaManage = (
+    result: { defaultVal: 'On' | 'Off'; allowChange: boolean },
+  ) => {
+    dispatch({
+      type: 'PATCH_AI_ASSISTANT',
+      payload: { defaultVal: result.defaultVal, allowChange: result.allowChange },
+    });
+    setAvaManageOpen(false);
+    showToast('Settings were updated.', () => dispatch({ type: 'UNDO' }));
+  };
+
   const renderFeatureCard = (item: FeatureItem) => {
     const cfg = state.ai[item.key as Exclude<AiFeatureKey, 'aiAssistant'>];
     return (
@@ -491,6 +503,7 @@ export default function AiPanel() {
             switchOn={avaActive}
             disabled={!masterOn}
             summary={avaActive ? ALLOWED : undefined}
+            onManage={avaActive ? () => setAvaManageOpen(true) : undefined}
             onSwitchClick={handleAssistantToggle}
           >
             {avaActive &&
@@ -635,6 +648,17 @@ export default function AiPanel() {
         customCount={subManageKey ? state.ai[subManageKey].customUsers : 0}
         onCancel={() => setSubManageKey(null)}
         onConfirm={saveSubManage}
+      />
+
+      {/* AVA Manage dialog (Figma 2454-9168) */}
+      <SpringFeatureManageDialog
+        open={avaManageOpen}
+        title="Manage AVA"
+        defaultVal={aiAssistant.defaultVal}
+        allowChange={aiAssistant.allowChange}
+        customCount={aiAssistant.customUsers}
+        onCancel={() => setAvaManageOpen(false)}
+        onConfirm={saveAvaManage}
       />
 
       {/* Sub-feature Turn off confirm */}
