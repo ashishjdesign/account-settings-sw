@@ -1,3 +1,4 @@
 - [Figma → Spring icon mapping](figma-spring-icon-mapping.md) — Figma icon instance names ≠ Spring DS exports; always verify the exact `*Md` export before use.
 - [AI Feature Settings prototype](ai-feature-settings-prototype.md) — mockup-sandbox click-through prototype structure, routing, and screenshot conventions.
 - [Spring icon React 19 types](spring-icon-react19-types.md) — direct <SomeMd/> JSX fails TS2739; render via SpringIcon wrapper (looser SVGProps type).
+- [URL deep-links gate — wouter adaptation](url-deep-links-wouter-adaptation.md) — satisfy the mandatory routing gate using the app's wouter router (?query for detail/overlay), never force in React Router v6.

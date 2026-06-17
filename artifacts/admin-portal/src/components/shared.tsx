@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ChevronDown, ChevronRight, Search, Check, X, Info } from 'lucide-react';
+import { CaretRightMd, ArrowLeftMd } from '@ringcentral/spring-icon';
 import * as SwitchPrimitives from '@radix-ui/react-switch';
 import * as DialogPrimitives from '@radix-ui/react-dialog';
 import * as TooltipPrimitives from '@radix-ui/react-tooltip';
@@ -404,6 +405,159 @@ export function SectionHeading({ children }: React.PropsWithChildren) {
     <h2 className="mt-2 text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b2)]">
       {children}
     </h2>
+  );
+}
+
+/* Spring DS icons render as 32×32 SVG with no fill — render at the requested
+ * size with fill="currentColor" so they inherit the surrounding text color.
+ * Routed through a ComponentType<SVGProps> wrapper so direct JSX usage doesn't
+ * trip React 19's stricter SVG prop typing. */
+type SpringIconCmp = React.ComponentType<React.SVGProps<SVGSVGElement>>;
+export function SpringIcon({ as: Cmp, size = 20 }: { as: SpringIconCmp; size?: number }) {
+  return <Cmp width={size} height={size} fill="currentColor" aria-hidden focusable={false} />;
+}
+
+/* ParentCard — a feature that groups child features. Instead of a switch +
+ * summary + Manage, it shows an "N features" badge and a CaretRight chevron
+ * that drills into the feature's inner detail page. */
+export function ParentCard({
+  title, description, icon, featureCount, onOpen,
+}: {
+  title: string;
+  description: React.ReactNode;
+  icon: React.ReactNode;
+  featureCount: number;
+  onOpen?: () => void;
+}) {
+  return (
+    <section className="flex items-start gap-4 rounded-[8px] border border-[var(--sui-colors-neutral-b4)] bg-white p-4">
+      <div className="flex h-[32px] w-5 items-center justify-center shrink-0 text-[var(--sui-colors-neutral-b1)]">
+        {icon}
+      </div>
+
+      <div className="flex min-w-0 flex-1 flex-col gap-2">
+        <div className="flex min-h-[32px] w-full items-center gap-4">
+          <h3 className="flex-1 truncate text-[15px] font-bold leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+            {title}
+          </h3>
+          <span className="flex h-4 items-center justify-center rounded-full bg-[var(--sui-colors-neutral-b2)] px-1 text-[10px] font-bold leading-[10px] text-white">
+            {featureCount} features
+          </span>
+          <button
+            type="button"
+            onClick={onOpen}
+            aria-label={`Open ${title}`}
+            className="flex h-6 w-6 shrink-0 cursor-pointer items-center justify-center text-[var(--sui-colors-neutral-b1)] focus:outline-none focus:ring-2 focus:ring-[var(--sui-colors-primary-b)]/30"
+          >
+            <SpringIcon as={CaretRightMd} />
+          </button>
+        </div>
+
+        <p className="pr-[130px] text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b2)]">
+          {description}{' '}
+          <a href="#" onClick={(e) => e.preventDefault()} className="font-normal text-[var(--sui-colors-primary-b)] underline hover:text-[var(--sui-colors-primary-b-high-contrast)]">
+            Learn more
+          </a>
+        </p>
+      </div>
+    </section>
+  );
+}
+
+/* FeatureDetailPage — back header (← Title) above a single bordered card that
+ * holds a parent FeatureDetailRow and its nested children. */
+export function FeatureDetailPage({
+  title, onBack, children,
+}: React.PropsWithChildren<{ title: string; onBack: () => void }>) {
+  return (
+    <div className="flex flex-col">
+      <button
+        type="button"
+        onClick={onBack}
+        className="mb-4 flex items-center gap-4 text-[var(--sui-colors-neutral-b1)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sui-colors-primary-b)]/30"
+      >
+        <SpringIcon as={ArrowLeftMd} size={24} />
+        <span className="text-[20px] font-semibold leading-[28px] tracking-[-0.2px]">{title}</span>
+      </button>
+      <section className="rounded-[8px] border border-[var(--sui-colors-neutral-b4)] bg-white p-4">
+        {children}
+      </section>
+    </div>
+  );
+}
+
+/* FeatureDetailRow — one feature row inside a detail page. Used both for the
+ * parent (top of the card) and for its nested children. `nested` adds the
+ * hairline top divider + vertical padding that separates dependent children.
+ * `children` lets a parent nest its dependents inside its own content column so
+ * they read as indented dependents. */
+export function FeatureDetailRow({
+  icon, title, description, switchOn, disabled, summary, onManage, onSwitchClick, nested, children,
+}: React.PropsWithChildren<{
+  icon: React.ReactNode;
+  title: string;
+  description: React.ReactNode;
+  switchOn: boolean;
+  disabled?: boolean;
+  summary?: SummarySegment[];
+  onManage?: () => void;
+  onSwitchClick?: () => void;
+  nested?: boolean;
+}>) {
+  return (
+    <div className={cn('flex items-start gap-4', nested && 'border-t border-[var(--sui-colors-neutral-b4)] py-4')}>
+      <div className="flex h-[32px] w-5 shrink-0 items-center justify-center text-[var(--sui-colors-neutral-b1)]">
+        {icon}
+      </div>
+
+      <div className="flex min-w-0 flex-1 flex-col">
+        <div className="flex flex-col gap-2">
+          <div className="flex min-h-[32px] w-full items-center gap-4">
+            <h3 className="flex-1 truncate text-[15px] font-bold leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+              {title}
+            </h3>
+            <SpringSwitch
+              checked={switchOn}
+              disabled={disabled}
+              aria-label={title}
+              onClick={onSwitchClick ? (e) => { e.preventDefault(); onSwitchClick(); } : undefined}
+            />
+          </div>
+
+          <p className="pr-[130px] text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b2)]">
+            {description}{' '}
+            <a href="#" onClick={(e) => e.preventDefault()} className="font-normal text-[var(--sui-colors-primary-b)] underline hover:text-[var(--sui-colors-primary-b-high-contrast)]">
+              Learn more
+            </a>
+          </p>
+
+          {switchOn && summary && summary.length > 0 && (
+            <div className="mt-2 flex w-full items-center justify-between gap-4">
+              <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
+                {summary.map((seg, i) => (
+                  <div
+                    key={i}
+                    className="flex h-[32px] items-center gap-2 whitespace-nowrap rounded-[10px] bg-[var(--sui-colors-neutral-b5)] px-3 text-[14px] leading-[20px] text-[var(--sui-colors-neutral-b1)]"
+                  >
+                    {seg.label && <span className="font-semibold">{seg.label}</span>}
+                    <span className="font-normal">{seg.value}</span>
+                  </div>
+                ))}
+              </div>
+              <button
+                type="button"
+                onClick={onManage}
+                className="inline-flex h-[32px] shrink-0 cursor-pointer items-center justify-center gap-1.5 rounded-[10px] px-1 text-[14px] font-medium leading-[20px] text-[var(--sui-colors-primary-b)] transition-colors hover:text-[var(--sui-colors-primary-b-high-contrast)] focus:outline-none focus:ring-2 focus:ring-[var(--sui-colors-primary-b)]/30"
+              >
+                Manage
+              </button>
+            </div>
+          )}
+        </div>
+
+        {children && <div className="mt-4 flex flex-col">{children}</div>}
+      </div>
+    </div>
   );
 }
 

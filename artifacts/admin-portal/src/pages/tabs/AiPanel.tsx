@@ -1,7 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useSearch, useLocation } from 'wouter';
 import {
   AiStarsMd,
-  AiLightBulbMd,
+  AvaMd,
+  AiSearchMd,
+  MessagesMd,
+  PuzzleMd,
+  AiAsAgentMd,
+  ResourceCenterMd,
   AiWriterAltMd,
   AiSummaryMd,
   SmartNotesMd,
@@ -14,6 +20,11 @@ import { useSettings } from '../../store';
 import type { AiFeatureKey, AiRetentionPeriod } from '../../store';
 import {
   SettingCard,
+  SectionHeading,
+  ParentCard,
+  FeatureDetailPage,
+  FeatureDetailRow,
+  SpringIcon,
   SpringConfirmDialog,
   SpringFeatureManageDialog,
   showToast,
@@ -28,12 +39,7 @@ import {
   FeatureEnableConfirmDialog,
 } from './_assistantConfirms';
 
-/* Spring DS icons render as 32×32 SVG with no fill — render at 20×20 with
- * fill="currentColor" so they inherit the SettingCard icon-slot color. */
-type SpringIconCmp = React.ComponentType<React.SVGProps<SVGSVGElement>>;
-const SpringIcon = ({ as: Cmp }: { as: SpringIconCmp }) => (
-  <Cmp width={20} height={20} fill="currentColor" aria-hidden focusable={false} />
-);
+type IconCmp = React.ComponentType<React.SVGProps<SVGSVGElement>>;
 
 type FeatureItem = {
   key: AiFeatureKey;
@@ -41,6 +47,60 @@ type FeatureItem = {
   icon: React.ReactNode;
   description: React.ReactNode;
 };
+
+const ALLOWED = [
+  { label: 'User default:', value: 'On' },
+  { label: 'User access:', value: 'Allowed' },
+];
+
+/* AVA's dependent features (Figma 2445-6666). These are new concepts not yet
+ * backed by individual store state, so they render display-only inside the AVA
+ * detail page (matching the static design). */
+const AVA_CHILDREN: { title: string; icon: IconCmp; description: string }[] = [
+  {
+    title: 'Query',
+    icon: AiSearchMd,
+    description: 'Use content from calls and meetings to generate AI guidance.',
+  },
+  {
+    title: 'Messaging',
+    icon: MessagesMd,
+    description: 'Use messaging content for internal productivity.',
+  },
+  {
+    title: 'Integrations',
+    icon: PuzzleMd,
+    description:
+      'Allow integrations with Email, Calendar, and CRM to provide additional guidance and actions.',
+  },
+  {
+    title: 'Actions',
+    icon: AiAsAgentMd,
+    description: 'Enable AVA to make agentic actions for you. Include config and productivity.',
+  },
+  {
+    title: 'Knowledge Base',
+    icon: ResourceCenterMd,
+    description: "Allow AVA to look through KB's and generate summarized and guided responses.",
+  },
+];
+
+/* Closed captioning's dependent features (Figma 2445-8025) — these ARE backed
+ * by real store state, so their toggles / Manage flows are fully wired. */
+const CC_CHILDREN: { key: Exclude<AiFeatureKey, 'aiAssistant'>; title: string; icon: IconCmp; description: string }[] = [
+  {
+    key: 'liveTranscripts',
+    title: 'Live transcripts',
+    icon: TranscriptMd,
+    description: 'Provides real-time AI-generated call transcripts.',
+  },
+  {
+    key: 'aiNotes',
+    title: 'AI notes',
+    icon: SmartNotesMd,
+    description: 'Generate call notes automatically for all your devices.',
+  },
+];
 
 const PHONE_ITEMS: FeatureItem[] = [
   {
@@ -102,17 +162,40 @@ const SMS_ITEMS: FeatureItem[] = [
   },
 ];
 
-function GroupLabel({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="px-1 pt-2 text-[12px] font-medium leading-[16px] text-[var(--sui-colors-neutral-b2)]">
-      {children}
-    </div>
-  );
-}
-
 export default function AiPanel() {
   const { state, dispatch } = useSettings();
   const { masterOn, aiAssistant } = state.ai;
+
+  // Which page of the AI tab is showing — driven by the `?detail=` URL param so
+  // the AVA / Closed captioning detail views are deep-linkable and back/forward
+  // works. Default (no param) = the main list.
+  const search = useSearch();
+  const [, setLocation] = useLocation();
+  const detailParam = new URLSearchParams(search).get('detail');
+  const page: 'main' | 'ava' | 'closedCaptioning' =
+    detailParam === 'ava'
+      ? 'ava'
+      : detailParam === 'closedCaptioning'
+        ? 'closedCaptioning'
+        : 'main';
+  const openDetail = (d: 'ava' | 'closedCaptioning') =>
+    setLocation(`/feature-settings/ai?detail=${d}`);
+  const backToMain = () => setLocation('/feature-settings/ai');
+
+  // Cascade gate: AVA — and therefore the Phone / Chat / SMS features that
+  // depend on it — is only active when both master AI and AVA are on.
+  const avaActive = masterOn && aiAssistant.on;
+
+  // Guard deep links: a detail view is only reachable when its parent is on.
+  // `?detail=ava` needs master AI on; `?detail=closedCaptioning` needs AVA on.
+  // Normalize an invalid `?detail=` back to the main list.
+  useEffect(() => {
+    if (detailParam === 'ava' && !masterOn) {
+      setLocation('/feature-settings/ai', { replace: true });
+    } else if (detailParam === 'closedCaptioning' && !avaActive) {
+      setLocation('/feature-settings/ai', { replace: true });
+    }
+  }, [detailParam, masterOn, avaActive, setLocation]);
 
   const customRetention = state.ai.customRetention;
   const [masterConfirmOpen, setMasterConfirmOpen] = useState(false);
@@ -129,15 +212,12 @@ export default function AiPanel() {
   const [subEnableKey, setSubEnableKey] = useState<SubKey | null>(null);
 
   // Pending values awaiting confirm-dialog approval (turn-on / change).
-  // Use state (not ref) so the period <select> in the turn-on confirm
-  // dialog is reactive when the user picks a different duration.
   const [pending, setPending] = useState<{ on: boolean; period: AiRetentionPeriod } | null>(null);
   const [aiTurnOnConfirmOpen, setAiTurnOnConfirmOpen] = useState(false);
   const [aiChangeConfirmOpen, setAiChangeConfirmOpen] = useState(false);
 
   // True when the turn-on confirm was triggered by the toggle inside the
-  // Manage modal (we keep the Manage modal open after committing, so the user
-  // sees the "retention enabled" state). False when triggered by Save.
+  // Manage modal (we keep the Manage modal open after committing).
   const [turnOnFromToggle, setTurnOnFromToggle] = useState(false);
 
   const handleManageSave = ({
@@ -145,15 +225,12 @@ export default function AiPanel() {
   }: { retentionOn: boolean; period: AiRetentionPeriod }) => {
     const wasOn = customRetention.on;
     if (wasOn && !retentionOn) {
-      // Turning OFF — commit directly
       dispatch({ type: 'PATCH_AI_CUSTOM_RETENTION', payload: { on: false } });
       setManageModal(null);
       showToast('Settings were updated.', () => dispatch({ type: 'UNDO' }));
       return;
     }
     if (!wasOn && retentionOn) {
-      // Save with retention freshly toggled on (rare — the toggle normally
-      // intercepts via onRequestTurnOn, but kept as a safety net).
       setPending({ on: true, period });
       setTurnOnFromToggle(false);
       setAiTurnOnConfirmOpen(true);
@@ -183,11 +260,6 @@ export default function AiPanel() {
     showToast('Settings were updated.', () => dispatch({ type: 'UNDO' }));
   };
 
-  const SUB_FEATURE_KEYS: Exclude<AiFeatureKey, 'aiAssistant'>[] = [
-    'closedCaptioning', 'liveTranscripts', 'aiNotes', 'aiVoicemailSummaries',
-    'aiWriterMessaging', 'aiSummary', 'aiTranslation', 'aiWriterSms',
-  ];
-
   const handleMasterToggle = () => {
     if (masterOn) {
       setMasterConfirmOpen(true);
@@ -198,13 +270,11 @@ export default function AiPanel() {
 
   const confirmMasterOff = () => {
     dispatch({ type: 'TOGGLE_MASTER_AI', payload: false });
-    // Cascade AI Assistant off so that when AI features is re-enabled, the
-    // admin must explicitly re-validate AI Assistant via its re-enable
-    // confirm. Sub-feature on/off states are intentionally preserved — they
-    // will be restored to their previous values when AI Assistant is turned
-    // back on.
+    // Cascade AVA off so re-enabling AI features requires explicit re-validation
+    // of AVA. Sub-feature on/off states are preserved for restoration.
     dispatch({ type: 'PATCH_AI_ASSISTANT', payload: { on: false } });
     setMasterConfirmOpen(false);
+    backToMain();
     showToast('AI features turned off', () => dispatch({ type: 'UNDO' }));
   };
 
@@ -223,31 +293,25 @@ export default function AiPanel() {
   };
 
   const confirmAssistantOff = () => {
-    // Just hide the assistant + dependents. Sub-feature on/off states are
-    // intentionally preserved so they can be RESTORED when the assistant is
-    // turned back on (per product direction — Figma 2069-32183).
     dispatch({ type: 'PATCH_AI_ASSISTANT', payload: { on: false } });
     setAssistantDisableConfirmOpen(false);
-    showToast('AI Assistant turned off', () => dispatch({ type: 'UNDO' }));
+    showToast('AVA turned off', () => dispatch({ type: 'UNDO' }));
   };
 
   const confirmAssistantOn = () => {
-    // No user-level form anymore; re-enable just flips the switch back on.
-    // Phone / chat / SMS cards reappear with their previously stored states.
     dispatch({ type: 'PATCH_AI_ASSISTANT', payload: { on: true } });
     setAssistantEnableConfirmOpen(false);
-    showToast('AI Assistant turned on', () => dispatch({ type: 'UNDO' }));
+    showToast('AVA turned on', () => dispatch({ type: 'UNDO' }));
   };
 
   const toggleSubFeature = (key: SubKey) => {
-    if (!masterOn) return;
+    if (!avaActive) return;
     const cur = state.ai[key].on;
     if (cur) setSubDisableKey(key);
     else setSubEnableKey(key);
   };
 
-  // Lookup of feature title by key — used by sub-feature dialogs so we don't
-  // need to thread the label through every confirm.
+  // Lookup of feature title by key — used by sub-feature dialogs.
   const ALL_SUB_ITEMS: FeatureItem[] = [...PHONE_ITEMS, ...CHAT_ITEMS, ...SMS_ITEMS];
   const labelFor = (key: SubKey) =>
     ALL_SUB_ITEMS.find((i) => i.key === key)?.title ?? String(key);
@@ -294,8 +358,7 @@ export default function AiPanel() {
   };
 
   const renderFeatureCard = (item: FeatureItem) => {
-    const cfg =
-      item.key === 'aiAssistant' ? aiAssistant : state.ai[item.key as Exclude<AiFeatureKey, 'aiAssistant'>];
+    const cfg = state.ai[item.key as Exclude<AiFeatureKey, 'aiAssistant'>];
     return (
       <SettingCard
         key={item.key}
@@ -312,62 +375,150 @@ export default function AiPanel() {
               ]
             : undefined
         }
-        onManage={
-          cfg.on && masterOn ? () => setSubManageKey(item.key as SubKey) : undefined
-        }
-        onSwitchClick={
-          item.key === 'aiAssistant'
-            ? undefined
-            : () => toggleSubFeature(item.key as SubKey)
-        }
+        onManage={cfg.on && masterOn ? () => setSubManageKey(item.key as SubKey) : undefined}
+        onSwitchClick={() => toggleSubFeature(item.key as SubKey)}
       />
+    );
+  };
+
+  // A fully-wired detail row for a real sub-feature (used in the CC detail).
+  const renderWiredDetailRow = (
+    key: SubKey,
+    icon: IconCmp,
+    title: string,
+    description: string,
+    nested: boolean,
+    children?: React.ReactNode,
+  ) => {
+    const cfg = state.ai[key];
+    const on = cfg.on && avaActive;
+    return (
+      <FeatureDetailRow
+        key={key}
+        nested={nested}
+        icon={<SpringIcon as={icon} />}
+        title={title}
+        description={description}
+        switchOn={on}
+        disabled={!avaActive}
+        summary={
+          on
+            ? [
+                { label: 'User default:', value: cfg.defaultVal },
+                { label: 'User access:', value: cfg.allowChange ? 'Allowed' : 'Restricted' },
+              ]
+            : undefined
+        }
+        onManage={on ? () => setSubManageKey(key) : undefined}
+        onSwitchClick={() => toggleSubFeature(key)}
+      >
+        {children}
+      </FeatureDetailRow>
     );
   };
 
   const retentionDisplay = customRetention.on ? periodLabel(customRetention.period) : 'Disabled';
 
+  const aiVoicemail = PHONE_ITEMS.find((i) => i.key === 'aiVoicemailSummaries')!;
+
   return (
     <div className="flex flex-col gap-4">
-      {/* AI features (master) */}
-      <SettingCard
-        title="AI features"
-        switchOn={masterOn}
-        icon={<SpringIcon as={AiStarsMd} />}
-        description="Turn on AI support for calls, messages and video meetings. Deliver real-time answers, call notes, transcripts and meeting recaps to help teams stay focused and organized. Empower users to communicate clearly with built-in writing and polishing tools."
-        summary={masterOn ? [{ label: 'AI data custom retention period:', value: retentionDisplay }] : undefined}
-        onManage={() => setManageModal('aiFeatures')}
-        onSwitchClick={handleMasterToggle}
-      />
-
-      {/* When the master AI features toggle is off, hide AI Assistant and all
-       * sub-feature cards entirely (they are not just disabled — they're gone). */}
-      {masterOn && (
+      {page === 'main' && (
         <>
-          {/* AI Assistant — no user-level management (no User default /
-           * User access pills, no Manage button). Just an on/off switch. */}
+          {/* AI features (master) */}
           <SettingCard
-            title="AI Assistant"
-            switchOn={aiAssistant.on}
-            icon={<SpringIcon as={AiLightBulbMd} />}
-            description="A personal assistant that helps you boost productivity."
-            onSwitchClick={handleAssistantToggle}
+            title="AI features"
+            switchOn={masterOn}
+            icon={<SpringIcon as={AiStarsMd} />}
+            description="Turn on AI support for calls, messages and video meetings. Deliver real-time answers, call notes, transcripts and meeting recaps to help teams stay focused and organized. Empower users to communicate clearly with built-in writing and polishing tools."
+            summary={masterOn ? [{ label: 'AI data custom retention period:', value: retentionDisplay }] : undefined}
+            onManage={() => setManageModal('aiFeatures')}
+            onSwitchClick={handleMasterToggle}
           />
 
-          {/* Phone / Chat / SMS sub-features depend on AI Assistant — hidden
-           * entirely when the assistant is off, mirroring the master toggle. */}
-          {aiAssistant.on && (
+          {/* When master AI features is off, hide AVA and all sub-features. */}
+          {masterOn && (
             <>
-              <GroupLabel>Phone</GroupLabel>
-              {PHONE_ITEMS.map(renderFeatureCard)}
+              {/* AI Bot — AVA replaces AI Assistant: a parent card whose detail
+               * page holds its 5 dependent features. */}
+              <SectionHeading>AI Bot</SectionHeading>
+              <ParentCard
+                title="AVA"
+                icon={<SpringIcon as={AvaMd} />}
+                featureCount={AVA_CHILDREN.length}
+                description="A personal assistant that helps you boost productivity."
+                onOpen={() => openDetail('ava')}
+              />
 
-              <GroupLabel>Chat</GroupLabel>
-              {CHAT_ITEMS.map(renderFeatureCard)}
+              {/* Phone / Chat / SMS depend on AVA — hidden when AVA is off. */}
+              {aiAssistant.on && (
+                <>
+                  <SectionHeading>Phone</SectionHeading>
+                  <ParentCard
+                    title="Closed captioning"
+                    icon={<SpringIcon as={ClosedCaptionsMd} />}
+                    featureCount={CC_CHILDREN.length}
+                    description="Uses AI to display real-time captions during phone calls."
+                    onOpen={() => openDetail('closedCaptioning')}
+                  />
+                  {renderFeatureCard(aiVoicemail)}
 
-              <GroupLabel>SMS</GroupLabel>
-              {SMS_ITEMS.map(renderFeatureCard)}
+                  <SectionHeading>Chat</SectionHeading>
+                  {CHAT_ITEMS.map(renderFeatureCard)}
+
+                  <SectionHeading>SMS</SectionHeading>
+                  {SMS_ITEMS.map(renderFeatureCard)}
+                </>
+              )}
             </>
           )}
         </>
+      )}
+
+      {/* AVA detail — parent switch is wired to AVA on/off; the 5 dependent
+       * features are display-only (no backing store state yet). */}
+      {page === 'ava' && (
+        <FeatureDetailPage title="AVA" onBack={backToMain}>
+          <FeatureDetailRow
+            icon={<SpringIcon as={AvaMd} />}
+            title="AVA"
+            description="A personal assistant that helps you boost productivity."
+            switchOn={avaActive}
+            disabled={!masterOn}
+            summary={avaActive ? ALLOWED : undefined}
+            onSwitchClick={handleAssistantToggle}
+          >
+            {AVA_CHILDREN.map((c) => (
+              <FeatureDetailRow
+                key={c.title}
+                nested
+                icon={<SpringIcon as={c.icon} />}
+                title={c.title}
+                description={c.description}
+                switchOn={avaActive}
+                disabled={!avaActive}
+                summary={avaActive ? ALLOWED : undefined}
+              />
+            ))}
+          </FeatureDetailRow>
+        </FeatureDetailPage>
+      )}
+
+      {/* Closed captioning detail — fully wired (CC + Live transcripts + AI
+       * notes all have real store state). */}
+      {page === 'closedCaptioning' && (
+        <FeatureDetailPage title="Closed captioning" onBack={backToMain}>
+          {renderWiredDetailRow(
+            'closedCaptioning',
+            ClosedCaptionsMd,
+            'Closed captioning',
+            'Uses AI to display real-time captions during phone calls.',
+            false,
+            CC_CHILDREN.map((c) =>
+              renderWiredDetailRow(c.key, c.icon, c.title, c.description, true),
+            ),
+          )}
+        </FeatureDetailPage>
       )}
 
       <SpringConfirmDialog
@@ -379,7 +530,7 @@ export default function AiPanel() {
             <p>This will disable all AI features across your entire account and hide it from all users.</p>
             <div className="flex flex-col gap-0">
               <p>
-                <span className="font-bold">AI Assistant </span>
+                <span className="font-bold">AVA </span>
                 with <span className="font-bold">phone, chat </span>
                 and <span className="font-bold">SMS AI features </span>
                 will also be turned off.
@@ -442,7 +593,7 @@ export default function AiPanel() {
       <SpringConfirmDialog
         open={assistantDisableConfirmOpen}
         confirmLabel="Turn off"
-        title={<>Turn off AI Assistant for your organization?</>}
+        title={<>Turn off AVA for your organization?</>}
         body={
           <>
             <p>
