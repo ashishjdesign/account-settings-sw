@@ -258,6 +258,36 @@ export function AvaDisableConfirm({
 }
 
 /* -----------------------------------------------------------------------------
+ * AvaManageDefaultOffConfirm (Figma 2454-9526) — width 600, simple body.
+ * Shown when the Manage AVA dialog is saved with the user default set to Off.
+ * Because AVA is a parent, defaulting AVA off also defaults its 5 dependent
+ * features off in user settings.
+ * --------------------------------------------------------------------------- */
+export function AvaManageDefaultOffConfirm({
+  open, onCancel, onConfirm,
+}: { open: boolean; onCancel: () => void; onConfirm: () => void }) {
+  return (
+    <DialogShell open={open} ariaLabel="Turn off default for users" onClose={onCancel} width={600}>
+      <div className="flex flex-col gap-8 px-6 pb-10 pt-9">
+        <h2 className="py-3 text-[24px] font-normal leading-[32px] text-[var(--sui-colors-neutral-b0)]">
+          Turn off default for users?
+        </h2>
+        <div className="flex flex-col gap-4 text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+          <p>
+            <span className="font-bold">AVA</span> will default to off in user settings.
+          </p>
+          <p>
+            <span className="font-bold">Query, Messaging, Integrations, Actions</span> and{' '}
+            <span className="font-bold">Knowledge Bases</span> will also default to off.
+          </p>
+        </div>
+      </div>
+      <DialogFooter onCancel={onCancel} onConfirm={onConfirm} confirmLabel="Turn default off" />
+    </DialogShell>
+  );
+}
+
+/* -----------------------------------------------------------------------------
  * ClosedCaptioningDisableConfirm (Figma 2495-9886) — width 720, simple body.
  * Turning off the Closed captioning parent also turns off its 2 dependent
  * features (Live transcripts, AI notes).

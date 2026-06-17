@@ -43,3 +43,14 @@ On confirm, `confirmAssistantOn(AssistantEnableResult)` persists `defaultVal`/`a
 **User prefs:** never opacity-dim disabled/secondary content (hide/cascade instead of greying out); exact Figma Spring icons only. NOTE: "never opacity-dim" is about disabled/secondary *content* — it does NOT forbid the standard modal scrim. Every dialog in this prototype uses the shared `DialogShell` `bg-black/40` backdrop; new confirm dialogs should reuse it for consistency.
 (see figma-spring-icon-mapping.md); cascade parent→child state. Run architect code review after
 each completed command.
+
+**Confirm-modal conventions (mockup prototype):** Manage dialogs here are non-persisting click-throughs
+— `onSave`/`onConfirm` just close (`setOpen(false)`); they do NOT lift/persist deployment state. Don't
+add production-grade state management (architect may suggest it — out of scope, inconsistent with siblings).
+Confirmation Cancel should simply dismiss (matches `AvaDisableConfirm`), NOT reopen the Manage dialog
+(reopening resets the form, losing the selection — self-contradictory). Standalone canvas frames document
+a modal by rendering the detail page with a `start<X>Open` prop (e.g. `startManageOpen`,
+`startDefaultOffConfirmOpen`). New: "Turn off default for users?" (Figma 2454-9526) fires from Manage AVA
+Save when User default = Off; copy: "AVA will default to off in user settings." + "Query, Messaging,
+Integrations, Actions and Knowledge Bases will also default to off." confirm label "Turn default off",
+width 600.

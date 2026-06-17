@@ -9,7 +9,12 @@ import {
   ResourceCenterMd,
 } from '@ringcentral/spring-icon';
 import { FeatureSettingsShell, SpringSwitch } from './_shared';
-import { AvaDisableConfirm, AvaManageDialog, FeatureManageDialog } from './_assistantDialogs';
+import {
+  AvaDisableConfirm,
+  AvaManageDialog,
+  AvaManageDefaultOffConfirm,
+  FeatureManageDialog,
+} from './_assistantDialogs';
 
 /* -----------------------------------------------------------------------------
  * AI Feature Settings — V2 — AVA detail inner page (Figma 2445-6666)
@@ -159,6 +164,7 @@ export function ConceptSummaryAiV2AvaDetail({
   onBack,
   startConfirmOpen = false,
   startManageOpen = false,
+  startDefaultOffConfirmOpen = false,
 }: {
   onBack?: () => void;
   /* When true the "Turn off AVA" confirmation is shown on mount — used by the
@@ -167,10 +173,17 @@ export function ConceptSummaryAiV2AvaDetail({
   /* When true the "Manage AVA" dialog is shown on mount — used by the standalone
    * canvas frame that documents the manage state. */
   startManageOpen?: boolean;
+  /* When true the "Turn off default for users?" confirmation is shown on mount —
+   * used by the standalone canvas frame that documents that modal state. */
+  startDefaultOffConfirmOpen?: boolean;
 }) {
   const [avaOn, setAvaOn] = React.useState(true);
   const [confirmOpen, setConfirmOpen] = React.useState(startConfirmOpen);
   const [manageOpen, setManageOpen] = React.useState(startManageOpen);
+  /* Confirmation shown when Manage AVA is saved with the user default set to Off
+   * (cascades the off default to AVA's dependent features). */
+  const [defaultOffConfirmOpen, setDefaultOffConfirmOpen] =
+    React.useState(startDefaultOffConfirmOpen);
   /* Which dependent feature's "Manage" dialog is open (null = none). */
   const [manageChild, setManageChild] = React.useState<string | null>(null);
 
@@ -191,7 +204,7 @@ export function ConceptSummaryAiV2AvaDetail({
     onBack ??
     (() => {
       const { pathname, search } = window.location;
-      const re = /ConceptSummaryAiV2(AvaDetail|AvaDisableConfirm|AvaManage)\/?$/;
+      const re = /ConceptSummaryAiV2(AvaDetail|AvaDisableConfirm|AvaManageDefaultOffConfirm|AvaManage)\/?$/;
       const target = re.test(pathname)
         ? pathname.replace(re, 'ConceptSummaryAiV2OnPartial') + search
         : `${import.meta.env.BASE_URL.replace(/\/$/, '')}/preview/ai-feature-settings/ConceptSummaryAiV2OnPartial`;
@@ -215,10 +228,20 @@ export function ConceptSummaryAiV2AvaDetail({
           <AvaManageDialog
             open={manageOpen}
             onCancel={() => setManageOpen(false)}
-            onSave={() => setManageOpen(false)}
+            onSave={({ defaultVal }) => {
+              setManageOpen(false);
+              /* AVA is a parent: saving an Off user default cascades the off
+               * default to its dependent features, so confirm first. */
+              if (defaultVal === 'Off') setDefaultOffConfirmOpen(true);
+            }}
             initialDefaultVal="On"
             initialAllowChange
             customUsersCount={26}
+          />
+          <AvaManageDefaultOffConfirm
+            open={defaultOffConfirmOpen}
+            onCancel={() => setDefaultOffConfirmOpen(false)}
+            onConfirm={() => setDefaultOffConfirmOpen(false)}
           />
           {/* Per-child "Manage" dialog (User deployment). One instance reused for
            * whichever dependent feature's Manage button was clicked. */}
