@@ -141,12 +141,26 @@ function FeatureIcon({ as }: { as: IconCmp }) {
 }
 
 export function ConceptSummaryAiV2AvaDetail({ onBack }: { onBack?: () => void }) {
+  /* When embedded in the parent AI tab, `onBack` returns to the in-page view.
+   * When rendered as its own canvas frame (no onBack), navigate the iframe back
+   * to the AI tab preview so the back arrow still returns to the AI tab. */
+  const handleBack =
+    onBack ??
+    (() => {
+      const { pathname, search } = window.location;
+      const aiTabRe = /ConceptSummaryAiV2AvaDetail\/?$/;
+      const target = aiTabRe.test(pathname)
+        ? pathname.replace(aiTabRe, 'ConceptSummaryAiV2OnPartial') + search
+        : `${import.meta.env.BASE_URL.replace(/\/$/, '')}/preview/ai-feature-settings/ConceptSummaryAiV2OnPartial`;
+      window.location.assign(target);
+    });
+
   return (
     <FeatureSettingsShell flexLayout showFooterActions={false}>
       {/* Back row — ← AVA */}
       <button
         type="button"
-        onClick={onBack}
+        onClick={handleBack}
         className="mb-4 flex items-center gap-4 text-[var(--sui-colors-neutral-b1)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sui-colors-primary-b)]/30"
       >
         <ArrowLeftMd width={24} height={24} fill="currentColor" aria-hidden focusable={false} />
