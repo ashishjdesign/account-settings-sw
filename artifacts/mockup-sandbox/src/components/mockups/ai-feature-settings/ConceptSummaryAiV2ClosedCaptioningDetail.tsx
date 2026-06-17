@@ -6,6 +6,7 @@ import {
   SmartNotesMd,
 } from '@ringcentral/spring-icon';
 import { FeatureSettingsShell, SpringSwitch } from './_shared';
+import { ClosedCaptioningDisableConfirm } from './_assistantDialogs';
 
 /* -----------------------------------------------------------------------------
  * AI Feature Settings — V2 — Closed captioning detail inner page (Figma 2445-8025)
@@ -17,6 +18,10 @@ import { FeatureSettingsShell, SpringSwitch } from './_shared';
  * the right so the children read as dependents of Closed captioning. Each row
  * carries its own switch, description, "User default / User access" pills and a
  * Manage link. Children are separated by hairline dividers.
+ *
+ * Turning Closed captioning off (its parent switch) opens the "Turn off Closed
+ * captioning" confirmation (Figma 2495-9886). Confirming turns the parent off
+ * and hides its 2 dependent features. The children themselves are display-only.
  *
  * `onBack` returns to the AI tab. When rendered as its own canvas frame (no
  * onBack), the back arrow navigates the iframe back to the AI tab preview.
@@ -60,12 +65,21 @@ const PILLS = [
 /* A single feature's content column: title + switch, description, pills + Manage.
  * The icon column is supplied by the row wrapper so the parent and its children
  * can be indented independently. `children` lets the parent nest its dependent
- * features inside its own content column. */
+ * features inside its own content column. The switch defaults to a static on
+ * state; pass `checked` + `onCheckedChange` to make the parent switch
+ * interactive. */
 function FeatureBody({
   title,
   description,
+  checked = true,
+  onCheckedChange,
   children,
-}: React.PropsWithChildren<{ title: string; description: string }>) {
+}: React.PropsWithChildren<{
+  title: string;
+  description: string;
+  checked?: boolean;
+  onCheckedChange?: (next: boolean) => void;
+}>) {
   return (
     <div className="flex min-w-0 flex-1 flex-col">
       <div className="flex flex-col gap-2">
@@ -73,7 +87,7 @@ function FeatureBody({
           <h3 className="flex-1 truncate text-[15px] font-bold leading-[20px] text-[var(--sui-colors-neutral-b1)]">
             {title}
           </h3>
-          <SpringSwitch checked aria-label={title} />
+          <SpringSwitch checked={checked} onCheckedChange={onCheckedChange} aria-label={title} />
         </div>
 
         <p className="pr-[130px] text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b2)]">
@@ -120,7 +134,28 @@ function FeatureIcon({ as }: { as: IconCmp }) {
   );
 }
 
-export function ConceptSummaryAiV2ClosedCaptioningDetail({ onBack }: { onBack?: () => void }) {
+export function ConceptSummaryAiV2ClosedCaptioningDetail({
+  onBack,
+  startConfirmOpen = false,
+}: {
+  onBack?: () => void;
+  /* When true the "Turn off Closed captioning" confirmation is shown on mount —
+   * used by the standalone canvas frame that documents the modal state. */
+  startConfirmOpen?: boolean;
+}) {
+  const [captioningOn, setCaptioningOn] = React.useState(true);
+  const [confirmOpen, setConfirmOpen] = React.useState(startConfirmOpen);
+
+  /* Toggling the parent switch off asks for confirmation first; toggling it back
+   * on restores it directly (re-enable has no confirmation). */
+  const handleCaptioningSwitch = (next: boolean) => {
+    if (next) {
+      setCaptioningOn(true);
+    } else {
+      setConfirmOpen(true);
+    }
+  };
+
   /* When embedded in the parent AI tab, `onBack` returns to the in-page view.
    * When rendered as its own canvas frame (no onBack), navigate the iframe back
    * to the AI tab preview so the back arrow still returns to the AI tab. */
@@ -128,7 +163,7 @@ export function ConceptSummaryAiV2ClosedCaptioningDetail({ onBack }: { onBack?: 
     onBack ??
     (() => {
       const { pathname, search } = window.location;
-      const re = /ConceptSummaryAiV2ClosedCaptioningDetail\/?$/;
+      const re = /ConceptSummaryAiV2ClosedCaptioning(Detail|DisableConfirm)\/?$/;
       const target = re.test(pathname)
         ? pathname.replace(re, 'ConceptSummaryAiV2OnPartial') + search
         : `${import.meta.env.BASE_URL.replace(/\/$/, '')}/preview/ai-feature-settings/ConceptSummaryAiV2OnPartial`;
@@ -136,7 +171,22 @@ export function ConceptSummaryAiV2ClosedCaptioningDetail({ onBack }: { onBack?: 
     });
 
   return (
-    <FeatureSettingsShell flexLayout showFooterActions={false}>
+    <FeatureSettingsShell
+      flexLayout
+      showFooterActions={false}
+      after={
+        <div className="spring-scope">
+          <ClosedCaptioningDisableConfirm
+            open={confirmOpen}
+            onCancel={() => setConfirmOpen(false)}
+            onConfirm={() => {
+              setCaptioningOn(false);
+              setConfirmOpen(false);
+            }}
+          />
+        </div>
+      }
+    >
       {/* Back row — ← Closed captioning */}
       <button
         type="button"
@@ -153,19 +203,27 @@ export function ConceptSummaryAiV2ClosedCaptioningDetail({ onBack }: { onBack?: 
         {/* Parent — its dependent features are nested inside its content column */}
         <div className="flex items-start gap-4">
           <FeatureIcon as={PARENT.icon} />
-          <FeatureBody title={PARENT.title} description={PARENT.description}>
-            {/* Dependent features — indented to sit under the parent, divided hairlines */}
-            <div className="mt-4 flex flex-col">
-              {CHILDREN.map((child) => (
-                <div
-                  key={child.title}
-                  className="flex items-start gap-4 border-t border-[var(--sui-colors-neutral-b4)] py-4"
-                >
-                  <FeatureIcon as={child.icon} />
-                  <FeatureBody title={child.title} description={child.description} />
-                </div>
-              ))}
-            </div>
+          <FeatureBody
+            title={PARENT.title}
+            description={PARENT.description}
+            checked={captioningOn}
+            onCheckedChange={handleCaptioningSwitch}
+          >
+            {/* Dependent features — hidden once Closed captioning is turned off.
+             * Indented to sit under the parent, divided by hairlines. */}
+            {captioningOn && (
+              <div className="mt-4 flex flex-col">
+                {CHILDREN.map((child) => (
+                  <div
+                    key={child.title}
+                    className="flex items-start gap-4 border-t border-[var(--sui-colors-neutral-b4)] py-4"
+                  >
+                    <FeatureIcon as={child.icon} />
+                    <FeatureBody title={child.title} description={child.description} />
+                  </div>
+                ))}
+              </div>
+            )}
           </FeatureBody>
         </div>
       </section>

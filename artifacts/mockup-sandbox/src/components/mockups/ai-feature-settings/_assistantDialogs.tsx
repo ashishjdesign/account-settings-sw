@@ -258,6 +258,37 @@ export function AvaDisableConfirm({
 }
 
 /* -----------------------------------------------------------------------------
+ * ClosedCaptioningDisableConfirm (Figma 2495-9886) — width 720, simple body.
+ * Turning off the Closed captioning parent also turns off its 2 dependent
+ * features (Live transcripts, AI notes).
+ * --------------------------------------------------------------------------- */
+export function ClosedCaptioningDisableConfirm({
+  open, onCancel, onConfirm,
+}: { open: boolean; onCancel: () => void; onConfirm: () => void }) {
+  return (
+    <DialogShell open={open} ariaLabel="Turn off Closed captioning" onClose={onCancel} width={720}>
+      <div className="flex flex-col gap-8 px-6 pb-10 pt-9">
+        <h2 className="py-3 text-[24px] font-normal leading-[32px] text-[var(--sui-colors-neutral-b0)]">
+          Turn off Closed captioning for your organization?
+        </h2>
+        <div className="flex flex-col gap-4 text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+          <p>
+            This feature will be turned off for your account and no longer available to users.
+            <br aria-hidden />
+            When turned back on, previous user settings can be restored.
+          </p>
+          <p>
+            <span className="font-bold">Live transcripts</span> and{' '}
+            <span className="font-bold">AI notes</span> will also be turned off.
+          </p>
+        </div>
+      </div>
+      <DialogFooter onCancel={onCancel} onConfirm={onConfirm} confirmLabel="Turn off" />
+    </DialogShell>
+  );
+}
+
+/* -----------------------------------------------------------------------------
  * AssistantEnableConfirm (Figma 2035-41070) — width 820, includes:
  *   - User deployment card
  *   - "Custom users — what to do" radio block (only when customUsers > 0)
