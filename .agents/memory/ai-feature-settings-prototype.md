@@ -78,3 +78,11 @@ discards (applies nothing). Gotcha: store UNDO only reverts AVA's parent state, 
 ALSO restore a pre-commit snapshot of avaChildCfg or the child cascade won't roll back. The AVA parent
 FeatureDetailRow summary must derive from aiAssistant.defaultVal/allowChange (a static ALLOWED constant
 was a latent bug — it never reflected real state).
+
+**Prototype child turn-off (AVA + Closed captioning detail pages):** each dependent (child) feature's
+switch is interactive; turning it OFF opens FeatureChildDisableConfirm (title "Turn off <name>?", a
+user-level confirm distinct from the org-level FeatureDisableConfirm whose title ends "... for your
+organization?"). On confirm the child stays off and its user-deployment row (User default/User access
+pills + Manage link) is HIDDEN — done by gating that row behind `checked` inside the shared FeatureBody,
+so a turned-off PARENT also hides its own pills/Manage (consistent with the never-dim-hide-when-off
+pref). Re-enabling a child is direct (no confirm). Child on/off kept in a childOn Record<title,boolean>.

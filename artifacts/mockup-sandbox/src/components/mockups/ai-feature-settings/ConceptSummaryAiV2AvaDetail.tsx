@@ -15,6 +15,7 @@ import {
   AvaManageDefaultOffConfirm,
   AvaManageRestrictAccessConfirm,
   FeatureManageDialog,
+  FeatureChildDisableConfirm,
 } from './_assistantDialogs';
 
 /* -----------------------------------------------------------------------------
@@ -126,26 +127,31 @@ function FeatureBody({
           </a>
         </p>
 
-        <div className="mt-2 flex w-full items-center justify-between gap-4">
-          <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
-            {PILLS.map((seg, i) => (
-              <div
-                key={i}
-                className="flex h-[32px] items-center gap-2 whitespace-nowrap rounded-[10px] bg-[var(--sui-colors-neutral-b5)] px-3 text-[14px] leading-[20px] text-[var(--sui-colors-neutral-b1)]"
-              >
-                <span className="font-semibold">{seg.label}</span>
-                <span className="font-normal">{seg.value}</span>
-              </div>
-            ))}
+        {/* User-deployment row (pills + Manage) is only meaningful while the
+         * feature is on; once it's switched off the deployment settings are
+         * hidden entirely (no dimmed/secondary content). */}
+        {checked && (
+          <div className="mt-2 flex w-full items-center justify-between gap-4">
+            <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
+              {PILLS.map((seg, i) => (
+                <div
+                  key={i}
+                  className="flex h-[32px] items-center gap-2 whitespace-nowrap rounded-[10px] bg-[var(--sui-colors-neutral-b5)] px-3 text-[14px] leading-[20px] text-[var(--sui-colors-neutral-b1)]"
+                >
+                  <span className="font-semibold">{seg.label}</span>
+                  <span className="font-normal">{seg.value}</span>
+                </div>
+              ))}
+            </div>
+            <button
+              type="button"
+              onClick={onManage}
+              className="inline-flex h-[32px] shrink-0 cursor-pointer items-center justify-center gap-1.5 rounded-[10px] px-1 text-[14px] font-medium leading-[20px] text-[var(--sui-colors-primary-b)] transition-colors hover:text-[var(--sui-colors-primary-b-high-contrast)] focus:outline-none focus:ring-2 focus:ring-[var(--sui-colors-primary-b)]/30"
+            >
+              Manage
+            </button>
           </div>
-          <button
-            type="button"
-            onClick={onManage}
-            className="inline-flex h-[32px] shrink-0 cursor-pointer items-center justify-center gap-1.5 rounded-[10px] px-1 text-[14px] font-medium leading-[20px] text-[var(--sui-colors-primary-b)] transition-colors hover:text-[var(--sui-colors-primary-b-high-contrast)] focus:outline-none focus:ring-2 focus:ring-[var(--sui-colors-primary-b)]/30"
-          >
-            Manage
-          </button>
-        </div>
+        )}
       </div>
 
       {children}
@@ -195,6 +201,13 @@ export function ConceptSummaryAiV2AvaDetail({
     React.useState(startRestrictAccessConfirmOpen);
   /* Which dependent feature's "Manage" dialog is open (null = none). */
   const [manageChild, setManageChild] = React.useState<string | null>(null);
+  /* Per-child on/off state (all on by default). Turning a child off hides its
+   * own user-deployment row (pills + Manage). */
+  const [childOn, setChildOn] = React.useState<Record<string, boolean>>(() =>
+    Object.fromEntries(CHILDREN.map((c) => [c.title, true])),
+  );
+  /* Which child's "Turn off …?" confirmation is open (null = none). */
+  const [disableChild, setDisableChild] = React.useState<string | null>(null);
 
   /* Toggling the parent switch off asks for confirmation first; toggling it back
    * on restores it directly (re-enable has no confirmation). */
@@ -203,6 +216,16 @@ export function ConceptSummaryAiV2AvaDetail({
       setAvaOn(true);
     } else {
       setConfirmOpen(true);
+    }
+  };
+
+  /* A child switch turned off asks for confirmation first; turned back on
+   * restores it directly (re-enable has no confirmation). */
+  const handleChildSwitch = (title: string, next: boolean) => {
+    if (next) {
+      setChildOn((prev) => ({ ...prev, [title]: true }));
+    } else {
+      setDisableChild(title);
     }
   };
 
@@ -271,6 +294,19 @@ export function ConceptSummaryAiV2AvaDetail({
             initialAllowChange
             customUsersCount={26}
           />
+          {/* Per-child "Turn off …?" confirmation. Confirming turns the child off
+           * and hides its user-deployment row. */}
+          <FeatureChildDisableConfirm
+            open={disableChild !== null}
+            featureName={disableChild ?? ''}
+            onCancel={() => setDisableChild(null)}
+            onConfirm={() => {
+              if (disableChild) {
+                setChildOn((prev) => ({ ...prev, [disableChild]: false }));
+              }
+              setDisableChild(null);
+            }}
+          />
         </div>
       }
     >
@@ -308,6 +344,8 @@ export function ConceptSummaryAiV2AvaDetail({
                     <FeatureBody
                       title={child.title}
                       description={child.description}
+                      checked={childOn[child.title]}
+                      onCheckedChange={(next) => handleChildSwitch(child.title, next)}
                       onManage={() => setManageChild(child.title)}
                     />
                   </div>

@@ -504,6 +504,37 @@ export function FeatureDisableConfirm({
   );
 }
 
+/* -----------------------------------------------------------------------------
+ * FeatureChildDisableConfirm — the standard confirmation shown when a dependent
+ * (child) feature's own switch is turned off. Unlike the org-level disable
+ * confirms ("… for your organization?"), a child is a user-level sub-feature, so
+ * the title is simply "Turn off {featureName}?". On confirm the child stays off
+ * and its user-deployment row (pills + Manage) is hidden by the caller.
+ * --------------------------------------------------------------------------- */
+export function FeatureChildDisableConfirm({
+  open, featureName, onCancel, onConfirm,
+}: {
+  open: boolean;
+  featureName: string;
+  onCancel: () => void;
+  onConfirm: () => void;
+}) {
+  return (
+    <DialogShell open={open} ariaLabel={`Turn off ${featureName}`} onClose={onCancel} width={620}>
+      <div className="flex flex-col gap-6 px-6 pb-8 pt-9">
+        <h2 className="py-3 text-[24px] font-normal leading-[32px] text-[var(--sui-colors-neutral-b0)]">
+          Turn off {featureName}?
+        </h2>
+        <p className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+          This feature will be turned off and no longer available to users. When turned back on,
+          previous user settings can be restored.
+        </p>
+      </div>
+      <DialogFooter onCancel={onCancel} onConfirm={onConfirm} confirmLabel="Turn off" />
+    </DialogShell>
+  );
+}
+
 export function FeatureEnableConfirm({
   open, featureName, onCancel, onConfirm,
   initialDefaultVal = 'On',
