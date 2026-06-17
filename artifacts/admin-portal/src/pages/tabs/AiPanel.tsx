@@ -182,20 +182,19 @@ export default function AiPanel() {
     setLocation(`/feature-settings/ai?detail=${d}`);
   const backToMain = () => setLocation('/feature-settings/ai');
 
-  // Cascade gate: AVA — and therefore the Phone / Chat / SMS features that
-  // depend on it — is only active when both master AI and AVA are on.
+  // AVA is active only when both master AI and AVA are on. This gates AVA's
+  // own dependent features (the 5 shown inside the AVA detail page) — it does
+  // NOT affect Phone / Chat / SMS, which depend only on master AI features.
   const avaActive = masterOn && aiAssistant.on;
 
   // Guard deep links: a detail view is only reachable when its parent is on.
-  // `?detail=ava` needs master AI on; `?detail=closedCaptioning` needs AVA on.
+  // Both `?detail=ava` and `?detail=closedCaptioning` depend only on master AI.
   // Normalize an invalid `?detail=` back to the main list.
   useEffect(() => {
-    if (detailParam === 'ava' && !masterOn) {
-      setLocation('/feature-settings/ai', { replace: true });
-    } else if (detailParam === 'closedCaptioning' && !avaActive) {
+    if ((detailParam === 'ava' || detailParam === 'closedCaptioning') && !masterOn) {
       setLocation('/feature-settings/ai', { replace: true });
     }
-  }, [detailParam, masterOn, avaActive, setLocation]);
+  }, [detailParam, masterOn, setLocation]);
 
   const customRetention = state.ai.customRetention;
   const [masterConfirmOpen, setMasterConfirmOpen] = useState(false);
@@ -305,7 +304,7 @@ export default function AiPanel() {
   };
 
   const toggleSubFeature = (key: SubKey) => {
-    if (!avaActive) return;
+    if (!masterOn) return;
     const cur = state.ai[key].on;
     if (cur) setSubDisableKey(key);
     else setSubEnableKey(key);
@@ -391,7 +390,7 @@ export default function AiPanel() {
     children?: React.ReactNode,
   ) => {
     const cfg = state.ai[key];
-    const on = cfg.on && avaActive;
+    const on = cfg.on && masterOn;
     return (
       <FeatureDetailRow
         key={key}
@@ -400,7 +399,7 @@ export default function AiPanel() {
         title={title}
         description={description}
         switchOn={on}
-        disabled={!avaActive}
+        disabled={!masterOn}
         summary={
           on
             ? [
@@ -450,26 +449,23 @@ export default function AiPanel() {
                 onOpen={() => openDetail('ava')}
               />
 
-              {/* Phone / Chat / SMS depend on AVA — hidden when AVA is off. */}
-              {aiAssistant.on && (
-                <>
-                  <SectionHeading>Phone</SectionHeading>
-                  <ParentCard
-                    title="Closed captioning"
-                    icon={<SpringIcon as={ClosedCaptionsMd} />}
-                    featureCount={CC_CHILDREN.length}
-                    description="Uses AI to display real-time captions during phone calls."
-                    onOpen={() => openDetail('closedCaptioning')}
-                  />
-                  {renderFeatureCard(aiVoicemail)}
+              {/* Phone / Chat / SMS depend only on master AI features — they
+               * are NOT affected by AVA being on or off. */}
+              <SectionHeading>Phone</SectionHeading>
+              <ParentCard
+                title="Closed captioning"
+                icon={<SpringIcon as={ClosedCaptionsMd} />}
+                featureCount={CC_CHILDREN.length}
+                description="Uses AI to display real-time captions during phone calls."
+                onOpen={() => openDetail('closedCaptioning')}
+              />
+              {renderFeatureCard(aiVoicemail)}
 
-                  <SectionHeading>Chat</SectionHeading>
-                  {CHAT_ITEMS.map(renderFeatureCard)}
+              <SectionHeading>Chat</SectionHeading>
+              {CHAT_ITEMS.map(renderFeatureCard)}
 
-                  <SectionHeading>SMS</SectionHeading>
-                  {SMS_ITEMS.map(renderFeatureCard)}
-                </>
-              )}
+              <SectionHeading>SMS</SectionHeading>
+              {SMS_ITEMS.map(renderFeatureCard)}
             </>
           )}
         </>

@@ -25,6 +25,15 @@ Reuse these — match their exact Tailwind/`--sui-colors-*` tokens.
 **Screenshot tool:** `artifact_dir_name: "mockup-sandbox"`, `path: "/ai-feature-settings/<Component>"`.
 Do NOT prefix `/__mockup/preview` — it is auto-added; double-prefix errors out.
 
+**AVA dependency model (real admin-portal AiPanel.tsx):** AVA's ONLY children are the 5 features
+shown inside the AVA detail page (Query, Messaging, Integrations, Actions, Knowledge Base). Phone /
+Chat / SMS features (Closed captioning, AI voicemail summaries, AI writer, AI summary, AI translation,
+AI writer for SMS) are INDEPENDENT — they depend ONLY on the master "AI features" toggle (`masterOn`),
+NOT on AVA (`avaActive`). Turning AVA off must hide ONLY its 5 own children; everything else stays.
+`avaActive = masterOn && aiAssistant.on` should gate ONLY the AVA detail page's children. Disable-confirm
+modal copy: AVA → "Query, Messaging, Integrations, Actions and Knowledge Bases will also be turned off.";
+Closed captioning → "Live transcripts and AI notes will also be turned off." (CC's children, not AVA's).
+
 **User prefs:** never opacity-dim disabled/secondary content (hide/cascade instead of greying out); exact Figma Spring icons only. NOTE: "never opacity-dim" is about disabled/secondary *content* — it does NOT forbid the standard modal scrim. Every dialog in this prototype uses the shared `DialogShell` `bg-black/40` backdrop; new confirm dialogs should reuse it for consistency.
 (see figma-spring-icon-mapping.md); cascade parent→child state. Run architect code review after
 each completed command.
