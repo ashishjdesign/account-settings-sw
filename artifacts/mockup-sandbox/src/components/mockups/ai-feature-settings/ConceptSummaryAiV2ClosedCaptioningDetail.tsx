@@ -6,7 +6,7 @@ import {
   SmartNotesMd,
 } from '@ringcentral/spring-icon';
 import { FeatureSettingsShell, SpringSwitch } from './_shared';
-import { ClosedCaptioningDisableConfirm } from './_assistantDialogs';
+import { ClosedCaptioningDisableConfirm, FeatureManageDialog } from './_assistantDialogs';
 
 /* -----------------------------------------------------------------------------
  * AI Feature Settings — V2 — Closed captioning detail inner page (Figma 2445-8025)
@@ -73,12 +73,14 @@ function FeatureBody({
   description,
   checked = true,
   onCheckedChange,
+  onManage,
   children,
 }: React.PropsWithChildren<{
   title: string;
   description: string;
   checked?: boolean;
   onCheckedChange?: (next: boolean) => void;
+  onManage?: () => void;
 }>) {
   return (
     <div className="flex min-w-0 flex-1 flex-col">
@@ -114,6 +116,7 @@ function FeatureBody({
           </div>
           <button
             type="button"
+            onClick={onManage}
             className="inline-flex h-[32px] shrink-0 cursor-pointer items-center justify-center gap-1.5 rounded-[10px] px-1 text-[14px] font-medium leading-[20px] text-[var(--sui-colors-primary-b)] transition-colors hover:text-[var(--sui-colors-primary-b-high-contrast)] focus:outline-none focus:ring-2 focus:ring-[var(--sui-colors-primary-b)]/30"
           >
             Manage
@@ -145,6 +148,8 @@ export function ConceptSummaryAiV2ClosedCaptioningDetail({
 }) {
   const [captioningOn, setCaptioningOn] = React.useState(true);
   const [confirmOpen, setConfirmOpen] = React.useState(startConfirmOpen);
+  /* Which dependent feature's "Manage" dialog is open (null = none). */
+  const [manageChild, setManageChild] = React.useState<string | null>(null);
 
   /* Toggling the parent switch off asks for confirmation first; toggling it back
    * on restores it directly (re-enable has no confirmation). */
@@ -184,6 +189,17 @@ export function ConceptSummaryAiV2ClosedCaptioningDetail({
               setConfirmOpen(false);
             }}
           />
+          {/* Per-child "Manage" dialog (User deployment). One instance reused for
+           * whichever dependent feature's Manage button was clicked. */}
+          <FeatureManageDialog
+            open={manageChild !== null}
+            featureName={manageChild ?? ''}
+            onCancel={() => setManageChild(null)}
+            onSave={() => setManageChild(null)}
+            initialDefaultVal="On"
+            initialAllowChange
+            customUsersCount={26}
+          />
         </div>
       }
     >
@@ -219,7 +235,11 @@ export function ConceptSummaryAiV2ClosedCaptioningDetail({
                     className="flex items-start gap-4 border-t border-[var(--sui-colors-neutral-b4)] py-4"
                   >
                     <FeatureIcon as={child.icon} />
-                    <FeatureBody title={child.title} description={child.description} />
+                    <FeatureBody
+                      title={child.title}
+                      description={child.description}
+                      onManage={() => setManageChild(child.title)}
+                    />
                   </div>
                 ))}
               </div>

@@ -9,7 +9,7 @@ import {
   ResourceCenterMd,
 } from '@ringcentral/spring-icon';
 import { FeatureSettingsShell, SpringSwitch } from './_shared';
-import { AvaDisableConfirm, AvaManageDialog } from './_assistantDialogs';
+import { AvaDisableConfirm, AvaManageDialog, FeatureManageDialog } from './_assistantDialogs';
 
 /* -----------------------------------------------------------------------------
  * AI Feature Settings — V2 — AVA detail inner page (Figma 2445-6666)
@@ -171,6 +171,8 @@ export function ConceptSummaryAiV2AvaDetail({
   const [avaOn, setAvaOn] = React.useState(true);
   const [confirmOpen, setConfirmOpen] = React.useState(startConfirmOpen);
   const [manageOpen, setManageOpen] = React.useState(startManageOpen);
+  /* Which dependent feature's "Manage" dialog is open (null = none). */
+  const [manageChild, setManageChild] = React.useState<string | null>(null);
 
   /* Toggling the parent switch off asks for confirmation first; toggling it back
    * on restores it directly (re-enable has no confirmation). */
@@ -218,6 +220,17 @@ export function ConceptSummaryAiV2AvaDetail({
             initialAllowChange
             customUsersCount={26}
           />
+          {/* Per-child "Manage" dialog (User deployment). One instance reused for
+           * whichever dependent feature's Manage button was clicked. */}
+          <FeatureManageDialog
+            open={manageChild !== null}
+            featureName={manageChild ?? ''}
+            onCancel={() => setManageChild(null)}
+            onSave={() => setManageChild(null)}
+            initialDefaultVal="On"
+            initialAllowChange
+            customUsersCount={26}
+          />
         </div>
       }
     >
@@ -252,7 +265,11 @@ export function ConceptSummaryAiV2AvaDetail({
                     className="flex items-start gap-4 border-t border-[var(--sui-colors-neutral-b4)] py-4"
                   >
                     <FeatureIcon as={child.icon} />
-                    <FeatureBody title={child.title} description={child.description} />
+                    <FeatureBody
+                      title={child.title}
+                      description={child.description}
+                      onManage={() => setManageChild(child.title)}
+                    />
                   </div>
                 ))}
               </div>
