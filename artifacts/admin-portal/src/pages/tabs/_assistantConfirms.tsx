@@ -422,13 +422,13 @@ export function AssistantEnableConfirmDialog({
       <DialogPrimitives.Portal>
         <DialogPrimitives.Overlay className="fixed inset-0 z-50 bg-black/40 pt-16 flex justify-center items-start data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0">
           <DialogPrimitives.Content
-            aria-label="Turn on AI Assistant"
+            aria-label="Turn on AVA"
             className="relative z-10 flex w-[820px] max-w-[calc(100%-32px)] flex-col rounded-[10px] bg-white shadow-[0_10px_10px_rgba(0,0,0,0.2)] data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95"
           >
             <div className="flex flex-col gap-6 px-6 pb-8 pt-9">
               <div className="py-3">
                 <DialogPrimitives.Title className="text-[24px] font-normal leading-[32px] text-[var(--sui-colors-neutral-b0)]">
-                  Turn on AI Assistant for your organization?
+                  Turn on AVA for your organization?
                 </DialogPrimitives.Title>
               </div>
 

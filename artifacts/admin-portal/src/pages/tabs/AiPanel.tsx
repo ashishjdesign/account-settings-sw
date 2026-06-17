@@ -35,8 +35,9 @@ import {
   periodLabel,
 } from './_aiRetention';
 import {
-  AssistantReEnableConfirmDialog,
+  AssistantEnableConfirmDialog,
   FeatureEnableConfirmDialog,
+  type AssistantEnableResult,
 } from './_assistantConfirms';
 
 type IconCmp = React.ComponentType<React.SVGProps<SVGSVGElement>>;
@@ -297,8 +298,16 @@ export default function AiPanel() {
     showToast('AVA turned off', () => dispatch({ type: 'UNDO' }));
   };
 
-  const confirmAssistantOn = () => {
-    dispatch({ type: 'PATCH_AI_ASSISTANT', payload: { on: true } });
+  const confirmAssistantOn = (result: AssistantEnableResult) => {
+    dispatch({
+      type: 'PATCH_AI_ASSISTANT',
+      payload: {
+        on: true,
+        defaultVal: result.defaultVal,
+        allowChange: result.allowChange,
+        customUsers: result.customAction === 'reset' ? 0 : aiAssistant.customUsers,
+      },
+    });
     setAssistantEnableConfirmOpen(false);
     showToast('AVA turned on', () => dispatch({ type: 'UNDO' }));
   };
@@ -608,8 +617,11 @@ export default function AiPanel() {
         onConfirm={confirmAssistantOff}
       />
 
-      <AssistantReEnableConfirmDialog
+      <AssistantEnableConfirmDialog
         open={assistantEnableConfirmOpen}
+        initialDefaultVal={aiAssistant.defaultVal}
+        initialAllowChange={aiAssistant.allowChange}
+        customCount={aiAssistant.customUsers}
         onCancel={() => setAssistantEnableConfirmOpen(false)}
         onConfirm={confirmAssistantOn}
       />

@@ -34,6 +34,12 @@ NOT on AVA (`avaActive`). Turning AVA off must hide ONLY its 5 own children; eve
 modal copy: AVA → "Query, Messaging, Integrations, Actions and Knowledge Bases will also be turned off.";
 Closed captioning → "Live transcripts and AI notes will also be turned off." (CC's children, not AVA's).
 
+**AVA re-enable modal (real admin-portal):** turning AVA back ON shows the deployment-config form
+modal (`AssistantEnableConfirmDialog`, Figma node `2495-9986`: "Turn on AVA for your organization?" +
+"User deployment" card + "Default in user settings:" radio), NOT the simple `AssistantReEnableConfirmDialog`.
+On confirm, `confirmAssistantOn(AssistantEnableResult)` persists `defaultVal`/`allowChange`/`customUsers`
+(customAction 'reset' → 0) via `PATCH_AI_ASSISTANT`. AVA store carries those deployment fields.
+
 **User prefs:** never opacity-dim disabled/secondary content (hide/cascade instead of greying out); exact Figma Spring icons only. NOTE: "never opacity-dim" is about disabled/secondary *content* — it does NOT forbid the standard modal scrim. Every dialog in this prototype uses the shared `DialogShell` `bg-black/40` backdrop; new confirm dialogs should reuse it for consistency.
 (see figma-spring-icon-mapping.md); cascade parent→child state. Run architect code review after
 each completed command.
