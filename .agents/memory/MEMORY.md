@@ -1,0 +1,2 @@
+- [Figma → Spring icon mapping](figma-spring-icon-mapping.md) — Figma icon instance names ≠ Spring DS exports; always verify the exact `*Md` export before use.
+- [AI Feature Settings prototype](ai-feature-settings-prototype.md) — mockup-sandbox click-through prototype structure, routing, and screenshot conventions.

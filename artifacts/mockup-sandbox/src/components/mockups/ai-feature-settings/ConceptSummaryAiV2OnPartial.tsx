@@ -10,6 +10,7 @@ import {
 } from '@ringcentral/spring-icon';
 import { FeatureSettingsShell } from './_shared';
 import { PillTabs, SettingCard, ParentCard, SectionHeading } from './_chrome';
+import { ConceptSummaryAiV2AvaDetail } from './ConceptSummaryAiV2AvaDetail';
 
 /* -----------------------------------------------------------------------------
  * AI Feature Settings — V2 — Master ON (full layout, Figma 2445-5411)
@@ -39,6 +40,12 @@ const ALLOWED = [
 ];
 
 export function ConceptSummaryAiV2OnPartial() {
+  const [page, setPage] = React.useState<'main' | 'ava'>('main');
+
+  if (page === 'ava') {
+    return <ConceptSummaryAiV2AvaDetail onBack={() => setPage('main')} />;
+  }
+
   return (
     <FeatureSettingsShell flexLayout showFooterActions={false}>
       <PillTabs selected="AI" />
@@ -60,6 +67,7 @@ export function ConceptSummaryAiV2OnPartial() {
           icon={<SpringIcon as={AvaMd} />}
           featureCount={5}
           description="A personal assistant that helps you boost productivity."
+          onOpen={() => setPage('ava')}
         />
 
         {/* Phone group */}
