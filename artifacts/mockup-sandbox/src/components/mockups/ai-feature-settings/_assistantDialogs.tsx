@@ -288,6 +288,37 @@ export function AvaManageDefaultOffConfirm({
 }
 
 /* -----------------------------------------------------------------------------
+ * AvaManageRestrictAccessConfirm (Figma 2502-10410) — width 600, simple body.
+ * Shown when the Manage AVA dialog is saved with "User access" unchecked
+ * (users restricted from changing the setting). Because AVA is a parent,
+ * restricting AVA also restricts its 5 dependent features.
+ * --------------------------------------------------------------------------- */
+export function AvaManageRestrictAccessConfirm({
+  open, onCancel, onConfirm,
+}: { open: boolean; onCancel: () => void; onConfirm: () => void }) {
+  return (
+    <DialogShell open={open} ariaLabel="Restrict users from changing this setting" onClose={onCancel} width={600}>
+      <div className="flex flex-col gap-8 px-6 pb-10 pt-9">
+        <h2 className="py-3 text-[24px] font-normal leading-[32px] text-[var(--sui-colors-neutral-b0)]">
+          Restrict users from changing this setting?
+        </h2>
+        <div className="flex flex-col gap-4 text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+          <p>
+            Users will no longer be able to change <span className="font-bold">AVA</span>.
+          </p>
+          <p>
+            This restriction will also apply to{' '}
+            <span className="font-bold">Query, Messaging, Integrations, Actions</span> and{' '}
+            <span className="font-bold">Knowledge Bases</span>
+          </p>
+        </div>
+      </div>
+      <DialogFooter onCancel={onCancel} onConfirm={onConfirm} confirmLabel="Restrict access" />
+    </DialogShell>
+  );
+}
+
+/* -----------------------------------------------------------------------------
  * ClosedCaptioningDisableConfirm (Figma 2495-9886) — width 720, simple body.
  * Turning off the Closed captioning parent also turns off its 2 dependent
  * features (Live transcripts, AI notes).

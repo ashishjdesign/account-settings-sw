@@ -13,6 +13,7 @@ import {
   AvaDisableConfirm,
   AvaManageDialog,
   AvaManageDefaultOffConfirm,
+  AvaManageRestrictAccessConfirm,
   FeatureManageDialog,
 } from './_assistantDialogs';
 
@@ -165,6 +166,7 @@ export function ConceptSummaryAiV2AvaDetail({
   startConfirmOpen = false,
   startManageOpen = false,
   startDefaultOffConfirmOpen = false,
+  startRestrictAccessConfirmOpen = false,
 }: {
   onBack?: () => void;
   /* When true the "Turn off AVA" confirmation is shown on mount — used by the
@@ -176,6 +178,9 @@ export function ConceptSummaryAiV2AvaDetail({
   /* When true the "Turn off default for users?" confirmation is shown on mount —
    * used by the standalone canvas frame that documents that modal state. */
   startDefaultOffConfirmOpen?: boolean;
+  /* When true the "Restrict users from changing this setting?" confirmation is
+   * shown on mount — used by the standalone canvas frame that documents it. */
+  startRestrictAccessConfirmOpen?: boolean;
 }) {
   const [avaOn, setAvaOn] = React.useState(true);
   const [confirmOpen, setConfirmOpen] = React.useState(startConfirmOpen);
@@ -184,6 +189,10 @@ export function ConceptSummaryAiV2AvaDetail({
    * (cascades the off default to AVA's dependent features). */
   const [defaultOffConfirmOpen, setDefaultOffConfirmOpen] =
     React.useState(startDefaultOffConfirmOpen);
+  /* Confirmation shown when Manage AVA is saved with "User access" unchecked
+   * (cascades the restriction to AVA's dependent features). */
+  const [restrictAccessConfirmOpen, setRestrictAccessConfirmOpen] =
+    React.useState(startRestrictAccessConfirmOpen);
   /* Which dependent feature's "Manage" dialog is open (null = none). */
   const [manageChild, setManageChild] = React.useState<string | null>(null);
 
@@ -204,7 +213,7 @@ export function ConceptSummaryAiV2AvaDetail({
     onBack ??
     (() => {
       const { pathname, search } = window.location;
-      const re = /ConceptSummaryAiV2(AvaDetail|AvaDisableConfirm|AvaManageDefaultOffConfirm|AvaManage)\/?$/;
+      const re = /ConceptSummaryAiV2(AvaDetail|AvaDisableConfirm|AvaManageDefaultOffConfirm|AvaManageRestrictAccessConfirm|AvaManage)\/?$/;
       const target = re.test(pathname)
         ? pathname.replace(re, 'ConceptSummaryAiV2OnPartial') + search
         : `${import.meta.env.BASE_URL.replace(/\/$/, '')}/preview/ai-feature-settings/ConceptSummaryAiV2OnPartial`;
@@ -228,11 +237,14 @@ export function ConceptSummaryAiV2AvaDetail({
           <AvaManageDialog
             open={manageOpen}
             onCancel={() => setManageOpen(false)}
-            onSave={({ defaultVal }) => {
+            onSave={({ defaultVal, allowChange }) => {
               setManageOpen(false);
-              /* AVA is a parent: saving an Off user default cascades the off
-               * default to its dependent features, so confirm first. */
+              /* AVA is a parent, so saving a change that cascades to its
+               * dependent features needs confirmation first: an Off user
+               * default cascades the off default; unchecking User access
+               * cascades the restriction. */
               if (defaultVal === 'Off') setDefaultOffConfirmOpen(true);
+              else if (!allowChange) setRestrictAccessConfirmOpen(true);
             }}
             initialDefaultVal="On"
             initialAllowChange
@@ -242,6 +254,11 @@ export function ConceptSummaryAiV2AvaDetail({
             open={defaultOffConfirmOpen}
             onCancel={() => setDefaultOffConfirmOpen(false)}
             onConfirm={() => setDefaultOffConfirmOpen(false)}
+          />
+          <AvaManageRestrictAccessConfirm
+            open={restrictAccessConfirmOpen}
+            onCancel={() => setRestrictAccessConfirmOpen(false)}
+            onConfirm={() => setRestrictAccessConfirmOpen(false)}
           />
           {/* Per-child "Manage" dialog (User deployment). One instance reused for
            * whichever dependent feature's Manage button was clicked. */}

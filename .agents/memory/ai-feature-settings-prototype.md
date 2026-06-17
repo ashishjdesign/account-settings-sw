@@ -54,3 +54,9 @@ a modal by rendering the detail page with a `start<X>Open` prop (e.g. `startMana
 Save when User default = Off; copy: "AVA will default to off in user settings." + "Query, Messaging,
 Integrations, Actions and Knowledge Bases will also default to off." confirm label "Turn default off",
 width 600.
+
+**AVA Manage cascade confirms (2 triggers):** Manage AVA onSave checks both fields with priority:
+defaultVal==='Off' -> "Turn off default for users?" (Figma 2454-9526); else !allowChange -> "Restrict
+users from changing this setting?" (Figma 2502-10410, width 600, copy "Users will no longer be able to
+change AVA." + "This restriction will also apply to Query, Messaging, Integrations, Actions and Knowledge
+Bases", confirm label "Restrict access"). Each has a standalone frame via a start<X>Open prop.
