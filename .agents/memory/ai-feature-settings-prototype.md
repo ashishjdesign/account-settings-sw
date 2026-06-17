@@ -67,3 +67,14 @@ Their Manage dialogs are wired via LOCAL component state (avaChildManage + avaCh
 reusing SpringFeatureManageDialog; saves persist in-page only (no dispatch, toast without undo). Gotcha:
 FeatureDetailRow renders the "Manage" button whenever `summary` is set but wires onClick to `onManage`,
 so a row with a summary and no onManage shows an INERT Manage CTA — always pass onManage when summary is set.
+
+**admin-portal AVA cascade confirms (AiPanel.tsx):** saving the AVA parent Manage dialog with
+"User default: Off" or "User access: Restricted" opens a SpringConfirmDialog ("Turn off default for
+users?" / "Restrict users from changing this setting?"). On confirm, commitAvaManage cascades the
+restrictive state to all 5 children in avaChildCfg (Off forces children Off; Restricted forces
+children Restricted; the OTHER dimension is preserved; turning parent back On/Allowed leaves children
+untouched). Both-restrictive saves chain: default-off confirm first, then restrict confirm. Cancel
+discards (applies nothing). Gotcha: store UNDO only reverts AVA's parent state, so the toast undo must
+ALSO restore a pre-commit snapshot of avaChildCfg or the child cascade won't roll back. The AVA parent
+FeatureDetailRow summary must derive from aiAssistant.defaultVal/allowChange (a static ALLOWED constant
+was a latent bug — it never reflected real state).

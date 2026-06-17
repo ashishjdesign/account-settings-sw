@@ -49,11 +49,6 @@ type FeatureItem = {
   description: React.ReactNode;
 };
 
-const ALLOWED = [
-  { label: 'User default:', value: 'On' },
-  { label: 'User access:', value: 'Allowed' },
-];
-
 /* AVA's dependent features (Figma 2445-6666). These are new concepts not yet
  * backed by individual store state, so they render display-only inside the AVA
  * detail page (matching the static design). */
@@ -221,6 +216,15 @@ export default function AiPanel() {
       AVA_CHILDREN.map((c) => [c.title, { defaultVal: 'On' as const, allowChange: true }]),
     ),
   );
+  // Pending AVA Manage selection awaiting cascade-confirm approval, plus which
+  // confirm dialog is currently shown. Saving AVA with "User default: Off" or
+  // "User access: Restricted" first asks the admin to confirm the change will
+  // also cascade to the 5 dependent features.
+  const [avaPending, setAvaPending] = useState<
+    { defaultVal: 'On' | 'Off'; allowChange: boolean } | null
+  >(null);
+  const [avaDefaultOffConfirm, setAvaDefaultOffConfirm] = useState(false);
+  const [avaRestrictConfirm, setAvaRestrictConfirm] = useState(false);
   const [subDisableKey, setSubDisableKey] = useState<SubKey | null>(null);
   const [subEnableKey, setSubEnableKey] = useState<SubKey | null>(null);
 
@@ -378,15 +382,57 @@ export default function AiPanel() {
     showToast('Settings were updated.', () => dispatch({ type: 'UNDO' }));
   };
 
-  const saveAvaManage = (
+  // Commit AVA's own deployment config and cascade the restrictive state down
+  // to the 5 dependent features: a parent default of Off forces every child's
+  // user default to Off, and restricting parent user access restricts every
+  // child too. (Turning the parent back On/Allowed leaves children untouched.)
+  const commitAvaManage = (
     result: { defaultVal: 'On' | 'Off'; allowChange: boolean },
   ) => {
+    // Snapshot the children so the toast's Undo can roll back the cascade too
+    // (store UNDO only reverts AVA's own parent state).
+    const childSnapshot = avaChildCfg;
     dispatch({
       type: 'PATCH_AI_ASSISTANT',
       payload: { defaultVal: result.defaultVal, allowChange: result.allowChange },
     });
+    if (result.defaultVal === 'Off' || result.allowChange === false) {
+      setAvaChildCfg((prev) =>
+        Object.fromEntries(
+          Object.entries(prev).map(([title, cfg]) => [
+            title,
+            {
+              defaultVal: result.defaultVal === 'Off' ? 'Off' : cfg.defaultVal,
+              allowChange: result.allowChange === false ? false : cfg.allowChange,
+            },
+          ]),
+        ),
+      );
+    }
+    setAvaPending(null);
+    setAvaDefaultOffConfirm(false);
+    setAvaRestrictConfirm(false);
     setAvaManageOpen(false);
-    showToast('Settings were updated.', () => dispatch({ type: 'UNDO' }));
+    showToast('Settings were updated.', () => {
+      dispatch({ type: 'UNDO' });
+      setAvaChildCfg(childSnapshot);
+    });
+  };
+
+  const saveAvaManage = (
+    result: { defaultVal: 'On' | 'Off'; allowChange: boolean },
+  ) => {
+    const wantsDefaultOff = result.defaultVal === 'Off';
+    const wantsRestrict = result.allowChange === false;
+    // Off and/or Restricted cascade to the children, so confirm first.
+    if (wantsDefaultOff || wantsRestrict) {
+      setAvaPending(result);
+      setAvaManageOpen(false);
+      if (wantsDefaultOff) setAvaDefaultOffConfirm(true);
+      else setAvaRestrictConfirm(true);
+      return;
+    }
+    commitAvaManage(result);
   };
 
   const saveAvaChildManage = (
@@ -527,7 +573,17 @@ export default function AiPanel() {
             description="A personal assistant that helps you boost productivity."
             switchOn={avaActive}
             disabled={!masterOn}
-            summary={avaActive ? ALLOWED : undefined}
+            summary={
+              avaActive
+                ? [
+                    { label: 'User default:', value: aiAssistant.defaultVal },
+                    {
+                      label: 'User access:',
+                      value: aiAssistant.allowChange ? 'Allowed' : 'Restricted',
+                    },
+                  ]
+                : undefined
+            }
             onManage={avaActive ? () => setAvaManageOpen(true) : undefined}
             onSwitchClick={handleAssistantToggle}
           >
@@ -691,6 +747,62 @@ export default function AiPanel() {
         customCount={aiAssistant.customUsers}
         onCancel={() => setAvaManageOpen(false)}
         onConfirm={saveAvaManage}
+      />
+
+      {/* AVA "Turn off default for users?" cascade confirm (Figma 2454-9526) */}
+      <SpringConfirmDialog
+        open={avaDefaultOffConfirm}
+        confirmLabel="Turn default off"
+        title={<>Turn off default for users?</>}
+        body={
+          <>
+            <p>
+              <span className="font-bold">AVA</span> will default to off in user settings.
+            </p>
+            <p>
+              <span className="font-bold">Query, Messaging, Integrations, Actions</span> and{' '}
+              <span className="font-bold">Knowledge Bases</span> will also default to off.
+            </p>
+          </>
+        }
+        onCancel={() => {
+          setAvaDefaultOffConfirm(false);
+          setAvaPending(null);
+        }}
+        onConfirm={() => {
+          setAvaDefaultOffConfirm(false);
+          if (avaPending?.allowChange === false) {
+            setAvaRestrictConfirm(true);
+          } else if (avaPending) {
+            commitAvaManage(avaPending);
+          }
+        }}
+      />
+
+      {/* AVA "Restrict users from changing this setting?" cascade confirm (Figma 2502-10410) */}
+      <SpringConfirmDialog
+        open={avaRestrictConfirm}
+        confirmLabel="Restrict access"
+        title={<>Restrict users from changing this setting?</>}
+        body={
+          <>
+            <p>
+              Users will no longer be able to change <span className="font-bold">AVA</span>.
+            </p>
+            <p>
+              This restriction will also apply to{' '}
+              <span className="font-bold">Query, Messaging, Integrations, Actions</span> and{' '}
+              <span className="font-bold">Knowledge Bases</span>.
+            </p>
+          </>
+        }
+        onCancel={() => {
+          setAvaRestrictConfirm(false);
+          setAvaPending(null);
+        }}
+        onConfirm={() => {
+          if (avaPending) commitAvaManage(avaPending);
+        }}
       />
 
       {/* AVA dependent-feature Manage dialog (Query / Messaging / Integrations /
