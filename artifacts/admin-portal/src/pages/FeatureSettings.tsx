@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation } from "wouter";
+import { useLocation, useSearch } from "wouter";
 import { PillTab } from '../components/shared';
 import GeneralPanel from "./tabs/GeneralPanel";
 import PhonePanel from "./tabs/PhonePanel";
@@ -19,6 +19,7 @@ const TABS: { key: TabKey; label: string }[] = [
 
 export default function FeatureSettings({ tab }: { tab: string }) {
   const [, setLocation] = useLocation();
+  const search = useSearch();
   const [loading, setLoading] = useState(true);
 
   // Load effect
@@ -30,26 +31,38 @@ export default function FeatureSettings({ tab }: { tab: string }) {
 
   const activeTab = TABS.find(t => t.key === tab) ? tab as TabKey : 'general';
 
+  // When an AI sub-feature detail view is open (?detail=ava|closedCaptioning),
+  // the panel takes over the whole surface (back arrow + title), so the page
+  // heading and product tabs are hidden — matching the canvas design.
+  const detailParam = new URLSearchParams(search).get('detail');
+  const isAiDetail =
+    activeTab === 'ai' &&
+    (detailParam === 'ava' || detailParam === 'closedCaptioning');
+
   const handleTabClick = (k: TabKey) => {
     setLocation(`/feature-settings/${k}`);
   };
 
   return (
     <>
-      <h1 className="mb-5 flex h-[40px] items-center text-[20px] font-semibold leading-[28px] tracking-[-0.2px] text-[var(--sui-colors-neutral-b1)]">
-        Feature Settings
-      </h1>
+      {!isAiDetail && (
+        <>
+          <h1 className="mb-5 flex h-[40px] items-center text-[20px] font-semibold leading-[28px] tracking-[-0.2px] text-[var(--sui-colors-neutral-b1)]">
+            Feature Settings
+          </h1>
 
-      <div className="mb-6 flex flex-wrap gap-2">
-        {TABS.map((t) => (
-          <PillTab
-            key={t.key}
-            label={t.label}
-            selected={activeTab === t.key}
-            onClick={() => handleTabClick(t.key)}
-          />
-        ))}
-      </div>
+          <div className="mb-6 flex flex-wrap gap-2">
+            {TABS.map((t) => (
+              <PillTab
+                key={t.key}
+                label={t.label}
+                selected={activeTab === t.key}
+                onClick={() => handleTabClick(t.key)}
+              />
+            ))}
+          </div>
+        </>
+      )}
 
       {loading ? (
         <div className="flex flex-col gap-4 animate-in fade-in duration-300">
