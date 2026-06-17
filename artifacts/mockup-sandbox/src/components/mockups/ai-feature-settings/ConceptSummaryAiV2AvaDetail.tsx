@@ -75,7 +75,7 @@ const PILLS = [
 
 function AvaFeatureRow({ title, icon, description }: FeatureRow) {
   return (
-    <div className="flex items-start gap-4 py-4 first:pt-0 last:pb-0 [&:not(:first-child)]:border-t [&:not(:first-child)]:border-[var(--sui-colors-neutral-b4)]">
+    <div className="flex items-start gap-4 py-4 [&:not(:first-child)]:border-t [&:not(:first-child)]:border-[var(--sui-colors-neutral-b4)]">
       <div className="flex h-[32px] w-5 shrink-0 items-center justify-center text-[var(--sui-colors-neutral-b1)]">
         <SpringIcon as={icon} />
       </div>
