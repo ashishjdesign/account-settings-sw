@@ -333,8 +333,8 @@ export function FeatureEnableConfirmDialog({
  * AI Assistant — Re-enable confirm (Figma file xGbu5327bj9YvYed8lxZQk, node
  * 2069-32183). Replaces the form-based AssistantEnableConfirmDialog now that
  * AI Assistant no longer has user-level management. Just confirms the
- * re-enable and notes that Phone / chat / SMS AI features will also be
- * restored to their previous on/off states.
+ * re-enable and notes that AVA's own child features (Query, Messaging,
+ * Integrations, Actions, Knowledge Base) will also be restored.
  * --------------------------------------------------------------------------- */
 export function AssistantReEnableConfirmDialog({
   open, onCancel, onConfirm,
@@ -357,8 +357,8 @@ export function AssistantReEnableConfirmDialog({
                 This will turn AVA back on across your entire account.
               </p>
               <p className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
-                <span className="font-bold">Phone, chat</span> and{' '}
-                <span className="font-bold">SMS AI features</span> will also be restored.
+                <span className="font-bold">Query, Messaging, Integrations, Actions</span> and{' '}
+                <span className="font-bold">Knowledge Bases</span> will also be restored.
               </p>
             </div>
             <div className="border-t border-[var(--sui-colors-neutral-b4)]/50" />
