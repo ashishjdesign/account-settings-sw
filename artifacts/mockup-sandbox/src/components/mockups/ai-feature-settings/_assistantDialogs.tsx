@@ -634,6 +634,61 @@ export function AssistantManageDialog({
 }
 
 /* -----------------------------------------------------------------------------
+ * AvaManageDialog (Figma 2454-9168) — Manage AVA. Same User deployment card as
+ * the Assistant manage dialog (Default in user settings On/Off + User access
+ * checkbox + "N/98 users are using the default"). Save is disabled until the
+ * form is dirty.
+ * --------------------------------------------------------------------------- */
+export function AvaManageDialog({
+  open, onCancel, onSave,
+  initialDefaultVal, initialAllowChange,
+  customUsersCount = 26,
+}: {
+  open: boolean;
+  onCancel: () => void;
+  onSave: (result: { defaultVal: 'On' | 'Off'; allowChange: boolean }) => void;
+  initialDefaultVal: 'On' | 'Off';
+  initialAllowChange: boolean;
+  customUsersCount?: number;
+}) {
+  const [defaultVal, setDefaultVal] = React.useState<'On' | 'Off'>(initialDefaultVal);
+  const [allowChange, setAllowChange] = React.useState(initialAllowChange);
+
+  React.useEffect(() => {
+    if (open) {
+      setDefaultVal(initialDefaultVal);
+      setAllowChange(initialAllowChange);
+    }
+  }, [open, initialDefaultVal, initialAllowChange]);
+
+  const defaultUsersCount = Math.max(0, TOTAL_USERS - customUsersCount);
+  const dirty = defaultVal !== initialDefaultVal || allowChange !== initialAllowChange;
+
+  return (
+    <DialogShell open={open} ariaLabel="Manage AVA" onClose={onCancel}>
+      <div className="flex flex-col gap-6 px-6 pb-8 pt-9">
+        <h2 className="py-3 text-[24px] font-normal leading-[32px] text-[var(--sui-colors-neutral-b0)]">
+          Manage AVA
+        </h2>
+        <UserDeploymentCard
+          defaultVal={defaultVal}
+          onDefaultValChange={setDefaultVal}
+          allowChange={allowChange}
+          onAllowChangeChange={setAllowChange}
+          defaultUsersCount={defaultUsersCount}
+        />
+      </div>
+      <DialogFooter
+        onCancel={onCancel}
+        onConfirm={() => onSave({ defaultVal, allowChange })}
+        confirmLabel="Save"
+        confirmDisabled={!dirty}
+      />
+    </DialogShell>
+  );
+}
+
+/* -----------------------------------------------------------------------------
  * AssistantReEnableConfirm (Figma 2069-32183) — width 620, no form. Shown when
  * AI Assistant is turned back on after having been disabled. Just confirms the
  * re-enable and notes that Phone / chat / SMS AI features will also be

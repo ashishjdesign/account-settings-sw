@@ -34,6 +34,7 @@ export const modules: ModuleMap = {
   "./components/mockups/ai-feature-settings/ConceptSummaryAiV2AssistantReEnableConfirm.tsx": () => import("../components/mockups/ai-feature-settings/ConceptSummaryAiV2AssistantReEnableConfirm.tsx"),
   "./components/mockups/ai-feature-settings/ConceptSummaryAiV2AvaDetail.tsx": () => import("../components/mockups/ai-feature-settings/ConceptSummaryAiV2AvaDetail.tsx"),
   "./components/mockups/ai-feature-settings/ConceptSummaryAiV2AvaDisableConfirm.tsx": () => import("../components/mockups/ai-feature-settings/ConceptSummaryAiV2AvaDisableConfirm.tsx"),
+  "./components/mockups/ai-feature-settings/ConceptSummaryAiV2AvaManage.tsx": () => import("../components/mockups/ai-feature-settings/ConceptSummaryAiV2AvaManage.tsx"),
   "./components/mockups/ai-feature-settings/ConceptSummaryAiV2ChangeRetentionConfirm.tsx": () => import("../components/mockups/ai-feature-settings/ConceptSummaryAiV2ChangeRetentionConfirm.tsx"),
   "./components/mockups/ai-feature-settings/ConceptSummaryAiV2ClosedCaptioningDetail.tsx": () => import("../components/mockups/ai-feature-settings/ConceptSummaryAiV2ClosedCaptioningDetail.tsx"),
   "./components/mockups/ai-feature-settings/ConceptSummaryAiV2ClosedCaptioningDisable.tsx": () => import("../components/mockups/ai-feature-settings/ConceptSummaryAiV2ClosedCaptioningDisable.tsx"),

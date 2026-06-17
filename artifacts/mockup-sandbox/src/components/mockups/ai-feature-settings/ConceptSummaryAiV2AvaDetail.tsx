@@ -9,7 +9,7 @@ import {
   ResourceCenterMd,
 } from '@ringcentral/spring-icon';
 import { FeatureSettingsShell, SpringSwitch } from './_shared';
-import { AvaDisableConfirm } from './_assistantDialogs';
+import { AvaDisableConfirm, AvaManageDialog } from './_assistantDialogs';
 
 /* -----------------------------------------------------------------------------
  * AI Feature Settings — V2 — AVA detail inner page (Figma 2445-6666)
@@ -91,12 +91,14 @@ function FeatureBody({
   description,
   checked = true,
   onCheckedChange,
+  onManage,
   children,
 }: React.PropsWithChildren<{
   title: string;
   description: string;
   checked?: boolean;
   onCheckedChange?: (next: boolean) => void;
+  onManage?: () => void;
 }>) {
   return (
     <div className="flex min-w-0 flex-1 flex-col">
@@ -132,6 +134,7 @@ function FeatureBody({
           </div>
           <button
             type="button"
+            onClick={onManage}
             className="inline-flex h-[32px] shrink-0 cursor-pointer items-center justify-center gap-1.5 rounded-[10px] px-1 text-[14px] font-medium leading-[20px] text-[var(--sui-colors-primary-b)] transition-colors hover:text-[var(--sui-colors-primary-b-high-contrast)] focus:outline-none focus:ring-2 focus:ring-[var(--sui-colors-primary-b)]/30"
           >
             Manage
@@ -155,14 +158,19 @@ function FeatureIcon({ as }: { as: IconCmp }) {
 export function ConceptSummaryAiV2AvaDetail({
   onBack,
   startConfirmOpen = false,
+  startManageOpen = false,
 }: {
   onBack?: () => void;
   /* When true the "Turn off AVA" confirmation is shown on mount — used by the
    * standalone canvas frame that documents the modal state. */
   startConfirmOpen?: boolean;
+  /* When true the "Manage AVA" dialog is shown on mount — used by the standalone
+   * canvas frame that documents the manage state. */
+  startManageOpen?: boolean;
 }) {
   const [avaOn, setAvaOn] = React.useState(true);
   const [confirmOpen, setConfirmOpen] = React.useState(startConfirmOpen);
+  const [manageOpen, setManageOpen] = React.useState(startManageOpen);
 
   /* Toggling the parent switch off asks for confirmation first; toggling it back
    * on restores it directly (re-enable has no confirmation). */
@@ -181,7 +189,7 @@ export function ConceptSummaryAiV2AvaDetail({
     onBack ??
     (() => {
       const { pathname, search } = window.location;
-      const re = /ConceptSummaryAiV2(AvaDetail|AvaDisableConfirm)\/?$/;
+      const re = /ConceptSummaryAiV2(AvaDetail|AvaDisableConfirm|AvaManage)\/?$/;
       const target = re.test(pathname)
         ? pathname.replace(re, 'ConceptSummaryAiV2OnPartial') + search
         : `${import.meta.env.BASE_URL.replace(/\/$/, '')}/preview/ai-feature-settings/ConceptSummaryAiV2OnPartial`;
@@ -201,6 +209,14 @@ export function ConceptSummaryAiV2AvaDetail({
               setAvaOn(false);
               setConfirmOpen(false);
             }}
+          />
+          <AvaManageDialog
+            open={manageOpen}
+            onCancel={() => setManageOpen(false)}
+            onSave={() => setManageOpen(false)}
+            initialDefaultVal="On"
+            initialAllowChange
+            customUsersCount={26}
           />
         </div>
       }
@@ -224,6 +240,7 @@ export function ConceptSummaryAiV2AvaDetail({
             description={AVA.description}
             checked={avaOn}
             onCheckedChange={handleAvaSwitch}
+            onManage={() => setManageOpen(true)}
           >
             {/* Dependent features — hidden once AVA is turned off. Indented to
              * sit under AVA, divided by hairlines. */}
