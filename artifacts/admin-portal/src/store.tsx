@@ -202,6 +202,13 @@ type Action =
   | { type: 'PATCH_PHONE_AUTO_ANSWER'; payload: Partial<AutoAnswerConfig> }
   | { type: 'PATCH_AI_ASSISTANT'; payload: Partial<FeatureConfig> }
   | { type: 'PATCH_AI_FEATURE'; key: Exclude<AiFeatureKey, 'aiAssistant'>; payload: Partial<FeatureConfig> }
+  | {
+      type: 'CASCADE_AI_FEATURE';
+      key: Exclude<AiFeatureKey, 'aiAssistant'>;
+      childKeys: Exclude<AiFeatureKey, 'aiAssistant'>[];
+      payload: Partial<FeatureConfig>;
+      childPayload: Partial<FeatureConfig>;
+    }
   | { type: 'PATCH_AI_ASSISTANT_CUSTOMIZE'; payload: Partial<AiAssistantCustomize> }
   | { type: 'PATCH_AI_CUSTOM_RETENTION'; payload: Partial<AiCustomRetention> }
   | { type: 'SET_SMS'; payload: boolean }
@@ -307,6 +314,18 @@ function reducer(state: AppState, action: Action): AppState {
           [action.key]: applyFeaturePatch(state.ai[action.key], action.payload),
         },
       };
+    case 'CASCADE_AI_FEATURE': {
+      // Patch the parent and cascade `childPayload` to each child in a single
+      // snapshot so one UNDO reverts the whole cascade (parent + children).
+      const nextAi = {
+        ...state.ai,
+        [action.key]: applyFeaturePatch(state.ai[action.key], action.payload),
+      };
+      for (const childKey of action.childKeys) {
+        nextAi[childKey] = applyFeaturePatch(state.ai[childKey], action.childPayload);
+      }
+      return { ...withSnapshot(state), ai: nextAi };
+    }
     case 'PATCH_AI_CUSTOM_RETENTION':
       return {
         ...withSnapshot(state),

@@ -225,6 +225,15 @@ export default function AiPanel() {
   >(null);
   const [avaDefaultOffConfirm, setAvaDefaultOffConfirm] = useState(false);
   const [avaRestrictConfirm, setAvaRestrictConfirm] = useState(false);
+  // Closed captioning Manage mirrors AVA: saving the CC parent with "User
+  // default: Off" or "User access: Restricted" first asks the admin to confirm
+  // the change will also cascade to its dependents (Live transcripts, AI notes).
+  const [ccManageOpen, setCcManageOpen] = useState(false);
+  const [ccPending, setCcPending] = useState<
+    { defaultVal: 'On' | 'Off'; allowChange: boolean } | null
+  >(null);
+  const [ccDefaultOffConfirm, setCcDefaultOffConfirm] = useState(false);
+  const [ccRestrictConfirm, setCcRestrictConfirm] = useState(false);
   const [subDisableKey, setSubDisableKey] = useState<SubKey | null>(null);
   const [subEnableKey, setSubEnableKey] = useState<SubKey | null>(null);
 
@@ -448,6 +457,48 @@ export default function AiPanel() {
     showToast('Settings were updated.');
   };
 
+  // Commit Closed captioning's own deployment config and cascade the restrictive
+  // state down to its dependents (Live transcripts, AI notes): a parent default
+  // of Off forces every child's user default to Off, and restricting parent user
+  // access restricts every child too. (Turning the parent back On/Allowed leaves
+  // children untouched.) Done as one CASCADE_AI_FEATURE dispatch so a single
+  // Undo reverts the parent and both children together.
+  const commitCcManage = (
+    result: { defaultVal: 'On' | 'Off'; allowChange: boolean },
+  ) => {
+    const childPayload: Partial<{ defaultVal: 'On' | 'Off'; allowChange: boolean }> = {};
+    if (result.defaultVal === 'Off') childPayload.defaultVal = 'Off';
+    if (result.allowChange === false) childPayload.allowChange = false;
+    dispatch({
+      type: 'CASCADE_AI_FEATURE',
+      key: 'closedCaptioning',
+      childKeys: CC_CHILDREN.map((c) => c.key),
+      payload: { defaultVal: result.defaultVal, allowChange: result.allowChange },
+      childPayload,
+    });
+    setCcPending(null);
+    setCcDefaultOffConfirm(false);
+    setCcRestrictConfirm(false);
+    setCcManageOpen(false);
+    showToast('Settings were updated.', () => dispatch({ type: 'UNDO' }));
+  };
+
+  const saveCcManage = (
+    result: { defaultVal: 'On' | 'Off'; allowChange: boolean },
+  ) => {
+    const wantsDefaultOff = result.defaultVal === 'Off';
+    const wantsRestrict = result.allowChange === false;
+    // Off and/or Restricted cascade to the children, so confirm first.
+    if (wantsDefaultOff || wantsRestrict) {
+      setCcPending(result);
+      setCcManageOpen(false);
+      if (wantsDefaultOff) setCcDefaultOffConfirm(true);
+      else setCcRestrictConfirm(true);
+      return;
+    }
+    commitCcManage(result);
+  };
+
   const renderFeatureCard = (item: FeatureItem) => {
     const cfg = state.ai[item.key as Exclude<AiFeatureKey, 'aiAssistant'>];
     return (
@@ -480,6 +531,7 @@ export default function AiPanel() {
     description: string,
     nested: boolean,
     children?: React.ReactNode,
+    onManageOverride?: () => void,
   ) => {
     const cfg = state.ai[key];
     const on = cfg.on && masterOn;
@@ -500,7 +552,7 @@ export default function AiPanel() {
               ]
             : undefined
         }
-        onManage={on ? () => setSubManageKey(key) : undefined}
+        onManage={on ? (onManageOverride ?? (() => setSubManageKey(key))) : undefined}
         onSwitchClick={() => toggleSubFeature(key)}
       >
         {children}
@@ -625,6 +677,7 @@ export default function AiPanel() {
                   renderWiredDetailRow(c.key, c.icon, c.title, c.description, true),
                 )
               : null,
+            () => setCcManageOpen(true),
           )}
         </FeatureDetailPage>
       )}
@@ -802,6 +855,75 @@ export default function AiPanel() {
         }}
         onConfirm={() => {
           if (avaPending) commitAvaManage(avaPending);
+        }}
+      />
+
+      {/* Closed captioning Manage dialog */}
+      <SpringFeatureManageDialog
+        open={ccManageOpen}
+        title="Manage Closed captioning"
+        defaultVal={state.ai.closedCaptioning.defaultVal}
+        allowChange={state.ai.closedCaptioning.allowChange}
+        customCount={state.ai.closedCaptioning.customUsers}
+        onCancel={() => setCcManageOpen(false)}
+        onConfirm={saveCcManage}
+      />
+
+      {/* Closed captioning "Turn off default for users?" cascade confirm */}
+      <SpringConfirmDialog
+        open={ccDefaultOffConfirm}
+        confirmLabel="Turn default off"
+        title={<>Turn off default for users?</>}
+        body={
+          <>
+            <p>
+              <span className="font-bold">Closed captioning</span> will default to off in user
+              settings.
+            </p>
+            <p>
+              <span className="font-bold">Live transcripts</span> and{' '}
+              <span className="font-bold">AI notes</span> will also default to off.
+            </p>
+          </>
+        }
+        onCancel={() => {
+          setCcDefaultOffConfirm(false);
+          setCcPending(null);
+        }}
+        onConfirm={() => {
+          setCcDefaultOffConfirm(false);
+          if (ccPending?.allowChange === false) {
+            setCcRestrictConfirm(true);
+          } else if (ccPending) {
+            commitCcManage(ccPending);
+          }
+        }}
+      />
+
+      {/* Closed captioning "Restrict users from changing this setting?" cascade confirm */}
+      <SpringConfirmDialog
+        open={ccRestrictConfirm}
+        confirmLabel="Restrict access"
+        title={<>Restrict users from changing this setting?</>}
+        body={
+          <>
+            <p>
+              Users will no longer be able to change{' '}
+              <span className="font-bold">Closed captioning</span>.
+            </p>
+            <p>
+              This restriction will also apply to{' '}
+              <span className="font-bold">Live transcripts</span> and{' '}
+              <span className="font-bold">AI notes</span>.
+            </p>
+          </>
+        }
+        onCancel={() => {
+          setCcRestrictConfirm(false);
+          setCcPending(null);
+        }}
+        onConfirm={() => {
+          if (ccPending) commitCcManage(ccPending);
         }}
       />
 
