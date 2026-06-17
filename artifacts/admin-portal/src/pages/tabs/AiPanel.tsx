@@ -635,10 +635,18 @@ export default function AiPanel() {
           subDisableKey ? <>Turn off {labelFor(subDisableKey)} for your organization?</> : null
         }
         body={
-          <p>
-            This feature will be turned off for your account and no longer available to users.
-            When turned back on, previous user settings can be restored.
-          </p>
+          <>
+            <p>
+              This feature will be turned off for your account and no longer available to users.
+              When turned back on, previous user settings can be restored.
+            </p>
+            {subDisableKey === 'closedCaptioning' && (
+              <p>
+                <span className="font-bold">Live transcripts</span> and{' '}
+                <span className="font-bold">AI notes</span> will also be turned off.
+              </p>
+            )}
+          </>
         }
         onCancel={() => setSubDisableKey(null)}
         onConfirm={confirmSubDisable}
