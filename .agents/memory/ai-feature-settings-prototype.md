@@ -86,3 +86,11 @@ organization?"). On confirm the child stays off and its user-deployment row (Use
 pills + Manage link) is HIDDEN — done by gating that row behind `checked` inside the shared FeatureBody,
 so a turned-off PARENT also hides its own pills/Manage (consistent with the never-dim-hide-when-off
 pref). Re-enabling a child is direct (no confirm). Child on/off kept in a childOn Record<title,boolean>.
+
+**Closed captioning parent Manage cascade (parity with AVA):** the CC detail page's PARENT row must
+wire onManage → FeatureManageDialog(featureName="Closed captioning"); its onSave opens a cascade confirm
+— defaultVal==='Off' → "Turn off default for users?" (else if !allowChange → "Restrict users from
+changing this setting?"). Default-off takes precedence, NO chaining (matches AVA prototype). Confirms are
+feature-specific components (ClosedCaptioningManageDefaultOffConfirm / ...RestrictAccessConfirm) per the
+codebase's per-feature naming convention; copy names the dependents Live transcripts + AI notes. In the
+prototype the confirms only open/close (child pills stay static), same as AVA.

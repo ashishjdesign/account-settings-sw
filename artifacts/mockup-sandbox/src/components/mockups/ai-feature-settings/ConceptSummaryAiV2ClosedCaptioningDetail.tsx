@@ -10,6 +10,8 @@ import {
   ClosedCaptioningDisableConfirm,
   FeatureManageDialog,
   FeatureChildDisableConfirm,
+  ClosedCaptioningManageDefaultOffConfirm,
+  ClosedCaptioningManageRestrictAccessConfirm,
 } from './_assistantDialogs';
 
 /* -----------------------------------------------------------------------------
@@ -157,6 +159,13 @@ export function ConceptSummaryAiV2ClosedCaptioningDetail({
 }) {
   const [captioningOn, setCaptioningOn] = React.useState(true);
   const [confirmOpen, setConfirmOpen] = React.useState(startConfirmOpen);
+  /* Parent "Manage" dialog (User deployment for Closed captioning). */
+  const [manageOpen, setManageOpen] = React.useState(false);
+  /* Cascade confirmations shown after saving the parent Manage dialog with the
+   * user default set to Off, or with user access restricted. Because Closed
+   * captioning is a parent, either choice also applies to its dependents. */
+  const [defaultOffConfirmOpen, setDefaultOffConfirmOpen] = React.useState(false);
+  const [restrictAccessConfirmOpen, setRestrictAccessConfirmOpen] = React.useState(false);
   /* Which dependent feature's "Manage" dialog is open (null = none). */
   const [manageChild, setManageChild] = React.useState<string | null>(null);
   /* Per-child on/off state (all on by default). Turning a child off hides its
@@ -215,6 +224,36 @@ export function ConceptSummaryAiV2ClosedCaptioningDetail({
               setConfirmOpen(false);
             }}
           />
+          {/* Parent "Manage" dialog. Saving with the user default set to Off, or
+           * with user access restricted, opens the matching cascade confirmation
+           * (default off takes precedence). */}
+          <FeatureManageDialog
+            open={manageOpen}
+            featureName="Closed captioning"
+            onCancel={() => setManageOpen(false)}
+            onSave={({ defaultVal, allowChange }) => {
+              setManageOpen(false);
+              if (defaultVal === 'Off') setDefaultOffConfirmOpen(true);
+              else if (!allowChange) setRestrictAccessConfirmOpen(true);
+            }}
+            initialDefaultVal="On"
+            initialAllowChange
+            customUsersCount={26}
+          />
+          {/* Cascade confirmation — Closed captioning defaulted off for users
+           * also defaults its dependents (Live transcripts, AI notes) off. */}
+          <ClosedCaptioningManageDefaultOffConfirm
+            open={defaultOffConfirmOpen}
+            onCancel={() => setDefaultOffConfirmOpen(false)}
+            onConfirm={() => setDefaultOffConfirmOpen(false)}
+          />
+          {/* Cascade confirmation — restricting Closed captioning also restricts
+           * its dependents. */}
+          <ClosedCaptioningManageRestrictAccessConfirm
+            open={restrictAccessConfirmOpen}
+            onCancel={() => setRestrictAccessConfirmOpen(false)}
+            onConfirm={() => setRestrictAccessConfirmOpen(false)}
+          />
           {/* Per-child "Manage" dialog (User deployment). One instance reused for
            * whichever dependent feature's Manage button was clicked. */}
           <FeatureManageDialog
@@ -263,6 +302,7 @@ export function ConceptSummaryAiV2ClosedCaptioningDetail({
             description={PARENT.description}
             checked={captioningOn}
             onCheckedChange={handleCaptioningSwitch}
+            onManage={() => setManageOpen(true)}
           >
             {/* Dependent features — hidden once Closed captioning is turned off.
              * Indented to sit under the parent, divided by hairlines. */}

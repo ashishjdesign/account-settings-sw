@@ -350,6 +350,70 @@ export function ClosedCaptioningDisableConfirm({
 }
 
 /* -----------------------------------------------------------------------------
+ * ClosedCaptioningManageDefaultOffConfirm — width 600, simple body. Shown when
+ * the Manage Closed captioning dialog is saved with the user default set to Off.
+ * Because Closed captioning is a parent, defaulting it off also defaults its 2
+ * dependent features (Live transcripts, AI notes) off in user settings. Mirrors
+ * AvaManageDefaultOffConfirm.
+ * --------------------------------------------------------------------------- */
+export function ClosedCaptioningManageDefaultOffConfirm({
+  open, onCancel, onConfirm,
+}: { open: boolean; onCancel: () => void; onConfirm: () => void }) {
+  return (
+    <DialogShell open={open} ariaLabel="Turn off default for users" onClose={onCancel} width={600}>
+      <div className="flex flex-col gap-8 px-6 pb-10 pt-9">
+        <h2 className="py-3 text-[24px] font-normal leading-[32px] text-[var(--sui-colors-neutral-b0)]">
+          Turn off default for users?
+        </h2>
+        <div className="flex flex-col gap-4 text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+          <p>
+            <span className="font-bold">Closed captioning</span> will default to off in user
+            settings.
+          </p>
+          <p>
+            <span className="font-bold">Live transcripts</span> and{' '}
+            <span className="font-bold">AI notes</span> will also default to off.
+          </p>
+        </div>
+      </div>
+      <DialogFooter onCancel={onCancel} onConfirm={onConfirm} confirmLabel="Turn default off" />
+    </DialogShell>
+  );
+}
+
+/* -----------------------------------------------------------------------------
+ * ClosedCaptioningManageRestrictAccessConfirm — width 600, simple body. Shown
+ * when the Manage Closed captioning dialog is saved with "User access" unchecked
+ * (users restricted from changing the setting). Because Closed captioning is a
+ * parent, restricting it also restricts its 2 dependent features. Mirrors
+ * AvaManageRestrictAccessConfirm.
+ * --------------------------------------------------------------------------- */
+export function ClosedCaptioningManageRestrictAccessConfirm({
+  open, onCancel, onConfirm,
+}: { open: boolean; onCancel: () => void; onConfirm: () => void }) {
+  return (
+    <DialogShell open={open} ariaLabel="Restrict users from changing this setting" onClose={onCancel} width={600}>
+      <div className="flex flex-col gap-8 px-6 pb-10 pt-9">
+        <h2 className="py-3 text-[24px] font-normal leading-[32px] text-[var(--sui-colors-neutral-b0)]">
+          Restrict users from changing this setting?
+        </h2>
+        <div className="flex flex-col gap-4 text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+          <p>
+            Users will no longer be able to change{' '}
+            <span className="font-bold">Closed captioning</span>.
+          </p>
+          <p>
+            This restriction will also apply to <span className="font-bold">Live transcripts</span>{' '}
+            and <span className="font-bold">AI notes</span>
+          </p>
+        </div>
+      </div>
+      <DialogFooter onCancel={onCancel} onConfirm={onConfirm} confirmLabel="Restrict access" />
+    </DialogShell>
+  );
+}
+
+/* -----------------------------------------------------------------------------
  * AssistantEnableConfirm (Figma 2035-41070) — width 820, includes:
  *   - User deployment card
  *   - "Custom users — what to do" radio block (only when customUsers > 0)
