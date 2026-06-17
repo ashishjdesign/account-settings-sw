@@ -27,8 +27,8 @@ import { FeatureSettingsShell, SpringSwitch } from './_shared';
  * --------------------------------------------------------------------------- */
 
 type IconCmp = React.ComponentType<React.SVGProps<SVGSVGElement>>;
-const SpringIcon = ({ as: Cmp }: { as: IconCmp }) => (
-  <Cmp width={20} height={20} fill="currentColor" aria-hidden focusable={false} />
+const SpringIcon = ({ as: Cmp, size = 20 }: { as: IconCmp; size?: number }) => (
+  <Cmp width={size} height={size} fill="currentColor" aria-hidden focusable={false} />
 );
 
 type Feature = {
@@ -163,7 +163,7 @@ export function ConceptSummaryAiV2AvaDetail({ onBack }: { onBack?: () => void })
         onClick={handleBack}
         className="mb-4 flex items-center gap-4 text-[var(--sui-colors-neutral-b1)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sui-colors-primary-b)]/30"
       >
-        <ArrowLeftMd width={24} height={24} fill="currentColor" aria-hidden focusable={false} />
+        <SpringIcon as={ArrowLeftMd} size={24} />
         <span className="text-[20px] font-semibold leading-[28px] tracking-[-0.2px]">AVA</span>
       </button>
 

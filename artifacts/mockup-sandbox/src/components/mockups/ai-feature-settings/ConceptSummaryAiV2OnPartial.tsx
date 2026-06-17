@@ -11,6 +11,7 @@ import {
 import { FeatureSettingsShell } from './_shared';
 import { PillTabs, SettingCard, ParentCard, SectionHeading } from './_chrome';
 import { ConceptSummaryAiV2AvaDetail } from './ConceptSummaryAiV2AvaDetail';
+import { ConceptSummaryAiV2ClosedCaptioningDetail } from './ConceptSummaryAiV2ClosedCaptioningDetail';
 
 /* -----------------------------------------------------------------------------
  * AI Feature Settings — V2 — Master ON (full layout, Figma 2445-5411)
@@ -40,10 +41,14 @@ const ALLOWED = [
 ];
 
 export function ConceptSummaryAiV2OnPartial() {
-  const [page, setPage] = React.useState<'main' | 'ava'>('main');
+  const [page, setPage] = React.useState<'main' | 'ava' | 'closedCaptioning'>('main');
 
   if (page === 'ava') {
     return <ConceptSummaryAiV2AvaDetail onBack={() => setPage('main')} />;
+  }
+
+  if (page === 'closedCaptioning') {
+    return <ConceptSummaryAiV2ClosedCaptioningDetail onBack={() => setPage('main')} />;
   }
 
   return (
@@ -77,6 +82,7 @@ export function ConceptSummaryAiV2OnPartial() {
           icon={<SpringIcon as={ClosedCaptionsMd} />}
           featureCount={2}
           description="Uses AI to display real-time captions during phone calls."
+          onOpen={() => setPage('closedCaptioning')}
         />
         <SettingCard
           title="AI voicemail summaries"
