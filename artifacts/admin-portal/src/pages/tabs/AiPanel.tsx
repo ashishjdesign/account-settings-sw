@@ -601,8 +601,8 @@ export default function AiPanel() {
               When turned back on, previous user settings can be restored.
             </p>
             <p>
-              <span className="font-bold">Phone, chat</span> and{' '}
-              <span className="font-bold">SMS AI features</span> will also be turned off.
+              <span className="font-bold">Query, Messaging, Integrations, Actions</span> and{' '}
+              <span className="font-bold">Knowledge Bases</span> will also be turned off.
             </p>
           </>
         }
