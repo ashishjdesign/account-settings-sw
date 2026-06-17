@@ -27,7 +27,14 @@ import {
  *
  * Turning Closed captioning off (its parent switch) opens the "Turn off Closed
  * captioning" confirmation (Figma 2495-9886). Confirming turns the parent off
- * and hides its 2 dependent features. The children themselves are display-only.
+ * and hides its 2 dependent features.
+ *
+ * Managing the parent's user deployment cascades to the dependents: saving the
+ * Manage Closed captioning dialog with the user default set to Off (after the
+ * "Turn off default for users?" confirmation) defaults the dependents off too;
+ * restricting user access (after the "Restrict users from changing this
+ * setting?" confirmation) restricts the dependents too. The deployment pills on
+ * each row reflect this live.
  *
  * `onBack` returns to the AI tab. When rendered as its own canvas frame (no
  * onBack), the back arrow navigates the iframe back to the AI tab preview.
@@ -43,6 +50,10 @@ type Feature = {
   icon: IconCmp;
   description: string;
 };
+
+/* A feature's user-deployment settings, shown as the "User default / User
+ * access" pills and edited through the Manage dialog. */
+type Deploy = { defaultVal: 'On' | 'Off'; allowChange: boolean };
 
 const PARENT: Feature = {
   title: 'Closed captioning',
@@ -63,22 +74,18 @@ const CHILDREN: Feature[] = [
   },
 ];
 
-const PILLS = [
-  { label: 'User default:', value: 'On' },
-  { label: 'User access:', value: 'Allowed' },
-];
-
 /* A single feature's content column: title + switch, description, pills + Manage.
  * The icon column is supplied by the row wrapper so the parent and its children
  * can be indented independently. `children` lets the parent nest its dependent
- * features inside its own content column. The switch defaults to a static on
- * state; pass `checked` + `onCheckedChange` to make the parent switch
- * interactive. */
+ * features inside its own content column. Pass `checked` + `onCheckedChange` to
+ * make the switch interactive; `deploy` drives the live "User default / User
+ * access" pills. */
 function FeatureBody({
   title,
   description,
   checked = true,
   onCheckedChange,
+  deploy,
   onManage,
   children,
 }: React.PropsWithChildren<{
@@ -86,6 +93,7 @@ function FeatureBody({
   description: string;
   checked?: boolean;
   onCheckedChange?: (next: boolean) => void;
+  deploy: Deploy;
   onManage?: () => void;
 }>) {
   return (
@@ -114,7 +122,10 @@ function FeatureBody({
         {checked && (
           <div className="mt-2 flex w-full items-center justify-between gap-4">
             <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
-              {PILLS.map((seg, i) => (
+              {[
+                { label: 'User default:', value: deploy.defaultVal },
+                { label: 'User access:', value: deploy.allowChange ? 'Allowed' : 'Restricted' },
+              ].map((seg, i) => (
                 <div
                   key={i}
                   className="flex h-[32px] items-center gap-2 whitespace-nowrap rounded-[10px] bg-[var(--sui-colors-neutral-b5)] px-3 text-[14px] leading-[20px] text-[var(--sui-colors-neutral-b1)]"
@@ -159,17 +170,29 @@ export function ConceptSummaryAiV2ClosedCaptioningDetail({
 }) {
   const [captioningOn, setCaptioningOn] = React.useState(true);
   const [confirmOpen, setConfirmOpen] = React.useState(startConfirmOpen);
-  /* Parent "Manage" dialog (User deployment for Closed captioning). */
+
+  /* Parent user-deployment state, reflected live in its pills. */
+  const [parentDeploy, setParentDeploy] = React.useState<Deploy>({
+    defaultVal: 'On',
+    allowChange: true,
+  });
+  /* Per-child user-deployment state (all on/allowed by default). The parent
+   * Manage cascade writes into these so the dependents' pills follow the parent. */
+  const [childDeploy, setChildDeploy] = React.useState<Record<string, Deploy>>(() =>
+    Object.fromEntries(CHILDREN.map((c) => [c.title, { defaultVal: 'On', allowChange: true }])),
+  );
+
+  /* Parent "Manage" dialog + the deployment values awaiting a cascade
+   * confirmation (saved but not yet applied until the user confirms). */
   const [manageOpen, setManageOpen] = React.useState(false);
-  /* Cascade confirmations shown after saving the parent Manage dialog with the
-   * user default set to Off, or with user access restricted. Because Closed
-   * captioning is a parent, either choice also applies to its dependents. */
+  const [pendingParent, setPendingParent] = React.useState<Deploy | null>(null);
   const [defaultOffConfirmOpen, setDefaultOffConfirmOpen] = React.useState(false);
   const [restrictAccessConfirmOpen, setRestrictAccessConfirmOpen] = React.useState(false);
+
   /* Which dependent feature's "Manage" dialog is open (null = none). */
   const [manageChild, setManageChild] = React.useState<string | null>(null);
-  /* Per-child on/off state (all on by default). Turning a child off hides its
-   * own user-deployment row (pills + Manage). */
+  /* Per-child on/off (switch) state (all on by default). Turning a child off
+   * hides its own user-deployment row (pills + Manage). */
   const [childOn, setChildOn] = React.useState<Record<string, boolean>>(() =>
     Object.fromEntries(CHILDREN.map((c) => [c.title, true])),
   );
@@ -193,6 +216,42 @@ export function ConceptSummaryAiV2ClosedCaptioningDetail({
       setChildOn((prev) => ({ ...prev, [title]: true }));
     } else {
       setDisableChild(title);
+    }
+  };
+
+  /* Apply a saved parent deployment and cascade it to the dependents. Because
+   * Closed captioning is a parent, defaulting it off defaults its dependents
+   * off, and restricting it restricts its dependents — each dimension cascades
+   * independently (turning the default back on / re-allowing leaves the
+   * dependents untouched). */
+  const applyParentDeploy = (next: Deploy) => {
+    setParentDeploy(next);
+    setChildDeploy((prev) =>
+      Object.fromEntries(
+        CHILDREN.map((c) => [
+          c.title,
+          {
+            defaultVal: next.defaultVal === 'Off' ? 'Off' : prev[c.title].defaultVal,
+            allowChange: next.allowChange === false ? false : prev[c.title].allowChange,
+          },
+        ]),
+      ),
+    );
+  };
+
+  /* Saving the parent Manage dialog. Turning the user default off, or
+   * restricting access, opens the matching cascade confirmation before applying
+   * (default off takes precedence). Any other change applies directly. */
+  const handleParentSave = (next: Deploy) => {
+    setManageOpen(false);
+    if (next.defaultVal === 'Off') {
+      setPendingParent(next);
+      setDefaultOffConfirmOpen(true);
+    } else if (!next.allowChange) {
+      setPendingParent(next);
+      setRestrictAccessConfirmOpen(true);
+    } else {
+      applyParentDeploy(next);
     }
   };
 
@@ -231,38 +290,52 @@ export function ConceptSummaryAiV2ClosedCaptioningDetail({
             open={manageOpen}
             featureName="Closed captioning"
             onCancel={() => setManageOpen(false)}
-            onSave={({ defaultVal, allowChange }) => {
-              setManageOpen(false);
-              if (defaultVal === 'Off') setDefaultOffConfirmOpen(true);
-              else if (!allowChange) setRestrictAccessConfirmOpen(true);
-            }}
-            initialDefaultVal="On"
-            initialAllowChange
+            onSave={handleParentSave}
+            initialDefaultVal={parentDeploy.defaultVal}
+            initialAllowChange={parentDeploy.allowChange}
             customUsersCount={26}
           />
           {/* Cascade confirmation — Closed captioning defaulted off for users
            * also defaults its dependents (Live transcripts, AI notes) off. */}
           <ClosedCaptioningManageDefaultOffConfirm
             open={defaultOffConfirmOpen}
-            onCancel={() => setDefaultOffConfirmOpen(false)}
-            onConfirm={() => setDefaultOffConfirmOpen(false)}
+            onCancel={() => {
+              setDefaultOffConfirmOpen(false);
+              setPendingParent(null);
+            }}
+            onConfirm={() => {
+              if (pendingParent) applyParentDeploy(pendingParent);
+              setDefaultOffConfirmOpen(false);
+              setPendingParent(null);
+            }}
           />
           {/* Cascade confirmation — restricting Closed captioning also restricts
            * its dependents. */}
           <ClosedCaptioningManageRestrictAccessConfirm
             open={restrictAccessConfirmOpen}
-            onCancel={() => setRestrictAccessConfirmOpen(false)}
-            onConfirm={() => setRestrictAccessConfirmOpen(false)}
+            onCancel={() => {
+              setRestrictAccessConfirmOpen(false);
+              setPendingParent(null);
+            }}
+            onConfirm={() => {
+              if (pendingParent) applyParentDeploy(pendingParent);
+              setRestrictAccessConfirmOpen(false);
+              setPendingParent(null);
+            }}
           />
           {/* Per-child "Manage" dialog (User deployment). One instance reused for
-           * whichever dependent feature's Manage button was clicked. */}
+           * whichever dependent feature's Manage button was clicked. Saving
+           * updates that child's own pills. */}
           <FeatureManageDialog
             open={manageChild !== null}
             featureName={manageChild ?? ''}
             onCancel={() => setManageChild(null)}
-            onSave={() => setManageChild(null)}
-            initialDefaultVal="On"
-            initialAllowChange
+            onSave={(next) => {
+              if (manageChild) setChildDeploy((prev) => ({ ...prev, [manageChild]: next }));
+              setManageChild(null);
+            }}
+            initialDefaultVal={manageChild ? childDeploy[manageChild].defaultVal : 'On'}
+            initialAllowChange={manageChild ? childDeploy[manageChild].allowChange : true}
             customUsersCount={26}
           />
           {/* Per-child "Turn off …?" confirmation. Confirming turns the child off
@@ -302,6 +375,7 @@ export function ConceptSummaryAiV2ClosedCaptioningDetail({
             description={PARENT.description}
             checked={captioningOn}
             onCheckedChange={handleCaptioningSwitch}
+            deploy={parentDeploy}
             onManage={() => setManageOpen(true)}
           >
             {/* Dependent features — hidden once Closed captioning is turned off.
@@ -319,6 +393,7 @@ export function ConceptSummaryAiV2ClosedCaptioningDetail({
                       description={child.description}
                       checked={childOn[child.title]}
                       onCheckedChange={(next) => handleChildSwitch(child.title, next)}
+                      deploy={childDeploy[child.title]}
                       onManage={() => setManageChild(child.title)}
                     />
                   </div>

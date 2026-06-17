@@ -92,5 +92,13 @@ wire onManage → FeatureManageDialog(featureName="Closed captioning"); its onSa
 — defaultVal==='Off' → "Turn off default for users?" (else if !allowChange → "Restrict users from
 changing this setting?"). Default-off takes precedence, NO chaining (matches AVA prototype). Confirms are
 feature-specific components (ClosedCaptioningManageDefaultOffConfirm / ...RestrictAccessConfirm) per the
-codebase's per-feature naming convention; copy names the dependents Live transcripts + AI notes. In the
-prototype the confirms only open/close (child pills stay static), same as AVA.
+codebase's per-feature naming convention; copy names the dependents Live transcripts + AI notes.
+
+**CC detail deployment pills are STATEFUL and cascade parent→children (user-requested, diverges from
+AVA detail which is still static):** FeatureBody takes deploy={defaultVal,allowChange} and renders live
+pills. Parent Manage save holds values in pendingParent until the cascade confirm is acknowledged; on
+confirm applyParentDeploy sets parent + cascades EACH DIMENSION INDEPENDENTLY to all children (default
+Off→children Off; restricted→children restricted; turning back on/re-allowing leaves children untouched).
+Cancel discards. Child Manage updates that child's own pills. Known accepted edge: setting BOTH default-off
+AND restrict in one save shows only the default-off confirm (precedence) but applies both — matches AVA
+precedence intent. **Why:** static pills made the parent Manage cascade invisible (user saw "no changes").
