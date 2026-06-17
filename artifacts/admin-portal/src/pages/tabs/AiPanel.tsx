@@ -510,9 +510,11 @@ export default function AiPanel() {
             'Closed captioning',
             'Uses AI to display real-time captions during phone calls.',
             false,
-            CC_CHILDREN.map((c) =>
-              renderWiredDetailRow(c.key, c.icon, c.title, c.description, true),
-            ),
+            state.ai.closedCaptioning.on && masterOn
+              ? CC_CHILDREN.map((c) =>
+                  renderWiredDetailRow(c.key, c.icon, c.title, c.description, true),
+                )
+              : null,
           )}
         </FeatureDetailPage>
       )}
