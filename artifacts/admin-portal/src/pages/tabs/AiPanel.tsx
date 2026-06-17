@@ -488,18 +488,18 @@ export default function AiPanel() {
             summary={avaActive ? ALLOWED : undefined}
             onSwitchClick={handleAssistantToggle}
           >
-            {AVA_CHILDREN.map((c) => (
-              <FeatureDetailRow
-                key={c.title}
-                nested
-                icon={<SpringIcon as={c.icon} />}
-                title={c.title}
-                description={c.description}
-                switchOn={avaActive}
-                disabled={!avaActive}
-                summary={avaActive ? ALLOWED : undefined}
-              />
-            ))}
+            {avaActive &&
+              AVA_CHILDREN.map((c) => (
+                <FeatureDetailRow
+                  key={c.title}
+                  nested
+                  icon={<SpringIcon as={c.icon} />}
+                  title={c.title}
+                  description={c.description}
+                  switchOn
+                  summary={ALLOWED}
+                />
+              ))}
           </FeatureDetailRow>
         </FeatureDetailPage>
       )}
