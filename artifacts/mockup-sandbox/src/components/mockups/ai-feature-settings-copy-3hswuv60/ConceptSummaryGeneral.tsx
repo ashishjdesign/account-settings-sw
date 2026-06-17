@@ -52,7 +52,7 @@ function SettingCard({
         </p>
 
         {summary && summary.length > 0 && switchOn && (
-          <div className="flex w-full items-center justify-between gap-4 border-t border-[var(--sui-colors-neutral-b4)] pt-4">
+          <div className="flex w-full items-center justify-between gap-4 mt-2">
             <div className="flex min-w-0 flex-1 items-center text-[14px] leading-[20px] text-[var(--sui-colors-neutral-b1)]">
               {summary.map((seg, i) => (
                 <div
