@@ -1,17 +1,15 @@
 import React from 'react';
 import {
   AiStarsMd,
-  AiLightBulbMd,
+  AvaMd,
   AiWriterAltMd,
   AiSummaryMd,
-  SmartNotesMd,
   ClosedCaptionsMd,
-  TranscriptMd,
   VoicemailMd,
   GlobeMd,
 } from '@ringcentral/spring-icon';
 import { FeatureSettingsShell } from './_shared';
-import { PillTabs, SettingCard, SectionHeading } from './_chrome';
+import { PillTabs, SettingCard, ParentCard, SectionHeading } from './_chrome';
 import {
   ManageAiFeaturesDialog,
   TurnOnRetentionConfirmDialog,
@@ -133,47 +131,21 @@ export function ConceptSummaryAiV2ManageMainModal() {
           onManage={() => setStep({ kind: 'manage' })}
         />
 
-        <SettingCard
-          title="AI Assistant"
-          icon={<SpringIcon as={AiLightBulbMd} />}
-          switchOn
+        {/* AI Bot group — AVA replaces AI Assistant, parent of 5 features */}
+        <SectionHeading>AI Bot</SectionHeading>
+        <ParentCard
+          title="AVA"
+          icon={<SpringIcon as={AvaMd} />}
+          featureCount={5}
           description="A personal assistant that helps you boost productivity."
-          summary={[
-            { label: 'User default:', value: 'On' },
-            { label: 'User access:', value: 'Allowed' },
-          ]}
         />
 
         <SectionHeading>Phone</SectionHeading>
-        <SettingCard
+        <ParentCard
           title="Closed captioning"
           icon={<SpringIcon as={ClosedCaptionsMd} />}
-          switchOn
+          featureCount={2}
           description="Uses AI to display real-time captions during phone calls."
-          summary={[
-            { label: 'User default:', value: 'On' },
-            { label: 'User access:', value: 'Allowed' },
-          ]}
-        />
-        <SettingCard
-          title="Live transcripts"
-          icon={<SpringIcon as={TranscriptMd} />}
-          switchOn
-          description="Provides real-time AI-generated call transcripts."
-          summary={[
-            { label: 'User default:', value: 'On' },
-            { label: 'User access:', value: 'Allowed' },
-          ]}
-        />
-        <SettingCard
-          title="AI notes"
-          icon={<SpringIcon as={SmartNotesMd} />}
-          switchOn
-          description="Generate call notes automatically for all your devices."
-          summary={[
-            { label: 'User default:', value: 'On' },
-            { label: 'User access:', value: 'Allowed' },
-          ]}
         />
         <SettingCard
           title="AI voicemail summaries"
