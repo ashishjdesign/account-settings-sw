@@ -8,16 +8,19 @@ import {
   AiAsAgentMd,
   ResourceCenterMd,
 } from '@ringcentral/spring-icon';
+import { cn } from '@/lib/utils';
 import { FeatureSettingsShell, SpringSwitch } from './_shared';
 
 /* -----------------------------------------------------------------------------
  * AI Feature Settings — V2 — AVA detail inner page (Figma 2445-6666)
  *
  * Reached by clicking the AVA parent card's CaretRight chevron on the master-ON
- * AI tab (ConceptSummaryAiV2OnPartial). Shows the AVA feature and its 5 child
- * features (Query, Messaging, Integrations, Actions, Knowledge Base) as a single
- * bordered card of rows separated by dividers. Each row carries its own switch,
- * description, "User default / User access" pills and a Manage link.
+ * AI tab (ConceptSummaryAiV2OnPartial). One bordered card with AVA at the top
+ * and its 5 child features (Query, Messaging, Integrations, Actions, Knowledge
+ * Base) nested INSIDE AVA's content column — i.e. indented one icon column to
+ * the right so the children read as dependents of AVA. Each row carries its own
+ * switch, description, "User default / User access" pills and a Manage link.
+ * Children are separated from each other (and from AVA) by hairline dividers.
  *
  * `onBack` returns to the AI tab. When rendered as its own canvas frame (no
  * onBack), the back affordance is inert.
@@ -28,18 +31,19 @@ const SpringIcon = ({ as: Cmp }: { as: IconCmp }) => (
   <Cmp width={20} height={20} fill="currentColor" aria-hidden focusable={false} />
 );
 
-type FeatureRow = {
+type Feature = {
   title: string;
   icon: IconCmp;
   description: string;
 };
 
-const ROWS: FeatureRow[] = [
-  {
-    title: 'AVA',
-    icon: AvaMd,
-    description: 'A personal assistant that helps you boost productivity.',
-  },
+const AVA: Feature = {
+  title: 'AVA',
+  icon: AvaMd,
+  description: 'A personal assistant that helps you boost productivity.',
+};
+
+const CHILDREN: Feature[] = [
   {
     title: 'Query',
     icon: AiSearchMd,
@@ -73,14 +77,18 @@ const PILLS = [
   { label: 'User access:', value: 'Allowed' },
 ];
 
-function AvaFeatureRow({ title, icon, description }: FeatureRow) {
+/* A single feature's content column: title + switch, description, pills + Manage.
+ * The icon column is supplied by the row wrapper so AVA and its children can be
+ * indented independently. `children` lets AVA nest its dependent features inside
+ * its own content column. */
+function FeatureBody({
+  title,
+  description,
+  children,
+}: React.PropsWithChildren<{ title: string; description: string }>) {
   return (
-    <div className="flex items-start gap-4 py-4 [&:not(:first-child)]:border-t [&:not(:first-child)]:border-[var(--sui-colors-neutral-b4)]">
-      <div className="flex h-[32px] w-5 shrink-0 items-center justify-center text-[var(--sui-colors-neutral-b1)]">
-        <SpringIcon as={icon} />
-      </div>
-
-      <div className="flex min-w-0 flex-1 flex-col gap-2">
+    <div className="flex min-w-0 flex-1 flex-col">
+      <div className="flex flex-col gap-2">
         <div className="flex min-h-[32px] w-full items-center gap-4">
           <h3 className="flex-1 truncate text-[15px] font-bold leading-[20px] text-[var(--sui-colors-neutral-b1)]">
             {title}
@@ -118,6 +126,16 @@ function AvaFeatureRow({ title, icon, description }: FeatureRow) {
           </button>
         </div>
       </div>
+
+      {children}
+    </div>
+  );
+}
+
+function FeatureIcon({ as }: { as: IconCmp }) {
+  return (
+    <div className="flex h-[32px] w-5 shrink-0 items-center justify-center text-[var(--sui-colors-neutral-b1)]">
+      <SpringIcon as={as} />
     </div>
   );
 }
@@ -135,10 +153,25 @@ export function ConceptSummaryAiV2AvaDetail({ onBack }: { onBack?: () => void })
         <span className="text-[20px] font-semibold leading-[28px] tracking-[-0.2px]">AVA</span>
       </button>
 
-      <section className="rounded-[8px] border border-[var(--sui-colors-neutral-b4)] bg-white px-4">
-        {ROWS.map((row) => (
-          <AvaFeatureRow key={row.title} {...row} />
-        ))}
+      <section className="rounded-[8px] border border-[var(--sui-colors-neutral-b4)] bg-white p-4">
+        {/* AVA parent — its dependent features are nested inside its content column */}
+        <div className="flex items-start gap-4">
+          <FeatureIcon as={AVA.icon} />
+          <FeatureBody title={AVA.title} description={AVA.description}>
+            {/* Dependent features — indented to sit under AVA, divided hairlines */}
+            <div className="mt-4 flex flex-col">
+              {CHILDREN.map((child) => (
+                <div
+                  key={child.title}
+                  className="flex items-start gap-4 border-t border-[var(--sui-colors-neutral-b4)] py-4"
+                >
+                  <FeatureIcon as={child.icon} />
+                  <FeatureBody title={child.title} description={child.description} />
+                </div>
+              ))}
+            </div>
+          </FeatureBody>
+        </div>
       </section>
     </FeatureSettingsShell>
   );
