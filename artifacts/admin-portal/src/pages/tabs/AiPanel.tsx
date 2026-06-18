@@ -52,8 +52,8 @@ type FeatureItem = {
 };
 
 /* AVA's dependent features (Figma 2445-6666). These are new concepts not yet
- * backed by individual store state, so they render display-only inside the AVA
- * detail page (matching the static design). */
+ * backed by individual store state, so their on/off and per-feature deployment
+ * config live in local component state (avaChildOn / avaChildCfg). */
 const AVA_CHILDREN: { title: string; icon: IconCmp; description: string }[] = [
   {
     title: 'Query',
@@ -223,6 +223,14 @@ export default function AiPanel() {
       AVA_CHILDREN.map((c) => [c.title, { defaultVal: 'On' as const, allowChange: true }]),
     ),
   );
+  // AVA's 5 dependent features have no store state, so their on/off lives here,
+  // keyed by title (all on by default). `avaChildDisable` / `avaChildEnable`
+  // hold which child's turn-off / turn-on confirm dialog is currently shown.
+  const [avaChildOn, setAvaChildOn] = useState<Record<string, boolean>>(() =>
+    Object.fromEntries(AVA_CHILDREN.map((c) => [c.title, true])),
+  );
+  const [avaChildDisable, setAvaChildDisable] = useState<string | null>(null);
+  const [avaChildEnable, setAvaChildEnable] = useState<string | null>(null);
   // Pending AVA Manage selection awaiting cascade-confirm approval, plus which
   // confirm dialog is currently shown. Saving AVA with "User default: Off" or
   // "User access: Restricted" first asks the admin to confirm the change will
@@ -464,6 +472,35 @@ export default function AiPanel() {
     showToast('Settings were updated.');
   };
 
+  // AVA dependent-feature on/off. These have no store state, so toggling just
+  // routes to the turn-off / turn-on confirm dialog and commits to local state.
+  const toggleAvaChild = (title: string) => {
+    if (avaChildOn[title]) setAvaChildDisable(title);
+    else setAvaChildEnable(title);
+  };
+
+  const confirmAvaChildDisable = () => {
+    if (!avaChildDisable) return;
+    const title = avaChildDisable;
+    setAvaChildOn((prev) => ({ ...prev, [title]: false }));
+    setAvaChildDisable(null);
+    showToast(`${title} turned off`);
+  };
+
+  const confirmAvaChildEnable = (
+    result: { defaultVal: 'On' | 'Off'; allowChange: boolean },
+  ) => {
+    if (!avaChildEnable) return;
+    const title = avaChildEnable;
+    setAvaChildOn((prev) => ({ ...prev, [title]: true }));
+    setAvaChildCfg((prev) => ({
+      ...prev,
+      [title]: { defaultVal: result.defaultVal, allowChange: result.allowChange },
+    }));
+    setAvaChildEnable(null);
+    showToast(`${title} turned on`);
+  };
+
   // Commit Closed captioning's own deployment config and cascade the restrictive
   // state down to its dependents (Live transcripts, AI notes): a parent default
   // of Off forces every child's user default to Off, and restricting parent user
@@ -624,7 +661,8 @@ export default function AiPanel() {
       )}
 
       {/* AVA detail — parent switch is wired to AVA on/off; the 5 dependent
-       * features are display-only (no backing store state yet). */}
+       * features are individually toggleable via local state (no backing store
+       * yet), each with its own turn-off / turn-on confirm + Manage flow. */}
       {page === 'ava' && (
         <FeatureDetailPage title="AVA" onBack={backToMain}>
           <FeatureDetailCard>
@@ -651,6 +689,7 @@ export default function AiPanel() {
               {avaActive &&
                 AVA_CHILDREN.map((c) => {
                   const cfg = avaChildCfg[c.title];
+                  const on = avaChildOn[c.title];
                   return (
                     <FeatureDetailRow
                       key={c.title}
@@ -658,12 +697,20 @@ export default function AiPanel() {
                       icon={<SpringIcon as={c.icon} />}
                       title={c.title}
                       description={c.description}
-                      switchOn
-                      summary={[
-                        { label: 'User default:', value: cfg.defaultVal },
-                        { label: 'User access:', value: cfg.allowChange ? 'Allowed' : 'Restricted' },
-                      ]}
-                      onManage={() => setAvaChildManage(c.title)}
+                      switchOn={on}
+                      summary={
+                        on
+                          ? [
+                              { label: 'User default:', value: cfg.defaultVal },
+                              {
+                                label: 'User access:',
+                                value: cfg.allowChange ? 'Allowed' : 'Restricted',
+                              },
+                            ]
+                          : undefined
+                      }
+                      onManage={on ? () => setAvaChildManage(c.title) : undefined}
+                      onSwitchClick={() => toggleAvaChild(c.title)}
                     />
                   );
                 })}
@@ -993,6 +1040,32 @@ export default function AiPanel() {
         customCount={26}
         onCancel={() => setAvaChildManage(null)}
         onConfirm={saveAvaChildManage}
+      />
+
+      {/* AVA dependent-feature Turn off confirm */}
+      <SpringConfirmDialog
+        open={avaChildDisable !== null}
+        confirmLabel="Turn off"
+        title={avaChildDisable ? <>Turn off {avaChildDisable} for your organization?</> : null}
+        body={
+          <p>
+            This feature will be turned off for your account and no longer available to users.
+            When turned back on, previous user settings can be restored.
+          </p>
+        }
+        onCancel={() => setAvaChildDisable(null)}
+        onConfirm={confirmAvaChildDisable}
+      />
+
+      {/* AVA dependent-feature Turn on confirm */}
+      <FeatureEnableConfirmDialog
+        open={avaChildEnable !== null}
+        featureName={avaChildEnable ?? ''}
+        initialDefaultVal={avaChildEnable ? avaChildCfg[avaChildEnable].defaultVal : 'On'}
+        initialAllowChange={avaChildEnable ? avaChildCfg[avaChildEnable].allowChange : true}
+        customCount={26}
+        onCancel={() => setAvaChildEnable(null)}
+        onConfirm={confirmAvaChildEnable}
       />
 
       {/* Sub-feature Turn off confirm */}

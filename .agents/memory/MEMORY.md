@@ -1,5 +1,1 @@
-- [Figma → Spring icon mapping](figma-spring-icon-mapping.md) — Figma icon instance names ≠ Spring DS exports; always verify the exact `*Md` export before use.
-- [AI Feature Settings prototype](ai-feature-settings-prototype.md) — mockup-sandbox click-through prototype structure, routing, and screenshot conventions.
-- [admin-portal AI store & cascade](admin-portal-ai-store.md) — admin-portal≠mockup-sandbox; store Undo is single-level (use atomic CASCADE_AI_FEATURE); AVA/CC parent→child cascade rules.
-- [Spring icon React 19 types](spring-icon-react19-types.md) — direct <SomeMd/> JSX fails TS2739; render via SpringIcon wrapper (looser SVGProps type).
-- [URL deep-links gate — wouter adaptation](url-deep-links-wouter-adaptation.md) — satisfy the mandatory routing gate using the app's wouter router (?query for detail/overlay), never force in React Router v6.
+- [AVA children state](ava-children-state.md) — AVA's 5 child features in admin-portal use local component state, not the AI feature store (unlike CC children).
