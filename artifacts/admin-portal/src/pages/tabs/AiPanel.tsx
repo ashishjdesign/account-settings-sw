@@ -15,14 +15,16 @@ import {
   TranscriptMd,
   VoicemailMd,
   GlobeMd,
+  CallMd,
+  Ivamd,
 } from '@ringcentral/spring-icon';
 import { useSettings } from '../../store';
 import type { AiFeatureKey, AiRetentionPeriod } from '../../store';
 import {
   SettingCard,
-  SectionHeading,
   ParentCard,
   FeatureDetailPage,
+  FeatureDetailCard,
   FeatureDetailRow,
   SpringIcon,
   SpringConfirmDialog,
@@ -168,13 +170,15 @@ export default function AiPanel() {
   const search = useSearch();
   const [, setLocation] = useLocation();
   const detailParam = new URLSearchParams(search).get('detail');
-  const page: 'main' | 'ava' | 'closedCaptioning' =
+  const page: 'main' | 'ava' | 'phoneAi' | 'chatAi' =
     detailParam === 'ava'
       ? 'ava'
-      : detailParam === 'closedCaptioning'
-        ? 'closedCaptioning'
-        : 'main';
-  const openDetail = (d: 'ava' | 'closedCaptioning') =>
+      : detailParam === 'phoneAi'
+        ? 'phoneAi'
+        : detailParam === 'chatAi'
+          ? 'chatAi'
+          : 'main';
+  const openDetail = (d: 'ava' | 'phoneAi' | 'chatAi') =>
     setLocation(`/feature-settings/ai?detail=${d}`);
   const backToMain = () => setLocation('/feature-settings/ai');
 
@@ -184,10 +188,13 @@ export default function AiPanel() {
   const avaActive = masterOn && aiAssistant.on;
 
   // Guard deep links: a detail view is only reachable when its parent is on.
-  // Both `?detail=ava` and `?detail=closedCaptioning` depend only on master AI.
-  // Normalize an invalid `?detail=` back to the main list.
+  // `?detail=ava`, `?detail=phoneAi` and `?detail=chatAi` depend only on master
+  // AI. Normalize an invalid `?detail=` back to the main list.
   useEffect(() => {
-    if ((detailParam === 'ava' || detailParam === 'closedCaptioning') && !masterOn) {
+    if (
+      (detailParam === 'ava' || detailParam === 'phoneAi' || detailParam === 'chatAi') &&
+      !masterOn
+    ) {
       setLocation('/feature-settings/ai', { replace: true });
     }
   }, [detailParam, masterOn, setLocation]);
@@ -562,8 +569,6 @@ export default function AiPanel() {
 
   const retentionDisplay = customRetention.on ? periodLabel(customRetention.period) : 'Disabled';
 
-  const aiVoicemail = PHONE_ITEMS.find((i) => i.key === 'aiVoicemailSummaries')!;
-
   return (
     <div className="flex flex-col gap-4">
       {page === 'main' && (
@@ -582,9 +587,8 @@ export default function AiPanel() {
           {/* When master AI features is off, hide AVA and all sub-features. */}
           {masterOn && (
             <>
-              {/* AI Bot — AVA replaces AI Assistant: a parent card whose detail
-               * page holds its 5 dependent features. */}
-              <SectionHeading>AI Bot</SectionHeading>
+              {/* AVA — a parent card whose detail page holds its 5 dependent
+               * features. */}
               <ParentCard
                 title="AVA"
                 icon={<SpringIcon as={AvaMd} />}
@@ -593,22 +597,26 @@ export default function AiPanel() {
                 onOpen={() => openDetail('ava')}
               />
 
-              {/* Phone / Chat / SMS depend only on master AI features — they
-               * are NOT affected by AVA being on or off. */}
-              <SectionHeading>Phone</SectionHeading>
+              {/* Phone AI — parent card grouping the phone-related AI features
+               * (Closed captioning + dependents, AI voicemail summaries). */}
               <ParentCard
-                title="Closed captioning"
-                icon={<SpringIcon as={ClosedCaptionsMd} />}
-                featureCount={CC_CHILDREN.length}
-                description="Uses AI to display real-time captions during phone calls."
-                onOpen={() => openDetail('closedCaptioning')}
+                title="Phone AI"
+                icon={<SpringIcon as={CallMd} />}
+                featureCount={PHONE_ITEMS.length}
+                description="XXX."
+                onOpen={() => openDetail('phoneAi')}
               />
-              {renderFeatureCard(aiVoicemail)}
 
-              <SectionHeading>Chat</SectionHeading>
-              {CHAT_ITEMS.map(renderFeatureCard)}
+              {/* Chat AI — parent card grouping the chat-related AI features. */}
+              <ParentCard
+                title="Chat AI"
+                icon={<SpringIcon as={Ivamd} />}
+                featureCount={CHAT_ITEMS.length}
+                description="XXX."
+                onOpen={() => openDetail('chatAi')}
+              />
 
-              <SectionHeading>SMS</SectionHeading>
+              {/* AI writer for SMS stays a flat card (no grouping). */}
               {SMS_ITEMS.map(renderFeatureCard)}
             </>
           )}
@@ -619,66 +627,113 @@ export default function AiPanel() {
        * features are display-only (no backing store state yet). */}
       {page === 'ava' && (
         <FeatureDetailPage title="AVA" onBack={backToMain}>
-          <FeatureDetailRow
-            icon={<SpringIcon as={AvaMd} />}
-            title="AVA"
-            description="A personal assistant that helps you boost productivity."
-            switchOn={avaActive}
-            disabled={!masterOn}
-            summary={
-              avaActive
-                ? [
-                    { label: 'User default:', value: aiAssistant.defaultVal },
-                    {
-                      label: 'User access:',
-                      value: aiAssistant.allowChange ? 'Allowed' : 'Restricted',
-                    },
-                  ]
-                : undefined
-            }
-            onManage={avaActive ? () => setAvaManageOpen(true) : undefined}
-            onSwitchClick={handleAssistantToggle}
-          >
-            {avaActive &&
-              AVA_CHILDREN.map((c) => {
-                const cfg = avaChildCfg[c.title];
-                return (
-                  <FeatureDetailRow
-                    key={c.title}
-                    nested
-                    icon={<SpringIcon as={c.icon} />}
-                    title={c.title}
-                    description={c.description}
-                    switchOn
-                    summary={[
-                      { label: 'User default:', value: cfg.defaultVal },
-                      { label: 'User access:', value: cfg.allowChange ? 'Allowed' : 'Restricted' },
-                    ]}
-                    onManage={() => setAvaChildManage(c.title)}
-                  />
-                );
-              })}
-          </FeatureDetailRow>
+          <FeatureDetailCard>
+            <FeatureDetailRow
+              icon={<SpringIcon as={AvaMd} />}
+              title="AVA"
+              description="A personal assistant that helps you boost productivity."
+              switchOn={avaActive}
+              disabled={!masterOn}
+              summary={
+                avaActive
+                  ? [
+                      { label: 'User default:', value: aiAssistant.defaultVal },
+                      {
+                        label: 'User access:',
+                        value: aiAssistant.allowChange ? 'Allowed' : 'Restricted',
+                      },
+                    ]
+                  : undefined
+              }
+              onManage={avaActive ? () => setAvaManageOpen(true) : undefined}
+              onSwitchClick={handleAssistantToggle}
+            >
+              {avaActive &&
+                AVA_CHILDREN.map((c) => {
+                  const cfg = avaChildCfg[c.title];
+                  return (
+                    <FeatureDetailRow
+                      key={c.title}
+                      nested
+                      icon={<SpringIcon as={c.icon} />}
+                      title={c.title}
+                      description={c.description}
+                      switchOn
+                      summary={[
+                        { label: 'User default:', value: cfg.defaultVal },
+                        { label: 'User access:', value: cfg.allowChange ? 'Allowed' : 'Restricted' },
+                      ]}
+                      onManage={() => setAvaChildManage(c.title)}
+                    />
+                  );
+                })}
+            </FeatureDetailRow>
+          </FeatureDetailCard>
         </FeatureDetailPage>
       )}
 
-      {/* Closed captioning detail — fully wired (CC + Live transcripts + AI
-       * notes all have real store state). */}
-      {page === 'closedCaptioning' && (
-        <FeatureDetailPage title="Closed captioning" onBack={backToMain}>
-          {renderWiredDetailRow(
-            'closedCaptioning',
-            ClosedCaptionsMd,
-            'Closed captioning',
-            'Uses AI to display real-time captions during phone calls.',
-            false,
-            state.ai.closedCaptioning.on && masterOn
-              ? CC_CHILDREN.map((c) =>
-                  renderWiredDetailRow(c.key, c.icon, c.title, c.description, true),
-                )
-              : null,
-            () => setCcManageOpen(true),
-          )}
+      {/* Phone AI detail — two cards. Card 1: Closed captioning (fully wired)
+       * with nested Live transcripts + AI notes. Card 2: AI voicemail
+       * summaries, a separate independent feature. */}
+      {page === 'phoneAi' && (
+        <FeatureDetailPage title="Phone AI" onBack={backToMain}>
+          <FeatureDetailCard>
+            {renderWiredDetailRow(
+              'closedCaptioning',
+              ClosedCaptionsMd,
+              'Closed captioning',
+              'Uses AI to display real-time captions during phone calls.',
+              false,
+              state.ai.closedCaptioning.on && masterOn
+                ? CC_CHILDREN.map((c) =>
+                    renderWiredDetailRow(c.key, c.icon, c.title, c.description, true),
+                  )
+                : null,
+              () => setCcManageOpen(true),
+            )}
+          </FeatureDetailCard>
+          <FeatureDetailCard>
+            {renderWiredDetailRow(
+              'aiVoicemailSummaries',
+              VoicemailMd,
+              'AI voicemail summaries',
+              'Delivers AI-generated summaries of voicemails, including key details and follow-up items.',
+              false,
+            )}
+          </FeatureDetailCard>
+        </FeatureDetailPage>
+      )}
+
+      {/* Chat AI detail — three separate, independent feature cards. */}
+      {page === 'chatAi' && (
+        <FeatureDetailPage title="Chat AI" onBack={backToMain}>
+          <FeatureDetailCard>
+            {renderWiredDetailRow(
+              'aiWriterMessaging',
+              AiWriterAltMd,
+              'AI writer for messaging',
+              'Uses AI to draft and refine messages — check grammar, adjust tone or length, and translate to other languages.',
+              false,
+            )}
+          </FeatureDetailCard>
+          <FeatureDetailCard>
+            {renderWiredDetailRow(
+              'aiSummary',
+              AiSummaryMd,
+              'AI summary',
+              'Provides AI summaries that highlight key conversation points.',
+              false,
+            )}
+          </FeatureDetailCard>
+          <FeatureDetailCard>
+            {renderWiredDetailRow(
+              'aiTranslation',
+              GlobeMd,
+              'AI translation',
+              'Uses AI to translate chats, messages, and transcripts across languages.',
+              false,
+            )}
+          </FeatureDetailCard>
         </FeatureDetailPage>
       )}
 

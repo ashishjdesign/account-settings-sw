@@ -1,33 +1,29 @@
 import React from 'react';
-import {
-  AiStarsMd,
-  AvaMd,
-  ClosedCaptionsMd,
-  VoicemailMd,
-  AiWriterAltMd,
-  AiSummaryMd,
-  GlobeMd,
-} from '@ringcentral/spring-icon';
+import { AiStarsMd, AvaMd, CallMd, Ivamd, AiWriterAltMd } from '@ringcentral/spring-icon';
 import { FeatureSettingsShell } from './_shared';
-import { PillTabs, SettingCard, ParentCard, SectionHeading } from './_chrome';
+import { PillTabs, SettingCard, ParentCard } from './_chrome';
 import { ConceptSummaryAiV2AvaDetail } from './ConceptSummaryAiV2AvaDetail';
-import { ConceptSummaryAiV2ClosedCaptioningDetail } from './ConceptSummaryAiV2ClosedCaptioningDetail';
+import { ConceptSummaryAiV2PhoneAiDetail } from './ConceptSummaryAiV2PhoneAiDetail';
+import { ConceptSummaryAiV2ChatAiDetail } from './ConceptSummaryAiV2ChatAiDetail';
 
 /* -----------------------------------------------------------------------------
  * AI Feature Settings — V2 — Master ON (full layout, Figma 2445-5411)
  *
  * The master "AI features" toggle is ON, so every AI setting is visible and
- * turned on. Structure mirrors the redesigned AI tab:
+ * turned on. Features are grouped into parent cards (no category section
+ * titles):
  *   AI features (master)
- *   AI Bot group:  AVA            — parent → inner page (5 features)
- *   Phone group:   Closed captioning — parent → inner page (2 features)
- *                  AI voicemail summaries
- *   Chat group:    AI writer for messaging, AI summary, AI translation
- *   SMS group:     AI writer for SMS
+ *   AVA       — parent → inner page (5 features)
+ *   Phone AI  — parent → inner page (Closed captioning + dependents, AI
+ *               voicemail summaries)
+ *   Chat AI   — parent → inner page (AI writer for messaging, AI summary, AI
+ *               translation)
+ *   AI writer for SMS — flat card
  *
- * AVA replaces the old AI Assistant. Parent cards (AVA, Closed captioning) show
- * an "N features" badge + CaretRight chevron instead of a switch — the chevron
- * opens the feature's inner page where its own switch + children live.
+ * Parent cards (AVA, Phone AI, Chat AI) show an "N features" badge + CaretRight
+ * chevron instead of a switch — the chevron opens the feature's inner page where
+ * its own switches live. This is an architecture-only regrouping; per-feature
+ * management UX is unchanged.
  * --------------------------------------------------------------------------- */
 
 type IconCmp = React.ComponentType<React.SVGProps<SVGSVGElement>>;
@@ -41,14 +37,18 @@ const ALLOWED = [
 ];
 
 export function ConceptSummaryAiV2OnPartial() {
-  const [page, setPage] = React.useState<'main' | 'ava' | 'closedCaptioning'>('main');
+  const [page, setPage] = React.useState<'main' | 'ava' | 'phoneAi' | 'chatAi'>('main');
 
   if (page === 'ava') {
     return <ConceptSummaryAiV2AvaDetail onBack={() => setPage('main')} />;
   }
 
-  if (page === 'closedCaptioning') {
-    return <ConceptSummaryAiV2ClosedCaptioningDetail onBack={() => setPage('main')} />;
+  if (page === 'phoneAi') {
+    return <ConceptSummaryAiV2PhoneAiDetail onBack={() => setPage('main')} />;
+  }
+
+  if (page === 'chatAi') {
+    return <ConceptSummaryAiV2ChatAiDetail onBack={() => setPage('main')} />;
   }
 
   return (
@@ -65,8 +65,7 @@ export function ConceptSummaryAiV2OnPartial() {
           summary={[{ label: 'AI data custom retention period:', value: 'Disabled' }]}
         />
 
-        {/* AI Bot group — AVA replaces AI Assistant, parent of 5 features */}
-        <SectionHeading>AI Bot</SectionHeading>
+        {/* AVA — parent of 5 features */}
         <ParentCard
           title="AVA"
           icon={<SpringIcon as={AvaMd} />}
@@ -75,49 +74,26 @@ export function ConceptSummaryAiV2OnPartial() {
           onOpen={() => setPage('ava')}
         />
 
-        {/* Phone group */}
-        <SectionHeading>Phone</SectionHeading>
+        {/* Phone AI — parent grouping the phone-related AI features (Closed
+         * captioning + dependents, AI voicemail summaries) */}
         <ParentCard
-          title="Closed captioning"
-          icon={<SpringIcon as={ClosedCaptionsMd} />}
-          featureCount={2}
-          description="Uses AI to display real-time captions during phone calls."
-          onOpen={() => setPage('closedCaptioning')}
-        />
-        <SettingCard
-          title="AI voicemail summaries"
-          icon={<SpringIcon as={VoicemailMd} />}
-          switchOn
-          description="Delivers AI-generated summaries of voicemails, including key details and follow-up items."
-          summary={ALLOWED}
+          title="Phone AI"
+          icon={<SpringIcon as={CallMd} />}
+          featureCount={4}
+          description="XXX."
+          onOpen={() => setPage('phoneAi')}
         />
 
-        {/* Chat group */}
-        <SectionHeading>Chat</SectionHeading>
-        <SettingCard
-          title="AI writer for messaging"
-          icon={<SpringIcon as={AiWriterAltMd} />}
-          switchOn
-          description="Uses AI to draft and refine messages — check grammar, adjust tone or length, and translate to other languages."
-          summary={ALLOWED}
-        />
-        <SettingCard
-          title="AI summary"
-          icon={<SpringIcon as={AiSummaryMd} />}
-          switchOn
-          description="Provides AI summaries that highlight key conversation points."
-          summary={ALLOWED}
-        />
-        <SettingCard
-          title="AI translation"
-          icon={<SpringIcon as={GlobeMd} />}
-          switchOn
-          description="Uses AI to translate chats, messages, and transcripts across languages."
-          summary={ALLOWED}
+        {/* Chat AI — parent grouping the chat-related AI features */}
+        <ParentCard
+          title="Chat AI"
+          icon={<SpringIcon as={Ivamd} />}
+          featureCount={3}
+          description="XXX."
+          onOpen={() => setPage('chatAi')}
         />
 
-        {/* SMS group */}
-        <SectionHeading>SMS</SectionHeading>
+        {/* AI writer for SMS stays a flat card (no grouping) */}
         <SettingCard
           title="AI writer for SMS"
           icon={<SpringIcon as={AiWriterAltMd} />}

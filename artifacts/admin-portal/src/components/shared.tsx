@@ -464,8 +464,18 @@ export function ParentCard({
   );
 }
 
-/* FeatureDetailPage — back header (← Title) above a single bordered card that
- * holds a parent FeatureDetailRow and its nested children. */
+/* FeatureDetailCard — a single bordered card on a detail page. Holds a parent
+ * FeatureDetailRow and its nested children. A detail page can stack several. */
+export function FeatureDetailCard({ children }: React.PropsWithChildren) {
+  return (
+    <section className="rounded-[8px] border border-[var(--sui-colors-neutral-b4)] bg-white p-4">
+      {children}
+    </section>
+  );
+}
+
+/* FeatureDetailPage — back header (← Title) above one or more bordered cards
+ * (each a FeatureDetailCard). */
 export function FeatureDetailPage({
   title, onBack, children,
 }: React.PropsWithChildren<{ title: string; onBack: () => void }>) {
@@ -479,9 +489,9 @@ export function FeatureDetailPage({
         <SpringIcon as={ArrowLeftMd} size={24} />
         <span className="text-[20px] font-semibold leading-[28px] tracking-[-0.2px]">{title}</span>
       </button>
-      <section className="rounded-[8px] border border-[var(--sui-colors-neutral-b4)] bg-white p-4">
+      <div className="flex flex-col gap-4">
         {children}
-      </section>
+      </div>
     </div>
   );
 }

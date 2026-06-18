@@ -37,7 +37,7 @@ export default function FeatureSettings({ tab }: { tab: string }) {
   const detailParam = new URLSearchParams(search).get('detail');
   const isAiDetail =
     activeTab === 'ai' &&
-    (detailParam === 'ava' || detailParam === 'closedCaptioning');
+    (detailParam === 'ava' || detailParam === 'phoneAi' || detailParam === 'chatAi');
 
   const handleTabClick = (k: TabKey) => {
     setLocation(`/feature-settings/${k}`);
