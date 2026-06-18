@@ -685,6 +685,100 @@ export function FeatureEnableConfirm({
   );
 }
 
+/* -----------------------------------------------------------------------------
+ * FeatureChildEnableConfirm — the confirmation shown when a dependent (child)
+ * feature's own switch is turned back on. Like FeatureChildDisableConfirm it is
+ * user-level (title "Turn on {featureName}?", no "… for your organization"), but
+ * turning a child back on lets the admin re-configure how it deploys to users,
+ * so it carries the same User-deployment card + custom-users disposition as the
+ * org-level FeatureEnableConfirm. On confirm the caller turns the child back on
+ * and applies the returned deployment to that child's pills.
+ * --------------------------------------------------------------------------- */
+export function FeatureChildEnableConfirm({
+  open, featureName, onCancel, onConfirm,
+  initialDefaultVal = 'On',
+  initialAllowChange = true,
+  customUsersCount = 26,
+}: {
+  open: boolean;
+  featureName: string;
+  onCancel: () => void;
+  onConfirm: (result: {
+    defaultVal: 'On' | 'Off';
+    allowChange: boolean;
+    customAction: 'reset' | 'restore';
+  }) => void;
+  initialDefaultVal?: 'On' | 'Off';
+  initialAllowChange?: boolean;
+  customUsersCount?: number;
+}) {
+  const [defaultVal, setDefaultVal] = React.useState<'On' | 'Off'>(initialDefaultVal);
+  const [allowChange, setAllowChange] = React.useState(initialAllowChange);
+  const [customAction, setCustomAction] = React.useState<'reset' | 'restore'>('reset');
+
+  React.useEffect(() => {
+    if (open) {
+      setDefaultVal(initialDefaultVal);
+      setAllowChange(initialAllowChange);
+      setCustomAction('reset');
+    }
+  }, [open, initialDefaultVal, initialAllowChange]);
+
+  const defaultUsersCount = Math.max(0, TOTAL_USERS - customUsersCount);
+
+  return (
+    <DialogShell open={open} ariaLabel={`Turn on ${featureName}`} onClose={onCancel}>
+      <div className="flex flex-col gap-6 px-6 pb-8 pt-9">
+        <h2 className="py-3 text-[24px] font-normal leading-[32px] text-[var(--sui-colors-neutral-b0)]">
+          Turn on {featureName}?
+        </h2>
+        <p className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+          This feature will be turned back on. Configure how it should be deployed to users below.
+        </p>
+
+        <UserDeploymentCard
+          defaultVal={defaultVal}
+          onDefaultValChange={setDefaultVal}
+          allowChange={allowChange}
+          onAllowChangeChange={setAllowChange}
+          defaultUsersCount={defaultUsersCount}
+        />
+
+        {customUsersCount > 0 && (
+          <div className="flex flex-col gap-3">
+            <p className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+              <button
+                type="button"
+                className="cursor-pointer text-[var(--sui-colors-primary-b)] underline hover:text-[var(--sui-colors-primary-b-high-contrast)]"
+              >
+                {customUsersCount}/{TOTAL_USERS} users
+              </button>{' '}
+              have custom settings for this feature. What would you like to do with these users?
+            </p>
+            <div className="flex items-center gap-6">
+              <Radio
+                checked={customAction === 'reset'}
+                onChange={() => setCustomAction('reset')}
+                label="Reset all to default"
+              />
+              <Radio
+                checked={customAction === 'restore'}
+                onChange={() => setCustomAction('restore')}
+                label="Restore their custom settings"
+              />
+            </div>
+          </div>
+        )}
+      </div>
+      <DialogFooter
+        onCancel={onCancel}
+        onConfirm={() => onConfirm({ defaultVal, allowChange, customAction })}
+        confirmLabel="Turn on"
+      />
+    </DialogShell>
+  );
+}
+
 export function FeatureManageDialog({
   open, featureName, onCancel, onSave,
   initialDefaultVal, initialAllowChange,

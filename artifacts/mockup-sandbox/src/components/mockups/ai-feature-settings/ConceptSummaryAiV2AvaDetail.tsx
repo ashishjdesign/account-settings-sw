@@ -16,6 +16,7 @@ import {
   AvaManageRestrictAccessConfirm,
   FeatureManageDialog,
   FeatureChildDisableConfirm,
+  FeatureChildEnableConfirm,
 } from './_assistantDialogs';
 
 /* -----------------------------------------------------------------------------
@@ -31,7 +32,14 @@ import {
  *
  * Turning AVA off (its parent switch) opens the "Turn off AVA" confirmation
  * (Figma 2454-8876). Confirming turns AVA off and hides its 5 dependent
- * features. The children themselves are display-only.
+ * features.
+ *
+ * Each child carries its own switch. Turning a child off opens the user-level
+ * "Turn off {child}?" confirmation (FeatureChildDisableConfirm) and hides that
+ * child's user-deployment row. Turning a child back on opens the "Turn on
+ * {child}?" confirmation (FeatureChildEnableConfirm) where the admin re-picks
+ * how the child deploys to users (User default / User access + custom-users
+ * disposition); confirming turns the child on and updates its pills.
  *
  * `onBack` returns to the AI tab. When rendered as its own canvas frame (no
  * onBack), the back affordance is inert.
@@ -47,6 +55,10 @@ type Feature = {
   icon: IconCmp;
   description: string;
 };
+
+/* A feature's user-deployment settings, shown as the "User default / User
+ * access" pills and edited through the Manage / re-enable dialogs. */
+type Deploy = { defaultVal: 'On' | 'Off'; allowChange: boolean };
 
 const AVA: Feature = {
   title: 'AVA',
@@ -83,21 +95,18 @@ const CHILDREN: Feature[] = [
   },
 ];
 
-const PILLS = [
-  { label: 'User default:', value: 'On' },
-  { label: 'User access:', value: 'Allowed' },
-];
-
 /* A single feature's content column: title + switch, description, pills + Manage.
  * The icon column is supplied by the row wrapper so AVA and its children can be
  * indented independently. `children` lets AVA nest its dependent features inside
  * its own content column. The switch defaults to a static on state; pass
- * `checked` + `onCheckedChange` to make the parent switch interactive. */
+ * `checked` + `onCheckedChange` to make the switch interactive; `deploy` drives
+ * the live "User default / User access" pills. */
 function FeatureBody({
   title,
   description,
   checked = true,
   onCheckedChange,
+  deploy,
   onManage,
   children,
 }: React.PropsWithChildren<{
@@ -105,6 +114,7 @@ function FeatureBody({
   description: string;
   checked?: boolean;
   onCheckedChange?: (next: boolean) => void;
+  deploy: Deploy;
   onManage?: () => void;
 }>) {
   return (
@@ -133,7 +143,10 @@ function FeatureBody({
         {checked && (
           <div className="mt-2 flex w-full items-center justify-between gap-4">
             <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
-              {PILLS.map((seg, i) => (
+              {[
+                { label: 'User default:', value: deploy.defaultVal },
+                { label: 'User access:', value: deploy.allowChange ? 'Allowed' : 'Restricted' },
+              ].map((seg, i) => (
                 <div
                   key={i}
                   className="flex h-[32px] items-center gap-2 whitespace-nowrap rounded-[10px] bg-[var(--sui-colors-neutral-b5)] px-3 text-[14px] leading-[20px] text-[var(--sui-colors-neutral-b1)]"
@@ -173,6 +186,8 @@ export function ConceptSummaryAiV2AvaDetail({
   startManageOpen = false,
   startDefaultOffConfirmOpen = false,
   startRestrictAccessConfirmOpen = false,
+  startChildDisableConfirm,
+  startChildEnableConfirm,
 }: {
   onBack?: () => void;
   /* When true the "Turn off AVA" confirmation is shown on mount — used by the
@@ -187,6 +202,13 @@ export function ConceptSummaryAiV2AvaDetail({
   /* When true the "Restrict users from changing this setting?" confirmation is
    * shown on mount — used by the standalone canvas frame that documents it. */
   startRestrictAccessConfirmOpen?: boolean;
+  /* Child title whose "Turn off {child}?" confirmation is shown on mount — used
+   * by the standalone canvas frame that documents the child disable state. */
+  startChildDisableConfirm?: string;
+  /* Child title whose "Turn on {child}?" confirmation is shown on mount (that
+   * child starts off) — used by the standalone canvas frame that documents the
+   * child re-enable + user-deployment state. */
+  startChildEnableConfirm?: string;
 }) {
   const [avaOn, setAvaOn] = React.useState(true);
   const [confirmOpen, setConfirmOpen] = React.useState(startConfirmOpen);
@@ -201,13 +223,26 @@ export function ConceptSummaryAiV2AvaDetail({
     React.useState(startRestrictAccessConfirmOpen);
   /* Which dependent feature's "Manage" dialog is open (null = none). */
   const [manageChild, setManageChild] = React.useState<string | null>(null);
-  /* Per-child on/off state (all on by default). Turning a child off hides its
+  /* Per-child on/off state (all on by default, except a child documented in the
+   * re-enable standalone frame which starts off). Turning a child off hides its
    * own user-deployment row (pills + Manage). */
   const [childOn, setChildOn] = React.useState<Record<string, boolean>>(() =>
-    Object.fromEntries(CHILDREN.map((c) => [c.title, true])),
+    Object.fromEntries(CHILDREN.map((c) => [c.title, c.title !== startChildEnableConfirm])),
+  );
+  /* Per-child user-deployment state, reflected live in each child's pills and
+   * (re)written by that child's Manage dialog and re-enable confirmation. */
+  const [childDeploy, setChildDeploy] = React.useState<Record<string, Deploy>>(() =>
+    Object.fromEntries(CHILDREN.map((c) => [c.title, { defaultVal: 'On', allowChange: true }])),
   );
   /* Which child's "Turn off …?" confirmation is open (null = none). */
-  const [disableChild, setDisableChild] = React.useState<string | null>(null);
+  const [disableChild, setDisableChild] = React.useState<string | null>(
+    startChildDisableConfirm ?? null,
+  );
+  /* Which child's "Turn on …?" (re-enable + user deployment) confirmation is
+   * open (null = none). */
+  const [enableChild, setEnableChild] = React.useState<string | null>(
+    startChildEnableConfirm ?? null,
+  );
 
   /* Toggling the parent switch off asks for confirmation first; toggling it back
    * on restores it directly (re-enable has no confirmation). */
@@ -219,11 +254,12 @@ export function ConceptSummaryAiV2AvaDetail({
     }
   };
 
-  /* A child switch turned off asks for confirmation first; turned back on
-   * restores it directly (re-enable has no confirmation). */
+  /* A child switch turned off asks for the "Turn off {child}?" confirmation;
+   * turned back on opens the "Turn on {child}?" confirmation where the admin
+   * re-picks the child's user deployment before it comes back on. */
   const handleChildSwitch = (title: string, next: boolean) => {
     if (next) {
-      setChildOn((prev) => ({ ...prev, [title]: true }));
+      setEnableChild(title);
     } else {
       setDisableChild(title);
     }
@@ -284,14 +320,18 @@ export function ConceptSummaryAiV2AvaDetail({
             onConfirm={() => setRestrictAccessConfirmOpen(false)}
           />
           {/* Per-child "Manage" dialog (User deployment). One instance reused for
-           * whichever dependent feature's Manage button was clicked. */}
+           * whichever dependent feature's Manage button was clicked; saving
+           * updates that child's own pills. */}
           <FeatureManageDialog
             open={manageChild !== null}
             featureName={manageChild ?? ''}
             onCancel={() => setManageChild(null)}
-            onSave={() => setManageChild(null)}
-            initialDefaultVal="On"
-            initialAllowChange
+            onSave={(next) => {
+              if (manageChild) setChildDeploy((prev) => ({ ...prev, [manageChild]: next }));
+              setManageChild(null);
+            }}
+            initialDefaultVal={manageChild ? childDeploy[manageChild].defaultVal : 'On'}
+            initialAllowChange={manageChild ? childDeploy[manageChild].allowChange : true}
             customUsersCount={26}
           />
           {/* Per-child "Turn off …?" confirmation. Confirming turns the child off
@@ -305,6 +345,24 @@ export function ConceptSummaryAiV2AvaDetail({
                 setChildOn((prev) => ({ ...prev, [disableChild]: false }));
               }
               setDisableChild(null);
+            }}
+          />
+          {/* Per-child "Turn on …?" confirmation with the User-deployment card.
+           * Confirming turns the child back on and applies the chosen deployment
+           * to that child's pills. */}
+          <FeatureChildEnableConfirm
+            open={enableChild !== null}
+            featureName={enableChild ?? ''}
+            initialDefaultVal={enableChild ? childDeploy[enableChild].defaultVal : 'On'}
+            initialAllowChange={enableChild ? childDeploy[enableChild].allowChange : true}
+            customUsersCount={26}
+            onCancel={() => setEnableChild(null)}
+            onConfirm={({ defaultVal, allowChange }) => {
+              if (enableChild) {
+                setChildOn((prev) => ({ ...prev, [enableChild]: true }));
+                setChildDeploy((prev) => ({ ...prev, [enableChild]: { defaultVal, allowChange } }));
+              }
+              setEnableChild(null);
             }}
           />
         </div>
@@ -329,6 +387,7 @@ export function ConceptSummaryAiV2AvaDetail({
             description={AVA.description}
             checked={avaOn}
             onCheckedChange={handleAvaSwitch}
+            deploy={{ defaultVal: 'On', allowChange: true }}
             onManage={() => setManageOpen(true)}
           >
             {/* Dependent features — hidden once AVA is turned off. Indented to
@@ -346,6 +405,7 @@ export function ConceptSummaryAiV2AvaDetail({
                       description={child.description}
                       checked={childOn[child.title]}
                       onCheckedChange={(next) => handleChildSwitch(child.title, next)}
+                      deploy={childDeploy[child.title]}
                       onManage={() => setManageChild(child.title)}
                     />
                   </div>
