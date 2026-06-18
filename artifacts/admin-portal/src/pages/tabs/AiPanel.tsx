@@ -603,7 +603,7 @@ export default function AiPanel() {
                 title="Phone AI"
                 icon={<SpringIcon as={CallMd} />}
                 featureCount={PHONE_ITEMS.length}
-                description="XXX."
+                description="AI features for phone calls, including captions, transcripts, notes, and voicemail summaries."
                 onOpen={() => openDetail('phoneAi')}
               />
 
@@ -612,7 +612,7 @@ export default function AiPanel() {
                 title="Chat AI"
                 icon={<SpringIcon as={Ivamd} />}
                 featureCount={CHAT_ITEMS.length}
-                description="XXX."
+                description="AI features for messaging, including writing, summaries, and translation."
                 onOpen={() => openDetail('chatAi')}
               />
 

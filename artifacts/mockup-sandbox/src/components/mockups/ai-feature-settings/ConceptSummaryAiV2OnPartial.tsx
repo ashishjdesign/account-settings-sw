@@ -80,7 +80,7 @@ export function ConceptSummaryAiV2OnPartial() {
           title="Phone AI"
           icon={<SpringIcon as={CallMd} />}
           featureCount={4}
-          description="XXX."
+          description="AI features for phone calls, including captions, transcripts, notes, and voicemail summaries."
           onOpen={() => setPage('phoneAi')}
         />
 
@@ -89,7 +89,7 @@ export function ConceptSummaryAiV2OnPartial() {
           title="Chat AI"
           icon={<SpringIcon as={Ivamd} />}
           featureCount={3}
-          description="XXX."
+          description="AI features for messaging, including writing, summaries, and translation."
           onOpen={() => setPage('chatAi')}
         />
 
