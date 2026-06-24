@@ -20,7 +20,7 @@ import { ConceptSummaryAiV2ChatAiDetail } from './ConceptSummaryAiV2ChatAiDetail
  *               translation)
  *   AI writer for SMS — flat card
  *
- * Parent cards (AVA, Phone AI, Chat AI) show an "N features" badge + CaretRight
+ * Parent cards (AVA, Phone AI, Chat AI) show an "N features" label + CaretRight
  * chevron instead of a switch — the chevron opens the feature's inner page where
  * its own switches live. This is an architecture-only regrouping; per-feature
  * management UX is unchanged.

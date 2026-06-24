@@ -87,7 +87,7 @@ export function SettingCard({
 }
 
 /* ParentCard — a feature that groups child features. Instead of a switch +
- * summary + Manage, it shows an "N features" badge and a CaretRight chevron
+ * summary + Manage, it shows an "N features" label and a CaretRight chevron
  * that drills into the feature's inner page (Figma 2445-5411 AVA, 2445-8025
  * Closed captioning). */
 export function ParentCard({
@@ -110,17 +110,6 @@ export function ParentCard({
           <h3 className="flex-1 truncate text-[15px] font-bold leading-[20px] text-[var(--sui-colors-neutral-b1)]">
             {title}
           </h3>
-          <span className="flex h-4 items-center justify-center rounded-full bg-[var(--sui-colors-neutral-b2)] px-1 text-[10px] font-bold leading-[10px] text-white">
-            {featureCount} features
-          </span>
-          <button
-            type="button"
-            onClick={onOpen}
-            aria-label={`Open ${title}`}
-            className="flex h-6 w-6 shrink-0 cursor-pointer items-center justify-center text-[var(--sui-colors-neutral-b1)] focus:outline-none focus:ring-2 focus:ring-[var(--sui-colors-primary-b)]/30"
-          >
-            <CaretRightMd width={20} height={20} fill="currentColor" aria-hidden focusable={false} />
-          </button>
         </div>
 
         <p className="pr-[130px] text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b2)]">
@@ -130,6 +119,21 @@ export function ParentCard({
           </a>
         </p>
       </div>
+
+      {/* Right CTA group — "N features" label + caret, vertically centered
+       * (mid-aligned) across the whole card. Label is plain descriptor text,
+       * not a pill badge (Figma 2552-5631). */}
+      <button
+        type="button"
+        onClick={onOpen}
+        aria-label={`Open ${title}`}
+        className="flex shrink-0 cursor-pointer items-center gap-[10px] self-stretch focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sui-colors-primary-b)]/30"
+      >
+        <span className="whitespace-nowrap text-right text-[12px] font-normal leading-[18px] text-[var(--sui-colors-neutral-b2)]">
+          {featureCount} features
+        </span>
+        <CaretRightMd width={24} height={24} fill="currentColor" aria-hidden focusable={false} className="shrink-0 text-[var(--sui-colors-neutral-b1)]" />
+      </button>
     </section>
   );
 }

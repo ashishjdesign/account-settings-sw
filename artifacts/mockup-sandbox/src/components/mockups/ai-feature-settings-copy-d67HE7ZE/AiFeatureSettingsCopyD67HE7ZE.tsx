@@ -24,7 +24,7 @@ import { PillTabs, SettingCard, ParentCard, SectionHeading } from './_chrome';
  *   SMS group:     AI writer for SMS
  *
  * AVA replaces the old AI Assistant. Parent cards (AVA, Closed captioning) show
- * an "N features" badge + CaretRight chevron instead of a switch — the chevron
+ * an "N features" label + CaretRight chevron instead of a switch — the chevron
  * opens the feature's inner page where its own switch + children live.
  * --------------------------------------------------------------------------- */
 

@@ -87,7 +87,7 @@ export function SettingCard({
 }
 
 /* ParentCard — a feature that groups child features. Instead of a switch +
- * summary + Manage, it shows an "N features" badge and a CaretRight chevron
+ * summary + Manage, it shows an "N features" label and a CaretRight chevron
  * that drills into the feature's inner page (Figma 2445-5411 AVA, 2445-8025
  * Closed captioning). */
 export function ParentCard({
