@@ -95,7 +95,7 @@ export function Concept() {
           title="AI Assistant"
           switchOn
           icon="ai-lightbulb"
-          description="A personal assistant that helps you boost productivity."
+          description="A personal AI virtual assistant that helps you boost productivity."
         >
           <SubRow>
             <LabelWithInfo>AI notes and transcriptions retention period</LabelWithInfo>

@@ -630,7 +630,7 @@ export default function AiPanel() {
                 title="AVA"
                 icon={<SpringIcon as={AvaMd} />}
                 featureCount={AVA_CHILDREN.length}
-                description="A personal assistant that helps you boost productivity."
+                description="A personal AI virtual assistant that helps you boost productivity."
                 onOpen={() => openDetail('ava')}
               />
 
@@ -669,7 +669,7 @@ export default function AiPanel() {
             <FeatureDetailRow
               icon={<SpringIcon as={AvaMd} />}
               title="AVA"
-              description="A personal assistant that helps you boost productivity."
+              description="A personal AI virtual assistant that helps you boost productivity."
               switchOn={avaActive}
               disabled={!masterOn}
               summary={

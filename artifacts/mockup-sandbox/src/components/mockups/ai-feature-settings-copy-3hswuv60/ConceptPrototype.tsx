@@ -572,7 +572,7 @@ function AiPanel({ onManage }: { onManage: (k: 'ai-assistant' | 'auto-call-notes
         title="AI Assistant"
         switchOn
         icon="ai-lightbulb"
-        description="A personal assistant that helps you boost productivity."
+        description="A personal AI virtual assistant that helps you boost productivity."
         summary={[
           { label: 'Data retention period:', value: '365 days' },
           { label: 'User default:', value: 'On' },

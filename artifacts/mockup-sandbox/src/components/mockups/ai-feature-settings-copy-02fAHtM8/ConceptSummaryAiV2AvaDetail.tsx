@@ -63,7 +63,7 @@ type Deploy = { defaultVal: 'On' | 'Off'; allowChange: boolean };
 const AVA: Feature = {
   title: 'AVA',
   icon: AvaMd,
-  description: 'A personal assistant that helps you boost productivity.',
+  description: 'A personal AI virtual assistant that helps you boost productivity.',
 };
 
 const CHILDREN: Feature[] = [

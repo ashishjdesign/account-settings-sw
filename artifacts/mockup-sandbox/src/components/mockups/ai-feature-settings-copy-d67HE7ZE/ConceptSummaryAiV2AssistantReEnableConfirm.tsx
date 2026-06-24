@@ -59,7 +59,7 @@ export function ConceptSummaryAiV2AssistantReEnableConfirm() {
           title="AI Assistant"
           icon={<SpringIcon as={AiLightBulbMd} />}
           switchOn={assistantOn}
-          description="A personal assistant that helps you boost productivity."
+          description="A personal AI virtual assistant that helps you boost productivity."
         />
       </div>
     </FeatureSettingsShell>

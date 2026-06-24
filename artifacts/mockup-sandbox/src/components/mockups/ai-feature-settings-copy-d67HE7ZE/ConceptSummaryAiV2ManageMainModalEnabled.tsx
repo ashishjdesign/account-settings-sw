@@ -134,7 +134,7 @@ export function ConceptSummaryAiV2ManageMainModalEnabled() {
           title="AVA"
           icon={<SpringIcon as={AvaMd} />}
           featureCount={5}
-          description="A personal assistant that helps you boost productivity."
+          description="A personal AI virtual assistant that helps you boost productivity."
         />
 
         <SectionHeading>Phone</SectionHeading>

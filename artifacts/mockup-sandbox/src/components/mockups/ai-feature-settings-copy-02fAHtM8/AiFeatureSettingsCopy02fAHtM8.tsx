@@ -70,7 +70,7 @@ export function AiFeatureSettingsCopy02fAHtM8() {
           title="AVA"
           icon={<SpringIcon as={AvaMd} />}
           featureCount={5}
-          description="A personal assistant that helps you boost productivity."
+          description="A personal AI virtual assistant that helps you boost productivity."
           onOpen={() => setPage('ava')}
         />
 

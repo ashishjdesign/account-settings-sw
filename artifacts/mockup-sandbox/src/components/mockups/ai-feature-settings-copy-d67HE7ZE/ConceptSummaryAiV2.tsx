@@ -156,7 +156,7 @@ export function ConceptSummaryAiV2() {
           title="AI Assistant"
           icon={<SpringIcon as={AiLightBulbMd} />}
           switchOn
-          description="A personal assistant that helps you boost productivity."
+          description="A personal AI virtual assistant that helps you boost productivity."
         />
 
         {/* Phone group */}
