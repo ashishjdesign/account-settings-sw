@@ -8,8 +8,8 @@ import { FeatureDisableConfirm, FeatureManageDialog } from './_assistantDialogs'
  *
  * Reached by clicking the "Chat AI" parent card's CaretRight chevron on the
  * master-ON AI tab (ConceptSummaryAiV2OnPartial). The Chat AI page groups the
- * chat-related AI features into three independent bordered cards:
- *   AI writer for messaging, AI summary, AI translation.
+ * chat-related AI features into four independent bordered cards:
+ *   AI writer for messaging, AI summary, AI translation, AI writer for SMS.
  *
  * This is an ARCHITECTURE-only regrouping: each feature keeps its own
  * independent management UX (deployment pills, toggle/Manage/confirm flow) —
@@ -50,6 +50,12 @@ const FEATURES: Feature[] = [
     title: 'AI translation',
     icon: GlobeMd,
     description: 'Uses AI to translate chats, messages, and transcripts across languages.',
+  },
+  {
+    title: 'AI writer for SMS',
+    icon: AiWriterAltMd,
+    description:
+      'Uses AI to draft and refine messages — check grammar, adjust tone or length, and translate to other languages.',
   },
 ];
 

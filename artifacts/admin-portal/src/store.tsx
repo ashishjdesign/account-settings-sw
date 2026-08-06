@@ -81,7 +81,7 @@ export type AiState = {
   aiWriterMessaging: FeatureConfig;
   aiSummary: FeatureConfig;
   aiTranslation: FeatureConfig;
-  // SMS group
+  // Chat AI group — AI writer for SMS (independent card on the Chat AI page)
   aiWriterSms: FeatureConfig;
 };
 

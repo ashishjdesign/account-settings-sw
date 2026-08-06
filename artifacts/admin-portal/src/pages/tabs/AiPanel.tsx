@@ -148,9 +148,6 @@ const CHAT_ITEMS: FeatureItem[] = [
     icon: <SpringIcon as={GlobeMd} />,
     description: 'Uses AI to translate chats, messages, and transcripts across languages.',
   },
-];
-
-const SMS_ITEMS: FeatureItem[] = [
   {
     key: 'aiWriterSms',
     title: 'AI writer for SMS',
@@ -184,7 +181,7 @@ export default function AiPanel() {
 
   // AVA is active only when both master AI and AVA are on. This gates AVA's
   // own dependent features (the 5 shown inside the AVA detail page) — it does
-  // NOT affect Phone / Chat / SMS, which depend only on master AI features.
+  // NOT affect Phone / Chat, which depend only on master AI features.
   const avaActive = masterOn && aiAssistant.on;
 
   // Guard deep links: a detail view is only reachable when its parent is on.
@@ -206,7 +203,7 @@ export default function AiPanel() {
   const [assistantEnableConfirmOpen, setAssistantEnableConfirmOpen] = useState(false);
   const [manageModal, setManageModal] = useState<'aiFeatures' | null>(null);
 
-  // Sub-feature (Phone / Chat / SMS) flow state. Each holds the AiFeatureKey
+  // Sub-feature (Phone / Chat) flow state. Each holds the AiFeatureKey
   // currently being managed / disabled / enabled. Only one is active at a time.
   type SubKey = Exclude<AiFeatureKey, 'aiAssistant'>;
   const [subManageKey, setSubManageKey] = useState<SubKey | null>(null);
@@ -361,7 +358,7 @@ export default function AiPanel() {
   };
 
   // Lookup of feature title by key — used by sub-feature dialogs.
-  const ALL_SUB_ITEMS: FeatureItem[] = [...PHONE_ITEMS, ...CHAT_ITEMS, ...SMS_ITEMS];
+  const ALL_SUB_ITEMS: FeatureItem[] = [...PHONE_ITEMS, ...CHAT_ITEMS];
   const labelFor = (key: SubKey) =>
     ALL_SUB_ITEMS.find((i) => i.key === key)?.title ?? String(key);
 
@@ -652,9 +649,6 @@ export default function AiPanel() {
                 description="AI features for messaging, including writing, summaries, and translation."
                 onOpen={() => openDetail('chatAi')}
               />
-
-              {/* AI writer for SMS stays a flat card (no grouping). */}
-              {SMS_ITEMS.map(renderFeatureCard)}
             </>
           )}
         </>
@@ -751,7 +745,7 @@ export default function AiPanel() {
         </FeatureDetailPage>
       )}
 
-      {/* Chat AI detail — three separate, independent feature cards. */}
+      {/* Chat AI detail — four separate, independent feature cards. */}
       {page === 'chatAi' && (
         <FeatureDetailPage title="Chat AI" onBack={backToMain}>
           <FeatureDetailCard>
@@ -778,6 +772,15 @@ export default function AiPanel() {
               GlobeMd,
               'AI translation',
               'Uses AI to translate chats, messages, and transcripts across languages.',
+              false,
+            )}
+          </FeatureDetailCard>
+          <FeatureDetailCard>
+            {renderWiredDetailRow(
+              'aiWriterSms',
+              AiWriterAltMd,
+              'AI writer for SMS',
+              'Uses AI to draft and refine messages — check grammar, adjust tone or length, and translate to other languages.',
               false,
             )}
           </FeatureDetailCard>
@@ -882,7 +885,7 @@ export default function AiPanel() {
         onConfirm={confirmAssistantOn}
       />
 
-      {/* Sub-feature (Phone / Chat / SMS) Manage dialog */}
+      {/* Sub-feature (Phone / Chat) Manage dialog */}
       <SpringFeatureManageDialog
         open={subManageKey !== null}
         title={subManageKey ? `Manage ${labelFor(subManageKey)}` : ''}

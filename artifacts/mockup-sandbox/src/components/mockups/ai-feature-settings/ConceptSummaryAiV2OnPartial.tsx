@@ -1,5 +1,5 @@
 import React from 'react';
-import { AiStarsMd, AvaMd, CallMd, Ivamd, AiWriterAltMd } from '@ringcentral/spring-icon';
+import { AiStarsMd, AvaMd, CallMd, Ivamd } from '@ringcentral/spring-icon';
 import { FeatureSettingsShell } from './_shared';
 import { PillTabs, SettingCard, ParentCard } from './_chrome';
 import { ConceptSummaryAiV2AvaDetail } from './ConceptSummaryAiV2AvaDetail';
@@ -17,8 +17,7 @@ import { ConceptSummaryAiV2ChatAiDetail } from './ConceptSummaryAiV2ChatAiDetail
  *   Phone AI  — parent → inner page (Closed captioning + dependents, AI
  *               voicemail summaries)
  *   Chat AI   — parent → inner page (AI writer for messaging, AI summary, AI
- *               translation)
- *   AI writer for SMS — flat card
+ *               translation, AI writer for SMS)
  *
  * Parent cards (AVA, Phone AI, Chat AI) show an "N features" label + CaretRight
  * chevron instead of a switch — the chevron opens the feature's inner page where
@@ -30,11 +29,6 @@ type IconCmp = React.ComponentType<React.SVGProps<SVGSVGElement>>;
 const SpringIcon = ({ as: Cmp }: { as: IconCmp }) => (
   <Cmp width={20} height={20} fill="currentColor" aria-hidden focusable={false} />
 );
-
-const ALLOWED = [
-  { label: 'User default:', value: 'On' },
-  { label: 'User access:', value: 'Allowed' },
-];
 
 export function ConceptSummaryAiV2OnPartial() {
   const [page, setPage] = React.useState<'main' | 'ava' | 'phoneAi' | 'chatAi'>('main');
@@ -88,18 +82,9 @@ export function ConceptSummaryAiV2OnPartial() {
         <ParentCard
           title="Chat AI"
           icon={<SpringIcon as={Ivamd} />}
-          featureCount={3}
+          featureCount={4}
           description="AI features for messaging, including writing, summaries, and translation."
           onOpen={() => setPage('chatAi')}
-        />
-
-        {/* AI writer for SMS stays a flat card (no grouping) */}
-        <SettingCard
-          title="AI writer for SMS"
-          icon={<SpringIcon as={AiWriterAltMd} />}
-          switchOn
-          description="Uses AI to draft and refine messages — check grammar, adjust tone or length, and translate to other languages."
-          summary={ALLOWED}
         />
       </div>
     </FeatureSettingsShell>
