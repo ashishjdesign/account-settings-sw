@@ -812,6 +812,7 @@ const MOCK_CUSTOM_USERS: UserRow[] = [
 export function SpringUsersConfigDialog({
   open, featureLabel, variant = 'default', onClose,
   defaultUsersCount = 72, customUsersCount = 26, totalUsersCount = 98,
+  readOnly = false,
 }: {
   open: boolean;
   featureLabel: string;
@@ -820,6 +821,9 @@ export function SpringUsersConfigDialog({
   defaultUsersCount?: number;
   customUsersCount?: number;
   totalUsersCount?: number;
+  /** Read-only view used from turn-on modals — no checkboxes and no
+   * "Reset to default" action. Resetting is only allowed from Manage. */
+  readOnly?: boolean;
 }) {
   const initialFilter: 'All' | 'Default' | 'Custom' =
     variant === 'all' ? 'All' : variant === 'default' ? 'Default' : 'Custom';
@@ -932,6 +936,7 @@ export function SpringUsersConfigDialog({
               </div>
 
               {/* Bulk action — enabled once at least one custom user is selected */}
+              {!readOnly && (
               <div className="flex justify-end">
                 <button
                   type="button"
@@ -943,15 +948,21 @@ export function SpringUsersConfigDialog({
                   Reset to default
                 </button>
               </div>
+              )}
 
               <div className="flex flex-col overflow-hidden rounded-[8px] border border-black/20">
-                <div className="grid grid-cols-[24px_2fr_1fr_1.4fr_1.8fr_1.2fr] items-center gap-4 border-b border-black/20 bg-[var(--sui-colors-neutral-b4)]/40 px-4 py-3 text-[13px] font-semibold leading-[18px] text-[var(--sui-colors-neutral-b1)]">
-                  <UsersTableCheckbox
-                    checked={allSelected}
-                    disabled={selectableExts.length === 0}
-                    onChange={toggleAll}
-                    ariaLabel="Select all custom users"
-                  />
+                <div className={cn(
+                  'grid items-center gap-4 border-b border-black/20 bg-[var(--sui-colors-neutral-b4)]/40 px-4 py-3 text-[13px] font-semibold leading-[18px] text-[var(--sui-colors-neutral-b1)]',
+                  readOnly ? 'grid-cols-[2fr_1fr_1.4fr_1.8fr_1.2fr]' : 'grid-cols-[24px_2fr_1fr_1.4fr_1.8fr_1.2fr]',
+                )}>
+                  {!readOnly && (
+                    <UsersTableCheckbox
+                      checked={allSelected}
+                      disabled={selectableExts.length === 0}
+                      onChange={toggleAll}
+                      ariaLabel="Select all custom users"
+                    />
+                  )}
                   <span>Name</span><span>Ext</span><span>Department</span><span>Site</span><span>Configuration</span>
                 </div>
                 {visibleRows.length === 0 ? (
@@ -964,16 +975,19 @@ export function SpringUsersConfigDialog({
                   <div
                     key={u.ext}
                     className={cn(
-                      'grid h-[40px] grid-cols-[24px_2fr_1fr_1.4fr_1.8fr_1.2fr] items-center gap-4 px-4 text-[12px] leading-[18px] text-[var(--sui-colors-neutral-b1)]',
+                      'grid h-[40px] items-center gap-4 px-4 text-[12px] leading-[18px] text-[var(--sui-colors-neutral-b1)]',
+                      readOnly ? 'grid-cols-[2fr_1fr_1.4fr_1.8fr_1.2fr]' : 'grid-cols-[24px_2fr_1fr_1.4fr_1.8fr_1.2fr]',
                       i !== arr.length - 1 && 'border-b border-black/20',
                     )}
                   >
-                    <UsersTableCheckbox
-                      checked={selectedExts.has(u.ext)}
-                      disabled={!custom}
-                      onChange={() => toggleOne(u.ext)}
-                      ariaLabel={`Select ${u.name}`}
-                    />
+                    {!readOnly && (
+                      <UsersTableCheckbox
+                        checked={selectedExts.has(u.ext)}
+                        disabled={!custom}
+                        onChange={() => toggleOne(u.ext)}
+                        ariaLabel={`Select ${u.name}`}
+                      />
+                    )}
                     <a href="#" onClick={(e) => e.preventDefault()} className="cursor-pointer text-[var(--sui-colors-primary-b)] underline hover:text-[var(--sui-colors-primary-b-high-contrast)]">
                       {u.name}
                     </a>
@@ -1310,6 +1324,7 @@ export function SpringFeatureEnableDialog({
         </DialogPrimitives.Overlay>
       </DialogPrimitives.Portal>
       <SpringUsersConfigDialog
+        readOnly
         open={usersOpen !== null}
         featureLabel={title.replace(/^Turn on\s+/, '').replace(/\s+for your organization\?$/, '')}
         variant={usersOpen ?? 'default'}
@@ -1805,6 +1820,7 @@ export function ExtAppEnableCombinedDialog({
         </DialogPrimitives.Overlay>
       </DialogPrimitives.Portal>
       <SpringUsersConfigDialog
+        readOnly
         open={usersOpen !== null}
         featureLabel="Launch an external app for incoming calls"
         variant={usersOpen ?? 'default'}
@@ -2699,6 +2715,7 @@ export function AutoAnswerReEnableDialog({
         </DialogPrimitives.Overlay>
       </DialogPrimitives.Portal>
       <SpringUsersConfigDialog
+        readOnly
         open={usersOpen !== null}
         featureLabel="Auto-answer calls"
         variant={usersOpen ?? 'default'}
@@ -3022,6 +3039,7 @@ export function ConferenceReEnableDialog({
         </DialogPrimitives.Overlay>
       </DialogPrimitives.Portal>
       <SpringUsersConfigDialog
+        readOnly
         open={usersOpen !== null}
         featureLabel="Conference calls"
         variant={usersOpen ?? 'default'}
