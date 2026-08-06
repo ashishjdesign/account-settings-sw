@@ -257,52 +257,35 @@ export default function AiPanel() {
   const [subDisableKey, setSubDisableKey] = useState<SubKey | null>(null);
   const [subEnableKey, setSubEnableKey] = useState<SubKey | null>(null);
 
-  // Pending values awaiting confirm-dialog approval (turn-on / change).
-  const [pending, setPending] = useState<{ on: boolean; period: AiRetentionPeriod } | null>(null);
-  const [aiTurnOnConfirmOpen, setAiTurnOnConfirmOpen] = useState(false);
+  // Pending period awaiting the shorter-period confirm dialog.
+  const [pending, setPending] = useState<{ period: AiRetentionPeriod } | null>(null);
   const [aiChangeConfirmOpen, setAiChangeConfirmOpen] = useState(false);
 
-  // True when the turn-on confirm was triggered by the toggle inside the
-  // Manage modal (we keep the Manage modal open after committing).
-  const [turnOnFromToggle, setTurnOnFromToggle] = useState(false);
-
-  const handleManageSave = ({
-    retentionOn, period,
-  }: { retentionOn: boolean; period: AiRetentionPeriod }) => {
-    const wasOn = customRetention.on;
-    if (wasOn && !retentionOn) {
-      dispatch({ type: 'PATCH_AI_CUSTOM_RETENTION', payload: { on: false } });
+  // Retention is always on (account preconfigured) — the admin can only
+  // change the period. A shorter period risks data loss, so it confirms
+  // first; a longer one commits directly.
+  const handleManageSave = ({ period }: { period: AiRetentionPeriod }) => {
+    if (period === customRetention.period) {
       setManageModal(null);
-      showToast('Settings were updated.', () => dispatch({ type: 'UNDO' }));
       return;
     }
-    if (!wasOn && retentionOn) {
-      setPending({ on: true, period });
-      setTurnOnFromToggle(false);
-      setAiTurnOnConfirmOpen(true);
-      return;
-    }
-    if (wasOn && retentionOn && period !== customRetention.period) {
-      setPending({ on: true, period });
+    if (Number(period) < Number(customRetention.period)) {
+      setPending({ period });
       setAiChangeConfirmOpen(true);
       return;
     }
+    dispatch({ type: 'PATCH_AI_CUSTOM_RETENTION', payload: { period } });
     setManageModal(null);
+    showToast('Settings were updated.', () => dispatch({ type: 'UNDO' }));
   };
 
   const commitPending = () => {
     if (pending) {
-      dispatch({
-        type: 'PATCH_AI_CUSTOM_RETENTION',
-        payload: { on: pending.on, period: pending.period },
-      });
+      dispatch({ type: 'PATCH_AI_CUSTOM_RETENTION', payload: { period: pending.period } });
     }
-    const keepManageOpen = aiTurnOnConfirmOpen && turnOnFromToggle;
     setPending(null);
-    setAiTurnOnConfirmOpen(false);
     setAiChangeConfirmOpen(false);
-    setTurnOnFromToggle(false);
-    if (!keepManageOpen) setManageModal(null);
+    setManageModal(null);
     showToast('Settings were updated.', () => dispatch({ type: 'UNDO' }));
   };
 
@@ -651,7 +634,7 @@ export default function AiPanel() {
     );
   };
 
-  const retentionDisplay = customRetention.on ? periodLabel(customRetention.period) : 'Disabled';
+  const retentionDisplay = periodLabel(customRetention.period);
 
   return (
     <div className="flex flex-col gap-4">
@@ -885,35 +868,14 @@ export default function AiPanel() {
 
       <ManageAiFeaturesDialog
         open={manageModal === 'aiFeatures'}
-        initialRetentionOn={customRetention.on}
         initialPeriod={customRetention.period}
         onCancel={() => setManageModal(null)}
         onSave={handleManageSave}
-        onRequestTurnOn={(p) => {
-          setPending({ on: true, period: p });
-          setTurnOnFromToggle(true);
-          setAiTurnOnConfirmOpen(true);
-        }}
       />
 
-      <RetentionConfirmDialog
-        open={aiTurnOnConfirmOpen}
-        variant="turn-on"
-        period={pending?.period ?? customRetention.period}
-        onPeriodChange={(p) =>
-          setPending((cur) => (cur ? { ...cur, period: p } : { on: true, period: p }))
-        }
-        onCancel={() => {
-          setAiTurnOnConfirmOpen(false);
-          setPending(null);
-        }}
-        onConfirm={commitPending}
-      />
-
+      {/* Shorter-period change confirm (data-loss risk) */}
       <RetentionConfirmDialog
         open={aiChangeConfirmOpen}
-        variant="change"
-        period={pending?.period ?? customRetention.period}
         onCancel={() => {
           setAiChangeConfirmOpen(false);
           setPending(null);

@@ -21,8 +21,9 @@ export type AiAssistantCustomize = {
 
 export type AiRetentionPeriod = '7' | '14' | '30' | '90' | '180' | '365';
 
+/* Custom retention is always on — preconfigured at the account level. Admins
+ * can only change the period (no disabled state). */
 export type AiCustomRetention = {
-  on: boolean;
   period: AiRetentionPeriod;
 };
 
@@ -144,7 +145,7 @@ const initialState: AppState = {
   },
   ai: {
     masterOn: true,
-    customRetention: { on: false, period: '365' },
+    customRetention: { period: '365' },
     aiAssistant: {
       on: true,
       defaultVal: 'On',

@@ -12,21 +12,19 @@ import { FeatureSettingsShell } from './_shared';
 import { PillTabs, SettingCard, ParentCard, SectionHeading } from './_chrome';
 import {
   ManageAiFeaturesDialog,
-  TurnOnRetentionConfirmDialog,
   ChangeRetentionConfirmDialog,
   RETENTION_PERIODS,
   type RetentionValue,
 } from './_retention';
 
 /* -----------------------------------------------------------------------------
- * AI Feature Settings — V2 — "Manage AI features" modal, retention enabled
+ * AI Feature Settings — V2 — "Manage AI features" modal, retention always on
  * (Figma 1969-7046, popper Figma 2015-39944)
  *
- * Click-through prototype starting state: retention ON @ 365 days.
- * - Changing the period + Save     → "Change retention confirm" dialog
- * - Toggling retention OFF + Save  → commits directly (closes modal)
- * - Re-opening with retention OFF and toggling back ON
- *                                  → "Turn on retention confirm" dialog
+ * Retention is always on, preconfigured to the account default (365 days).
+ * There is no disabled state — admins can only change the period.
+ * - Choosing a shorter period + Save → "Change retention confirm" dialog
+ * - Choosing a longer period + Save  → commits directly (no data loss risk)
  * --------------------------------------------------------------------------- */
 
 type IconCmp = React.ComponentType<React.SVGProps<SVGSVGElement>>;
@@ -38,7 +36,6 @@ const DEFAULT_PERIOD: RetentionValue = RETENTION_PERIODS[0].value;
 
 type Step =
   | { kind: 'manage' }
-  | { kind: 'turn-on-confirm'; pendingPeriod: RetentionValue }
   | { kind: 'change-confirm'; pendingPeriod: RetentionValue }
   | { kind: 'closed' };
 
@@ -47,26 +44,22 @@ function periodLabel(value: RetentionValue) {
 }
 
 export function ConceptSummaryAiV2ManageMainModalEnabled() {
-  const [retentionOn, setRetentionOn] = React.useState(true);
   const [period, setPeriod] = React.useState<RetentionValue>(DEFAULT_PERIOD);
   const [step, setStep] = React.useState<Step>({ kind: 'manage' });
 
-  const summaryValue = retentionOn ? periodLabel(period) : 'Disabled';
+  const summaryValue = periodLabel(period);
 
-  const handleManageSave = (next: { retentionOn: boolean; period: RetentionValue }) => {
-    if (retentionOn && !next.retentionOn) {
-      setRetentionOn(false);
+  const handleManageSave = (next: { period: RetentionValue }) => {
+    if (next.period === period) {
       setStep({ kind: 'closed' });
       return;
     }
-    if (!retentionOn && next.retentionOn) {
-      setStep({ kind: 'turn-on-confirm', pendingPeriod: next.period });
-      return;
-    }
-    if (retentionOn && next.retentionOn && next.period !== period) {
+    // Shorter period may delete stored AI data — confirm first.
+    if (Number(next.period) < Number(period)) {
       setStep({ kind: 'change-confirm', pendingPeriod: next.period });
       return;
     }
+    setPeriod(next.period);
     setStep({ kind: 'closed' });
   };
 
@@ -77,31 +70,10 @@ export function ConceptSummaryAiV2ManageMainModalEnabled() {
       after={
         <div className="spring-scope">
           <ManageAiFeaturesDialog
-            open={
-              step.kind === 'manage' ||
-              step.kind === 'turn-on-confirm' ||
-              step.kind === 'change-confirm'
-            }
-            initialRetentionOn={retentionOn}
+            open={step.kind === 'manage' || step.kind === 'change-confirm'}
             initialPeriod={period}
             onCancel={() => setStep({ kind: 'closed' })}
             onSave={handleManageSave}
-            onRequestTurnOn={(p) => setStep({ kind: 'turn-on-confirm', pendingPeriod: p })}
-          />
-
-          <TurnOnRetentionConfirmDialog
-            open={step.kind === 'turn-on-confirm'}
-            period={step.kind === 'turn-on-confirm' ? step.pendingPeriod : period}
-            onPeriodChange={(p) =>
-              setStep((s) => (s.kind === 'turn-on-confirm' ? { ...s, pendingPeriod: p } : s))
-            }
-            onCancel={() => setStep({ kind: 'manage' })}
-            onConfirm={() => {
-              if (step.kind !== 'turn-on-confirm') return;
-              setRetentionOn(true);
-              setPeriod(step.pendingPeriod);
-              setStep({ kind: 'manage' });
-            }}
           />
 
           <ChangeRetentionConfirmDialog

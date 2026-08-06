@@ -105,33 +105,23 @@ export function RetentionPeriodSelect({
 /* -----------------------------------------------------------------------------
  * Manage AI features dialog — Figma 1969-7046 / 2015-10201
  *
- * Hosts the "AI data custom retention period" toggle and, when on, the
- * Custom storage duration select. Save is dirty-aware.
+ * Retention is always on (account preconfigured) — the dialog only lets the
+ * admin change the Custom storage duration. Save is dirty-aware.
  * --------------------------------------------------------------------------- */
 export function ManageAiFeaturesDialog({
-  open, initialRetentionOn, initialPeriod, onCancel, onSave, onRequestTurnOn,
+  open, initialPeriod, onCancel, onSave,
 }: {
   open: boolean;
-  initialRetentionOn: boolean;
   initialPeriod: AiRetentionPeriod;
   onCancel: () => void;
-  onSave: (next: { retentionOn: boolean; period: AiRetentionPeriod }) => void;
-  /** When the user flips the retention switch from off → on, the parent
-   * should open the "Turn on retention confirm" dialog overlaid on top of
-   * this modal. The toggle stays visually off until the parent confirms
-   * (which flips `initialRetentionOn` and re-syncs via useEffect). */
-  onRequestTurnOn?: (period: AiRetentionPeriod) => void;
+  onSave: (next: { period: AiRetentionPeriod }) => void;
 }) {
-  const [retentionOn, setRetentionOn] = React.useState(initialRetentionOn);
   const [period, setPeriod] = React.useState<AiRetentionPeriod>(initialPeriod);
   React.useEffect(() => {
-    if (open) {
-      setRetentionOn(initialRetentionOn);
-      setPeriod(initialPeriod);
-    }
-  }, [open, initialRetentionOn, initialPeriod]);
+    if (open) setPeriod(initialPeriod);
+  }, [open, initialPeriod]);
   if (!open) return null;
-  const dirty = retentionOn !== initialRetentionOn || period !== initialPeriod;
+  const dirty = period !== initialPeriod;
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/40 pt-24">
       <div className="absolute inset-0" onClick={onCancel} aria-hidden="true" />
@@ -161,24 +151,11 @@ export function ManageAiFeaturesDialog({
                     <p className="flex-1 text-[15px] font-bold leading-[20px] text-[var(--sui-colors-neutral-b1)]">
                       AI data custom retention period
                     </p>
-                    <SpringSwitch
-                      checked={retentionOn}
-                      onCheckedChange={(next) => {
-                        // off → on: defer to parent for the Turn-on confirm.
-                        // The local toggle stays off until the parent commits
-                        // and re-syncs `initialRetentionOn` via useEffect.
-                        if (next && !retentionOn && onRequestTurnOn) {
-                          onRequestTurnOn(period);
-                          return;
-                        }
-                        setRetentionOn(next);
-                      }}
-                      aria-label="AI data custom retention period"
-                    />
+                    <RetentionPeriodSelect value={period} onChange={setPeriod} />
                   </div>
                   <div className="flex w-full items-center pr-[130px]">
                     <p className="flex-1 text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b2)]">
-                      Enable custom data retention to set an AI-specific storage period including AI notes and transcriptions.{' '}
+                      Set custom AI-specific storage period including AI notes and transcriptions.{' '}
                       <a
                         href="#"
                         onClick={(e) => e.preventDefault()}
@@ -189,16 +166,6 @@ export function ManageAiFeaturesDialog({
                     </p>
                   </div>
                 </div>
-                {retentionOn && (
-                  <div className="flex w-full items-center border-t border-[var(--sui-colors-neutral-b4)] pt-4">
-                    <div className="flex flex-1 items-center justify-between">
-                      <p className="text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b1)]">
-                        Custom storage duration
-                      </p>
-                      <RetentionPeriodSelect value={period} onChange={setPeriod} />
-                    </div>
-                  </div>
-                )}
               </div>
             </div>
           </div>
@@ -215,7 +182,7 @@ export function ManageAiFeaturesDialog({
               </button>
               <button
                 type="button"
-                onClick={() => onSave({ retentionOn, period })}
+                onClick={() => onSave({ period })}
                 disabled={!dirty}
                 className={cn(
                   'inline-flex h-[36px] min-w-[60px] items-center justify-center rounded-[10px] px-4 text-[15px] font-medium leading-[20px] text-white transition-colors',
@@ -235,29 +202,22 @@ export function ManageAiFeaturesDialog({
 }
 
 /* -----------------------------------------------------------------------------
- * Retention confirm dialog — Figma 2015-10396 (turn-on) / 2030-40238 (change)
+ * Retention change confirm dialog — Figma 2030-40238. Shown only when the new
+ * period is shorter than the current one (data-loss risk).
  * --------------------------------------------------------------------------- */
 export function RetentionConfirmDialog({
-  open, variant, period, onPeriodChange, onCancel, onConfirm,
+  open, onCancel, onConfirm,
 }: {
   open: boolean;
-  variant: 'turn-on' | 'change';
-  period: AiRetentionPeriod;
-  onPeriodChange?: (next: AiRetentionPeriod) => void;
   onCancel: () => void;
   onConfirm: () => void;
 }) {
   const [acknowledged, setAcknowledged] = React.useState(false);
   React.useEffect(() => { if (open) setAcknowledged(false); }, [open]);
   if (!open) return null;
-  const isTurnOn = variant === 'turn-on';
-  const title = isTurnOn
-    ? 'Turn on AI data custom retention period for AI features?'
-    : 'Change custom retention period for AI features?';
-  const snackbar = isTurnOn
-    ? 'Setting a custom retention period may permanently delete older AI data.'
-    : 'Changing a custom retention period may permanently delete older AI data.';
-  const confirmLabel = isTurnOn ? 'Turn on' : 'Confirm';
+  const title = 'Change custom retention period for AI features?';
+  const snackbar = 'Changing a custom retention period may permanently delete older AI data.';
+  const confirmLabel = 'Confirm';
   return (
     <div className="fixed inset-0 z-[60] flex items-start justify-center bg-black/40 pt-24">
       <div className="absolute inset-0" onClick={onCancel} aria-hidden="true" />
@@ -288,16 +248,6 @@ export function RetentionConfirmDialog({
             <p className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
               Selecting a shorter retention period than your current policy may result in the removal of previously stored AI data that falls outside the new limit.
             </p>
-            {isTurnOn && onPeriodChange && (
-              <div className="flex w-full flex-col gap-4 rounded-[8px] border border-[var(--sui-colors-neutral-b4)] p-4">
-                <div className="flex w-full items-center justify-between">
-                  <p className="text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b1)]">
-                    Custom storage duration
-                  </p>
-                  <RetentionPeriodSelect value={period} onChange={onPeriodChange} />
-                </div>
-              </div>
-            )}
           </div>
           <label className="flex w-[534px] max-w-full cursor-pointer items-start gap-2">
             <span
