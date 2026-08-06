@@ -241,14 +241,16 @@ export function FeatureEnableConfirmDialog({
                         <Radio checked={value === 'Off'} onChange={() => setValue('Off')} label="Off" />
                       </div>
                     </div>
-                    <div className="flex h-[32px] items-center rounded-[10px] bg-[var(--sui-colors-neutral-b5)] px-3">
-                      <p className="whitespace-nowrap text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
-                        <span className="text-[var(--sui-colors-primary-b)] underline">
-                          {defaultUsersCount}/{TOTAL_USERS} users
-                        </span>{' '}
-                        are using the default
-                      </p>
-                    </div>
+                    {customCount === 0 && (
+                      <div className="flex h-[32px] items-center rounded-[10px] bg-[var(--sui-colors-neutral-b5)] px-3">
+                        <p className="whitespace-nowrap text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                          <span className="text-[var(--sui-colors-primary-b)] underline">
+                            {defaultUsersCount}/{TOTAL_USERS} users
+                          </span>{' '}
+                          are using the default
+                        </p>
+                      </div>
+                    )}
                   </div>
 
                   <div className="border-t border-[var(--sui-colors-neutral-b4)]" />
@@ -453,14 +455,16 @@ export function AssistantEnableConfirmDialog({
                         <Radio checked={value === 'Off'} onChange={() => setValue('Off')} label="Off" />
                       </div>
                     </div>
-                    <div className="flex h-[32px] items-center rounded-[10px] bg-[var(--sui-colors-neutral-b5)] px-3">
-                      <p className="whitespace-nowrap text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
-                        <span className="text-[var(--sui-colors-primary-b)] underline">
-                          {defaultUsersCount}/{TOTAL_USERS} users
-                        </span>{' '}
-                        are using the default
-                      </p>
-                    </div>
+                    {customCount === 0 && (
+                      <div className="flex h-[32px] items-center rounded-[10px] bg-[var(--sui-colors-neutral-b5)] px-3">
+                        <p className="whitespace-nowrap text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                          <span className="text-[var(--sui-colors-primary-b)] underline">
+                            {defaultUsersCount}/{TOTAL_USERS} users
+                          </span>{' '}
+                          are using the default
+                        </p>
+                      </div>
+                    )}
                   </div>
 
                   <div className="border-t border-[var(--sui-colors-neutral-b4)]" />
@@ -632,7 +636,7 @@ export function EmailToFaxEnableConfirmDialog({
                         <Radio checked={value === 'Off'} onChange={() => setValue('Off')} label="Off" />
                       </div>
                     </div>
-                    {!firstTime && (
+                    {!firstTime && customCount === 0 && (
                       <div className="flex h-[32px] items-center rounded-[10px] bg-[var(--sui-colors-neutral-b5)] px-3">
                         <p className="whitespace-nowrap text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
                           <span className="text-[var(--sui-colors-primary-b)] underline">

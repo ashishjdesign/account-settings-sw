@@ -360,18 +360,6 @@ export function SpringEnableDialog({
                       />
                     </div>
                   </div>
-                  <div className="flex h-[32px] items-center rounded-[10px] bg-[var(--sui-colors-neutral-b5)] px-3">
-                    <p className="whitespace-nowrap text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
-                      <a
-                        href="#"
-                        onClick={(e) => { e.preventDefault(); setUsersDialog('default'); }}
-                        className="cursor-pointer text-[var(--sui-colors-primary-b)] underline hover:text-[var(--sui-colors-primary-b-high-contrast)]"
-                      >
-                        72/98 users
-                      </a>{' '}
-                      are using the default
-                    </p>
-                  </div>
                 </div>
 
                 <div className="border-t border-[var(--sui-colors-neutral-b4)]" />

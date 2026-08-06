@@ -1217,18 +1217,20 @@ export function SpringFeatureEnableDialog({
                           <SpringRadio checked={value === 'Off'} onChange={() => setValue('Off')} label="Off" />
                         </div>
                       </div>
-                      <div className="flex h-[32px] items-center rounded-[10px] bg-[var(--sui-colors-neutral-b5)] px-3">
-                        <p className="whitespace-nowrap text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
-                          <button
-                            type="button"
-                            onClick={() => setUsersOpen('default')}
-                            className="cursor-pointer text-[var(--sui-colors-primary-b)] underline hover:text-[var(--sui-colors-primary-b-high-contrast)] focus:outline-none focus:ring-2 focus:ring-[var(--sui-colors-primary-b)]/30 rounded-sm"
-                          >
-                            {defaultCount}/{total} users
-                          </button>{' '}
-                          are using the default
-                        </p>
-                      </div>
+                      {customCount === 0 && (
+                        <div className="flex h-[32px] items-center rounded-[10px] bg-[var(--sui-colors-neutral-b5)] px-3">
+                          <p className="whitespace-nowrap text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                            <button
+                              type="button"
+                              onClick={() => setUsersOpen('default')}
+                              className="cursor-pointer text-[var(--sui-colors-primary-b)] underline hover:text-[var(--sui-colors-primary-b-high-contrast)] focus:outline-none focus:ring-2 focus:ring-[var(--sui-colors-primary-b)]/30 rounded-sm"
+                            >
+                              {defaultCount}/{total} users
+                            </button>{' '}
+                            are using the default
+                          </p>
+                        </div>
+                      )}
                     </div>
 
                     <div className="border-t border-[var(--sui-colors-neutral-b4)]" />
@@ -1638,7 +1640,7 @@ export function ExtAppEnableCombinedDialog({
                       {/* Hide the "X/XX users using default" pill on first-time
                           enable — there are no users with non-default settings
                           yet, so the notion is not meaningful. */}
-                      {!isFirstTimeEnable && (
+                      {!isFirstTimeEnable && customCount === 0 && (
                         <div className="flex h-[32px] items-center rounded-[10px] bg-[var(--sui-colors-neutral-b5)] px-3">
                           <p className="whitespace-nowrap text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
                             <button
@@ -2580,18 +2582,20 @@ export function AutoAnswerReEnableDialog({
                         <SpringRadio checked={value === 'Off'} onChange={() => setValue('Off')} label="Off" />
                       </div>
                     </div>
-                    <div className="flex h-[32px] items-center rounded-[10px] bg-[var(--sui-colors-neutral-b5)] px-3">
-                      <p className="whitespace-nowrap text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
-                        <button
-                          type="button"
-                          onClick={() => setUsersOpen('default')}
-                          className="cursor-pointer text-[var(--sui-colors-primary-b)] underline hover:text-[var(--sui-colors-primary-b-high-contrast)] focus:outline-none focus:ring-2 focus:ring-[var(--sui-colors-primary-b)]/30 rounded-sm"
-                        >
-                          {defaultCount}/{total} users
-                        </button>{' '}
-                        are using the default
-                      </p>
-                    </div>
+                    {customCount === 0 && (
+                      <div className="flex h-[32px] items-center rounded-[10px] bg-[var(--sui-colors-neutral-b5)] px-3">
+                        <p className="whitespace-nowrap text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                          <button
+                            type="button"
+                            onClick={() => setUsersOpen('default')}
+                            className="cursor-pointer text-[var(--sui-colors-primary-b)] underline hover:text-[var(--sui-colors-primary-b-high-contrast)] focus:outline-none focus:ring-2 focus:ring-[var(--sui-colors-primary-b)]/30 rounded-sm"
+                          >
+                            {defaultCount}/{total} users
+                          </button>{' '}
+                          are using the default
+                        </p>
+                      </div>
+                    )}
                   </div>
 
                   <div className="border-t border-[var(--sui-colors-neutral-b4)]" />
@@ -2927,18 +2931,20 @@ export function ConferenceReEnableDialog({
                         <SpringRadio checked={value === 'Off'} onChange={() => setValue('Off')} label="Off" />
                       </div>
                     </div>
-                    <div className="flex h-[32px] items-center rounded-[10px] bg-[var(--sui-colors-neutral-b5)] px-3">
-                      <p className="whitespace-nowrap text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
-                        <button
-                          type="button"
-                          onClick={() => setUsersOpen('default')}
-                          className="cursor-pointer text-[var(--sui-colors-primary-b)] underline hover:text-[var(--sui-colors-primary-b-high-contrast)] focus:outline-none focus:ring-2 focus:ring-[var(--sui-colors-primary-b)]/30 rounded-sm"
-                        >
-                          {defaultCount}/{total} users
-                        </button>{' '}
-                        are using the default
-                      </p>
-                    </div>
+                    {customCount === 0 && (
+                      <div className="flex h-[32px] items-center rounded-[10px] bg-[var(--sui-colors-neutral-b5)] px-3">
+                        <p className="whitespace-nowrap text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                          <button
+                            type="button"
+                            onClick={() => setUsersOpen('default')}
+                            className="cursor-pointer text-[var(--sui-colors-primary-b)] underline hover:text-[var(--sui-colors-primary-b-high-contrast)] focus:outline-none focus:ring-2 focus:ring-[var(--sui-colors-primary-b)]/30 rounded-sm"
+                          >
+                            {defaultCount}/{total} users
+                          </button>{' '}
+                          are using the default
+                        </p>
+                      </div>
+                    )}
                   </div>
 
                   <div className="border-t border-[var(--sui-colors-neutral-b4)]" />

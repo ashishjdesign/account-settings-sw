@@ -82,6 +82,7 @@ export function UserDeploymentCard({
   allowChange, onAllowChangeChange,
   defaultUsersCount,
   lockAllowChange = false,
+  showDefaultCount = true,
 }: {
   defaultVal: 'On' | 'Off';
   onDefaultValChange: (v: 'On' | 'Off') => void;
@@ -91,6 +92,9 @@ export function UserDeploymentCard({
   /** When true the checkbox is always checked and disabled — user access is
    * fixed as Allowed and admins cannot change it for this feature. */
   lockAllowChange?: boolean;
+  /** Hide the "X/XX users are using the default" pill — enable confirms that
+   * already ask what to do with custom users don't need it. */
+  showDefaultCount?: boolean;
 }) {
   return (
     <div className="flex flex-col gap-2">
@@ -116,17 +120,19 @@ export function UserDeploymentCard({
               />
             </div>
           </div>
-          <div className="flex h-[32px] items-center rounded-[10px] bg-[var(--sui-colors-neutral-b5)] px-3">
-            <p className="whitespace-nowrap text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
-              <button
-                type="button"
-                className="cursor-pointer text-[var(--sui-colors-primary-b)] underline hover:text-[var(--sui-colors-primary-b-high-contrast)]"
-              >
-                {defaultUsersCount}/{TOTAL_USERS} users
-              </button>{' '}
-              are using the default
-            </p>
-          </div>
+          {showDefaultCount && (
+            <div className="flex h-[32px] items-center rounded-[10px] bg-[var(--sui-colors-neutral-b5)] px-3">
+              <p className="whitespace-nowrap text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                <button
+                  type="button"
+                  className="cursor-pointer text-[var(--sui-colors-primary-b)] underline hover:text-[var(--sui-colors-primary-b-high-contrast)]"
+                >
+                  {defaultUsersCount}/{TOTAL_USERS} users
+                </button>{' '}
+                are using the default
+              </p>
+            </div>
+          )}
         </div>
 
         <div className="border-t border-[var(--sui-colors-neutral-b4)]" />
@@ -560,6 +566,7 @@ export function AssistantEnableConfirm({
           allowChange={allowChange}
           onAllowChangeChange={setAllowChange}
           defaultUsersCount={defaultUsersCount}
+          showDefaultCount={customUsersCount === 0}
         />
 
         {customUsersCount > 0 && (
@@ -712,6 +719,9 @@ export function FeatureEnableConfirm({
   initialAllowChange?: boolean;
   customUsersCount?: number;
   lockAllowChange?: boolean;
+  /** Hide the "X/XX users are using the default" pill — enable confirms that
+   * already ask what to do with custom users don't need it. */
+  showDefaultCount?: boolean;
 }) {
   const [defaultVal, setDefaultVal] = React.useState<'On' | 'Off'>(initialDefaultVal);
   const [allowChange, setAllowChange] = React.useState(initialAllowChange);
@@ -744,6 +754,7 @@ export function FeatureEnableConfirm({
           allowChange={allowChange}
           onAllowChangeChange={setAllowChange}
           defaultUsersCount={defaultUsersCount}
+          showDefaultCount={customUsersCount === 0}
           lockAllowChange={lockAllowChange}
         />
 
@@ -810,6 +821,9 @@ export function FeatureChildEnableConfirm({
   initialAllowChange?: boolean;
   customUsersCount?: number;
   lockAllowChange?: boolean;
+  /** Hide the "X/XX users are using the default" pill — enable confirms that
+   * already ask what to do with custom users don't need it. */
+  showDefaultCount?: boolean;
 }) {
   const [defaultVal, setDefaultVal] = React.useState<'On' | 'Off'>(initialDefaultVal);
   const [allowChange, setAllowChange] = React.useState(initialAllowChange);
@@ -841,6 +855,7 @@ export function FeatureChildEnableConfirm({
           allowChange={allowChange}
           onAllowChangeChange={setAllowChange}
           defaultUsersCount={defaultUsersCount}
+          showDefaultCount={customUsersCount === 0}
           lockAllowChange={lockAllowChange}
         />
 
@@ -893,6 +908,9 @@ export function FeatureManageDialog({
   initialAllowChange: boolean;
   customUsersCount?: number;
   lockAllowChange?: boolean;
+  /** Hide the "X/XX users are using the default" pill — enable confirms that
+   * already ask what to do with custom users don't need it. */
+  showDefaultCount?: boolean;
 }) {
   const [defaultVal, setDefaultVal] = React.useState<'On' | 'Off'>(initialDefaultVal);
   const [allowChange, setAllowChange] = React.useState(initialAllowChange);
