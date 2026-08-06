@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ChevronDown, ChevronRight, Search, Check, X, Info } from 'lucide-react';
+import { ChevronDown, ChevronRight, Search, Check, X, Info, RotateCcw } from 'lucide-react';
 import { CaretRightMd, ArrowLeftMd } from '@ringcentral/spring-icon';
 import * as SwitchPrimitives from '@radix-ui/react-switch';
 import * as DialogPrimitives from '@radix-ui/react-dialog';
@@ -824,19 +824,70 @@ export function SpringUsersConfigDialog({
   const initialFilter: 'All' | 'Default' | 'Custom' =
     variant === 'all' ? 'All' : variant === 'default' ? 'Default' : 'Custom';
   const [configFilter, setConfigFilter] = useState<'All' | 'Default' | 'Custom'>(initialFilter);
-  useEffect(() => { if (open) setConfigFilter(initialFilter); }, [open, initialFilter]);
+  /* Bulk "Reset to default": selected custom users + those already reset in
+   * this session (mock — resets are local to the open dialog). */
+  const [selectedExts, setSelectedExts] = useState<Set<string>>(new Set());
+  const [resetExts, setResetExts] = useState<Set<string>>(new Set());
+  const [resetConfirmOpen, setResetConfirmOpen] = useState(false);
+  useEffect(() => {
+    if (open) {
+      setConfigFilter(initialFilter);
+      setSelectedExts(new Set());
+      setResetExts(new Set());
+      setResetConfirmOpen(false);
+    }
+  }, [open, initialFilter]);
   const total = totalUsersCount;
-  const defaultRows = MOCK_DEFAULT_USERS.slice(0, defaultUsersCount);
-  const customRows = MOCK_CUSTOM_USERS.slice(0, customUsersCount);
-  const rows: UserRow[] = configFilter === 'Custom'
-    ? customRows
-    : configFilter === 'Default'
-      ? defaultRows
-      : [...defaultRows, ...customRows];
-  const count = configFilter === 'All' ? total : configFilter === 'Default' ? defaultUsersCount : customUsersCount;
+  const effConfig = (u: UserRow): 'Default' | 'Custom' =>
+    resetExts.has(u.ext) ? 'Default' : u.configuration;
+  const baseDefaultRows = MOCK_DEFAULT_USERS.slice(0, defaultUsersCount);
+  const baseCustomRows = MOCK_CUSTOM_USERS.slice(0, customUsersCount);
+  const allRows: UserRow[] = [...baseDefaultRows, ...baseCustomRows];
+  const rows: UserRow[] = configFilter === 'All'
+    ? allRows
+    : allRows.filter((u) => effConfig(u) === configFilter);
+  const effDefaultCount = defaultUsersCount + resetExts.size;
+  const effCustomCount = Math.max(0, customUsersCount - resetExts.size);
+  const count = configFilter === 'All' ? total : configFilter === 'Default' ? effDefaultCount : effCustomCount;
+
+  const visibleRows = rows.slice(0, 10);
+  const selectableExts = visibleRows.filter((u) => effConfig(u) === 'Custom').map((u) => u.ext);
+  const allSelected = selectableExts.length > 0 && selectableExts.every((e) => selectedExts.has(e));
+  const toggleAll = () => {
+    setSelectedExts((prev) => {
+      if (allSelected) {
+        const next = new Set(prev);
+        selectableExts.forEach((e) => next.delete(e));
+        return next;
+      }
+      return new Set([...prev, ...selectableExts]);
+    });
+  };
+  const toggleOne = (ext: string) => {
+    setSelectedExts((prev) => {
+      const next = new Set(prev);
+      if (next.has(ext)) next.delete(ext);
+      else next.add(ext);
+      return next;
+    });
+  };
+  const confirmReset = () => {
+    setResetExts((prev) => new Set([...prev, ...selectedExts]));
+    setSelectedExts(new Set());
+    setResetConfirmOpen(false);
+    toast('Settings were updated.');
+  };
 
   return (
-    <DialogPrimitives.Root open={open} onOpenChange={(o) => !o && onClose()}>
+    <DialogPrimitives.Root
+      open={open}
+      onOpenChange={(o) => {
+        if (o) return;
+        // Escape/backdrop dismisses the confirmation first, then the dialog
+        if (resetConfirmOpen) setResetConfirmOpen(false);
+        else onClose();
+      }}
+    >
       <DialogPrimitives.Portal>
         <DialogPrimitives.Overlay className="fixed inset-0 z-[60] bg-black/40 pt-12 flex justify-center items-start data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0">
           <DialogPrimitives.Content
@@ -850,7 +901,7 @@ export function SpringUsersConfigDialog({
 
               <div className="flex flex-col gap-1">
                 <p className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
-                  <span className="font-semibold">{defaultUsersCount}/{total} users</span> are using the{' '}
+                  <span className="font-semibold">{effDefaultCount}/{total} users</span> are using the{' '}
                   <span className="font-semibold">default</span> user configuration.
                 </p>
                 <p className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
@@ -880,31 +931,59 @@ export function SpringUsersConfigDialog({
                 />
               </div>
 
+              {/* Bulk action — enabled once at least one custom user is selected */}
+              <div className="flex justify-end">
+                <button
+                  type="button"
+                  disabled={selectedExts.size === 0}
+                  onClick={() => setResetConfirmOpen(true)}
+                  className="inline-flex h-[36px] items-center gap-2 rounded-[10px] border border-black/20 bg-white px-4 text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b0)] transition-colors hover:bg-[var(--sui-colors-neutral-b4)]/40 disabled:cursor-not-allowed disabled:border-black/10 disabled:text-[var(--sui-colors-neutral-b3)] disabled:hover:bg-white enabled:cursor-pointer"
+                >
+                  <RotateCcw className="h-4 w-4" strokeWidth={2} />
+                  Reset to default
+                </button>
+              </div>
+
               <div className="flex flex-col overflow-hidden rounded-[8px] border border-black/20">
-                <div className="grid grid-cols-[2fr_1fr_1.4fr_1.8fr_1.2fr] items-center gap-4 border-b border-black/20 bg-[var(--sui-colors-neutral-b4)]/40 px-4 py-3 text-[13px] font-semibold leading-[18px] text-[var(--sui-colors-neutral-b1)]">
+                <div className="grid grid-cols-[24px_2fr_1fr_1.4fr_1.8fr_1.2fr] items-center gap-4 border-b border-black/20 bg-[var(--sui-colors-neutral-b4)]/40 px-4 py-3 text-[13px] font-semibold leading-[18px] text-[var(--sui-colors-neutral-b1)]">
+                  <UsersTableCheckbox
+                    checked={allSelected}
+                    disabled={selectableExts.length === 0}
+                    onChange={toggleAll}
+                    ariaLabel="Select all custom users"
+                  />
                   <span>Name</span><span>Ext</span><span>Department</span><span>Site</span><span>Configuration</span>
                 </div>
-                {rows.length === 0 ? (
+                {visibleRows.length === 0 ? (
                   <div className="flex flex-col items-center justify-center gap-1 px-4 py-12 text-center">
                     <p className="text-[14px] font-semibold leading-[20px] text-[var(--sui-colors-neutral-b1)]">No users found</p>
                   </div>
-                ) : rows.slice(0, 10).map((u, i, arr) => (
+                ) : visibleRows.map((u, i, arr) => {
+                  const custom = effConfig(u) === 'Custom';
+                  return (
                   <div
                     key={u.ext}
                     className={cn(
-                      'grid h-[40px] grid-cols-[2fr_1fr_1.4fr_1.8fr_1.2fr] items-center gap-4 px-4 text-[12px] leading-[18px] text-[var(--sui-colors-neutral-b1)]',
+                      'grid h-[40px] grid-cols-[24px_2fr_1fr_1.4fr_1.8fr_1.2fr] items-center gap-4 px-4 text-[12px] leading-[18px] text-[var(--sui-colors-neutral-b1)]',
                       i !== arr.length - 1 && 'border-b border-black/20',
                     )}
                   >
+                    <UsersTableCheckbox
+                      checked={selectedExts.has(u.ext)}
+                      disabled={!custom}
+                      onChange={() => toggleOne(u.ext)}
+                      ariaLabel={`Select ${u.name}`}
+                    />
                     <a href="#" onClick={(e) => e.preventDefault()} className="cursor-pointer text-[var(--sui-colors-primary-b)] underline hover:text-[var(--sui-colors-primary-b-high-contrast)]">
                       {u.name}
                     </a>
                     <span>{u.ext}</span>
                     <span>{u.department}</span>
                     <span>{u.site}</span>
-                    <span>{u.configuration}</span>
+                    <span>{effConfig(u)}</span>
                   </div>
-                ))}
+                  );
+                })}
                 <div className="flex items-center justify-end border-t border-black/20 px-3 py-2 text-[14px] leading-[20px] text-[var(--sui-colors-neutral-b0)]">
                   <div className="flex items-center gap-5">
                     <div className="flex items-center gap-2">
@@ -936,10 +1015,74 @@ export function SpringUsersConfigDialog({
                 </button>
               </DialogPrimitives.Close>
             </div>
+
+            {/* Reset confirmation */}
+            {resetConfirmOpen && (
+              <div className="absolute inset-0 z-[70] flex items-center justify-center rounded-[12px]">
+                <div className="absolute inset-0 rounded-[12px] bg-black/40" onClick={() => setResetConfirmOpen(false)} aria-hidden="true" />
+                <div
+                  role="alertdialog"
+                  aria-modal="true"
+                  aria-label="Reset user configuration to default?"
+                  className="relative z-10 flex w-[420px] max-w-[calc(100%-48px)] flex-col gap-3 rounded-[12px] bg-white p-6 shadow-[0_12px_32px_rgba(0,0,0,0.18),0_2px_6px_rgba(0,0,0,0.08)]"
+                >
+                  <h3 className="text-[18px] font-semibold leading-[24px] text-[var(--sui-colors-neutral-b1)]">
+                    Reset user configuration to default?
+                  </h3>
+                  <p className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                    This will reset custom <span className="font-semibold">{featureLabel}</span> settings to the account
+                    default for {selectedExts.size} {selectedExts.size === 1 ? 'user' : 'users'}.
+                  </p>
+                  <div className="mt-2 flex justify-end gap-2">
+                    <button
+                      type="button"
+                      autoFocus
+                      onClick={() => setResetConfirmOpen(false)}
+                      className="inline-flex h-[36px] min-w-[60px] cursor-pointer items-center justify-center rounded-[10px] border border-black/20 bg-white px-4 text-[15px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b0)] transition-colors hover:bg-[var(--sui-colors-neutral-b4)]/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sui-colors-primary-b)]/30"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="button"
+                      onClick={confirmReset}
+                      className="inline-flex h-[36px] min-w-[60px] cursor-pointer items-center justify-center rounded-[10px] bg-[var(--sui-colors-primary-b)] px-4 text-[15px] font-medium leading-[20px] text-white transition-colors hover:bg-[var(--sui-colors-primary-b-high-contrast)]"
+                    >
+                      Reset
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
           </DialogPrimitives.Content>
         </DialogPrimitives.Overlay>
       </DialogPrimitives.Portal>
     </DialogPrimitives.Root>
+  );
+}
+
+function UsersTableCheckbox({
+  checked, disabled, onChange, ariaLabel,
+}: { checked: boolean; disabled?: boolean; onChange: () => void; ariaLabel: string }) {
+  return (
+    <button
+      type="button"
+      role="checkbox"
+      aria-checked={checked}
+      aria-label={ariaLabel}
+      disabled={disabled}
+      onClick={onChange}
+      className={cn(
+        'flex h-[16px] w-[16px] items-center justify-center rounded-[4px] border transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sui-colors-primary-b)]/30',
+        checked
+          ? 'border-[var(--sui-colors-primary-b)] bg-[var(--sui-colors-primary-b)]'
+          : 'border-black/30 bg-white',
+        disabled
+          ? 'cursor-not-allowed border-black/10 bg-[var(--sui-colors-neutral-b4)]/40'
+          : 'cursor-pointer hover:border-[var(--sui-colors-primary-b)]',
+      )}
+    >
+      {checked && <Check className="h-3 w-3 text-white" strokeWidth={3} />}
+    </button>
   );
 }
 
@@ -1075,7 +1218,7 @@ export function SpringFeatureEnableDialog({
                         <p className="whitespace-nowrap text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
                           <button
                             type="button"
-                            onClick={() => setUsersOpen(true)}
+                            onClick={() => setUsersOpen('default')}
                             className="cursor-pointer text-[var(--sui-colors-primary-b)] underline hover:text-[var(--sui-colors-primary-b-high-contrast)] focus:outline-none focus:ring-2 focus:ring-[var(--sui-colors-primary-b)]/30 rounded-sm"
                           >
                             {defaultCount}/{total} users
