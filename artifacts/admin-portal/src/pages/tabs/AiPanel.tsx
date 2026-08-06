@@ -912,7 +912,9 @@ export default function AiPanel() {
         onConfirm={confirmAssistantOn}
       />
 
-      {/* Sub-feature (Phone / Chat) Manage dialog */}
+      {/* Sub-feature (Phone / Chat) Manage dialog.
+          CC, Live transcripts, and AI notes always allow users to manage their
+          own setting — the checkbox is locked checked+disabled for those keys. */}
       <SpringFeatureManageDialog
         open={subManageKey !== null}
         title={subManageKey ? `Manage ${labelFor(subManageKey)}` : ''}
@@ -921,6 +923,11 @@ export default function AiPanel() {
         customCount={subManageKey ? state.ai[subManageKey].customUsers : 0}
         onCancel={() => setSubManageKey(null)}
         onConfirm={saveSubManage}
+        lockAllowChange={
+          subManageKey === 'closedCaptioning' ||
+          subManageKey === 'liveTranscripts' ||
+          subManageKey === 'aiNotes'
+        }
       />
 
       {/* AVA Manage dialog (Figma 2454-9168) */}
@@ -990,7 +997,7 @@ export default function AiPanel() {
         }}
       />
 
-      {/* Closed captioning Manage dialog */}
+      {/* Closed captioning Manage dialog — user access always locked Allowed */}
       <SpringFeatureManageDialog
         open={ccManageOpen}
         title="Manage Closed captioning"
@@ -999,6 +1006,7 @@ export default function AiPanel() {
         customCount={state.ai.closedCaptioning.customUsers}
         onCancel={() => setCcManageOpen(false)}
         onConfirm={saveCcManage}
+        lockAllowChange
       />
 
       {/* Closed captioning "Turn off default for users?" cascade confirm */}

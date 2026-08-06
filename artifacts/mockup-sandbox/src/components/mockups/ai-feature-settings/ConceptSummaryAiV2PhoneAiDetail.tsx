@@ -339,6 +339,7 @@ export function ConceptSummaryAiV2PhoneAiDetail({
             initialDefaultVal={parentDeploy.defaultVal}
             initialAllowChange={parentDeploy.allowChange}
             customUsersCount={26}
+            lockAllowChange
           />
           <ClosedCaptioningManageDefaultOffConfirm
             open={defaultOffConfirmOpen}
@@ -364,6 +365,7 @@ export function ConceptSummaryAiV2PhoneAiDetail({
               setPendingParent(null);
             }}
           />
+          {/* Live transcripts + AI notes — user access is always Allowed (locked) */}
           <FeatureManageDialog
             open={manageChild !== null}
             featureName={manageChild ?? ''}
@@ -374,6 +376,7 @@ export function ConceptSummaryAiV2PhoneAiDetail({
             initialDefaultVal={manageChild ? childDeploy[manageChild].defaultVal : 'On'}
             initialAllowChange={manageChild ? childDeploy[manageChild].allowChange : true}
             customUsersCount={26}
+            lockAllowChange
           />
           <FeatureChildDisableConfirm
             open={disableChild !== null}

@@ -624,6 +624,7 @@ export function SpringFeatureManageDialog({
   onCancel,
   onConfirm,
   error,
+  lockAllowChange = false,
 }: {
   open: boolean;
   title: string;
@@ -634,6 +635,9 @@ export function SpringFeatureManageDialog({
   onCancel: () => void;
   onConfirm: (result: { defaultVal: 'On' | 'Off'; allowChange: boolean }) => void;
   error?: boolean;
+  /** When true the "Allow users to change this setting" checkbox is always
+   * checked and disabled — user access is fixed as Allowed for this feature. */
+  lockAllowChange?: boolean;
 }) {
   const [value, setValue] = useState<'On' | 'Off'>(defaultVal);
   const [allow, setAllow] = useState(allowChange);
@@ -711,16 +715,17 @@ export function SpringFeatureManageDialog({
                       <span className="text-[14px] font-semibold leading-[20px] text-[var(--sui-colors-neutral-b1)]">
                         User access:
                       </span>
-                      <label className="flex cursor-pointer items-center gap-2">
+                      <label className={['flex items-center gap-2', lockAllowChange ? 'cursor-default opacity-60' : 'cursor-pointer'].join(' ')}>
                         <div className="relative flex h-[20px] w-[20px] items-center justify-center">
                           <input
                             type="checkbox"
                             className="peer sr-only"
-                            checked={allow}
-                            onChange={(e) => setAllow(e.target.checked)}
+                            checked={lockAllowChange ? true : allow}
+                            disabled={lockAllowChange}
+                            onChange={(e) => !lockAllowChange && setAllow(e.target.checked)}
                           />
                           <div className="absolute inset-0 rounded-[4px] border-[1.2px] border-[var(--sui-colors-neutral-b2)] bg-white peer-focus-visible:ring-2 peer-focus-visible:ring-[var(--sui-colors-primary-b)]/30 peer-checked:bg-[var(--sui-colors-primary-b)] peer-checked:border-transparent flex items-center justify-center transition-colors">
-                            {allow && <Check className="h-3 w-3 text-white" strokeWidth={3} />}
+                            {(lockAllowChange || allow) && <Check className="h-3 w-3 text-white" strokeWidth={3} />}
                           </div>
                         </div>
                         <span className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">

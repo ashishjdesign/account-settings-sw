@@ -45,15 +45,16 @@ export function Radio({
 }
 
 export function Checkbox({
-  checked, onChange, label,
-}: { checked: boolean; onChange: (v: boolean) => void; label: React.ReactNode }) {
+  checked, onChange, label, disabled = false,
+}: { checked: boolean; onChange: (v: boolean) => void; label: React.ReactNode; disabled?: boolean }) {
   return (
-    <label className="inline-flex cursor-pointer items-center gap-2">
+    <label className={['inline-flex items-center gap-2', disabled ? 'cursor-default opacity-60' : 'cursor-pointer'].join(' ')}>
       <span className="relative flex h-[20px] w-[20px] items-center justify-center">
         <input
           type="checkbox"
           checked={checked}
-          onChange={(e) => onChange(e.target.checked)}
+          disabled={disabled}
+          onChange={(e) => !disabled && onChange(e.target.checked)}
           className="peer sr-only"
         />
         <span
@@ -80,12 +81,16 @@ export function UserDeploymentCard({
   defaultVal, onDefaultValChange,
   allowChange, onAllowChangeChange,
   defaultUsersCount,
+  lockAllowChange = false,
 }: {
   defaultVal: 'On' | 'Off';
   onDefaultValChange: (v: 'On' | 'Off') => void;
   allowChange: boolean;
   onAllowChangeChange: (v: boolean) => void;
   defaultUsersCount: number;
+  /** When true the checkbox is always checked and disabled — user access is
+   * fixed as Allowed and admins cannot change it for this feature. */
+  lockAllowChange?: boolean;
 }) {
   return (
     <div className="flex flex-col gap-2">
@@ -131,8 +136,9 @@ export function UserDeploymentCard({
             User access:
           </span>
           <Checkbox
-            checked={allowChange}
-            onChange={onAllowChangeChange}
+            checked={lockAllowChange ? true : allowChange}
+            onChange={lockAllowChange ? () => {} : onAllowChangeChange}
+            disabled={lockAllowChange}
             label="Allow users to change this setting"
           />
         </div>
@@ -692,6 +698,7 @@ export function FeatureEnableConfirm({
   initialDefaultVal = 'On',
   initialAllowChange = true,
   customUsersCount = 26,
+  lockAllowChange = false,
 }: {
   open: boolean;
   featureName: string;
@@ -704,6 +711,7 @@ export function FeatureEnableConfirm({
   initialDefaultVal?: 'On' | 'Off';
   initialAllowChange?: boolean;
   customUsersCount?: number;
+  lockAllowChange?: boolean;
 }) {
   const [defaultVal, setDefaultVal] = React.useState<'On' | 'Off'>(initialDefaultVal);
   const [allowChange, setAllowChange] = React.useState(initialAllowChange);
@@ -736,6 +744,7 @@ export function FeatureEnableConfirm({
           allowChange={allowChange}
           onAllowChangeChange={setAllowChange}
           defaultUsersCount={defaultUsersCount}
+          lockAllowChange={lockAllowChange}
         />
 
         {customUsersCount > 0 && (
@@ -787,6 +796,7 @@ export function FeatureChildEnableConfirm({
   initialDefaultVal = 'On',
   initialAllowChange = true,
   customUsersCount = 26,
+  lockAllowChange = false,
 }: {
   open: boolean;
   featureName: string;
@@ -799,6 +809,7 @@ export function FeatureChildEnableConfirm({
   initialDefaultVal?: 'On' | 'Off';
   initialAllowChange?: boolean;
   customUsersCount?: number;
+  lockAllowChange?: boolean;
 }) {
   const [defaultVal, setDefaultVal] = React.useState<'On' | 'Off'>(initialDefaultVal);
   const [allowChange, setAllowChange] = React.useState(initialAllowChange);
@@ -830,6 +841,7 @@ export function FeatureChildEnableConfirm({
           allowChange={allowChange}
           onAllowChangeChange={setAllowChange}
           defaultUsersCount={defaultUsersCount}
+          lockAllowChange={lockAllowChange}
         />
 
         {customUsersCount > 0 && (
@@ -871,6 +883,7 @@ export function FeatureManageDialog({
   open, featureName, onCancel, onSave,
   initialDefaultVal, initialAllowChange,
   customUsersCount = 26,
+  lockAllowChange = false,
 }: {
   open: boolean;
   featureName: string;
@@ -879,6 +892,7 @@ export function FeatureManageDialog({
   initialDefaultVal: 'On' | 'Off';
   initialAllowChange: boolean;
   customUsersCount?: number;
+  lockAllowChange?: boolean;
 }) {
   const [defaultVal, setDefaultVal] = React.useState<'On' | 'Off'>(initialDefaultVal);
   const [allowChange, setAllowChange] = React.useState(initialAllowChange);
@@ -905,6 +919,7 @@ export function FeatureManageDialog({
           allowChange={allowChange}
           onAllowChangeChange={setAllowChange}
           defaultUsersCount={defaultUsersCount}
+          lockAllowChange={lockAllowChange}
         />
       </div>
       <DialogFooter
