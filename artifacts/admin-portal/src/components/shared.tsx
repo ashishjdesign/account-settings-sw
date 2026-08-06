@@ -1024,16 +1024,19 @@ export function SpringUsersConfigDialog({
                   role="alertdialog"
                   aria-modal="true"
                   aria-label="Reset user configuration to default?"
-                  className="relative z-10 flex w-[420px] max-w-[calc(100%-48px)] flex-col gap-3 rounded-[12px] bg-white p-6 shadow-[0_12px_32px_rgba(0,0,0,0.18),0_2px_6px_rgba(0,0,0,0.08)]"
+                  className="relative z-10 flex w-[620px] max-w-[calc(100%-48px)] flex-col rounded-[12px] bg-white shadow-[0_12px_32px_rgba(0,0,0,0.18),0_2px_6px_rgba(0,0,0,0.08)]"
                 >
-                  <h3 className="text-[18px] font-semibold leading-[24px] text-[var(--sui-colors-neutral-b1)]">
-                    Reset user configuration to default?
-                  </h3>
-                  <p className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
-                    This will reset custom <span className="font-semibold">{featureLabel}</span> settings to the account
-                    default for {selectedExts.size} {selectedExts.size === 1 ? 'user' : 'users'}.
-                  </p>
-                  <div className="mt-2 flex justify-end gap-2">
+                  <div className="flex flex-col gap-5 px-9 pb-10 pt-8">
+                    <h3 className="py-3 text-[24px] font-normal leading-[32px] text-[var(--sui-colors-neutral-b1)]">
+                      Reset user configuration to default?
+                    </h3>
+                    <p className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                      This will reset custom <span className="font-semibold">{featureLabel}</span> settings to the account
+                      default for {selectedExts.size} {selectedExts.size === 1 ? 'user' : 'users'}.
+                    </p>
+                  </div>
+                  <div className="border-t border-[var(--sui-colors-neutral-b4)]/50" />
+                  <div className="flex justify-end gap-2 px-6 pt-5 pb-5">
                     <button
                       type="button"
                       autoFocus
