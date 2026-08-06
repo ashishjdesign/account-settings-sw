@@ -14,6 +14,9 @@ import {
   FeatureDisableConfirm,
   ClosedCaptioningManageDefaultOffConfirm,
   ClosedCaptioningManageRestrictAccessConfirm,
+  LiveTranscriptsDisableConfirm,
+  LiveTranscriptsManageDefaultOffConfirm,
+  LiveTranscriptsManageRestrictAccessConfirm,
 } from './_assistantDialogs';
 
 /* -----------------------------------------------------------------------------
@@ -22,8 +25,9 @@ import {
  * Reached by clicking the "Phone AI" parent card's CaretRight chevron on the
  * master-ON AI tab (ConceptSummaryAiV2OnPartial). The Phone AI page groups the
  * phone-related AI features into two bordered cards:
- *   Card 1: Closed captioning (parent) with its 2 dependent features (Live
- *           transcripts, AI notes) nested INSIDE its content column.
+ *   Card 1: Closed captioning (parent) with Live transcripts nested INSIDE its
+ *           content column, and AI notes nested one level deeper as a
+ *           dependent of Live transcripts (36px left indent).
  *   Card 2: AI voicemail summaries — an independent, top-level feature.
  *
  * This is an ARCHITECTURE-only regrouping: the per-feature management UX
@@ -56,18 +60,21 @@ const CAPTIONING: Feature = {
   description: 'Uses AI to display real-time captions during phone calls.',
 };
 
-const CAPTIONING_CHILDREN: Feature[] = [
-  {
-    title: 'Live transcripts',
-    icon: TranscriptionMd,
-    description: 'Provides real-time AI-generated call transcripts.',
-  },
-  {
-    title: 'AI notes',
-    icon: SmartNotesMd,
-    description: 'Generate call notes automatically for all your devices.',
-  },
-];
+/* Live transcripts is Closed captioning's direct dependent; AI notes is now a
+ * dependent of Live transcripts (nested one level deeper). */
+const LIVE_TRANSCRIPTS: Feature = {
+  title: 'Live transcripts',
+  icon: TranscriptionMd,
+  description: 'Provides real-time AI-generated call transcripts.',
+};
+
+const AI_NOTES: Feature = {
+  title: 'AI notes',
+  icon: SmartNotesMd,
+  description: 'Generate call notes automatically for all your devices.',
+};
+
+const CAPTIONING_CHILDREN: Feature[] = [LIVE_TRANSCRIPTS, AI_NOTES];
 
 const VOICEMAIL: Feature = {
   title: 'AI voicemail summaries',
@@ -191,6 +198,14 @@ export function ConceptSummaryAiV2PhoneAiDetail({
   );
   const [disableChild, setDisableChild] = React.useState<string | null>(null);
 
+  /* Live transcripts cascade dialogs — turning LT off (or saving its Manage
+   * dialog with default Off / access Restricted) also affects its dependent,
+   * AI notes, so each path confirms first. */
+  const [ltDisableConfirmOpen, setLtDisableConfirmOpen] = React.useState(false);
+  const [pendingLt, setPendingLt] = React.useState<Deploy | null>(null);
+  const [ltDefaultOffConfirmOpen, setLtDefaultOffConfirmOpen] = React.useState(false);
+  const [ltRestrictConfirmOpen, setLtRestrictConfirmOpen] = React.useState(false);
+
   /* ---- AI voicemail summaries (independent top-level feature) ---- */
   const [voicemailOn, setVoicemailOn] = React.useState(true);
   const [voicemailConfirmOpen, setVoicemailConfirmOpen] = React.useState(false);
@@ -211,9 +226,45 @@ export function ConceptSummaryAiV2PhoneAiDetail({
   const handleChildSwitch = (title: string, next: boolean) => {
     if (next) {
       setChildOn((prev) => ({ ...prev, [title]: true }));
+    } else if (title === LIVE_TRANSCRIPTS.title) {
+      /* LT off cascades to AI notes — dedicated confirm. */
+      setLtDisableConfirmOpen(true);
     } else {
       setDisableChild(title);
     }
+  };
+
+  /* Cascade Live transcripts' restrictive deployment down to AI notes: default
+   * Off forces AI notes' default to Off; restricting access restricts AI notes
+   * too. (Turning LT back On/Allowed leaves AI notes untouched.) */
+  const applyLtDeploy = (next: Deploy) => {
+    setChildDeploy((prev) => ({
+      ...prev,
+      [LIVE_TRANSCRIPTS.title]: next,
+      [AI_NOTES.title]: {
+        defaultVal: next.defaultVal === 'Off' ? 'Off' : prev[AI_NOTES.title].defaultVal,
+        allowChange: next.allowChange === false ? false : prev[AI_NOTES.title].allowChange,
+      },
+    }));
+  };
+
+  const handleChildManageSave = (title: string, next: Deploy) => {
+    setManageChild(null);
+    if (title === LIVE_TRANSCRIPTS.title) {
+      if (next.defaultVal === 'Off') {
+        setPendingLt(next);
+        setLtDefaultOffConfirmOpen(true);
+        return;
+      }
+      if (!next.allowChange) {
+        setPendingLt(next);
+        setLtRestrictConfirmOpen(true);
+        return;
+      }
+      applyLtDeploy(next);
+      return;
+    }
+    setChildDeploy((prev) => ({ ...prev, [title]: next }));
   };
 
   const applyParentDeploy = (next: Deploy) => {
@@ -318,8 +369,7 @@ export function ConceptSummaryAiV2PhoneAiDetail({
             featureName={manageChild ?? ''}
             onCancel={() => setManageChild(null)}
             onSave={(next) => {
-              if (manageChild) setChildDeploy((prev) => ({ ...prev, [manageChild]: next }));
-              setManageChild(null);
+              if (manageChild) handleChildManageSave(manageChild, next);
             }}
             initialDefaultVal={manageChild ? childDeploy[manageChild].defaultVal : 'On'}
             initialAllowChange={manageChild ? childDeploy[manageChild].allowChange : true}
@@ -334,6 +384,47 @@ export function ConceptSummaryAiV2PhoneAiDetail({
                 setChildOn((prev) => ({ ...prev, [disableChild]: false }));
               }
               setDisableChild(null);
+            }}
+          />
+          {/* Live transcripts cascade confirms — AI notes is its dependent. */}
+          <LiveTranscriptsDisableConfirm
+            open={ltDisableConfirmOpen}
+            onCancel={() => setLtDisableConfirmOpen(false)}
+            onConfirm={() => {
+              setChildOn((prev) => ({
+                ...prev,
+                [LIVE_TRANSCRIPTS.title]: false,
+                [AI_NOTES.title]: false,
+              }));
+              setLtDisableConfirmOpen(false);
+            }}
+          />
+          <LiveTranscriptsManageDefaultOffConfirm
+            open={ltDefaultOffConfirmOpen}
+            onCancel={() => {
+              setLtDefaultOffConfirmOpen(false);
+              setPendingLt(null);
+            }}
+            onConfirm={() => {
+              setLtDefaultOffConfirmOpen(false);
+              if (pendingLt && !pendingLt.allowChange) {
+                setLtRestrictConfirmOpen(true);
+              } else {
+                if (pendingLt) applyLtDeploy(pendingLt);
+                setPendingLt(null);
+              }
+            }}
+          />
+          <LiveTranscriptsManageRestrictAccessConfirm
+            open={ltRestrictConfirmOpen}
+            onCancel={() => {
+              setLtRestrictConfirmOpen(false);
+              setPendingLt(null);
+            }}
+            onConfirm={() => {
+              if (pendingLt) applyLtDeploy(pendingLt);
+              setLtRestrictConfirmOpen(false);
+              setPendingLt(null);
             }}
           />
           {/* AI voicemail summaries — independent top-level feature: org-level
@@ -387,22 +478,34 @@ export function ConceptSummaryAiV2PhoneAiDetail({
             >
               {captioningOn && (
                 <div className="mt-4 flex flex-col">
-                  {CAPTIONING_CHILDREN.map((child) => (
-                    <div
-                      key={child.title}
-                      className="flex items-start gap-4 border-t border-[var(--sui-colors-neutral-b4)] py-4"
+                  {/* Live transcripts — CC's dependent; AI notes nests inside
+                   * its content column (36px left indent = icon 20px + gap
+                   * 16px) so it reads as LT's dependent. */}
+                  <div className="flex items-start gap-4 border-t border-[var(--sui-colors-neutral-b4)] py-4">
+                    <FeatureIcon as={LIVE_TRANSCRIPTS.icon} />
+                    <FeatureBody
+                      title={LIVE_TRANSCRIPTS.title}
+                      description={LIVE_TRANSCRIPTS.description}
+                      checked={childOn[LIVE_TRANSCRIPTS.title]}
+                      onCheckedChange={(next) => handleChildSwitch(LIVE_TRANSCRIPTS.title, next)}
+                      deploy={childDeploy[LIVE_TRANSCRIPTS.title]}
+                      onManage={() => setManageChild(LIVE_TRANSCRIPTS.title)}
                     >
-                      <FeatureIcon as={child.icon} />
-                      <FeatureBody
-                        title={child.title}
-                        description={child.description}
-                        checked={childOn[child.title]}
-                        onCheckedChange={(next) => handleChildSwitch(child.title, next)}
-                        deploy={childDeploy[child.title]}
-                        onManage={() => setManageChild(child.title)}
-                      />
-                    </div>
-                  ))}
+                      {childOn[LIVE_TRANSCRIPTS.title] && (
+                        <div className="mt-4 flex items-start gap-4 border-t border-[var(--sui-colors-neutral-b4)] pt-4">
+                          <FeatureIcon as={AI_NOTES.icon} />
+                          <FeatureBody
+                            title={AI_NOTES.title}
+                            description={AI_NOTES.description}
+                            checked={childOn[AI_NOTES.title]}
+                            onCheckedChange={(next) => handleChildSwitch(AI_NOTES.title, next)}
+                            deploy={childDeploy[AI_NOTES.title]}
+                            onManage={() => setManageChild(AI_NOTES.title)}
+                          />
+                        </div>
+                      )}
+                    </FeatureBody>
+                  </div>
                 </div>
               )}
             </FeatureBody>

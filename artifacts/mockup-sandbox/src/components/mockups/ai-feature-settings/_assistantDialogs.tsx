@@ -414,6 +414,94 @@ export function ClosedCaptioningManageRestrictAccessConfirm({
 }
 
 /* -----------------------------------------------------------------------------
+ * LiveTranscriptsDisableConfirm — width 720. Shown when the Live transcripts
+ * switch is turned off. Because AI notes is now a dependent of Live
+ * transcripts, the dialog warns it will also be turned off.
+ * --------------------------------------------------------------------------- */
+export function LiveTranscriptsDisableConfirm({
+  open, onCancel, onConfirm,
+}: { open: boolean; onCancel: () => void; onConfirm: () => void }) {
+  return (
+    <DialogShell open={open} ariaLabel="Turn off Live transcripts" onClose={onCancel} width={720}>
+      <div className="flex flex-col gap-8 px-6 pb-10 pt-9">
+        <h2 className="py-3 text-[24px] font-normal leading-[32px] text-[var(--sui-colors-neutral-b0)]">
+          Turn off Live transcripts for your organization?
+        </h2>
+        <div className="flex flex-col gap-4 text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+          <p>
+            This feature will be turned off for your account and no longer available to users.
+            <br aria-hidden />
+            When turned back on, previous user settings can be restored.
+          </p>
+          <p>
+            <span className="font-bold">AI notes</span> will also be turned off.
+          </p>
+        </div>
+      </div>
+      <DialogFooter onCancel={onCancel} onConfirm={onConfirm} confirmLabel="Turn off" />
+    </DialogShell>
+  );
+}
+
+/* -----------------------------------------------------------------------------
+ * LiveTranscriptsManageDefaultOffConfirm — width 600. Shown when the Manage
+ * Live transcripts dialog is saved with the user default set to Off. Because
+ * AI notes is a dependent of Live transcripts, it also defaults to off.
+ * --------------------------------------------------------------------------- */
+export function LiveTranscriptsManageDefaultOffConfirm({
+  open, onCancel, onConfirm,
+}: { open: boolean; onCancel: () => void; onConfirm: () => void }) {
+  return (
+    <DialogShell open={open} ariaLabel="Turn off default for users" onClose={onCancel} width={600}>
+      <div className="flex flex-col gap-8 px-6 pb-10 pt-9">
+        <h2 className="py-3 text-[24px] font-normal leading-[32px] text-[var(--sui-colors-neutral-b0)]">
+          Turn off default for users?
+        </h2>
+        <div className="flex flex-col gap-4 text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+          <p>
+            <span className="font-bold">Live transcripts</span> will default to off in user
+            settings.
+          </p>
+          <p>
+            <span className="font-bold">AI notes</span> will also default to off.
+          </p>
+        </div>
+      </div>
+      <DialogFooter onCancel={onCancel} onConfirm={onConfirm} confirmLabel="Turn default off" />
+    </DialogShell>
+  );
+}
+
+/* -----------------------------------------------------------------------------
+ * LiveTranscriptsManageRestrictAccessConfirm — width 600. Shown when the Manage
+ * Live transcripts dialog is saved with "User access" restricted. Because AI
+ * notes is a dependent of Live transcripts, the restriction applies to it too.
+ * --------------------------------------------------------------------------- */
+export function LiveTranscriptsManageRestrictAccessConfirm({
+  open, onCancel, onConfirm,
+}: { open: boolean; onCancel: () => void; onConfirm: () => void }) {
+  return (
+    <DialogShell open={open} ariaLabel="Restrict users from changing this setting" onClose={onCancel} width={600}>
+      <div className="flex flex-col gap-8 px-6 pb-10 pt-9">
+        <h2 className="py-3 text-[24px] font-normal leading-[32px] text-[var(--sui-colors-neutral-b0)]">
+          Restrict users from changing this setting?
+        </h2>
+        <div className="flex flex-col gap-4 text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+          <p>
+            Users will no longer be able to change{' '}
+            <span className="font-bold">Live transcripts</span>.
+          </p>
+          <p>
+            This restriction will also apply to <span className="font-bold">AI notes</span>.
+          </p>
+        </div>
+      </div>
+      <DialogFooter onCancel={onCancel} onConfirm={onConfirm} confirmLabel="Restrict access" />
+    </DialogShell>
+  );
+}
+
+/* -----------------------------------------------------------------------------
  * AssistantEnableConfirm (Figma 2035-41070) — width 820, includes:
  *   - User deployment card
  *   - "Custom users — what to do" radio block (only when customUsers > 0)

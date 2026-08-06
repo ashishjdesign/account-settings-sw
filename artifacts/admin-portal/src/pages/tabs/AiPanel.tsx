@@ -246,6 +246,14 @@ export default function AiPanel() {
   >(null);
   const [ccDefaultOffConfirm, setCcDefaultOffConfirm] = useState(false);
   const [ccRestrictConfirm, setCcRestrictConfirm] = useState(false);
+  // Live transcripts is now a parent of AI notes, so saving its Manage dialog
+  // with "User default: Off" or "User access: Restricted" confirms the cascade
+  // to AI notes first (mirrors the CC flow one level down).
+  const [ltPending, setLtPending] = useState<
+    { defaultVal: 'On' | 'Off'; allowChange: boolean } | null
+  >(null);
+  const [ltDefaultOffConfirm, setLtDefaultOffConfirm] = useState(false);
+  const [ltRestrictConfirm, setLtRestrictConfirm] = useState(false);
   const [subDisableKey, setSubDisableKey] = useState<SubKey | null>(null);
   const [subEnableKey, setSubEnableKey] = useState<SubKey | null>(null);
 
@@ -365,7 +373,19 @@ export default function AiPanel() {
   const confirmSubDisable = () => {
     if (!subDisableKey) return;
     const key = subDisableKey;
-    dispatch({ type: 'PATCH_AI_FEATURE', key, payload: { on: false } });
+    if (key === 'liveTranscripts') {
+      // Live transcripts parents AI notes — turn both off in one dispatch so a
+      // single Undo restores them together (matches the confirm dialog copy).
+      dispatch({
+        type: 'CASCADE_AI_FEATURE',
+        key: 'liveTranscripts',
+        childKeys: ['aiNotes'],
+        payload: { on: false },
+        childPayload: { on: false },
+      });
+    } else {
+      dispatch({ type: 'PATCH_AI_FEATURE', key, payload: { on: false } });
+    }
     setSubDisableKey(null);
     showToast(`${labelFor(key)} turned off`, () => dispatch({ type: 'UNDO' }));
   };
@@ -394,12 +414,42 @@ export default function AiPanel() {
   ) => {
     if (!subManageKey) return;
     const key = subManageKey;
+    // Live transcripts parents AI notes: default Off / Restricted cascades to
+    // AI notes, so confirm before committing.
+    if (key === 'liveTranscripts' && (result.defaultVal === 'Off' || !result.allowChange)) {
+      setLtPending(result);
+      setSubManageKey(null);
+      if (result.defaultVal === 'Off') setLtDefaultOffConfirm(true);
+      else setLtRestrictConfirm(true);
+      return;
+    }
     dispatch({
       type: 'PATCH_AI_FEATURE',
       key,
       payload: { defaultVal: result.defaultVal, allowChange: result.allowChange },
     });
     setSubManageKey(null);
+    showToast('Settings were updated.', () => dispatch({ type: 'UNDO' }));
+  };
+
+  // Commit Live transcripts' deployment config and cascade the restrictive
+  // state down to AI notes in one dispatch so a single Undo reverts both.
+  const commitLtManage = (
+    result: { defaultVal: 'On' | 'Off'; allowChange: boolean },
+  ) => {
+    const childPayload: Partial<{ defaultVal: 'On' | 'Off'; allowChange: boolean }> = {};
+    if (result.defaultVal === 'Off') childPayload.defaultVal = 'Off';
+    if (result.allowChange === false) childPayload.allowChange = false;
+    dispatch({
+      type: 'CASCADE_AI_FEATURE',
+      key: 'liveTranscripts',
+      childKeys: ['aiNotes'],
+      payload: { defaultVal: result.defaultVal, allowChange: result.allowChange },
+      childPayload,
+    });
+    setLtPending(null);
+    setLtDefaultOffConfirm(false);
+    setLtRestrictConfirm(false);
     showToast('Settings were updated.', () => dispatch({ type: 'UNDO' }));
   };
 
@@ -726,8 +776,23 @@ export default function AiPanel() {
               'Uses AI to display real-time captions during phone calls.',
               false,
               state.ai.closedCaptioning.on && masterOn
-                ? CC_CHILDREN.map((c) =>
-                    renderWiredDetailRow(c.key, c.icon, c.title, c.description, true),
+                ? renderWiredDetailRow(
+                    'liveTranscripts',
+                    CC_CHILDREN[0].icon,
+                    CC_CHILDREN[0].title,
+                    CC_CHILDREN[0].description,
+                    true,
+                    // AI notes is Live transcripts' dependent — nested one
+                    // level deeper (36px indent via the content column).
+                    state.ai.liveTranscripts.on && masterOn
+                      ? renderWiredDetailRow(
+                          'aiNotes',
+                          CC_CHILDREN[1].icon,
+                          CC_CHILDREN[1].title,
+                          CC_CHILDREN[1].description,
+                          true,
+                        )
+                      : null,
                   )
                 : null,
               () => setCcManageOpen(true),
@@ -1032,6 +1097,61 @@ export default function AiPanel() {
         }}
       />
 
+      {/* Live transcripts "Turn off default for users?" cascade confirm */}
+      <SpringConfirmDialog
+        open={ltDefaultOffConfirm}
+        confirmLabel="Turn default off"
+        title={<>Turn off default for users?</>}
+        body={
+          <>
+            <p>
+              <span className="font-bold">Live transcripts</span> will default to off in user
+              settings.
+            </p>
+            <p>
+              <span className="font-bold">AI notes</span> will also default to off.
+            </p>
+          </>
+        }
+        onCancel={() => {
+          setLtDefaultOffConfirm(false);
+          setLtPending(null);
+        }}
+        onConfirm={() => {
+          setLtDefaultOffConfirm(false);
+          if (ltPending?.allowChange === false) {
+            setLtRestrictConfirm(true);
+          } else if (ltPending) {
+            commitLtManage(ltPending);
+          }
+        }}
+      />
+
+      {/* Live transcripts "Restrict users from changing this setting?" cascade confirm */}
+      <SpringConfirmDialog
+        open={ltRestrictConfirm}
+        confirmLabel="Restrict access"
+        title={<>Restrict users from changing this setting?</>}
+        body={
+          <>
+            <p>
+              Users will no longer be able to change{' '}
+              <span className="font-bold">Live transcripts</span>.
+            </p>
+            <p>
+              This restriction will also apply to <span className="font-bold">AI notes</span>.
+            </p>
+          </>
+        }
+        onCancel={() => {
+          setLtRestrictConfirm(false);
+          setLtPending(null);
+        }}
+        onConfirm={() => {
+          if (ltPending) commitLtManage(ltPending);
+        }}
+      />
+
       {/* AVA dependent-feature Manage dialog (Query / Messaging / Integrations /
        * Actions / Knowledge Base). One instance reused for whichever child's
        * Manage button was clicked. */}
@@ -1087,6 +1207,11 @@ export default function AiPanel() {
             {subDisableKey === 'closedCaptioning' && (
               <p>
                 <span className="font-bold">Live transcripts</span> and{' '}
+                <span className="font-bold">AI notes</span> will also be turned off.
+              </p>
+            )}
+            {subDisableKey === 'liveTranscripts' && (
+              <p>
                 <span className="font-bold">AI notes</span> will also be turned off.
               </p>
             )}
