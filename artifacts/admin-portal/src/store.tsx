@@ -172,7 +172,10 @@ const initialState: AppState = {
       on: true,
       defaultVal: 'On',
       allowChange: true,
-      customUsers: 0,
+      // Seed with 26 custom users so the turn-on confirm shows the
+      // "26/98 users have custom settings" question (and hides the
+      // "using the default" counter), consistent with other features.
+      customUsers: 26,
       customize: { international: false, coverPage: 'Standard', retention: '90 days' },
     },
     emailToFax: {
