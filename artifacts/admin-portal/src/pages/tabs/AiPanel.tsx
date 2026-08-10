@@ -1191,7 +1191,9 @@ export default function AiPanel() {
         onConfirm={confirmSubDisable}
       />
 
-      {/* Sub-feature Turn on confirm */}
+      {/* Sub-feature Turn on confirm.
+          CC, Live transcripts, and AI notes always allow users to manage their
+          own setting — the checkbox is locked checked+disabled for those keys. */}
       <FeatureEnableConfirmDialog
         open={subEnableKey !== null}
         featureName={subEnableKey ? labelFor(subEnableKey) : ''}
@@ -1200,6 +1202,11 @@ export default function AiPanel() {
         customCount={subEnableKey ? state.ai[subEnableKey].customUsers : 0}
         onCancel={() => setSubEnableKey(null)}
         onConfirm={confirmSubEnable}
+        lockAllowChange={
+          subEnableKey === 'closedCaptioning' ||
+          subEnableKey === 'liveTranscripts' ||
+          subEnableKey === 'aiNotes'
+        }
       />
     </div>
   );

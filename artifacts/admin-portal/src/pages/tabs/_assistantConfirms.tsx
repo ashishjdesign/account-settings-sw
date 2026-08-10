@@ -183,6 +183,7 @@ export function FeatureEnableConfirmDialog({
   customCount = 0,
   onCancel,
   onConfirm,
+  lockAllowChange = false,
 }: {
   open: boolean;
   featureName: string;
@@ -191,6 +192,9 @@ export function FeatureEnableConfirmDialog({
   customCount?: number;
   onCancel: () => void;
   onConfirm: (result: AssistantEnableResult) => void;
+  /** User access is always Allowed for this feature — checkbox stays checked
+   * and disabled (matches the Manage dialog behavior). */
+  lockAllowChange?: boolean;
 }) {
   const [value, setValue] = useState<'On' | 'Off'>(initialDefaultVal);
   const [allow, setAllow] = useState(initialAllowChange);
@@ -259,16 +263,17 @@ export function FeatureEnableConfirmDialog({
                     <span className="text-[14px] font-semibold leading-[20px] text-[var(--sui-colors-neutral-b1)]">
                       User access:
                     </span>
-                    <label className="flex cursor-pointer items-center gap-2">
+                    <label className={['flex items-center gap-2', lockAllowChange ? 'cursor-default opacity-60' : 'cursor-pointer'].join(' ')}>
                       <div className="relative flex h-[20px] w-[20px] items-center justify-center">
                         <input
                           type="checkbox"
                           className="peer sr-only"
-                          checked={allow}
-                          onChange={(e) => setAllow(e.target.checked)}
+                          checked={lockAllowChange ? true : allow}
+                          disabled={lockAllowChange}
+                          onChange={(e) => !lockAllowChange && setAllow(e.target.checked)}
                         />
                         <div className="absolute inset-0 flex items-center justify-center rounded-[4px] border-[1.2px] border-[var(--sui-colors-neutral-b2)] bg-white peer-checked:bg-[var(--sui-colors-primary-b)] peer-checked:border-transparent transition-colors">
-                          {allow && <Check className="h-3 w-3 text-white" strokeWidth={3} />}
+                          {(lockAllowChange || allow) && <Check className="h-3 w-3 text-white" strokeWidth={3} />}
                         </div>
                       </div>
                       <span className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
@@ -317,7 +322,7 @@ export function FeatureEnableConfirmDialog({
               <button
                 type="button"
                 onClick={() =>
-                  onConfirm({ defaultVal: value, allowChange: allow, customAction })
+                  onConfirm({ defaultVal: value, allowChange: lockAllowChange ? true : allow, customAction })
                 }
                 className="inline-flex h-[36px] min-w-[60px] cursor-pointer items-center justify-center rounded-[10px] bg-[var(--sui-colors-primary-b)] px-[18px] text-[14px] font-medium leading-[20px] text-white transition-colors hover:bg-[var(--sui-colors-primary-b-high-contrast)]"
               >
