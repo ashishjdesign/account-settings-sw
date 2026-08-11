@@ -19,7 +19,7 @@ import {
   Ivamd,
 } from '@ringcentral/spring-icon';
 import { useSettings } from '../../store';
-import type { AiFeatureKey, AiRetentionPeriod } from '../../store';
+import type { AiFeatureKey, AiCustomRetention } from '../../store';
 import {
   SettingCard,
   ParentCard,
@@ -34,7 +34,8 @@ import {
 import {
   ManageAiFeaturesDialog,
   RetentionConfirmDialog,
-  periodLabel,
+  RETENTION_PRODUCTS,
+  retentionDaysLabel,
 } from './_aiRetention';
 import {
   AssistantEnableConfirmDialog,
@@ -292,31 +293,33 @@ export default function AiPanel() {
     showToast(msg, () => dispatch({ type: 'UNDO' }));
   };
 
-  // Pending period awaiting the shorter-period confirm dialog.
-  const [pending, setPending] = useState<{ period: AiRetentionPeriod } | null>(null);
+  // Pending retention values awaiting the shorter-period confirm dialog.
+  const [pending, setPending] = useState<AiCustomRetention | null>(null);
   const [aiChangeConfirmOpen, setAiChangeConfirmOpen] = useState(false);
 
   // Retention is always on (account preconfigured) — the admin can only
-  // change the period. A shorter period risks data loss, so it confirms
-  // first; a longer one commits directly.
-  const handleManageSave = ({ period }: { period: AiRetentionPeriod }) => {
-    if (period === customRetention.period) {
+  // change the per-product periods. Any product going shorter risks data
+  // loss, so it confirms first; longer-only changes commit directly.
+  const handleManageSave = (next: AiCustomRetention) => {
+    const changed = RETENTION_PRODUCTS.some((p) => next[p.key] !== customRetention[p.key]);
+    if (!changed) {
       setManageModal(null);
       return;
     }
-    if (Number(period) < Number(customRetention.period)) {
-      setPending({ period });
+    const anyShorter = RETENTION_PRODUCTS.some((p) => next[p.key] < customRetention[p.key]);
+    if (anyShorter) {
+      setPending(next);
       setAiChangeConfirmOpen(true);
       return;
     }
-    dispatch({ type: 'PATCH_AI_CUSTOM_RETENTION', payload: { period } });
+    dispatch({ type: 'PATCH_AI_CUSTOM_RETENTION', payload: next });
     setManageModal(null);
     showToast('Settings were updated.', () => dispatch({ type: 'UNDO' }));
   };
 
   const commitPending = () => {
     if (pending) {
-      dispatch({ type: 'PATCH_AI_CUSTOM_RETENTION', payload: { period: pending.period } });
+      dispatch({ type: 'PATCH_AI_CUSTOM_RETENTION', payload: pending });
     }
     setPending(null);
     setAiChangeConfirmOpen(false);
@@ -691,7 +694,10 @@ export default function AiPanel() {
     );
   };
 
-  const retentionDisplay = periodLabel(customRetention.period);
+  const retentionSummary = RETENTION_PRODUCTS.map((p) => ({
+    label: `${p.title}:`,
+    value: retentionDaysLabel(p.key, customRetention[p.key]),
+  }));
 
   return (
     <div className="flex flex-col gap-4">
@@ -703,7 +709,7 @@ export default function AiPanel() {
             switchOn={masterOn}
             icon={<SpringIcon as={AiStarsMd} />}
             description="Turn on AI support for calls, messages and video meetings. Deliver real-time answers, call notes, transcripts and meeting recaps to help teams stay focused and organized. Empower users to communicate clearly with built-in writing and polishing tools."
-            summary={masterOn ? [{ label: 'AI data custom retention period:', value: retentionDisplay }] : undefined}
+            summary={masterOn ? retentionSummary : undefined}
             onManage={() => setManageModal('aiFeatures')}
             onSwitchClick={handleMasterToggle}
           />
@@ -925,7 +931,7 @@ export default function AiPanel() {
 
       <ManageAiFeaturesDialog
         open={manageModal === 'aiFeatures'}
-        initialPeriod={customRetention.period}
+        initialRetention={customRetention}
         onCancel={() => setManageModal(null)}
         onSave={handleManageSave}
       />

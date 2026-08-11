@@ -19,13 +19,14 @@ export type AiAssistantCustomize = {
   shareWithManagers: boolean;
 };
 
-export type AiRetentionPeriod = '7' | '14' | '30' | '90' | '180' | '365';
+/* Retention is granular per product. Each value is a number of days —
+ * either one of the preset options or a custom value within the product's
+ * allowed range (see RETENTION_PRODUCTS in _aiRetention.tsx). */
+export type AiRetentionProductKey = 'ringexPhone' | 'meetings' | 'ringcx';
 
 /* Custom retention is always on — preconfigured at the account level. Admins
- * can only change the period (no disabled state). */
-export type AiCustomRetention = {
-  period: AiRetentionPeriod;
-};
+ * can only change the periods (no disabled state). */
+export type AiCustomRetention = Record<AiRetentionProductKey, number>;
 
 export type GeneralState = {
   userActivationOn: boolean;
@@ -145,7 +146,7 @@ const initialState: AppState = {
   },
   ai: {
     masterOn: true,
-    customRetention: { period: '365' },
+    customRetention: { ringexPhone: 365, meetings: 90, ringcx: 365 },
     aiAssistant: {
       on: true,
       defaultVal: 'On',

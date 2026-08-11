@@ -1,40 +1,97 @@
 import React from 'react';
 import { CaretDownMd, InfoMd, CheckMd } from '@ringcentral/spring-icon';
 import { cn } from '../../lib/utils';
-import { SpringSwitch } from '../../components/shared';
-import type { AiRetentionPeriod } from '../../store';
+import type { AiCustomRetention, AiRetentionProductKey } from '../../store';
 
 /* -----------------------------------------------------------------------------
- * Shared "AI data custom retention period" select used in both the
- * Manage AI features modal (enabled state) and the Turn on confirm dialog.
- * Popper values per Figma 2015-39944.
+ * AI data custom retention period — granular per product.
+ * Products, defaults, and allowed custom ranges per requirement screens
+ * (Dialog-rp2/rp6, Popper-rp3/rp5, Dialog-rp4).
  * --------------------------------------------------------------------------- */
-export const RETENTION_PERIODS: ReadonlyArray<{
-  value: AiRetentionPeriod;
-  label: string;
-  menuLabel: string;
+export const RETENTION_PRODUCTS: ReadonlyArray<{
+  key: AiRetentionProductKey;
+  title: string;
+  description: React.ReactNode;
+  defaultDays: number;
+  minDays: number;
+  maxDays: number;
 }> = [
-  { value: '365', label: '365 days (Default)', menuLabel: '365 days (default)' },
-  { value: '7', label: '7 days', menuLabel: '7 days' },
-  { value: '14', label: '14 days', menuLabel: '14 days' },
-  { value: '30', label: '30 days', menuLabel: '30 days' },
-  { value: '90', label: '90 days', menuLabel: '90 days' },
-  { value: '180', label: '180 days', menuLabel: '180 days' },
+  {
+    key: 'ringexPhone',
+    title: 'RingEX Phone Call notes and transcripts',
+    description: (
+      <>
+        Applies to Call notes and transcripts from phone calls and phone recordings. Call notes
+        and transcripts may be deleted before the selected retention period if the related call
+        or recording is deleted or expires.
+      </>
+    ),
+    defaultDays: 365,
+    minDays: 7,
+    maxDays: 730,
+  },
+  {
+    key: 'meetings',
+    title: 'Meetings Call notes and transcripts',
+    description: (
+      <>
+        Applies to Call notes and transcripts from meetings.
+        <br />
+        If the meeting was recorded, the recording is kept for the same retention period and
+        deleted along with them.
+      </>
+    ),
+    defaultDays: 90,
+    minDays: 7,
+    maxDays: 365,
+  },
+  {
+    key: 'ringcx',
+    title: 'RingCX AI artifacts',
+    description: (
+      <>
+        Applies to AI artifacts generated during RingCX sessions.
+        <br />
+        AI artifacts may be deleted before the selected retention period if the related session
+        is deleted or expires.
+      </>
+    ),
+    defaultDays: 365,
+    minDays: 7,
+    maxDays: 730,
+  },
 ];
 
-export function periodLabel(value: AiRetentionPeriod): string {
-  return RETENTION_PERIODS.find((p) => p.value === value)?.label ?? `${value} days`;
+export const RETENTION_PRESET_DAYS: ReadonlyArray<number> = [7, 30, 90, 180, 365];
+
+export function productFor(key: AiRetentionProductKey) {
+  return RETENTION_PRODUCTS.find((p) => p.key === key)!;
 }
 
+/** "365 days (default)" / "333 days (custom)" / "90 days" */
+export function retentionDaysLabel(key: AiRetentionProductKey, days: number): string {
+  const product = productFor(key);
+  if (days === product.defaultDays) return `${days} days (default)`;
+  if (!RETENTION_PRESET_DAYS.includes(days)) return `${days} days (custom)`;
+  return `${days} days`;
+}
+
+/* -----------------------------------------------------------------------------
+ * Per-product retention select. Popper lists the current custom value first
+ * (when not a preset), then the presets, then a "Set custom" footer action.
+ * --------------------------------------------------------------------------- */
 export function RetentionPeriodSelect({
-  value, onChange,
+  productKey, value, onChange, onSetCustom,
 }: {
-  value: AiRetentionPeriod;
-  onChange: (next: AiRetentionPeriod) => void;
+  productKey: AiRetentionProductKey;
+  value: number;
+  onChange: (next: number) => void;
+  onSetCustom: () => void;
 }) {
   const [open, setOpen] = React.useState(false);
   const ref = React.useRef<HTMLDivElement>(null);
-  const selected = RETENTION_PERIODS.find((p) => p.value === value) ?? RETENTION_PERIODS[0];
+  const isCustom = !RETENTION_PRESET_DAYS.includes(value);
+  const options: number[] = isCustom ? [value, ...RETENTION_PRESET_DAYS] : [...RETENTION_PRESET_DAYS];
 
   React.useEffect(() => {
     if (!open) return;
@@ -46,7 +103,7 @@ export function RetentionPeriodSelect({
   }, [open]);
 
   return (
-    <div ref={ref} className="relative w-[200px]">
+    <div ref={ref} className="relative w-[200px] shrink-0">
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
@@ -55,7 +112,7 @@ export function RetentionPeriodSelect({
         className="flex h-[32px] w-full cursor-pointer items-center rounded-[10px] border border-[var(--sui-colors-neutral-b0)]/20 bg-white pl-[10px] pr-[6px] text-left transition-colors hover:bg-[var(--sui-colors-neutral-b4)]/30"
       >
         <span className="flex-1 truncate text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b0)]">
-          {selected.label}
+          {retentionDaysLabel(productKey, value)}
         </span>
         <span className="flex h-[24px] w-[24px] items-center justify-center text-[var(--sui-colors-neutral-b1)]">
           <CaretDownMd width={16} height={16} fill="currentColor" aria-hidden focusable={false} />
@@ -65,18 +122,18 @@ export function RetentionPeriodSelect({
       {open && (
         <div
           role="listbox"
-          className="absolute right-0 top-[calc(100%+4px)] z-50 w-[222px] rounded-[10px] border border-[var(--sui-colors-neutral-b0)]/20 bg-white py-2 shadow-[0_10px_10px_rgba(0,0,0,0.2)]"
+          className="absolute right-0 top-[calc(100%+4px)] z-50 w-[222px] rounded-[10px] border border-[var(--sui-colors-neutral-b0)]/20 bg-white pt-2 shadow-[0_10px_10px_rgba(0,0,0,0.2)]"
         >
-          {RETENTION_PERIODS.map((p) => {
-            const isSelected = p.value === value;
+          {options.map((d) => {
+            const isSelected = d === value;
             return (
-              <div key={p.value} className="px-2">
+              <div key={d} className="px-2">
                 <button
                   type="button"
                   role="option"
                   aria-selected={isSelected}
                   onClick={() => {
-                    onChange(p.value);
+                    onChange(d);
                     setOpen(false);
                   }}
                   className="flex min-h-[40px] w-full cursor-pointer items-center rounded-[10px] px-2 py-2.5 text-left hover:bg-[var(--sui-colors-neutral-b4)]/40"
@@ -90,12 +147,24 @@ export function RetentionPeriodSelect({
                     />
                   </span>
                   <span className="flex-1 truncate text-[13px] font-medium leading-[19px] text-[var(--sui-colors-neutral-b0)]">
-                    {p.menuLabel}
+                    {retentionDaysLabel(productKey, d)}
                   </span>
                 </button>
               </div>
             );
           })}
+          <div className="mt-1 border-t border-[var(--sui-colors-neutral-b4)]">
+            <button
+              type="button"
+              onClick={() => {
+                setOpen(false);
+                onSetCustom();
+              }}
+              className="flex min-h-[44px] w-full cursor-pointer items-center justify-center rounded-b-[10px] px-2 text-[15px] font-medium leading-[20px] text-[var(--sui-colors-primary-b)] hover:bg-[var(--sui-colors-neutral-b4)]/40"
+            >
+              Set custom
+            </button>
+          </div>
         </div>
       )}
     </div>
@@ -103,71 +172,72 @@ export function RetentionPeriodSelect({
 }
 
 /* -----------------------------------------------------------------------------
- * Manage AI features dialog — Figma 1969-7046 / 2015-10201
- *
- * Retention is always on (account preconfigured) — the dialog only lets the
- * admin change the Custom storage duration. Save is dirty-aware.
+ * "Set AI data custom retention period for <Product>" dialog — Dialog-rp4.
+ * Number input limited to the product's min–max range; Apply is disabled
+ * until a valid value is entered.
  * --------------------------------------------------------------------------- */
-export function ManageAiFeaturesDialog({
-  open, initialPeriod, onCancel, onSave,
+export function SetCustomRetentionDialog({
+  open, productKey, initialDays, onCancel, onApply,
 }: {
   open: boolean;
-  initialPeriod: AiRetentionPeriod;
+  productKey: AiRetentionProductKey | null;
+  initialDays?: number;
   onCancel: () => void;
-  onSave: (next: { period: AiRetentionPeriod }) => void;
+  onApply: (days: number) => void;
 }) {
-  const [period, setPeriod] = React.useState<AiRetentionPeriod>(initialPeriod);
+  const [raw, setRaw] = React.useState('');
   React.useEffect(() => {
-    if (open) setPeriod(initialPeriod);
-  }, [open, initialPeriod]);
-  if (!open) return null;
-  const dirty = period !== initialPeriod;
+    if (open) setRaw('');
+  }, [open, productKey]);
+  if (!open || !productKey) return null;
+  const product = productFor(productKey);
+  const parsed = /^\d+$/.test(raw.trim()) ? Number(raw.trim()) : NaN;
+  const valid = Number.isInteger(parsed) && parsed >= product.minDays && parsed <= product.maxDays;
+  const showError = raw.trim() !== '' && !valid;
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/40 pt-24">
+    <div className="fixed inset-0 z-[60] flex items-start justify-center bg-black/40 pt-24">
       <div className="absolute inset-0" onClick={onCancel} aria-hidden="true" />
       <div
         role="dialog"
         aria-modal="true"
-        aria-labelledby="manage-ai-features-title"
-        className="relative z-10 flex w-[820px] max-w-[calc(100%-32px)] flex-col rounded-[10px] bg-white shadow-[0_10px_10px_rgba(0,0,0,0.2)]"
+        aria-labelledby="set-custom-retention-title"
+        className="relative z-10 flex w-[620px] max-w-[calc(100%-32px)] flex-col rounded-[10px] bg-white shadow-[0_10px_10px_rgba(0,0,0,0.2)]"
       >
         <div className="flex flex-col gap-8 px-6 pb-10 pt-9">
-          <div className="flex flex-col gap-6">
-            <div className="flex items-start py-3">
-              <h2
-                id="manage-ai-features-title"
-                className="flex-1 text-[24px] font-normal leading-[32px] text-[var(--sui-colors-neutral-b0)]"
-              >
-                Manage AI features
-              </h2>
-            </div>
-            <div className="flex flex-col gap-2">
-              <p className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b2)]">
-                Feature settings
+          <div className="flex items-start py-3">
+            <h2
+              id="set-custom-retention-title"
+              className="flex-1 text-[24px] font-normal leading-[32px] text-[var(--sui-colors-neutral-b0)]"
+            >
+              Set AI data custom retention period
+              <br />
+              for {product.title}
+            </h2>
+          </div>
+          <div className="flex flex-col gap-3">
+            <p className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+              Enter a retention period between {product.minDays} and {product.maxDays} days.
+            </p>
+            <input
+              type="text"
+              inputMode="numeric"
+              value={raw}
+              onChange={(e) => setRaw(e.target.value)}
+              placeholder="Enter number of days"
+              aria-label="Number of days"
+              aria-invalid={showError}
+              className={cn(
+                'h-[40px] w-[320px] rounded-[10px] border bg-white px-3 text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b0)] outline-none placeholder:text-[var(--sui-colors-neutral-b2)]',
+                showError
+                  ? 'border-[var(--sui-colors-danger-b)]'
+                  : 'border-[var(--sui-colors-neutral-b0)]/20 focus:border-[var(--sui-colors-primary-b)]',
+              )}
+            />
+            {showError && (
+              <p className="text-[13px] font-normal leading-[18px] text-[var(--sui-colors-danger-b)]">
+                Enter a number between {product.minDays} and {product.maxDays}.
               </p>
-              <div className="flex flex-col gap-4 rounded-[8px] border border-[var(--sui-colors-neutral-b4)] p-4">
-                <div className="flex w-full flex-col items-start justify-center gap-1">
-                  <div className="flex min-h-[32px] w-full items-center gap-4">
-                    <p className="flex-1 text-[15px] font-bold leading-[20px] text-[var(--sui-colors-neutral-b1)]">
-                      AI data custom retention period
-                    </p>
-                    <RetentionPeriodSelect value={period} onChange={setPeriod} />
-                  </div>
-                  <div className="flex w-full items-center pr-[130px]">
-                    <p className="flex-1 text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b2)]">
-                      Set custom AI-specific storage period including Call notes and transcriptions.{' '}
-                      <a
-                        href="#"
-                        onClick={(e) => e.preventDefault()}
-                        className="text-[var(--sui-colors-primary-b)] underline"
-                      >
-                        Learn more
-                      </a>
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
+            )}
           </div>
         </div>
         <div className="flex w-full items-start justify-end overflow-clip border-t border-[#DDDFE5]/50 px-6 pt-5">
@@ -182,7 +252,107 @@ export function ManageAiFeaturesDialog({
               </button>
               <button
                 type="button"
-                onClick={() => onSave({ period })}
+                onClick={() => valid && onApply(parsed)}
+                disabled={!valid}
+                className={cn(
+                  'inline-flex h-[36px] min-w-[60px] items-center justify-center rounded-[10px] px-4 text-[15px] font-medium leading-[20px] text-white transition-colors',
+                  valid
+                    ? 'cursor-pointer bg-[var(--sui-colors-primary-b)] hover:bg-[var(--sui-colors-primary-b-high-contrast)]'
+                    : 'cursor-not-allowed bg-[var(--sui-colors-neutral-b3)]',
+                )}
+              >
+                Apply
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* -----------------------------------------------------------------------------
+ * Manage AI data custom retention period dialog — Dialog-rp2/rp6.
+ * One card per product with its own retention select. Save is dirty-aware.
+ * --------------------------------------------------------------------------- */
+export function ManageAiFeaturesDialog({
+  open, initialRetention, onCancel, onSave,
+}: {
+  open: boolean;
+  initialRetention: AiCustomRetention;
+  onCancel: () => void;
+  onSave: (next: AiCustomRetention) => void;
+}) {
+  const [retention, setRetention] = React.useState<AiCustomRetention>(initialRetention);
+  const [customFor, setCustomFor] = React.useState<AiRetentionProductKey | null>(null);
+  React.useEffect(() => {
+    if (open) setRetention(initialRetention);
+  }, [open, initialRetention]);
+  if (!open) return null;
+  const dirty = RETENTION_PRODUCTS.some((p) => retention[p.key] !== initialRetention[p.key]);
+  return (
+    <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/40 pt-16">
+      <div className="absolute inset-0" onClick={onCancel} aria-hidden="true" />
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="manage-ai-retention-title"
+        className="relative z-10 flex w-[880px] max-w-[calc(100%-32px)] flex-col rounded-[10px] bg-white shadow-[0_10px_10px_rgba(0,0,0,0.2)]"
+      >
+        <div className="flex flex-col gap-6 px-6 pb-8 pt-9">
+          <div className="flex flex-col gap-4">
+            <div className="flex items-start py-3">
+              <h2
+                id="manage-ai-retention-title"
+                className="flex-1 text-[24px] font-normal leading-[32px] text-[var(--sui-colors-neutral-b0)]"
+              >
+                Manage AI data custom retention period
+              </h2>
+            </div>
+            <p className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b2)]">
+              Set how long AI-generated data is retained across supported AI features. This data
+              is permanently deleted after the selected period.
+            </p>
+          </div>
+          <div className="flex flex-col gap-4">
+            {RETENTION_PRODUCTS.map((p) => (
+              <div
+                key={p.key}
+                className="flex flex-col gap-1 rounded-[8px] border border-[var(--sui-colors-neutral-b4)] p-4"
+              >
+                <div className="flex min-h-[32px] w-full items-center gap-4">
+                  <p className="flex-1 text-[15px] font-bold leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                    {p.title}
+                  </p>
+                  <RetentionPeriodSelect
+                    productKey={p.key}
+                    value={retention[p.key]}
+                    onChange={(days) => setRetention((r) => ({ ...r, [p.key]: days }))}
+                    onSetCustom={() => setCustomFor(p.key)}
+                  />
+                </div>
+                <div className="flex w-full items-center pr-[216px]">
+                  <p className="flex-1 text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b2)]">
+                    {p.description}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="flex w-full items-start justify-end overflow-clip border-t border-[#DDDFE5]/50 px-6 pt-5">
+          <div className="flex flex-1 items-center justify-end">
+            <div className="flex items-center gap-2 pb-5">
+              <button
+                type="button"
+                onClick={onCancel}
+                className="inline-flex h-[36px] min-w-[60px] cursor-pointer items-center justify-center rounded-[10px] border border-[var(--sui-colors-neutral-b0)]/20 bg-white px-4 text-[15px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b0)] transition-colors hover:bg-[var(--sui-colors-neutral-b4)]/40"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => onSave(retention)}
                 disabled={!dirty}
                 className={cn(
                   'inline-flex h-[36px] min-w-[60px] items-center justify-center rounded-[10px] px-4 text-[15px] font-medium leading-[20px] text-white transition-colors',
@@ -196,13 +366,23 @@ export function ManageAiFeaturesDialog({
             </div>
           </div>
         </div>
+
+        <SetCustomRetentionDialog
+          open={customFor !== null}
+          productKey={customFor}
+          onCancel={() => setCustomFor(null)}
+          onApply={(days) => {
+            if (customFor) setRetention((r) => ({ ...r, [customFor]: days }));
+            setCustomFor(null);
+          }}
+        />
       </div>
     </div>
   );
 }
 
 /* -----------------------------------------------------------------------------
- * Retention change confirm dialog — Figma 2030-40238. Shown only when the new
+ * Retention change confirm dialog — Figma 2030-40238. Shown only when a new
  * period is shorter than the current one (data-loss risk).
  * --------------------------------------------------------------------------- */
 export function RetentionConfirmDialog({
