@@ -363,7 +363,7 @@ export function SettingCard({
         ) : null}
 
         {summary && summary.length > 0 && summaryHeading && (
-          <div className="mt-2 flex w-full flex-col gap-2">
+          <div className="mt-2 flex w-full flex-col gap-2 border-t border-[var(--sui-colors-neutral-b4)] pt-4">
             <div className="flex w-full items-center justify-between gap-4">
               <p className="flex-1 text-[15px] font-bold leading-[20px] text-[var(--sui-colors-neutral-b1)]">
                 {summaryHeading}
