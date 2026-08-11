@@ -257,6 +257,41 @@ export default function AiPanel() {
   const [subDisableKey, setSubDisableKey] = useState<SubKey | null>(null);
   const [subEnableKey, setSubEnableKey] = useState<SubKey | null>(null);
 
+  // Upward cascade: a child's user default can't be On while a parent's user
+  // default is Off (Closed captioning → Live transcripts → Call notes). Instead
+  // of disabling the choice, we confirm turning the parents' defaults on too.
+  const [upPending, setUpPending] = useState<{
+    key: SubKey;
+    parentsOff: SubKey[];
+    payload: Partial<{ on: boolean; defaultVal: 'On' | 'Off'; allowChange: boolean; customUsers: number }>;
+    toastMsg: string;
+  } | null>(null);
+
+  /** Parents (in the CC → LT → Call notes chain) whose user default is Off. */
+  const parentsWithDefaultOff = (key: SubKey): SubKey[] => {
+    const parents: SubKey[] =
+      key === 'aiNotes' ? ['closedCaptioning', 'liveTranscripts']
+      : key === 'liveTranscripts' ? ['closedCaptioning']
+      : [];
+    return parents.filter((p) => state.ai[p].defaultVal === 'Off');
+  };
+
+  const commitUpCascade = () => {
+    if (!upPending) return;
+    // One CASCADE dispatch: the child gets its full payload, each Off parent
+    // gets its user default turned On — a single Undo reverts everything.
+    dispatch({
+      type: 'CASCADE_AI_FEATURE',
+      key: upPending.key,
+      childKeys: upPending.parentsOff,
+      payload: upPending.payload,
+      childPayload: { defaultVal: 'On' },
+    });
+    const msg = upPending.toastMsg;
+    setUpPending(null);
+    showToast(msg, () => dispatch({ type: 'UNDO' }));
+  };
+
   // Pending period awaiting the shorter-period confirm dialog.
   const [pending, setPending] = useState<{ period: AiRetentionPeriod } | null>(null);
   const [aiChangeConfirmOpen, setAiChangeConfirmOpen] = useState(false);
@@ -378,16 +413,23 @@ export default function AiPanel() {
   ) => {
     if (!subEnableKey) return;
     const key = subEnableKey;
-    dispatch({
-      type: 'PATCH_AI_FEATURE',
-      key,
-      payload: {
-        on: true,
-        defaultVal: result.defaultVal,
-        allowChange: result.allowChange,
-        customUsers: result.customAction === 'reset' ? 0 : state.ai[key].customUsers,
-      },
-    });
+    const payload = {
+      on: true,
+      defaultVal: result.defaultVal,
+      allowChange: result.allowChange,
+      customUsers: result.customAction === 'reset' ? 0 : state.ai[key].customUsers,
+    };
+    // Child default On while a parent default is Off — confirm turning the
+    // parents' user defaults on together.
+    if (result.defaultVal === 'On') {
+      const parentsOff = parentsWithDefaultOff(key);
+      if (parentsOff.length > 0) {
+        setUpPending({ key, parentsOff, payload, toastMsg: `${labelFor(key)} turned on` });
+        setSubEnableKey(null);
+        return;
+      }
+    }
+    dispatch({ type: 'PATCH_AI_FEATURE', key, payload });
     setSubEnableKey(null);
     showToast(`${labelFor(key)} turned on`, () => dispatch({ type: 'UNDO' }));
   };
@@ -405,6 +447,21 @@ export default function AiPanel() {
       if (result.defaultVal === 'Off') setLtDefaultOffConfirm(true);
       else setLtRestrictConfirm(true);
       return;
+    }
+    // Child default On while a parent default is Off — confirm turning the
+    // parents' user defaults on together.
+    if (result.defaultVal === 'On') {
+      const parentsOff = parentsWithDefaultOff(key);
+      if (parentsOff.length > 0) {
+        setUpPending({
+          key,
+          parentsOff,
+          payload: { defaultVal: result.defaultVal, allowChange: result.allowChange },
+          toastMsg: 'Settings were updated.',
+        });
+        setSubManageKey(null);
+        return;
+      }
     }
     dispatch({
       type: 'PATCH_AI_FEATURE',
@@ -1207,6 +1264,38 @@ export default function AiPanel() {
           subEnableKey === 'liveTranscripts' ||
           subEnableKey === 'aiNotes'
         }
+      />
+
+      {/* Upward cascade confirm — child user default On while a parent's user
+          default is Off (CC → Live transcripts → Call notes). */}
+      <SpringConfirmDialog
+        open={upPending !== null}
+        confirmLabel="Turn all on"
+        title={
+          upPending ? (
+            <>Turn on the user default for {upPending.parentsOff.length === 1 ? 'both features' : 'all features'}?</>
+          ) : null
+        }
+        body={
+          upPending ? (
+            <p>
+              The user default for{' '}
+              {upPending.parentsOff.map((p, i) => (
+                <React.Fragment key={p}>
+                  {i > 0 && ' and '}
+                  <span className="font-bold">{labelFor(p)}</span>
+                </React.Fragment>
+              ))}{' '}
+              is set to off. <span className="font-bold">{labelFor(upPending.key)}</span> works for a
+              user only when {upPending.parentsOff.length === 1 ? 'that feature is' : 'those features are'} on.
+              To set the user default for <span className="font-bold">{labelFor(upPending.key)}</span> to
+              on, we&apos;ll also turn on the user default for{' '}
+              {upPending.parentsOff.length === 1 ? 'that feature' : 'those features'}.
+            </p>
+          ) : null
+        }
+        onCancel={() => setUpPending(null)}
+        onConfirm={commitUpCascade}
       />
     </div>
   );
