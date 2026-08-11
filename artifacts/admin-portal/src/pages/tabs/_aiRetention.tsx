@@ -47,7 +47,7 @@ export const RETENTION_PRODUCTS: ReadonlyArray<{
     ),
     defaultDays: 90,
     minDays: 7,
-    maxDays: 365,
+    maxDays: 90,
   },
   {
     key: 'ringcx',
@@ -95,8 +95,13 @@ export function RetentionPeriodSelect({
 }) {
   const [open, setOpen] = React.useState(false);
   const ref = React.useRef<HTMLDivElement>(null);
-  const isCustom = !RETENTION_PRESET_DAYS.includes(value);
-  const options: number[] = isCustom ? [value, ...RETENTION_PRESET_DAYS] : [...RETENTION_PRESET_DAYS];
+  const product = productFor(productKey);
+  // Presets outside the product's allowed range are not offered.
+  const presets = RETENTION_PRESET_DAYS.filter(
+    (d) => d >= product.minDays && d <= product.maxDays,
+  );
+  const isCustom = !presets.includes(value);
+  const options: number[] = isCustom ? [value, ...presets] : [...presets];
 
   React.useEffect(() => {
     if (!open) return;
