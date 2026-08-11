@@ -321,7 +321,7 @@ export function AvaManageRestrictAccessConfirm({
 /* -----------------------------------------------------------------------------
  * ClosedCaptioningDisableConfirm (Figma 2495-9886) — width 720, simple body.
  * Turning off the Closed captioning parent also turns off its 2 dependent
- * features (Live transcripts, AI notes).
+ * features (Live transcripts, Call notes).
  * --------------------------------------------------------------------------- */
 export function ClosedCaptioningDisableConfirm({
   open, onCancel, onConfirm,
@@ -340,7 +340,7 @@ export function ClosedCaptioningDisableConfirm({
           </p>
           <p>
             <span className="font-bold">Live transcripts</span> and{' '}
-            <span className="font-bold">AI notes</span> will also be turned off.
+            <span className="font-bold">Call notes</span> will also be turned off.
           </p>
         </div>
       </div>
@@ -353,7 +353,7 @@ export function ClosedCaptioningDisableConfirm({
  * ClosedCaptioningManageDefaultOffConfirm — width 600, simple body. Shown when
  * the Manage Closed captioning dialog is saved with the user default set to Off.
  * Because Closed captioning is a parent, defaulting it off also defaults its 2
- * dependent features (Live transcripts, AI notes) off in user settings. Mirrors
+ * dependent features (Live transcripts, Call notes) off in user settings. Mirrors
  * AvaManageDefaultOffConfirm.
  * --------------------------------------------------------------------------- */
 export function ClosedCaptioningManageDefaultOffConfirm({
@@ -372,7 +372,7 @@ export function ClosedCaptioningManageDefaultOffConfirm({
           </p>
           <p>
             <span className="font-bold">Live transcripts</span> and{' '}
-            <span className="font-bold">AI notes</span> will also default to off.
+            <span className="font-bold">Call notes</span> will also default to off.
           </p>
         </div>
       </div>
@@ -404,7 +404,7 @@ export function ClosedCaptioningManageRestrictAccessConfirm({
           </p>
           <p>
             This restriction will also apply to <span className="font-bold">Live transcripts</span>{' '}
-            and <span className="font-bold">AI notes</span>
+            and <span className="font-bold">Call notes</span>
           </p>
         </div>
       </div>
@@ -529,7 +529,7 @@ export function AssistantManageDefaultOffConfirm({
 }
 
 /* -----------------------------------------------------------------------------
- * Generic feature dialogs (Closed captioning, Live transcripts, AI notes, …)
+ * Generic feature dialogs (Closed captioning, Live transcripts, Call notes, …)
  * — same chrome as the AI Assistant equivalents, just parameterized by the
  * feature label so they can be reused across all simple user-level sub-features.
  * --------------------------------------------------------------------------- */

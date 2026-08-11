@@ -172,7 +172,7 @@ export function FeatureDisableConfirmDialog({
 /* -----------------------------------------------------------------------------
  * Generic feature "Turn on" confirm — same chrome as the AI Assistant variant
  * but parameterized by featureName. Used for Closed captioning, Live
- * transcripts, AI notes, etc.
+ * transcripts, Call notes, etc.
  * (Figma e.g. node 2039-41662 for Closed captioning.)
  * --------------------------------------------------------------------------- */
 export function FeatureEnableConfirmDialog({

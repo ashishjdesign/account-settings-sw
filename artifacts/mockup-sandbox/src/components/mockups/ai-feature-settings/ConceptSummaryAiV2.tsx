@@ -33,7 +33,7 @@ const SpringIcon = ({ as: Cmp }: { as: IconCmp }) => (
  *
  * Mirrors the redesigned admin-portal AI tab:
  *   AI features (master), AI Assistant
- *   Phone group:  Closed captioning, Live transcripts, AI notes, AI voicemail summaries
+ *   Phone group:  Closed captioning, Live transcripts, Call notes, AI voicemail summaries
  *   Chat group:   AI writer for messaging, AI summary, AI translation
  *   SMS group:    AI writer for SMS
  *
@@ -114,7 +114,7 @@ export function ConceptSummaryAiV2() {
         <div className="spring-scope">
           <SpringDialog open={modal === 'ai-features'} title="Manage AI features" onClose={close}>
             <SubRow>
-              <LabelWithInfo>AI notes and transcriptions retention period</LabelWithInfo>
+              <LabelWithInfo>Call notes and transcriptions retention period</LabelWithInfo>
               <SpringSelect value="Disabled" width={200} />
             </SubRow>
           </SpringDialog>
@@ -122,7 +122,7 @@ export function ConceptSummaryAiV2() {
             [
               ['closed-captioning', 'Closed captioning'],
               ['live-transcripts', 'Live transcripts'],
-              ['ai-notes', 'AI notes'],
+              ['ai-notes', 'Call notes'],
               ['ai-voicemail-summaries', 'AI voicemail summaries'],
               ['ai-writer-messaging', 'AI writer for messaging'],
               ['ai-summary', 'AI summary'],
@@ -184,7 +184,7 @@ export function ConceptSummaryAiV2() {
           onManage={() => setModal('live-transcripts')}
         />
         <SettingCard
-          title="AI notes"
+          title="Call notes"
           icon={<SpringIcon as={SmartNotesMd} />}
           switchOn
           description="Generate call notes automatically for all your devices."

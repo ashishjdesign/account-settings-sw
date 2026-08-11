@@ -98,7 +98,7 @@ export function ConceptSummaryAiV2AssistantManage() {
           ]}
         />
         <SettingCard
-          title="AI notes"
+          title="Call notes"
           icon={<SpringIcon as={SmartNotesMd} />}
           switchOn
           description="Generate call notes automatically for all your devices."

@@ -68,7 +68,7 @@ const CHILDREN: Feature[] = [
     description: 'Provides real-time AI-generated call transcripts.',
   },
   {
-    title: 'AI notes',
+    title: 'Call notes',
     icon: SmartNotesMd,
     description: 'Generate call notes automatically for all your devices.',
   },
@@ -296,7 +296,7 @@ export function ConceptSummaryAiV2ClosedCaptioningDetail({
             customUsersCount={26}
           />
           {/* Cascade confirmation — Closed captioning defaulted off for users
-           * also defaults its dependents (Live transcripts, AI notes) off. */}
+           * also defaults its dependents (Live transcripts, Call notes) off. */}
           <ClosedCaptioningManageDefaultOffConfirm
             open={defaultOffConfirmOpen}
             onCancel={() => {

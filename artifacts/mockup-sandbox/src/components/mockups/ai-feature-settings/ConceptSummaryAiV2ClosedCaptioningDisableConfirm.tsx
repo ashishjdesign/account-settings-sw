@@ -7,7 +7,7 @@ import { ConceptSummaryAiV2ClosedCaptioningDetail } from './ConceptSummaryAiV2Cl
  * Standalone canvas frame documenting the "Turn off Closed captioning for your
  * organization?" modal. It renders the Closed captioning detail inner page with
  * the confirmation open on mount. Confirming turns Closed captioning off and
- * hides its 2 dependent features (Live transcripts, AI notes); cancelling
+ * hides its 2 dependent features (Live transcripts, Call notes); cancelling
  * dismisses the dialog and leaves Closed captioning on. The full interaction
  * lives in ConceptSummaryAiV2ClosedCaptioningDetail.
  * --------------------------------------------------------------------------- */

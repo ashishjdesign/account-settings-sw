@@ -98,7 +98,7 @@ export function Concept() {
           description="A personal AI virtual assistant that helps you boost productivity."
         >
           <SubRow>
-            <LabelWithInfo>AI notes and transcriptions retention period</LabelWithInfo>
+            <LabelWithInfo>Call notes and transcriptions retention period</LabelWithInfo>
             <SpringSelect value="365 days (Default)" width={200} />
           </SubRow>
           <UserDefaultsRow />

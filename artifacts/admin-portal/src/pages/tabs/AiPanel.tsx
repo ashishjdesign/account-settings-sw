@@ -94,7 +94,7 @@ const CC_CHILDREN: { key: Exclude<AiFeatureKey, 'aiAssistant'>; title: string; i
   },
   {
     key: 'aiNotes',
-    title: 'AI notes',
+    title: 'Call notes',
     icon: SmartNotesMd,
     description: 'Generate call notes automatically for all your devices.',
   },
@@ -115,7 +115,7 @@ const PHONE_ITEMS: FeatureItem[] = [
   },
   {
     key: 'aiNotes',
-    title: 'AI notes',
+    title: 'Call notes',
     icon: <SpringIcon as={SmartNotesMd} />,
     description: 'Generate call notes automatically for all your devices.',
   },
@@ -239,16 +239,16 @@ export default function AiPanel() {
   const [avaRestrictConfirm, setAvaRestrictConfirm] = useState(false);
   // Closed captioning Manage mirrors AVA: saving the CC parent with "User
   // default: Off" or "User access: Restricted" first asks the admin to confirm
-  // the change will also cascade to its dependents (Live transcripts, AI notes).
+  // the change will also cascade to its dependents (Live transcripts, Call notes).
   const [ccManageOpen, setCcManageOpen] = useState(false);
   const [ccPending, setCcPending] = useState<
     { defaultVal: 'On' | 'Off'; allowChange: boolean } | null
   >(null);
   const [ccDefaultOffConfirm, setCcDefaultOffConfirm] = useState(false);
   const [ccRestrictConfirm, setCcRestrictConfirm] = useState(false);
-  // Live transcripts is now a parent of AI notes, so saving its Manage dialog
+  // Live transcripts is now a parent of Call notes, so saving its Manage dialog
   // with "User default: Off" or "User access: Restricted" confirms the cascade
-  // to AI notes first (mirrors the CC flow one level down).
+  // to Call notes first (mirrors the CC flow one level down).
   const [ltPending, setLtPending] = useState<
     { defaultVal: 'On' | 'Off'; allowChange: boolean } | null
   >(null);
@@ -357,7 +357,7 @@ export default function AiPanel() {
     if (!subDisableKey) return;
     const key = subDisableKey;
     if (key === 'liveTranscripts') {
-      // Live transcripts parents AI notes — turn both off in one dispatch so a
+      // Live transcripts parents Call notes — turn both off in one dispatch so a
       // single Undo restores them together (matches the confirm dialog copy).
       dispatch({
         type: 'CASCADE_AI_FEATURE',
@@ -397,8 +397,8 @@ export default function AiPanel() {
   ) => {
     if (!subManageKey) return;
     const key = subManageKey;
-    // Live transcripts parents AI notes: default Off / Restricted cascades to
-    // AI notes, so confirm before committing.
+    // Live transcripts parents Call notes: default Off / Restricted cascades to
+    // Call notes, so confirm before committing.
     if (key === 'liveTranscripts' && (result.defaultVal === 'Off' || !result.allowChange)) {
       setLtPending(result);
       setSubManageKey(null);
@@ -416,7 +416,7 @@ export default function AiPanel() {
   };
 
   // Commit Live transcripts' deployment config and cascade the restrictive
-  // state down to AI notes in one dispatch so a single Undo reverts both.
+  // state down to Call notes in one dispatch so a single Undo reverts both.
   const commitLtManage = (
     result: { defaultVal: 'On' | 'Off'; allowChange: boolean },
   ) => {
@@ -532,7 +532,7 @@ export default function AiPanel() {
   };
 
   // Commit Closed captioning's own deployment config and cascade the restrictive
-  // state down to its dependents (Live transcripts, AI notes): a parent default
+  // state down to its dependents (Live transcripts, Call notes): a parent default
   // of Off forces every child's user default to Off, and restricting parent user
   // access restricts every child too. (Turning the parent back On/Allowed leaves
   // children untouched.) Done as one CASCADE_AI_FEATURE dispatch so a single
@@ -747,7 +747,7 @@ export default function AiPanel() {
       )}
 
       {/* Phone AI detail — two cards. Card 1: Closed captioning (fully wired)
-       * with nested Live transcripts + AI notes. Card 2: AI voicemail
+       * with nested Live transcripts + Call notes. Card 2: AI voicemail
        * summaries, a separate independent feature. */}
       {page === 'phoneAi' && (
         <FeatureDetailPage title="Phone AI" onBack={backToMain}>
@@ -765,7 +765,7 @@ export default function AiPanel() {
                     CC_CHILDREN[0].title,
                     CC_CHILDREN[0].description,
                     true,
-                    // AI notes is Live transcripts' dependent — nested one
+                    // Call notes is Live transcripts' dependent — nested one
                     // level deeper (36px indent via the content column).
                     state.ai.liveTranscripts.on && masterOn
                       ? renderWiredDetailRow(
@@ -913,7 +913,7 @@ export default function AiPanel() {
       />
 
       {/* Sub-feature (Phone / Chat) Manage dialog.
-          CC, Live transcripts, and AI notes always allow users to manage their
+          CC, Live transcripts, and Call notes always allow users to manage their
           own setting — the checkbox is locked checked+disabled for those keys. */}
       <SpringFeatureManageDialog
         open={subManageKey !== null}
@@ -1022,7 +1022,7 @@ export default function AiPanel() {
             </p>
             <p>
               <span className="font-bold">Live transcripts</span> and{' '}
-              <span className="font-bold">AI notes</span> will also default to off.
+              <span className="font-bold">Call notes</span> will also default to off.
             </p>
           </>
         }
@@ -1054,7 +1054,7 @@ export default function AiPanel() {
             <p>
               This restriction will also apply to{' '}
               <span className="font-bold">Live transcripts</span> and{' '}
-              <span className="font-bold">AI notes</span>.
+              <span className="font-bold">Call notes</span>.
             </p>
           </>
         }
@@ -1079,7 +1079,7 @@ export default function AiPanel() {
               settings.
             </p>
             <p>
-              <span className="font-bold">AI notes</span> will also default to off.
+              <span className="font-bold">Call notes</span> will also default to off.
             </p>
           </>
         }
@@ -1109,7 +1109,7 @@ export default function AiPanel() {
               <span className="font-bold">Live transcripts</span>.
             </p>
             <p>
-              This restriction will also apply to <span className="font-bold">AI notes</span>.
+              This restriction will also apply to <span className="font-bold">Call notes</span>.
             </p>
           </>
         }
@@ -1177,12 +1177,12 @@ export default function AiPanel() {
             {subDisableKey === 'closedCaptioning' && (
               <p>
                 <span className="font-bold">Live transcripts</span> and{' '}
-                <span className="font-bold">AI notes</span> will also be turned off.
+                <span className="font-bold">Call notes</span> will also be turned off.
               </p>
             )}
             {subDisableKey === 'liveTranscripts' && (
               <p>
-                <span className="font-bold">AI notes</span> will also be turned off.
+                <span className="font-bold">Call notes</span> will also be turned off.
               </p>
             )}
           </>
@@ -1192,7 +1192,7 @@ export default function AiPanel() {
       />
 
       {/* Sub-feature Turn on confirm.
-          CC, Live transcripts, and AI notes always allow users to manage their
+          CC, Live transcripts, and Call notes always allow users to manage their
           own setting — the checkbox is locked checked+disabled for those keys. */}
       <FeatureEnableConfirmDialog
         open={subEnableKey !== null}

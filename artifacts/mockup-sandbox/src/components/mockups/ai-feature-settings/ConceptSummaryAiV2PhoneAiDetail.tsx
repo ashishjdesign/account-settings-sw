@@ -26,7 +26,7 @@ import {
  * master-ON AI tab (ConceptSummaryAiV2OnPartial). The Phone AI page groups the
  * phone-related AI features into two bordered cards:
  *   Card 1: Closed captioning (parent) with Live transcripts nested INSIDE its
- *           content column, and AI notes nested one level deeper as a
+ *           content column, and Call notes nested one level deeper as a
  *           dependent of Live transcripts (36px left indent).
  *   Card 2: AI voicemail summaries — an independent, top-level feature.
  *
@@ -60,7 +60,7 @@ const CAPTIONING: Feature = {
   description: 'Uses AI to display real-time captions during phone calls.',
 };
 
-/* Live transcripts is Closed captioning's direct dependent; AI notes is now a
+/* Live transcripts is Closed captioning's direct dependent; Call notes is now a
  * dependent of Live transcripts (nested one level deeper). */
 const LIVE_TRANSCRIPTS: Feature = {
   title: 'Live transcripts',
@@ -69,7 +69,7 @@ const LIVE_TRANSCRIPTS: Feature = {
 };
 
 const AI_NOTES: Feature = {
-  title: 'AI notes',
+  title: 'Call notes',
   icon: SmartNotesMd,
   description: 'Generate call notes automatically for all your devices.',
 };
@@ -200,7 +200,7 @@ export function ConceptSummaryAiV2PhoneAiDetail({
 
   /* Live transcripts cascade dialogs — turning LT off (or saving its Manage
    * dialog with default Off / access Restricted) also affects its dependent,
-   * AI notes, so each path confirms first. */
+   * Call notes, so each path confirms first. */
   const [ltDisableConfirmOpen, setLtDisableConfirmOpen] = React.useState(false);
   const [pendingLt, setPendingLt] = React.useState<Deploy | null>(null);
   const [ltDefaultOffConfirmOpen, setLtDefaultOffConfirmOpen] = React.useState(false);
@@ -227,16 +227,16 @@ export function ConceptSummaryAiV2PhoneAiDetail({
     if (next) {
       setChildOn((prev) => ({ ...prev, [title]: true }));
     } else if (title === LIVE_TRANSCRIPTS.title) {
-      /* LT off cascades to AI notes — dedicated confirm. */
+      /* LT off cascades to Call notes — dedicated confirm. */
       setLtDisableConfirmOpen(true);
     } else {
       setDisableChild(title);
     }
   };
 
-  /* Cascade Live transcripts' restrictive deployment down to AI notes: default
-   * Off forces AI notes' default to Off; restricting access restricts AI notes
-   * too. (Turning LT back On/Allowed leaves AI notes untouched.) */
+  /* Cascade Live transcripts' restrictive deployment down to Call notes: default
+   * Off forces Call notes' default to Off; restricting access restricts Call notes
+   * too. (Turning LT back On/Allowed leaves Call notes untouched.) */
   const applyLtDeploy = (next: Deploy) => {
     setChildDeploy((prev) => ({
       ...prev,
@@ -365,7 +365,7 @@ export function ConceptSummaryAiV2PhoneAiDetail({
               setPendingParent(null);
             }}
           />
-          {/* Live transcripts + AI notes — user access is always Allowed (locked) */}
+          {/* Live transcripts + Call notes — user access is always Allowed (locked) */}
           <FeatureManageDialog
             open={manageChild !== null}
             featureName={manageChild ?? ''}
@@ -389,7 +389,7 @@ export function ConceptSummaryAiV2PhoneAiDetail({
               setDisableChild(null);
             }}
           />
-          {/* Live transcripts cascade confirms — AI notes is its dependent. */}
+          {/* Live transcripts cascade confirms — Call notes is its dependent. */}
           <LiveTranscriptsDisableConfirm
             open={ltDisableConfirmOpen}
             onCancel={() => setLtDisableConfirmOpen(false)}
@@ -481,7 +481,7 @@ export function ConceptSummaryAiV2PhoneAiDetail({
             >
               {captioningOn && (
                 <div className="mt-4 flex flex-col">
-                  {/* Live transcripts — CC's dependent; AI notes nests inside
+                  {/* Live transcripts — CC's dependent; Call notes nests inside
                    * its content column (36px left indent = icon 20px + gap
                    * 16px) so it reads as LT's dependent. */}
                   <div className="flex items-start gap-4 border-t border-[var(--sui-colors-neutral-b4)] py-4">

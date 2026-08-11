@@ -113,7 +113,7 @@ export function ConceptSummaryAiV2AssistantManageDefaultOffConfirm() {
         <SectionHeading>Phone</SectionHeading>
         <SettingCard title="Closed captioning" icon={<SpringIcon as={ClosedCaptionsMd} />} switchOn description="Uses AI to display real-time captions during phone calls." summary={subRow('Closed captioning', null)} />
         <SettingCard title="Live transcripts" icon={<SpringIcon as={TranscriptMd} />} switchOn description="Provides real-time AI-generated call transcripts." summary={subRow('Live transcripts', null)} />
-        <SettingCard title="AI notes" icon={<SpringIcon as={SmartNotesMd} />} switchOn description="Generate call notes automatically for all your devices." summary={subRow('AI notes', null)} />
+        <SettingCard title="Call notes" icon={<SpringIcon as={SmartNotesMd} />} switchOn description="Generate call notes automatically for all your devices." summary={subRow('Call notes', null)} />
         <SettingCard title="AI voicemail summaries" icon={<SpringIcon as={VoicemailMd} />} switchOn description="Delivers AI-generated summaries of voicemails, including key details and follow-up items." summary={subRow('AI voicemail summaries', null)} />
 
         <SectionHeading>Chat</SectionHeading>

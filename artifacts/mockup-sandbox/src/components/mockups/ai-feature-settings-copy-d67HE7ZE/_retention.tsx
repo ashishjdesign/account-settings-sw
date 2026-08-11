@@ -198,7 +198,7 @@ export function ManageAiFeaturesDialog({
                   </div>
                   <div className="flex w-full items-center pr-[130px]">
                     <p className="flex-1 text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b2)]">
-                      Enable custom data retention to set an AI-specific storage period including AI notes and transcriptions.{' '}
+                      Enable custom data retention to set an AI-specific storage period including Call notes and transcriptions.{' '}
                       <a
                         href="#"
                         onClick={(e) => e.preventDefault()}

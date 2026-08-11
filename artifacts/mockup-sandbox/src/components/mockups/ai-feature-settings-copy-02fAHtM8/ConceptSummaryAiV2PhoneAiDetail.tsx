@@ -23,7 +23,7 @@ import {
  * master-ON AI tab (ConceptSummaryAiV2OnPartial). The Phone AI page groups the
  * phone-related AI features into two bordered cards:
  *   Card 1: Closed captioning (parent) with its 2 dependent features (Live
- *           transcripts, AI notes) nested INSIDE its content column.
+ *           transcripts, Call notes) nested INSIDE its content column.
  *   Card 2: AI voicemail summaries — an independent, top-level feature.
  *
  * This is an ARCHITECTURE-only regrouping: the per-feature management UX
@@ -63,7 +63,7 @@ const CAPTIONING_CHILDREN: Feature[] = [
     description: 'Provides real-time AI-generated call transcripts.',
   },
   {
-    title: 'AI notes',
+    title: 'Call notes',
     icon: SmartNotesMd,
     description: 'Generate call notes automatically for all your devices.',
   },

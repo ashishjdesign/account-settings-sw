@@ -343,7 +343,7 @@ export function AssistantManageDefaultOffConfirm({
 }
 
 /* -----------------------------------------------------------------------------
- * Generic feature dialogs (Closed captioning, Live transcripts, AI notes, …)
+ * Generic feature dialogs (Closed captioning, Live transcripts, Call notes, …)
  * — same chrome as the AI Assistant equivalents, just parameterized by the
  * feature label so they can be reused across all simple user-level sub-features.
  * --------------------------------------------------------------------------- */
