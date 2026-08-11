@@ -1270,28 +1270,25 @@ export default function AiPanel() {
           default is Off (CC → Live transcripts → Call notes). */}
       <SpringConfirmDialog
         open={upPending !== null}
-        confirmLabel="Turn all on"
-        title={
-          upPending ? (
-            <>Turn on the user default for {upPending.parentsOff.length === 1 ? 'both features' : 'all features'}?</>
-          ) : null
-        }
+        confirmLabel="Turn default on"
+        title={<>Turn on default for users?</>}
         body={
           upPending ? (
-            <p>
-              The user default for{' '}
-              {upPending.parentsOff.map((p, i) => (
-                <React.Fragment key={p}>
-                  {i > 0 && ' and '}
-                  <span className="font-bold">{labelFor(p)}</span>
-                </React.Fragment>
-              ))}{' '}
-              is set to off. <span className="font-bold">{labelFor(upPending.key)}</span> works for a
-              user only when {upPending.parentsOff.length === 1 ? 'that feature is' : 'those features are'} on.
-              To set the user default for <span className="font-bold">{labelFor(upPending.key)}</span> to
-              on, we&apos;ll also turn on the user default for{' '}
-              {upPending.parentsOff.length === 1 ? 'that feature' : 'those features'}.
-            </p>
+            <>
+              <p>
+                <span className="font-bold">{labelFor(upPending.key)}</span> will default to on in
+                user settings.
+              </p>
+              <p>
+                {upPending.parentsOff.map((p, i) => (
+                  <React.Fragment key={p}>
+                    {i > 0 && ' and '}
+                    <span className="font-bold">{labelFor(p)}</span>
+                  </React.Fragment>
+                ))}{' '}
+                will also default to on.
+              </p>
+            </>
           ) : null
         }
         onCancel={() => setUpPending(null)}
