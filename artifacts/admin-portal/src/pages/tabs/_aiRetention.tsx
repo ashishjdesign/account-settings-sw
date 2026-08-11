@@ -31,7 +31,7 @@ export const RETENTION_PRODUCTS: ReadonlyArray<{
     ),
     defaultDays: 365,
     minDays: 7,
-    maxDays: 730,
+    maxDays: 365,
   },
   {
     key: 'meetings',
@@ -63,7 +63,7 @@ export const RETENTION_PRODUCTS: ReadonlyArray<{
     ),
     defaultDays: 365,
     minDays: 7,
-    maxDays: 730,
+    maxDays: 365,
   },
 ];
 
