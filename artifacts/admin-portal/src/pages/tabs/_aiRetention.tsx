@@ -11,6 +11,8 @@ import type { AiCustomRetention, AiRetentionProductKey } from '../../store';
 export const RETENTION_PRODUCTS: ReadonlyArray<{
   key: AiRetentionProductKey;
   title: string;
+  /** Short label used in the Feature Settings card summary pills. */
+  shortLabel: string;
   description: React.ReactNode;
   defaultDays: number;
   minDays: number;
@@ -19,6 +21,7 @@ export const RETENTION_PRODUCTS: ReadonlyArray<{
   {
     key: 'ringexPhone',
     title: 'RingEX Phone Call notes and transcripts',
+    shortLabel: 'Phone',
     description: (
       <>
         Applies to Call notes and transcripts from phone calls and phone recordings. Call notes
@@ -33,6 +36,7 @@ export const RETENTION_PRODUCTS: ReadonlyArray<{
   {
     key: 'meetings',
     title: 'Meetings Call notes and transcripts',
+    shortLabel: 'Meetings',
     description: (
       <>
         Applies to Call notes and transcripts from meetings.
@@ -48,6 +52,7 @@ export const RETENTION_PRODUCTS: ReadonlyArray<{
   {
     key: 'ringcx',
     title: 'RingCX AI artifacts',
+    shortLabel: 'RingCX',
     description: (
       <>
         Applies to AI artifacts generated during RingCX sessions.

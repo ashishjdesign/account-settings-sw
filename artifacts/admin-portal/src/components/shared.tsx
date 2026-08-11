@@ -265,13 +265,17 @@ export function SpringConfirmDialog({
 type SummarySegment = { label?: string; value: string };
 
 export function SettingCard({
-  title, description, switchOn, icon, summary, onManage, disabled, info, infoTooltip, onSwitchClick, onCustomize, customUsersCount, onResetOverrides
+  title, description, switchOn, icon, summary, summaryHeading, summaryDescription, onManage, disabled, info, infoTooltip, onSwitchClick, onCustomize, customUsersCount, onResetOverrides
 }: {
   title: string;
   description: React.ReactNode;
   switchOn: boolean;
   icon?: string | React.ReactNode;
   summary?: SummarySegment[];
+  /** Optional subsection heading above the summary pills; the Manage action
+   * moves next to it (e.g. "AI data custom retention period"). */
+  summaryHeading?: string;
+  summaryDescription?: React.ReactNode;
   onManage?: () => void;
   disabled?: boolean;
   info?: boolean;
@@ -358,7 +362,43 @@ export function SettingCard({
           </div>
         ) : null}
 
-        {summary && summary.length > 0 && (
+        {summary && summary.length > 0 && summaryHeading && (
+          <div className="mt-2 flex w-full flex-col gap-2">
+            <div className="flex w-full items-center justify-between gap-4">
+              <p className="flex-1 text-[15px] font-bold leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                {summaryHeading}
+              </p>
+              {onManage && (
+                <button
+                  type="button"
+                  onClick={onManage}
+                  disabled={!switchOn || disabled}
+                  className="inline-flex h-[32px] shrink-0 cursor-pointer items-center justify-center gap-1.5 rounded-[10px] px-2 text-[14px] font-medium leading-[20px] text-[var(--sui-colors-primary-b)] transition-colors hover:bg-[var(--sui-colors-neutral-b5)] focus:outline-none focus:ring-2 focus:ring-[var(--sui-colors-primary-b)]/30 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent"
+                >
+                  Manage
+                </button>
+              )}
+            </div>
+            {summaryDescription && (
+              <p className="pr-[130px] text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b2)]">
+                {summaryDescription}
+              </p>
+            )}
+            <div className="flex min-w-0 flex-wrap items-center gap-2">
+              {summary.map((seg, i) => (
+                <div
+                  key={i}
+                  className="flex h-[32px] items-center gap-2 whitespace-nowrap rounded-[10px] bg-[var(--sui-colors-neutral-b5)] px-3 text-[14px] leading-[20px] text-[var(--sui-colors-neutral-b1)]"
+                >
+                  {seg.label && <span className="font-semibold">{seg.label}</span>}
+                  <span className="font-normal">{seg.value}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {summary && summary.length > 0 && !summaryHeading && (
           <div className="flex w-full items-center justify-between gap-4 mt-2">
             <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
               {summary.map((seg, i) => (

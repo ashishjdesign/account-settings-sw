@@ -695,7 +695,7 @@ export default function AiPanel() {
   };
 
   const retentionSummary = RETENTION_PRODUCTS.map((p) => ({
-    label: `${p.title}:`,
+    label: `${p.shortLabel}:`,
     value: retentionDaysLabel(p.key, customRetention[p.key]),
   }));
 
@@ -710,6 +710,8 @@ export default function AiPanel() {
             icon={<SpringIcon as={AiStarsMd} />}
             description="Turn on AI support for calls, messages and video meetings. Deliver real-time answers, call notes, transcripts and meeting recaps to help teams stay focused and organized. Empower users to communicate clearly with built-in writing and polishing tools."
             summary={masterOn ? retentionSummary : undefined}
+            summaryHeading="AI data custom retention period"
+            summaryDescription="Set how long AI-generated data is retained across supported AI features. This data is permanently deleted after the selected period."
             onManage={() => setManageModal('aiFeatures')}
             onSwitchClick={handleMasterToggle}
           />
