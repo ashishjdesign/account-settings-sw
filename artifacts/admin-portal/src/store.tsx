@@ -146,7 +146,7 @@ const initialState: AppState = {
   },
   ai: {
     masterOn: true,
-    customRetention: { ringexPhone: 365, meetings: 90, ringcx: 365 },
+    customRetention: { ringexPhone: 365, meetings: 365, ringcx: 365 },
     aiAssistant: {
       on: true,
       defaultVal: 'On',

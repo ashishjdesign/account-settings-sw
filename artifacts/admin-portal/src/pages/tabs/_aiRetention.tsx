@@ -45,9 +45,9 @@ export const RETENTION_PRODUCTS: ReadonlyArray<{
         deleted along with them.
       </>
     ),
-    defaultDays: 90,
+    defaultDays: 365,
     minDays: 7,
-    maxDays: 90,
+    maxDays: 365,
   },
   {
     key: 'ringcx',
