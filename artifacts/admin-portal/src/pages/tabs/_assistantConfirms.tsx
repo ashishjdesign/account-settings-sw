@@ -113,12 +113,16 @@ export function FeatureDisableConfirmDialog({
   open,
   featureName,
   dependentNote,
+  hideRestoreNote,
   onCancel,
   onConfirm,
 }: {
   open: boolean;
   featureName: string;
   dependentNote?: React.ReactNode;
+  /** Hide the "previous user settings can be restored" sentence — used by
+   *  features without per-user deployment (e.g. Fax, Email-to-Fax). */
+  hideRestoreNote?: boolean;
   onCancel: () => void;
   onConfirm: () => void;
 }) {
@@ -139,7 +143,7 @@ export function FeatureDisableConfirmDialog({
               <div className="flex flex-col gap-2 text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
                 <p>
                   This feature will be turned off for your account and no longer available to
-                  users. When turned back on, previous user settings can be restored.
+                  users.{!hideRestoreNote && ' When turned back on, previous user settings can be restored.'}
                 </p>
                 {dependentNote && <p>{dependentNote}</p>}
               </div>
