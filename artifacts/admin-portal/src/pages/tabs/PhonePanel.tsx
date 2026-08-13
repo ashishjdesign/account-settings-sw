@@ -1,14 +1,10 @@
 import React, { useState } from 'react';
-import { useSettings, type AutoAnswerDelay } from '../../store';
+import { useSettings } from '../../store';
 import {
   SettingCard,
   SpringConfirmDialog,
   ExtAppEnableCombinedDialog,
   ExtAppManageDialog,
-  AutoAnswerManageDialog,
-  AutoAnswerReEnableDialog,
-  ConferenceManageDialog,
-  ConferenceReEnableDialog,
   showToast,
 } from '../../components/shared';
 
@@ -16,28 +12,15 @@ export default function PhonePanel() {
   const { state, dispatch } = useSettings();
   const { externalAppOn, extApp, autoAnswer, conference } = state.phone;
 
-  const [manageOpen, setManageOpen] = useState(false);
-  const [autoAnswerEnableOpen, setAutoAnswerEnableOpen] = useState(false);
-  const [autoAnswerDisableOpen, setAutoAnswerDisableOpen] = useState(false);
-  const [conferenceManageOpen, setConferenceManageOpen] = useState(false);
-  const [conferenceEnableOpen, setConferenceEnableOpen] = useState(false);
-  const [conferenceDisableOpen, setConferenceDisableOpen] = useState(false);
+  // Auto-answer calls and Conference calls are account-level only — users
+  // manage their own setting once enabled, so admins get plain on/off
+  // confirmations (same experience as User activation). No Manage dialog,
+  // no user deployment.
+  const [autoAnswerConfirmOpen, setAutoAnswerConfirmOpen] = useState(false);
+  const [conferenceConfirmOpen, setConferenceConfirmOpen] = useState(false);
   const [extEnableOpen, setExtEnableOpen] = useState(false);
   const [extDisableOpen, setExtDisableOpen] = useState(false);
   const [extManageOpen, setExtManageOpen] = useState(false);
-
-  const handleSaveManage = (result: { defaultVal: 'On' | 'Off'; allowChange: boolean; delay: AutoAnswerDelay }) => {
-    if (state.simulateError) {
-      dispatch({ type: 'TOGGLE_SIMULATE_ERROR' });
-      return;
-    }
-    dispatch({
-      type: 'PATCH_PHONE_AUTO_ANSWER',
-      payload: { defaultVal: result.defaultVal, allowChange: result.allowChange, delay: result.delay },
-    });
-    setManageOpen(false);
-    showToast('Settings were updated.', () => dispatch({ type: 'UNDO' }));
-  };
 
   return (
     <div className="flex flex-col gap-4">
@@ -61,130 +44,58 @@ export default function PhonePanel() {
         switchOn={autoAnswer.on}
         icon="active-call"
         description="Allow users to turn on Auto-Answer for incoming calls in the RingCentral desktop app."
-        summary={autoAnswer.on ? [
-          { label: 'User default:', value: autoAnswer.defaultVal },
-          { label: 'User access:', value: autoAnswer.allowChange ? 'Allowed' : 'Restricted' },
-        ] : undefined}
-        onManage={autoAnswer.on ? () => setManageOpen(true) : undefined}
-        onSwitchClick={() => {
-          if (autoAnswer.on) setAutoAnswerDisableOpen(true);
-          else setAutoAnswerEnableOpen(true);
-        }}
+        onSwitchClick={() => setAutoAnswerConfirmOpen(true)}
       />
       <SettingCard
         title="Conference calls"
         switchOn={conference.on}
         icon="conference"
         description="Allow hosts to leave conference call without ending them."
-        summary={conference.on ? [
-          { label: 'User default:', value: conference.defaultVal },
-          { label: 'User access:', value: conference.allowChange ? 'Allowed' : 'Restricted' },
-        ] : undefined}
-        onManage={conference.on ? () => setConferenceManageOpen(true) : undefined}
-        onSwitchClick={() => {
-          if (conference.on) setConferenceDisableOpen(true);
-          else setConferenceEnableOpen(true);
-        }}
+        onSwitchClick={() => setConferenceConfirmOpen(true)}
       />
 
-      <AutoAnswerManageDialog
-        open={manageOpen}
-        defaultVal={autoAnswer.defaultVal}
-        allowChange={autoAnswer.allowChange}
-        delay={autoAnswer.delay}
-        customCount={autoAnswer.customUsers}
-        onCancel={() => setManageOpen(false)}
-        onConfirm={handleSaveManage}
-        error={state.simulateError}
-      />
-
-      <AutoAnswerReEnableDialog
-        open={autoAnswerEnableOpen}
-        delay={autoAnswer.delay}
-        customCount={autoAnswer.customUsers}
-        onCancel={() => setAutoAnswerEnableOpen(false)}
-        onConfirm={(result) => {
-          dispatch({
-            type: 'PATCH_PHONE_AUTO_ANSWER',
-            payload: {
-              on: true,
-              defaultVal: result.defaultVal,
-              allowChange: result.allowChange,
-              delay: result.delay,
-              ...(result.customAction === 'reset' ? { customUsers: 0 } : {}),
-            },
-          });
-          setAutoAnswerEnableOpen(false);
-          showToast('Auto-answer calls is on.');
-        }}
-      />
-
+      {/* Auto-answer calls and Conference calls follow the User activation
+          experience — general confirmation modals only; users manage their
+          own setting once the feature is on for the account. */}
       <SpringConfirmDialog
-        open={autoAnswerDisableOpen}
-        title="Turn off Auto-answer calls for your organization?"
-        body={<>This feature will be turned off for your account and no longer available to users.<br />When turned back on, previous user settings can be restored.</>}
-        confirmLabel="Turn off"
-        onCancel={() => setAutoAnswerDisableOpen(false)}
+        open={autoAnswerConfirmOpen}
+        title={
+          autoAnswer.on
+            ? 'Turn off Auto-answer calls for your organization?'
+            : 'Turn on Auto-answer calls for your organization?'
+        }
+        body={
+          autoAnswer.on
+            ? 'This will prevent users in your organization from using Auto-answer for incoming calls.'
+            : 'This will allow users in your organization to turn on Auto-answer for incoming calls in the RingCentral desktop app. Users manage this setting on their own.'
+        }
+        confirmLabel={autoAnswer.on ? 'Turn off' : 'Turn on'}
+        onCancel={() => setAutoAnswerConfirmOpen(false)}
         onConfirm={() => {
-          dispatch({ type: 'PATCH_PHONE_AUTO_ANSWER', payload: { on: false } });
-          setAutoAnswerDisableOpen(false);
-          showToast('Auto-answer calls is off.');
-        }}
-      />
-
-      {/* Conference calls — Manage / Re-enable / Disable. Mirrors Auto-answer
-          wiring exactly so modal styling and the User deployment block stay
-          consistent across all Manage screens (the user's #1 priority). */}
-      <ConferenceManageDialog
-        open={conferenceManageOpen}
-        defaultVal={conference.defaultVal}
-        allowChange={conference.allowChange}
-        customCount={conference.customUsers}
-        onCancel={() => setConferenceManageOpen(false)}
-        onConfirm={(result) => {
-          if (state.simulateError) {
-            dispatch({ type: 'TOGGLE_SIMULATE_ERROR' });
-            return;
-          }
-          dispatch({
-            type: 'PATCH_PHONE_CONFERENCE',
-            payload: { defaultVal: result.defaultVal, allowChange: result.allowChange },
-          });
-          setConferenceManageOpen(false);
+          dispatch({ type: 'PATCH_PHONE_AUTO_ANSWER', payload: { on: !autoAnswer.on } });
+          setAutoAnswerConfirmOpen(false);
           showToast('Settings were updated.', () => dispatch({ type: 'UNDO' }));
         }}
-        error={state.simulateError}
-      />
-
-      <ConferenceReEnableDialog
-        open={conferenceEnableOpen}
-        customCount={conference.customUsers}
-        onCancel={() => setConferenceEnableOpen(false)}
-        onConfirm={(result) => {
-          dispatch({
-            type: 'PATCH_PHONE_CONFERENCE',
-            payload: {
-              on: true,
-              defaultVal: result.defaultVal,
-              allowChange: result.allowChange,
-              ...(result.customAction === 'reset' ? { customUsers: 0 } : {}),
-            },
-          });
-          setConferenceEnableOpen(false);
-          showToast('Conference calls is on.');
-        }}
       />
 
       <SpringConfirmDialog
-        open={conferenceDisableOpen}
-        title="Turn off Conference calls for your organization?"
-        body={<>This feature will be turned off for your account and no longer available to users.<br />When turned back on, previous user settings can be restored.</>}
-        confirmLabel="Turn off"
-        onCancel={() => setConferenceDisableOpen(false)}
+        open={conferenceConfirmOpen}
+        title={
+          conference.on
+            ? 'Turn off Conference calls for your organization?'
+            : 'Turn on Conference calls for your organization?'
+        }
+        body={
+          conference.on
+            ? 'This will prevent hosts in your organization from leaving conference calls without ending them.'
+            : 'This will allow hosts in your organization to leave conference calls without ending them. Users manage this setting on their own.'
+        }
+        confirmLabel={conference.on ? 'Turn off' : 'Turn on'}
+        onCancel={() => setConferenceConfirmOpen(false)}
         onConfirm={() => {
-          dispatch({ type: 'PATCH_PHONE_CONFERENCE', payload: { on: false } });
-          setConferenceDisableOpen(false);
-          showToast('Conference calls is off.');
+          dispatch({ type: 'PATCH_PHONE_CONFERENCE', payload: { on: !conference.on } });
+          setConferenceConfirmOpen(false);
+          showToast('Settings were updated.', () => dispatch({ type: 'UNDO' }));
         }}
       />
 
