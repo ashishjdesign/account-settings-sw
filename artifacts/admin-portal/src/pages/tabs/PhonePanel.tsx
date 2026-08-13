@@ -87,8 +87,8 @@ export default function PhonePanel() {
         }
         body={
           conference.on
-            ? 'This will prevent hosts in your organization from leaving conference calls without ending them.'
-            : 'This will allow hosts in your organization to leave conference calls without ending them. Users manage this setting on their own.'
+            ? 'Users who host conference calls won\u2019t be able to leave them without ending the call for everyone.'
+            : 'Users who host conference calls will be able to leave them without ending the call for everyone. Users manage this setting on their own.'
         }
         confirmLabel={conference.on ? 'Turn off' : 'Turn on'}
         onCancel={() => setConferenceConfirmOpen(false)}
