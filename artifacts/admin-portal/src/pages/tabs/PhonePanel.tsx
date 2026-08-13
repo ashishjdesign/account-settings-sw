@@ -67,7 +67,7 @@ export default function PhonePanel() {
         body={
           autoAnswer.on
             ? 'This will prevent users in your organization from using Auto-answer for incoming calls.'
-            : 'This will allow users in your organization to turn on Auto-answer for incoming calls in the RingCentral desktop app. Users manage this setting on their own.'
+            : 'This will allow users in your organization to turn on Auto-answer for incoming calls in the RingCentral desktop app.'
         }
         confirmLabel={autoAnswer.on ? 'Turn off' : 'Turn on'}
         onCancel={() => setAutoAnswerConfirmOpen(false)}
@@ -88,7 +88,7 @@ export default function PhonePanel() {
         body={
           conference.on
             ? 'Users who host conference calls won\u2019t be able to leave them without ending the call for everyone.'
-            : 'Users who host conference calls will be able to leave them without ending the call for everyone. Users manage this setting on their own.'
+            : 'Users who host conference calls will be able to leave them without ending the call for everyone.'
         }
         confirmLabel={conference.on ? 'Turn off' : 'Turn on'}
         onCancel={() => setConferenceConfirmOpen(false)}

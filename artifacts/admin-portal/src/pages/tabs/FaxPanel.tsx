@@ -118,7 +118,7 @@ export default function FaxPanel() {
       <SpringConfirmDialog
         open={e2fEnableOpen}
         title="Turn on Email-to-Fax for your organization?"
-        body="This will allow users in your organization to send faxes by email. Users manage this setting on their own."
+        body="This will allow users in your organization to send faxes by email."
         confirmLabel="Turn on"
         onCancel={() => setE2fEnableOpen(false)}
         onConfirm={confirmEmailToFaxOn}
@@ -149,7 +149,7 @@ export default function FaxPanel() {
       <SpringConfirmDialog
         open={enableConfirmOpen}
         title="Turn on Fax for your organization?"
-        body="This will allow users in your organization to send and receive faxes. Users manage this setting on their own."
+        body="This will allow users in your organization to send and receive faxes."
         confirmLabel="Turn on"
         onCancel={() => setEnableConfirmOpen(false)}
         onConfirm={confirmFaxOn}
