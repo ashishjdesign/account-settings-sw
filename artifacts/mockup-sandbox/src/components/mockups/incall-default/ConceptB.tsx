@@ -1,131 +1,177 @@
-import React, { useState } from 'react';
+import React from 'react';
+import {
+  ArrowLeftMd,
+  ClosedCaptionsMd,
+  TranscriptionMd,
+  SmartNotesMd,
+} from '@ringcentral/spring-icon';
+import { FeatureSettingsShell, SpringSwitch } from '../ai-feature-settings/_shared';
 
-// Reusable SVG components for the mockup
-const ToggleOn = () => (
-  <svg width="40" height="24" viewBox="0 0 40 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <rect width="40" height="24" rx="12" fill="#0684BD" />
-    <circle cx="28" cy="12" r="10" fill="white" />
-  </svg>
+type IconCmp = React.ComponentType<React.SVGProps<SVGSVGElement>>;
+const SpringIcon = ({ as: Cmp, size = 20 }: { as: IconCmp; size?: number }) => (
+  <Cmp width={size} height={size} fill="currentColor" aria-hidden focusable={false} />
 );
 
-const ToggleOff = () => (
-  <svg width="40" height="24" viewBox="0 0 40 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <rect width="40" height="24" rx="12" fill="#D7D7D7" />
-    <circle cx="12" cy="12" r="10" fill="white" />
-  </svg>
-);
+function FeatureBody({
+  title,
+  description,
+  checked,
+  onCheckedChange,
+  children,
+}: React.PropsWithChildren<{
+  title: string;
+  description: string;
+  checked: boolean;
+  onCheckedChange: (next: boolean) => void;
+}>) {
+  return (
+    <div className="flex min-w-0 flex-1 flex-col">
+      <div className="flex flex-col gap-2">
+        <div className="flex min-h-[32px] w-full items-center gap-4">
+          <h3 className="flex-1 truncate text-[15px] font-bold leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+            {title}
+          </h3>
+          <SpringSwitch checked={checked} onCheckedChange={onCheckedChange} aria-label={title} />
+        </div>
 
-const CheckboxChecked = () => (
-  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <rect width="16" height="16" rx="3" fill="#0684BD" />
-    <path d="M11.3334 5.5L6.75008 10.0833L4.66675 8" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-  </svg>
-);
+        <p className="pr-[130px] text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b2)]">
+          {description}{' '}
+          <a
+            href="#"
+            className="font-normal text-[var(--sui-colors-primary-b)] underline hover:text-[var(--sui-colors-primary-b-high-contrast)]"
+          >
+            Learn more
+          </a>
+        </p>
+      </div>
 
-const CheckboxUnchecked = () => (
-  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <rect x="0.5" y="0.5" width="15" height="15" rx="2.5" fill="white" stroke="#D7D7D7" />
-  </svg>
-);
+      {children}
+    </div>
+  );
+}
 
-const IconPlaceholder = () => (
-  <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center shrink-0">
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M8 2V14M2 8H14" stroke="#A0A0A0" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-    </svg>
-  </div>
-);
+function FeatureIcon({ as }: { as: IconCmp }) {
+  return (
+    <div className="flex h-[32px] w-5 shrink-0 items-center justify-center text-[var(--sui-colors-neutral-b1)]">
+      <SpringIcon as={as} />
+    </div>
+  );
+}
 
-export function ConceptB() {
-  const [ccOn, setCcOn] = useState(true);
-  const [ltOn, setLtOn] = useState(true);
-  const [cnOn, setCnOn] = useState(true);
-  const [autoOn, setAutoOn] = useState(true);
+export function ConceptB({
+  onBack,
+}: {
+  onBack?: () => void;
+}) {
+  const [captioningOn, setCaptioningOn] = React.useState(true);
+  const [transcriptsOn, setTranscriptsOn] = React.useState(true);
+  const [notesOn, setNotesOn] = React.useState(true);
+  const [autoStart, setAutoStart] = React.useState(true);
+
+  const handleBack =
+    onBack ??
+    (() => {
+      // no-op for generic preview
+    });
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-start justify-center py-12 font-sans" style={{ fontFamily: 'system-ui, -apple-system, sans-serif' }}>
-      <div className="w-full max-w-2xl bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-        {/* Tab Header */}
-        <div className="px-6 py-4 border-b border-gray-200 flex items-center gap-6">
-          <div className="text-[14px] text-[#666] font-medium cursor-pointer">General</div>
-          <div className="text-[14px] text-[#0684BD] font-semibold border-b-2 border-[#0684BD] pb-[17px] -mb-[17px] cursor-pointer">AI</div>
-          <div className="text-[14px] text-[#666] font-medium cursor-pointer">Audio</div>
+    <FeatureSettingsShell
+      flexLayout
+      showFooterActions={false}
+    >
+      {/* Back row — ← Closed captioning */}
+      <button
+        type="button"
+        onClick={handleBack}
+        className="mb-4 flex items-center gap-4 text-[var(--sui-colors-neutral-b1)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sui-colors-primary-b)]/30"
+      >
+        <SpringIcon as={ArrowLeftMd} size={24} />
+        <span className="text-[20px] font-semibold leading-[28px] tracking-[-0.2px]">
+          Closed captioning
+        </span>
+      </button>
+
+      <section className="rounded-[8px] border border-[var(--sui-colors-neutral-b4)] bg-white p-4">
+        {/* Parent */}
+        <div className="flex items-start gap-4">
+          <FeatureIcon as={ClosedCaptionsMd} />
+          <FeatureBody
+            title="Closed captioning"
+            description="Uses AI to display real-time captions during phone calls."
+            checked={captioningOn}
+            onCheckedChange={setCaptioningOn}
+          >
+            {/* Dependent features */}
+            {captioningOn && (
+              <div className="mt-4 flex flex-col">
+                <div className="flex items-start gap-4 border-t border-[var(--sui-colors-neutral-b4)] py-4">
+                  <FeatureIcon as={TranscriptionMd} />
+                  <FeatureBody
+                    title="Live transcripts"
+                    description="Provides real-time AI-generated call transcripts."
+                    checked={transcriptsOn}
+                    onCheckedChange={setTranscriptsOn}
+                  />
+                </div>
+
+                <div className="border-t border-[var(--sui-colors-neutral-b4)] pt-4 pb-2 pl-10">
+                  <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-[var(--sui-colors-neutral-b3)]">
+                    In-call behavior
+                  </p>
+                  <label className="flex cursor-pointer items-center gap-2">
+                    <input
+                      type="checkbox"
+                      className="sr-only"
+                      checked={autoStart}
+                      onChange={(e) => setAutoStart(e.target.checked)}
+                    />
+                    <span
+                      className={`flex h-[16px] w-[16px] shrink-0 items-center justify-center rounded-[3px] border ${
+                        autoStart
+                          ? 'border-[var(--sui-colors-primary-b)] bg-[var(--sui-colors-primary-b)]'
+                          : 'border-[var(--sui-colors-neutral-b3)] bg-white'
+                      }`}
+                    >
+                      {autoStart && (
+                        <svg
+                          viewBox="0 0 12 10"
+                          className="h-[10px] w-[10px] text-white"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <polyline points="1.5 5 4.5 8 10.5 1.5" />
+                        </svg>
+                      )}
+                    </span>
+                    <span className="text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                      Keep Notes on automatically during calls
+                    </span>
+                  </label>
+                  <p className="mt-1 pl-[24px] text-[13px] leading-[18px] text-[var(--sui-colors-neutral-b2)]">
+                    Live transcripts and Call notes start on when a call begins.
+                  </p>
+                  <p className="mt-0.5 pl-[24px] text-[12px] leading-[17px] text-[var(--sui-colors-neutral-b3)]">
+                    When Call notes is off, applies to Live transcripts only.
+                  </p>
+                </div>
+
+                <div className="flex items-start gap-4 border-t border-[var(--sui-colors-neutral-b4)] py-4">
+                  <FeatureIcon as={SmartNotesMd} />
+                  <FeatureBody
+                    title="Call notes"
+                    description="Generate call notes automatically for all your devices."
+                    checked={notesOn}
+                    onCheckedChange={setNotesOn}
+                  />
+                </div>
+              </div>
+            )}
+          </FeatureBody>
         </div>
-
-        {/* Content */}
-        <div className="p-6 flex flex-col gap-3">
-          {/* Closed Captioning Card (Parent) */}
-          <div className="border border-gray-200 rounded-xl px-5 py-4 bg-white flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <IconPlaceholder />
-              <div>
-                <div className="text-[14px] font-semibold text-[#282829]">Closed captioning</div>
-                <div className="text-[13px] text-[#666]">Display text for spoken words during a meeting</div>
-              </div>
-            </div>
-            <div className="cursor-pointer" onClick={() => setCcOn(!ccOn)}>
-              {ccOn ? <ToggleOn /> : <ToggleOff />}
-            </div>
-          </div>
-
-          {/* Live Transcripts Card (Child) */}
-          <div className="border border-gray-200 rounded-xl px-5 py-4 bg-white flex items-center justify-between ml-10">
-            <div className="flex items-center gap-4">
-              <IconPlaceholder />
-              <div>
-                <div className="text-[14px] font-semibold text-[#282829]">Live transcripts</div>
-                <div className="text-[13px] text-[#666]">Show a real-time transcript of the conversation</div>
-              </div>
-            </div>
-            <div className="cursor-pointer" onClick={() => setLtOn(!ltOn)}>
-              {ltOn ? <ToggleOn /> : <ToggleOff />}
-            </div>
-          </div>
-
-          {/* Standalone In-call Behavior Section */}
-          <div className="ml-10 py-2 pl-[48px]"> {/* 48px = 32px icon + 16px gap to align with child card text */}
-            <div className="text-[11px] uppercase tracking-wider text-gray-400 font-semibold mb-2">
-              In-call behavior
-            </div>
-            <div className="flex items-start gap-3">
-              <div className="mt-0.5 cursor-pointer" onClick={() => setAutoOn(!autoOn)}>
-                {autoOn ? <CheckboxChecked /> : <CheckboxUnchecked />}
-              </div>
-              <div>
-                <div className="text-[14px] font-semibold text-[#282829] cursor-pointer" onClick={() => setAutoOn(!autoOn)}>
-                  Keep Notes on automatically during calls
-                </div>
-                <div className="text-[13px] text-[#666] mt-0.5">
-                  Live transcripts and Call notes start on when a call begins.
-                </div>
-                <div className="text-[12px] text-gray-500 italic mt-1">
-                  When Call notes is off, applies to Live transcripts only.
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Call Notes Card (Child) */}
-          <div className="border border-gray-200 rounded-xl px-5 py-4 bg-white flex items-center justify-between ml-10">
-            <div className="flex items-center gap-4">
-              <IconPlaceholder />
-              <div>
-                <div className="text-[14px] font-semibold text-[#282829]">Call notes</div>
-                <div className="text-[13px] text-[#666]">Generate AI summaries and action items from the call</div>
-                {!cnOn && (
-                  <div className="text-[12px] text-gray-500 italic mt-1">
-                    Currently disabled. Notes will not be generated.
-                  </div>
-                )}
-              </div>
-            </div>
-            <div className="cursor-pointer" onClick={() => setCnOn(!cnOn)}>
-              {cnOn ? <ToggleOn /> : <ToggleOff />}
-            </div>
-          </div>
-          
-        </div>
-      </div>
-    </div>
+      </section>
+    </FeatureSettingsShell>
   );
 }

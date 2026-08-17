@@ -1,119 +1,177 @@
 import React from 'react';
+import {
+  ArrowLeftMd,
+  ClosedCaptionsMd,
+  TranscriptionMd,
+  SmartNotesMd,
+} from '@ringcentral/spring-icon';
+import { FeatureSettingsShell, SpringSwitch } from '../ai-feature-settings/_shared';
 
-const Toggle = ({ checked = false }) => (
-  <svg width="40" height="24" viewBox="0 0 40 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <rect width="40" height="24" rx="12" fill={checked ? "#0684BD" : "#D7D7D7"} />
-    <circle cx={checked ? "28" : "12"} cy="12" r="10" fill="white" style={{ transition: 'all 0.2s' }} />
-  </svg>
+type IconCmp = React.ComponentType<React.SVGProps<SVGSVGElement>>;
+const SpringIcon = ({ as: Cmp, size = 20 }: { as: IconCmp; size?: number }) => (
+  <Cmp width={size} height={size} fill="currentColor" aria-hidden focusable={false} />
 );
 
-const Checkbox = ({ checked = false }) => (
-  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" className="flex-shrink-0 mt-0.5">
-    <rect x="0.5" y="0.5" width="15" height="15" rx="3.5" fill={checked ? "#0684BD" : "white"} stroke={checked ? "#0684BD" : "#D7D7D7"} />
-    {checked && (
-      <path d="M4 8L7 11L12 5" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-    )}
-  </svg>
-);
+type Feature = {
+  title: string;
+  icon: IconCmp;
+  description: string;
+};
 
-const FeatureIcon = () => (
-  <div className="w-8 h-8 rounded-full bg-gray-200 flex-shrink-0 flex items-center justify-center">
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="#666" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-      <path d="M2 17L12 22L22 17" stroke="#666" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-      <path d="M2 12L12 17L22 12" stroke="#666" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-    </svg>
-  </div>
-);
+const PARENT: Feature = {
+  title: 'Closed captioning',
+  icon: ClosedCaptionsMd,
+  description: 'Uses AI to display real-time captions during phone calls.',
+};
 
-export function ConceptC() {
+const CHILDREN: Feature[] = [
+  {
+    title: 'Live transcripts',
+    icon: TranscriptionMd,
+    description: 'Provides real-time AI-generated call transcripts.',
+  },
+  {
+    title: 'Call notes',
+    icon: SmartNotesMd,
+    description: 'Generate call notes automatically for all your devices.',
+  },
+];
+
+function FeatureBody({
+  title,
+  description,
+  checked = true,
+  onCheckedChange,
+}: {
+  title: string;
+  description: string;
+  checked?: boolean;
+  onCheckedChange?: (next: boolean) => void;
+}) {
   return (
-    <div className="min-h-screen bg-white font-sans text-[#282829]">
-      <div className="max-w-2xl mx-auto p-6">
-        
-        {/* Tabs */}
-        <div className="flex border-b border-[#D7D7D7] mb-6">
-          <div className="px-4 py-2 border-b-2 border-[#0684BD] text-[#0684BD] font-semibold text-sm">
-            AI
-          </div>
-          <div className="px-4 py-2 text-[#666] font-medium text-sm">
-            General
-          </div>
+    <div className="flex min-w-0 flex-1 flex-col">
+      <div className="flex flex-col gap-2">
+        <div className="flex min-h-[32px] w-full items-center gap-4">
+          <h3 className="flex-1 truncate text-[15px] font-bold leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+            {title}
+          </h3>
+          <SpringSwitch checked={checked} onCheckedChange={onCheckedChange} aria-label={title} />
         </div>
 
-        {/* Content area */}
-        <div className="flex flex-col">
-          <h2 className="text-lg font-semibold mb-4 text-[#282829]">During calls</h2>
-          
-          {/* Card Wrapper for CC Family */}
-          <div className="border border-[#D7D7D7] rounded-xl bg-white overflow-hidden flex flex-col shadow-sm">
-            
-            {/* CC Parent Row */}
-            <div className="px-5 py-4 flex gap-4 items-start bg-white">
-              <FeatureIcon />
-              <div className="flex-1">
-                <div className="text-[14px] font-semibold text-[#282829]">Closed captioning</div>
-                <div className="text-[13px] text-[#666] mt-0.5">
-                  Display real-time captions for the active speaker.
-                </div>
-              </div>
-              <div className="pt-1">
-                <Toggle checked={true} />
-              </div>
-            </div>
-
-            <div className="border-t border-gray-100 ml-[72px]"></div>
-
-            {/* LT Child Row */}
-            <div className="px-5 py-4 flex gap-4 items-start bg-white pl-[60px]">
-              <FeatureIcon />
-              <div className="flex-1">
-                <div className="text-[14px] font-semibold text-[#282829]">Live transcripts</div>
-                <div className="text-[13px] text-[#666] mt-0.5">
-                  Show a real-time transcript panel during the call.
-                </div>
-              </div>
-              <div className="pt-1">
-                <Toggle checked={true} />
-              </div>
-            </div>
-
-            <div className="border-t border-gray-100 ml-[72px]"></div>
-
-            {/* Call Notes Child Row */}
-            <div className="px-5 py-4 flex gap-4 items-start bg-white pl-[60px]">
-              <FeatureIcon />
-              <div className="flex-1">
-                <div className="text-[14px] font-semibold text-[#282829]">Call notes</div>
-                <div className="text-[13px] text-[#666] mt-0.5">
-                  Automatically generate summary and action items.
-                </div>
-              </div>
-              <div className="pt-1">
-                <Toggle checked={true} />
-              </div>
-            </div>
-
-            {/* Group Footer */}
-            <div className="px-5 py-4 bg-gray-50 border-t border-[#D7D7D7] flex items-start gap-3">
-              <Checkbox checked={true} />
-              <div className="flex-1">
-                <div className="text-[14px] font-medium text-[#282829] leading-tight mt-0.5">
-                  Keep Notes on automatically during calls
-                </div>
-                <div className="text-[13px] text-[#666] mt-1 leading-snug">
-                  Live transcripts and Call notes start on when a call begins.
-                </div>
-                <div className="text-[12px] text-[#666] italic mt-1.5 opacity-80">
-                  When Call notes is off, applies to Live transcripts only.
-                </div>
-              </div>
-            </div>
-            
-          </div>
-          
-        </div>
+        <p className="pr-[130px] text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b2)]">
+          {description}{' '}
+          <a
+            href="#"
+            className="font-normal text-[var(--sui-colors-primary-b)] underline hover:text-[var(--sui-colors-primary-b-high-contrast)]"
+          >
+            Learn more
+          </a>
+        </p>
       </div>
     </div>
+  );
+}
+
+function FeatureIcon({ as }: { as: IconCmp }) {
+  return (
+    <div className="flex h-[32px] w-5 shrink-0 items-center justify-center text-[var(--sui-colors-neutral-b1)]">
+      <SpringIcon as={as} />
+    </div>
+  );
+}
+
+export function ConceptC({ onBack }: { onBack?: () => void }) {
+  const [captioningOn, setCaptioningOn] = React.useState(true);
+  const [childOn, setChildOn] = React.useState<Record<string, boolean>>(() =>
+    Object.fromEntries(CHILDREN.map((c) => [c.title, true])),
+  );
+  const [autoStart, setAutoStart] = React.useState(true);
+
+  const handleChildSwitch = (title: string, next: boolean) => {
+    setChildOn((prev) => ({ ...prev, [title]: next }));
+  };
+
+  const handleBack =
+    onBack ??
+    (() => {
+      window.history.back();
+    });
+
+  return (
+    <FeatureSettingsShell flexLayout showFooterActions={false}>
+      {/* Back row — ← Closed captioning */}
+      <button
+        type="button"
+        onClick={handleBack}
+        className="mb-4 flex items-center gap-4 text-[var(--sui-colors-neutral-b1)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sui-colors-primary-b)]/30"
+      >
+        <SpringIcon as={ArrowLeftMd} size={24} />
+        <span className="text-[20px] font-semibold leading-[28px] tracking-[-0.2px]">
+          Closed captioning
+        </span>
+      </button>
+
+      <section className="rounded-[8px] border border-[var(--sui-colors-neutral-b4)] bg-white p-4">
+        {/* Parent — its dependent features are nested inside its content column */}
+        <div className="flex items-start gap-4">
+          <FeatureIcon as={PARENT.icon} />
+          
+          <div className="flex min-w-0 flex-1 flex-col">
+            <FeatureBody
+              title={PARENT.title}
+              description={PARENT.description}
+              checked={captioningOn}
+              onCheckedChange={setCaptioningOn}
+            />
+
+            {/* Dependent features — hidden once Closed captioning is turned off.
+             * Indented to sit under the parent, divided by hairlines. */}
+            {captioningOn && (
+              <div className="mt-4 flex flex-col">
+                {CHILDREN.map((child) => (
+                  <div
+                    key={child.title}
+                    className="flex items-start gap-4 border-t border-[var(--sui-colors-neutral-b4)] py-4"
+                  >
+                    <FeatureIcon as={child.icon} />
+                    <FeatureBody
+                      title={child.title}
+                      description={child.description}
+                      checked={childOn[child.title]}
+                      onCheckedChange={(next) => handleChildSwitch(child.title, next)}
+                    />
+                  </div>
+                ))}
+                
+                {/* Footer row */}
+                <div className="border-t border-[var(--sui-colors-neutral-b4)] mt-0 pt-3 pb-1 pl-[36px]">
+                  <label 
+                    className="flex cursor-pointer items-center gap-2"
+                    onClick={(e) => { e.preventDefault(); setAutoStart(!autoStart); }}
+                  >
+                    <span className={`flex h-[16px] w-[16px] shrink-0 items-center justify-center rounded-[3px] border ${autoStart ? 'border-[var(--sui-colors-primary-b)] bg-[var(--sui-colors-primary-b)]' : 'border-[var(--sui-colors-neutral-b4)] bg-white'}`}>
+                      {autoStart && (
+                        <svg viewBox="0 0 12 10" className="h-[10px] w-[10px] text-white" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <polyline points="1.5 5 4.5 8 10.5 1.5" />
+                        </svg>
+                      )}
+                    </span>
+                    <span className="text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                      Keep Notes on automatically during calls
+                    </span>
+                  </label>
+                  <p className="mt-1 pl-[24px] text-[13px] leading-[18px] text-[var(--sui-colors-neutral-b2)]">
+                    Live transcripts and Call notes start on when a call begins.
+                  </p>
+                  <p className="mt-0.5 pl-[24px] text-[12px] leading-[17px] text-[var(--sui-colors-neutral-b3)]">
+                    When Call notes is off, applies to Live transcripts only.
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
+    </FeatureSettingsShell>
   );
 }
