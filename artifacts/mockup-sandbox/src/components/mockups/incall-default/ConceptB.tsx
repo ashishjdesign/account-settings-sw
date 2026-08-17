@@ -147,7 +147,7 @@ export function ConceptB({
                       )}
                     </span>
                     <span className="text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b1)]">
-                      Keep Notes on automatically during calls
+                      Keep Notes on by default during calls
                     </span>
                   </label>
                   <p className="mt-1 pl-[24px] text-[13px] leading-[18px] text-[var(--sui-colors-neutral-b2)]">
