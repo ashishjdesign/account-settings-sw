@@ -125,7 +125,7 @@ export function ConceptB({ onBack }: { onBack?: () => void }) {
             {/* Group footer — Notes in-call behavior. Sits at the bottom of the
                 shared container so it's visually clear it governs the whole
                 CC family (CC + LT + Call notes), not just LT alone. */}
-            <div className="bg-[var(--sui-colors-neutral-b5)] px-5 py-4">
+            <div className="px-5 py-4">
               <p className="mb-2 text-[13px] font-semibold leading-[18px] text-[var(--sui-colors-neutral-b1)]">
                 Notes in-call behavior
               </p>
