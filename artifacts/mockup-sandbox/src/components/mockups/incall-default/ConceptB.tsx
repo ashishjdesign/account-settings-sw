@@ -165,7 +165,7 @@ export function ConceptB({ onBack }: { onBack?: () => void }) {
             {/* Notes in-call behavior — group footer inside LT card */}
             {transcriptsOn && (
               <div className="border-t border-[var(--sui-colors-neutral-b4)] px-4 py-4">
-                <p className="mb-2 text-[14px] font-semibold leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                <p className="mb-2 text-[12px] font-semibold uppercase leading-[15px] tracking-[0.2px] text-[var(--sui-colors-neutral-b2)]">
                   Notes in-call behavior
                 </p>
                 <Checkbox
