@@ -241,8 +241,8 @@ export default function AiPanel() {
   } | null>(null);
 
   /** Parents (in the LT → Call notes chain) whose user default is Off.
-   * CC is no longer a parent of LT — they are independent siblings on the
-   * Phone AI page. Only the LT → Call notes dependency remains. */
+   * On/off state follows the CC → LT → Call notes chain, but user-deployment
+   * defaults only apply to LT → Call notes (Phone AI has no user deployment). */
   const parentsWithDefaultOff = (key: SubKey): SubKey[] => {
     const parents: SubKey[] = key === 'aiNotes' ? ['liveTranscripts'] : [];
     return parents.filter((p) => state.ai[p].defaultVal === 'Off');
@@ -374,7 +374,18 @@ export default function AiPanel() {
   const confirmSubDisable = () => {
     if (!subDisableKey) return;
     const key = subDisableKey;
-    if (key === 'liveTranscripts') {
+    if (key === 'closedCaptioning') {
+      // Closed captioning parents Live transcripts, which parents Call notes —
+      // turning CC off turns the whole chain off in one dispatch so a single
+      // Undo restores everything together (matches the confirm dialog copy).
+      dispatch({
+        type: 'CASCADE_AI_FEATURE',
+        key: 'closedCaptioning',
+        childKeys: ['liveTranscripts', 'aiNotes'],
+        payload: { on: false },
+        childPayload: { on: false },
+      });
+    } else if (key === 'liveTranscripts') {
       // Live transcripts parents Call notes — turn both off in one dispatch so a
       // single Undo restores them together (matches the confirm dialog copy).
       dispatch({
@@ -726,7 +737,7 @@ export default function AiPanel() {
         </FeatureDetailPage>
       )}
 
-      {/* Phone AI detail — three independent cards.
+      {/* Phone AI detail — three cards; on/off follows the CC → LT → Call notes chain.
        * Card 1: Closed captioning (admin on/off, no user deployment).
        * Card 2: Live transcripts + Call notes (LT is LT's own parent; CN
        *   nested inside. When LT is on, "Notes in-call behavior" section shows
@@ -1077,6 +1088,12 @@ export default function AiPanel() {
         body={
           <>
             <p>This feature will be enabled for your account.</p>
+            {!state.ai.closedCaptioning.on && (
+              <p>
+                <span className="font-bold">Closed captioning</span> is required and will also be
+                turned on.
+              </p>
+            )}
             <div className="flex flex-col gap-3">
               <p className="text-[12px] font-semibold uppercase leading-[15px] tracking-[0.2px] text-[var(--sui-colors-neutral-b2)]">
                 Notes in-call behavior
@@ -1185,6 +1202,19 @@ export default function AiPanel() {
               <p>
                 This feature will be turned off for your account and no longer available to users.
                 When turned back on, previous user settings can be restored.
+              </p>
+            )}
+            {subDisableKey === 'closedCaptioning' && state.ai.liveTranscripts.on && (
+              <p>
+                <span className="font-bold">Live transcripts</span>
+                {state.ai.aiNotes.on ? (
+                  <>
+                    {' and '}
+                    <span className="font-bold">Call notes</span> will also be turned off.
+                  </>
+                ) : (
+                  <> will also be turned off.</>
+                )}
               </p>
             )}
             {subDisableKey === 'liveTranscripts' && (

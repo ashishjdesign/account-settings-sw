@@ -397,12 +397,14 @@ function reducer(state: AppState, action: Action): AppState {
     case 'SET_NOTES_AUTO_START':
       return { ...withSnapshot(state), ai: { ...state.ai, notesAutoStart: action.payload } };
     // Turn on Live transcripts and save the in-call behavior choice in one
-    // atomic update so a single Undo restores both.
+    // atomic update so a single Undo restores both. Live transcripts depends on
+    // Closed captioning, so CC is turned on as part of the same snapshot.
     case 'ENABLE_LIVE_TRANSCRIPTS':
       return {
         ...withSnapshot(state),
         ai: {
           ...state.ai,
+          closedCaptioning: { ...state.ai.closedCaptioning, on: true },
           liveTranscripts: { ...state.ai.liveTranscripts, on: true },
           notesAutoStart: action.payload.notesAutoStart,
         },
