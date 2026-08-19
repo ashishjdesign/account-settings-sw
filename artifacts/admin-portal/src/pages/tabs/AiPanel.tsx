@@ -759,8 +759,10 @@ export default function AiPanel() {
           </FeatureDetailCard>
 
           {/* ── Card 2: Live transcripts + Call notes + in-call behavior ── */}
+          {/* Hidden entirely while Closed captioning is off — LT depends on CC. */}
           {/* Custom card: py-4 only (no px) so the full-width border-t of the
            * in-call behavior section touches the card edges. Children own px-4. */}
+          {state.ai.closedCaptioning.on && masterOn && (
           <section className="flex flex-col gap-4 rounded-[8px] border border-[var(--sui-colors-neutral-b4)] bg-white py-4">
 
             {/* LT row — icon + content (owns px-4) */}
@@ -860,6 +862,7 @@ export default function AiPanel() {
             )}
 
           </section>
+          )}
 
           {/* ── Card 3: AI voicemail summaries — no user deployment ── */}
           <FeatureDetailCard>
@@ -1088,12 +1091,6 @@ export default function AiPanel() {
         body={
           <>
             <p>This feature will be enabled for your account.</p>
-            {!state.ai.closedCaptioning.on && (
-              <p>
-                <span className="font-bold">Closed captioning</span> is required and will also be
-                turned on.
-              </p>
-            )}
             <div className="flex flex-col gap-3">
               <p className="text-[12px] font-semibold uppercase leading-[15px] tracking-[0.2px] text-[var(--sui-colors-neutral-b2)]">
                 Notes in-call behavior
