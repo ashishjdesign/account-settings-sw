@@ -79,6 +79,8 @@ export type AiState = {
   liveTranscripts: FeatureConfig;
   aiNotes: FeatureConfig;
   aiVoicemailSummaries: FeatureConfig;
+  /** Whether Notes start on automatically when a call begins (in-call default). */
+  notesAutoStart: boolean;
   // Chat group
   aiWriterMessaging: FeatureConfig;
   aiSummary: FeatureConfig;
@@ -162,6 +164,7 @@ const initialState: AppState = {
     liveTranscripts: { on: true, defaultVal: 'On', allowChange: true, customUsers: 26 },
     aiNotes: { on: true, defaultVal: 'On', allowChange: true, customUsers: 26 },
     aiVoicemailSummaries: { on: true, defaultVal: 'On', allowChange: true, customUsers: 26 },
+    notesAutoStart: true,
     aiWriterMessaging: { on: true, defaultVal: 'On', allowChange: true, customUsers: 26 },
     aiSummary: { on: true, defaultVal: 'On', allowChange: true, customUsers: 26 },
     aiTranslation: { on: true, defaultVal: 'On', allowChange: true, customUsers: 26 },
@@ -220,7 +223,8 @@ type Action =
   | { type: 'PATCH_FAX'; payload: Partial<FeatureConfig> }
   | { type: 'PATCH_EMAIL_TO_FAX'; payload: Partial<EmailToFaxConfig> }
   | { type: 'PATCH_FAX_CUSTOMIZE'; payload: Partial<FaxConfig> }
-  | { type: 'RESET_OVERRIDES_AI'; payload: AiFeatureKey };
+  | { type: 'RESET_OVERRIDES_AI'; payload: AiFeatureKey }
+  | { type: 'SET_NOTES_AUTO_START'; payload: boolean };
 
 function withSnapshot(state: AppState): AppState {
   return { ...state, undoSnapshot: { ...state, undoSnapshot: null } };
@@ -389,6 +393,8 @@ function reducer(state: AppState, action: Action): AppState {
         },
       };
     }
+    case 'SET_NOTES_AUTO_START':
+      return { ...withSnapshot(state), ai: { ...state.ai, notesAutoStart: action.payload } };
     default:
       return state;
   }

@@ -27,6 +27,7 @@ import {
   FeatureDetailCard,
   FeatureDetailRow,
   SpringIcon,
+  SpringSwitch,
   SpringConfirmDialog,
   SpringFeatureManageDialog,
   showToast,
@@ -238,23 +239,11 @@ export default function AiPanel() {
   >(null);
   const [avaDefaultOffConfirm, setAvaDefaultOffConfirm] = useState(false);
   const [avaRestrictConfirm, setAvaRestrictConfirm] = useState(false);
-  // Closed captioning Manage mirrors AVA: saving the CC parent with "User
-  // default: Off" or "User access: Restricted" first asks the admin to confirm
-  // the change will also cascade to its dependents (Live transcripts, Call notes).
-  const [ccManageOpen, setCcManageOpen] = useState(false);
-  const [ccPending, setCcPending] = useState<
-    { defaultVal: 'On' | 'Off'; allowChange: boolean } | null
-  >(null);
-  const [ccDefaultOffConfirm, setCcDefaultOffConfirm] = useState(false);
-  const [ccRestrictConfirm, setCcRestrictConfirm] = useState(false);
-  // Live transcripts is now a parent of Call notes, so saving its Manage dialog
-  // with "User default: Off" or "User access: Restricted" confirms the cascade
-  // to Call notes first (mirrors the CC flow one level down).
-  const [ltPending, setLtPending] = useState<
-    { defaultVal: 'On' | 'Off'; allowChange: boolean } | null
-  >(null);
-  const [ltDefaultOffConfirm, setLtDefaultOffConfirm] = useState(false);
-  const [ltRestrictConfirm, setLtRestrictConfirm] = useState(false);
+  // Phone AI features (CC/LT/CN/Voicemail) use simple enable/disable confirms —
+  // no user deployment, no Manage. LT gets a custom dialog with in-call behavior.
+  const [phoneAiSimpleEnableKey, setPhoneAiSimpleEnableKey] = useState<SubKey | null>(null);
+  const [ltEnableOpen, setLtEnableOpen] = useState(false);
+  const [ltPendingAutoStart, setLtPendingAutoStart] = useState(state.ai.notesAutoStart);
   const [subDisableKey, setSubDisableKey] = useState<SubKey | null>(null);
   const [subEnableKey, setSubEnableKey] = useState<SubKey | null>(null);
 
@@ -268,12 +257,11 @@ export default function AiPanel() {
     toastMsg: string;
   } | null>(null);
 
-  /** Parents (in the CC → LT → Call notes chain) whose user default is Off. */
+  /** Parents (in the LT → Call notes chain) whose user default is Off.
+   * CC is no longer a parent of LT — they are independent siblings on the
+   * Phone AI page. Only the LT → Call notes dependency remains. */
   const parentsWithDefaultOff = (key: SubKey): SubKey[] => {
-    const parents: SubKey[] =
-      key === 'aiNotes' ? ['closedCaptioning', 'liveTranscripts']
-      : key === 'liveTranscripts' ? ['closedCaptioning']
-      : [];
+    const parents: SubKey[] = key === 'aiNotes' ? ['liveTranscripts'] : [];
     return parents.filter((p) => state.ai[p].defaultVal === 'Off');
   };
 
@@ -442,15 +430,6 @@ export default function AiPanel() {
   ) => {
     if (!subManageKey) return;
     const key = subManageKey;
-    // Live transcripts parents Call notes: default Off / Restricted cascades to
-    // Call notes, so confirm before committing.
-    if (key === 'liveTranscripts' && (result.defaultVal === 'Off' || !result.allowChange)) {
-      setLtPending(result);
-      setSubManageKey(null);
-      if (result.defaultVal === 'Off') setLtDefaultOffConfirm(true);
-      else setLtRestrictConfirm(true);
-      return;
-    }
     // Child default On while a parent default is Off — confirm turning the
     // parents' user defaults on together.
     if (result.defaultVal === 'On') {
@@ -472,27 +451,6 @@ export default function AiPanel() {
       payload: { defaultVal: result.defaultVal, allowChange: result.allowChange },
     });
     setSubManageKey(null);
-    showToast('Settings were updated.', () => dispatch({ type: 'UNDO' }));
-  };
-
-  // Commit Live transcripts' deployment config and cascade the restrictive
-  // state down to Call notes in one dispatch so a single Undo reverts both.
-  const commitLtManage = (
-    result: { defaultVal: 'On' | 'Off'; allowChange: boolean },
-  ) => {
-    const childPayload: Partial<{ defaultVal: 'On' | 'Off'; allowChange: boolean }> = {};
-    if (result.defaultVal === 'Off') childPayload.defaultVal = 'Off';
-    if (result.allowChange === false) childPayload.allowChange = false;
-    dispatch({
-      type: 'CASCADE_AI_FEATURE',
-      key: 'liveTranscripts',
-      childKeys: ['aiNotes'],
-      payload: { defaultVal: result.defaultVal, allowChange: result.allowChange },
-      childPayload,
-    });
-    setLtPending(null);
-    setLtDefaultOffConfirm(false);
-    setLtRestrictConfirm(false);
     showToast('Settings were updated.', () => dispatch({ type: 'UNDO' }));
   };
 
@@ -591,46 +549,35 @@ export default function AiPanel() {
     showToast(`${title} turned on`);
   };
 
-  // Commit Closed captioning's own deployment config and cascade the restrictive
-  // state down to its dependents (Live transcripts, Call notes): a parent default
-  // of Off forces every child's user default to Off, and restricting parent user
-  // access restricts every child too. (Turning the parent back On/Allowed leaves
-  // children untouched.) Done as one CASCADE_AI_FEATURE dispatch so a single
-  // Undo reverts the parent and both children together.
-  const commitCcManage = (
-    result: { defaultVal: 'On' | 'Off'; allowChange: boolean },
-  ) => {
-    const childPayload: Partial<{ defaultVal: 'On' | 'Off'; allowChange: boolean }> = {};
-    if (result.defaultVal === 'Off') childPayload.defaultVal = 'Off';
-    if (result.allowChange === false) childPayload.allowChange = false;
-    dispatch({
-      type: 'CASCADE_AI_FEATURE',
-      key: 'closedCaptioning',
-      childKeys: CC_CHILDREN.map((c) => c.key),
-      payload: { defaultVal: result.defaultVal, allowChange: result.allowChange },
-      childPayload,
-    });
-    setCcPending(null);
-    setCcDefaultOffConfirm(false);
-    setCcRestrictConfirm(false);
-    setCcManageOpen(false);
-    showToast('Settings were updated.', () => dispatch({ type: 'UNDO' }));
+  // ── Phone AI feature toggles (CC / LT / CN / Voicemail) ─────────────────
+  // These features no longer have user deployment or Manage. LT turn-on shows
+  // a custom dialog with the in-call behavior checkbox; all others get a simple
+  // "Turn on?" confirm. Turn-off reuses the existing subDisableKey flow.
+  const handlePhoneAiToggle = (key: SubKey) => {
+    if (!masterOn) return;
+    if (state.ai[key].on) {
+      setSubDisableKey(key);
+    } else if (key === 'liveTranscripts') {
+      setLtPendingAutoStart(state.ai.notesAutoStart);
+      setLtEnableOpen(true);
+    } else {
+      setPhoneAiSimpleEnableKey(key);
+    }
   };
 
-  const saveCcManage = (
-    result: { defaultVal: 'On' | 'Off'; allowChange: boolean },
-  ) => {
-    const wantsDefaultOff = result.defaultVal === 'Off';
-    const wantsRestrict = result.allowChange === false;
-    // Off and/or Restricted cascade to the children, so confirm first.
-    if (wantsDefaultOff || wantsRestrict) {
-      setCcPending(result);
-      setCcManageOpen(false);
-      if (wantsDefaultOff) setCcDefaultOffConfirm(true);
-      else setCcRestrictConfirm(true);
-      return;
-    }
-    commitCcManage(result);
+  const confirmPhoneAiSimpleEnable = () => {
+    if (!phoneAiSimpleEnableKey) return;
+    const key = phoneAiSimpleEnableKey;
+    dispatch({ type: 'PATCH_AI_FEATURE', key, payload: { on: true } });
+    setPhoneAiSimpleEnableKey(null);
+    showToast(`${labelFor(key)} turned on`, () => dispatch({ type: 'UNDO' }));
+  };
+
+  const confirmLtEnable = () => {
+    dispatch({ type: 'PATCH_AI_FEATURE', key: 'liveTranscripts', payload: { on: true } });
+    dispatch({ type: 'SET_NOTES_AUTO_START', payload: ltPendingAutoStart });
+    setLtEnableOpen(false);
+    showToast('Live transcripts turned on', () => dispatch({ type: 'UNDO' }));
   };
 
   const renderFeatureCard = (item: FeatureItem) => {
@@ -811,50 +758,142 @@ export default function AiPanel() {
         </FeatureDetailPage>
       )}
 
-      {/* Phone AI detail — two cards. Card 1: Closed captioning (fully wired)
-       * with nested Live transcripts + Call notes. Card 2: AI voicemail
-       * summaries, a separate independent feature. */}
+      {/* Phone AI detail — three independent cards.
+       * Card 1: Closed captioning (admin on/off, no user deployment).
+       * Card 2: Live transcripts + Call notes (LT is LT's own parent; CN
+       *   nested inside. When LT is on, "Notes in-call behavior" section shows
+       *   below as a full-width footer. No user deployment for either.)
+       * Card 3: AI voicemail summaries (admin on/off, no user deployment). */}
       {page === 'phoneAi' && (
         <FeatureDetailPage title="Phone AI" onBack={backToMain}>
+
+          {/* ── Card 1: Closed captioning ── */}
           <FeatureDetailCard>
-            {renderWiredDetailRow(
-              'closedCaptioning',
-              ClosedCaptionsMd,
-              'Closed captioning',
-              'Uses AI to display real-time captions during phone calls.',
-              false,
-              state.ai.closedCaptioning.on && masterOn
-                ? renderWiredDetailRow(
-                    'liveTranscripts',
-                    CC_CHILDREN[0].icon,
-                    CC_CHILDREN[0].title,
-                    CC_CHILDREN[0].description,
-                    true,
-                    // Call notes is Live transcripts' dependent — nested one
-                    // level deeper (36px indent via the content column).
-                    state.ai.liveTranscripts.on && masterOn
-                      ? renderWiredDetailRow(
-                          'aiNotes',
-                          CC_CHILDREN[1].icon,
-                          CC_CHILDREN[1].title,
-                          CC_CHILDREN[1].description,
-                          true,
-                        )
-                      : null,
-                  )
-                : null,
-              () => setCcManageOpen(true),
-            )}
+            <FeatureDetailRow
+              icon={<SpringIcon as={ClosedCaptionsMd} />}
+              title="Closed captioning"
+              description="Uses AI to display real-time captions during phone calls."
+              switchOn={state.ai.closedCaptioning.on && masterOn}
+              disabled={!masterOn}
+              onSwitchClick={() => handlePhoneAiToggle('closedCaptioning')}
+            />
           </FeatureDetailCard>
+
+          {/* ── Card 2: Live transcripts + Call notes + in-call behavior ── */}
+          {/* Custom card: py-4 only (no px) so the full-width border-t of the
+           * in-call behavior section touches the card edges. Children own px-4. */}
+          <section className="flex flex-col gap-4 rounded-[8px] border border-[var(--sui-colors-neutral-b4)] bg-white py-4">
+
+            {/* LT row — icon + content (owns px-4) */}
+            <div className="flex items-start gap-4 px-4">
+              <div className="flex h-[32px] w-5 shrink-0 items-center justify-center text-[var(--sui-colors-neutral-b1)]">
+                <SpringIcon as={TranscriptMd} />
+              </div>
+              <div className="flex min-w-0 flex-1 flex-col gap-4">
+
+                {/* LT line item */}
+                <div className="flex flex-col gap-2">
+                  <div className="flex min-h-[32px] items-center gap-4">
+                    <h3 className="flex-1 truncate text-[15px] font-bold leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                      Live transcripts
+                    </h3>
+                    <SpringSwitch
+                      checked={state.ai.liveTranscripts.on && masterOn}
+                      disabled={!masterOn}
+                      aria-label="Live transcripts"
+                      onClick={(e: React.MouseEvent) => { e.preventDefault(); handlePhoneAiToggle('liveTranscripts'); }}
+                    />
+                  </div>
+                  <p className="pr-[130px] text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b2)]">
+                    Provides real-time AI-generated call transcripts.{' '}
+                    <a href="#" onClick={(e) => e.preventDefault()} className="font-normal text-[var(--sui-colors-primary-b)] underline hover:text-[var(--sui-colors-primary-b-high-contrast)]">Learn more</a>
+                  </p>
+                </div>
+
+                {/* Call notes — border-t inside content column (indented by LT icon) */}
+                {state.ai.liveTranscripts.on && masterOn && (
+                  <div className="flex items-start gap-4 border-t border-[var(--sui-colors-neutral-b4)] pt-4">
+                    <div className="flex h-[32px] w-5 shrink-0 items-center justify-center text-[var(--sui-colors-neutral-b1)]">
+                      <SpringIcon as={SmartNotesMd} />
+                    </div>
+                    <div className="flex min-w-0 flex-1 flex-col gap-2">
+                      <div className="flex min-h-[32px] items-center gap-4">
+                        <h4 className="flex-1 truncate text-[15px] font-bold leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                          Call notes
+                        </h4>
+                        <SpringSwitch
+                          checked={state.ai.aiNotes.on && masterOn}
+                          disabled={!masterOn}
+                          aria-label="Call notes"
+                          onClick={(e: React.MouseEvent) => { e.preventDefault(); handlePhoneAiToggle('aiNotes'); }}
+                        />
+                      </div>
+                      <p className="pr-[130px] text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b2)]">
+                        Generates call notes for all your devices.{' '}
+                        <a href="#" onClick={(e) => e.preventDefault()} className="font-normal text-[var(--sui-colors-primary-b)] underline hover:text-[var(--sui-colors-primary-b-high-contrast)]">Learn more</a>
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+              </div>
+            </div>
+
+            {/* Notes in-call behavior — full-width footer, sibling of LT row */}
+            {state.ai.liveTranscripts.on && masterOn && (
+              <div className="flex flex-col gap-4 px-4">
+                <div className="flex flex-col gap-4 border-t border-[var(--sui-colors-neutral-b4)] pt-4">
+                  <div className="flex flex-col items-start gap-3">
+                    {/* Section label — labelSemiBold */}
+                    <p className="text-[12px] font-semibold uppercase leading-[15px] tracking-[0.2px] text-[var(--sui-colors-neutral-b2)]">
+                      Notes in-call behavior
+                    </p>
+                    {/* Checkbox + text */}
+                    <div className="flex items-start gap-4">
+                      <button
+                        type="button"
+                        onClick={() => dispatch({ type: 'SET_NOTES_AUTO_START', payload: !state.ai.notesAutoStart })}
+                        aria-pressed={state.ai.notesAutoStart}
+                        className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-[4px] transition-colors ${
+                          state.ai.notesAutoStart
+                            ? 'bg-[var(--sui-colors-primary-b)]'
+                            : 'border border-[var(--sui-colors-neutral-b3)] bg-white'
+                        }`}
+                      >
+                        {state.ai.notesAutoStart && (
+                          <svg viewBox="0 0 12 10" className="h-3 w-3 text-white" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                            <polyline points="1.5 5 4.5 8 10.5 1.5" />
+                          </svg>
+                        )}
+                      </button>
+                      <div className="flex flex-col gap-2">
+                        <p className="text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                          Automatic call notes
+                        </p>
+                        <p className="text-[14px] leading-[20px] text-[var(--sui-colors-neutral-b2)]">
+                          When Call notes is off, applies to Live transcripts only.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+          </section>
+
+          {/* ── Card 3: AI voicemail summaries — no user deployment ── */}
           <FeatureDetailCard>
-            {renderWiredDetailRow(
-              'aiVoicemailSummaries',
-              VoicemailMd,
-              'AI voicemail summaries',
-              'Delivers AI-generated summaries of voicemails, including key details and follow-up items.',
-              false,
-            )}
+            <FeatureDetailRow
+              icon={<SpringIcon as={VoicemailMd} />}
+              title="AI voicemail summaries"
+              description="Delivers AI-generated summaries of voicemails, including key details and follow-up items."
+              switchOn={state.ai.aiVoicemailSummaries.on && masterOn}
+              disabled={!masterOn}
+              onSwitchClick={() => handlePhoneAiToggle('aiVoicemailSummaries')}
+            />
           </FeatureDetailCard>
+
         </FeatureDetailPage>
       )}
 
@@ -1062,129 +1101,65 @@ export default function AiPanel() {
         }}
       />
 
-      {/* Closed captioning Manage dialog — user access always locked Allowed */}
-      <SpringFeatureManageDialog
-        open={ccManageOpen}
-        title="Manage Closed captioning"
-        defaultVal={state.ai.closedCaptioning.defaultVal}
-        allowChange={state.ai.closedCaptioning.allowChange}
-        customCount={state.ai.closedCaptioning.customUsers}
-        onCancel={() => setCcManageOpen(false)}
-        onConfirm={saveCcManage}
-        lockAllowChange
-      />
-
-      {/* Closed captioning "Turn off default for users?" cascade confirm */}
+      {/* Live transcripts turn-on — custom dialog with in-call behavior checkbox */}
       <SpringConfirmDialog
-        open={ccDefaultOffConfirm}
-        confirmLabel="Turn default off"
-        title={<>Turn off default for users?</>}
+        open={ltEnableOpen}
+        confirmLabel="Turn on"
+        title={<>Turn on <span className="font-normal">Live transcripts</span> for your organization?</>}
         body={
           <>
-            <p>
-              <span className="font-bold">Closed captioning</span> will default to off in user
-              settings.
-            </p>
-            <p>
-              <span className="font-bold">Live transcripts</span> and{' '}
-              <span className="font-bold">Call notes</span> will also default to off.
-            </p>
+            <p>This feature will be enabled for your account.</p>
+            <div className="flex flex-col gap-3">
+              <p className="text-[12px] font-semibold uppercase leading-[15px] tracking-[0.2px] text-[var(--sui-colors-neutral-b2)]">
+                Notes in-call behavior
+              </p>
+              <div className="flex flex-col gap-3 rounded-[8px] border border-[var(--sui-colors-neutral-b4)] p-4">
+                <div className="flex items-start gap-4">
+                  <button
+                    type="button"
+                    onClick={() => setLtPendingAutoStart(!ltPendingAutoStart)}
+                    aria-pressed={ltPendingAutoStart}
+                    className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-[4px] transition-colors ${
+                      ltPendingAutoStart
+                        ? 'bg-[var(--sui-colors-primary-b)]'
+                        : 'border border-[var(--sui-colors-neutral-b3)] bg-white'
+                    }`}
+                  >
+                    {ltPendingAutoStart && (
+                      <svg viewBox="0 0 12 10" className="h-3 w-3 text-white" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                        <polyline points="1.5 5 4.5 8 10.5 1.5" />
+                      </svg>
+                    )}
+                  </button>
+                  <div className="flex flex-col gap-2">
+                    <p className="text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                      Automatic call notes
+                    </p>
+                    <p className="text-[14px] leading-[20px] text-[var(--sui-colors-neutral-b2)]">
+                      When Call notes is off, applies to Live transcripts only.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
           </>
         }
-        onCancel={() => {
-          setCcDefaultOffConfirm(false);
-          setCcPending(null);
-        }}
-        onConfirm={() => {
-          setCcDefaultOffConfirm(false);
-          if (ccPending?.allowChange === false) {
-            setCcRestrictConfirm(true);
-          } else if (ccPending) {
-            commitCcManage(ccPending);
-          }
-        }}
+        onCancel={() => setLtEnableOpen(false)}
+        onConfirm={confirmLtEnable}
       />
 
-      {/* Closed captioning "Restrict users from changing this setting?" cascade confirm */}
+      {/* Simple turn-on confirm for CC / Call notes / AI voicemail summaries */}
       <SpringConfirmDialog
-        open={ccRestrictConfirm}
-        confirmLabel="Restrict access"
-        title={<>Restrict users from changing this setting?</>}
-        body={
-          <>
-            <p>
-              Users will no longer be able to change{' '}
-              <span className="font-bold">Closed captioning</span>.
-            </p>
-            <p>
-              This restriction will also apply to{' '}
-              <span className="font-bold">Live transcripts</span> and{' '}
-              <span className="font-bold">Call notes</span>.
-            </p>
-          </>
+        open={phoneAiSimpleEnableKey !== null}
+        confirmLabel="Turn on"
+        title={
+          phoneAiSimpleEnableKey
+            ? <>Turn on <span className="font-normal">{labelFor(phoneAiSimpleEnableKey)}</span> for your organization?</>
+            : null
         }
-        onCancel={() => {
-          setCcRestrictConfirm(false);
-          setCcPending(null);
-        }}
-        onConfirm={() => {
-          if (ccPending) commitCcManage(ccPending);
-        }}
-      />
-
-      {/* Live transcripts "Turn off default for users?" cascade confirm */}
-      <SpringConfirmDialog
-        open={ltDefaultOffConfirm}
-        confirmLabel="Turn default off"
-        title={<>Turn off default for users?</>}
-        body={
-          <>
-            <p>
-              <span className="font-bold">Live transcripts</span> will default to off in user
-              settings.
-            </p>
-            <p>
-              <span className="font-bold">Call notes</span> will also default to off.
-            </p>
-          </>
-        }
-        onCancel={() => {
-          setLtDefaultOffConfirm(false);
-          setLtPending(null);
-        }}
-        onConfirm={() => {
-          setLtDefaultOffConfirm(false);
-          if (ltPending?.allowChange === false) {
-            setLtRestrictConfirm(true);
-          } else if (ltPending) {
-            commitLtManage(ltPending);
-          }
-        }}
-      />
-
-      {/* Live transcripts "Restrict users from changing this setting?" cascade confirm */}
-      <SpringConfirmDialog
-        open={ltRestrictConfirm}
-        confirmLabel="Restrict access"
-        title={<>Restrict users from changing this setting?</>}
-        body={
-          <>
-            <p>
-              Users will no longer be able to change{' '}
-              <span className="font-bold">Live transcripts</span>.
-            </p>
-            <p>
-              This restriction will also apply to <span className="font-bold">Call notes</span>.
-            </p>
-          </>
-        }
-        onCancel={() => {
-          setLtRestrictConfirm(false);
-          setLtPending(null);
-        }}
-        onConfirm={() => {
-          if (ltPending) commitLtManage(ltPending);
-        }}
+        body={<p>This feature will be enabled for your account.</p>}
+        onCancel={() => setPhoneAiSimpleEnableKey(null)}
+        onConfirm={confirmPhoneAiSimpleEnable}
       />
 
       {/* AVA dependent-feature Manage dialog (Query / Messaging / Integrations /
@@ -1239,12 +1214,6 @@ export default function AiPanel() {
               This feature will be turned off for your account and no longer available to users.
               When turned back on, previous user settings can be restored.
             </p>
-            {subDisableKey === 'closedCaptioning' && (
-              <p>
-                <span className="font-bold">Live transcripts</span> and{' '}
-                <span className="font-bold">Call notes</span> will also be turned off.
-              </p>
-            )}
             {subDisableKey === 'liveTranscripts' && (
               <p>
                 <span className="font-bold">Call notes</span> will also be turned off.
