@@ -85,23 +85,6 @@ const AVA_CHILDREN: { title: string; icon: IconCmp; description: string }[] = [
   },
 ];
 
-/* Closed captioning's dependent features (Figma 2445-8025) — these ARE backed
- * by real store state, so their toggles / Manage flows are fully wired. */
-const CC_CHILDREN: { key: Exclude<AiFeatureKey, 'aiAssistant'>; title: string; icon: IconCmp; description: string }[] = [
-  {
-    key: 'liveTranscripts',
-    title: 'Live transcripts',
-    icon: TranscriptMd,
-    description: 'Provides real-time AI-generated call transcripts.',
-  },
-  {
-    key: 'aiNotes',
-    title: 'Call notes',
-    icon: SmartNotesMd,
-    description: 'Generate call notes automatically for all your devices.',
-  },
-];
-
 const PHONE_ITEMS: FeatureItem[] = [
   {
     key: 'closedCaptioning',
@@ -367,6 +350,15 @@ export default function AiPanel() {
     showToast('AVA turned on', () => dispatch({ type: 'UNDO' }));
   };
 
+  // Phone AI features have no end-user self-deployment — their confirm dialogs
+  // use account-level copy only (no "user settings restored" note).
+  const PHONE_AI_KEYS: SubKey[] = [
+    'closedCaptioning',
+    'liveTranscripts',
+    'aiNotes',
+    'aiVoicemailSummaries',
+  ];
+
   const toggleSubFeature = (key: SubKey) => {
     if (!masterOn) return;
     const cur = state.ai[key].on;
@@ -574,37 +566,13 @@ export default function AiPanel() {
   };
 
   const confirmLtEnable = () => {
-    dispatch({ type: 'PATCH_AI_FEATURE', key: 'liveTranscripts', payload: { on: true } });
-    dispatch({ type: 'SET_NOTES_AUTO_START', payload: ltPendingAutoStart });
+    // One atomic dispatch → one undo snapshot for both LT and the checkbox.
+    dispatch({ type: 'ENABLE_LIVE_TRANSCRIPTS', payload: { notesAutoStart: ltPendingAutoStart } });
     setLtEnableOpen(false);
     showToast('Live transcripts turned on', () => dispatch({ type: 'UNDO' }));
   };
 
-  const renderFeatureCard = (item: FeatureItem) => {
-    const cfg = state.ai[item.key as Exclude<AiFeatureKey, 'aiAssistant'>];
-    return (
-      <SettingCard
-        key={item.key}
-        title={item.title}
-        switchOn={cfg.on && masterOn}
-        disabled={!masterOn}
-        icon={item.icon}
-        description={item.description}
-        summary={
-          cfg.on && masterOn
-            ? [
-                { label: 'User default:', value: cfg.defaultVal },
-                { label: 'User access:', value: cfg.allowChange ? 'Allowed' : 'Restricted' },
-              ]
-            : undefined
-        }
-        onManage={cfg.on && masterOn ? () => setSubManageKey(item.key as SubKey) : undefined}
-        onSwitchClick={() => toggleSubFeature(item.key as SubKey)}
-      />
-    );
-  };
-
-  // A fully-wired detail row for a real sub-feature (used in the CC detail).
+  // A fully-wired detail row for a real sub-feature (used in the Chat AI detail).
   const renderWiredDetailRow = (
     key: SubKey,
     icon: IconCmp,
@@ -1210,10 +1178,15 @@ export default function AiPanel() {
         }
         body={
           <>
-            <p>
-              This feature will be turned off for your account and no longer available to users.
-              When turned back on, previous user settings can be restored.
-            </p>
+            {/* Phone AI features have no user deployment — no restore note. */}
+            {subDisableKey && PHONE_AI_KEYS.includes(subDisableKey) ? (
+              <p>This feature will be turned off for your account.</p>
+            ) : (
+              <p>
+                This feature will be turned off for your account and no longer available to users.
+                When turned back on, previous user settings can be restored.
+              </p>
+            )}
             {subDisableKey === 'liveTranscripts' && (
               <p>
                 <span className="font-bold">Call notes</span> will also be turned off.
@@ -1244,7 +1217,7 @@ export default function AiPanel() {
       />
 
       {/* Upward cascade confirm — child user default On while a parent's user
-          default is Off (CC → Live transcripts → Call notes). */}
+          default is Off (Live transcripts → Call notes). */}
       <SpringConfirmDialog
         open={upPending !== null}
         confirmLabel="Turn default on"

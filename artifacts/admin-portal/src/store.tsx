@@ -224,7 +224,8 @@ type Action =
   | { type: 'PATCH_EMAIL_TO_FAX'; payload: Partial<EmailToFaxConfig> }
   | { type: 'PATCH_FAX_CUSTOMIZE'; payload: Partial<FaxConfig> }
   | { type: 'RESET_OVERRIDES_AI'; payload: AiFeatureKey }
-  | { type: 'SET_NOTES_AUTO_START'; payload: boolean };
+  | { type: 'SET_NOTES_AUTO_START'; payload: boolean }
+  | { type: 'ENABLE_LIVE_TRANSCRIPTS'; payload: { notesAutoStart: boolean } };
 
 function withSnapshot(state: AppState): AppState {
   return { ...state, undoSnapshot: { ...state, undoSnapshot: null } };
@@ -395,6 +396,17 @@ function reducer(state: AppState, action: Action): AppState {
     }
     case 'SET_NOTES_AUTO_START':
       return { ...withSnapshot(state), ai: { ...state.ai, notesAutoStart: action.payload } };
+    // Turn on Live transcripts and save the in-call behavior choice in one
+    // atomic update so a single Undo restores both.
+    case 'ENABLE_LIVE_TRANSCRIPTS':
+      return {
+        ...withSnapshot(state),
+        ai: {
+          ...state.ai,
+          liveTranscripts: { ...state.ai.liveTranscripts, on: true },
+          notesAutoStart: action.payload.notesAutoStart,
+        },
+      };
     default:
       return state;
   }
