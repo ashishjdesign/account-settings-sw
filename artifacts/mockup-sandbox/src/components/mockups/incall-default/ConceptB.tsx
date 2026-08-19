@@ -121,67 +121,121 @@ export function ConceptB({ onBack }: { onBack?: () => void }) {
 
         {/* ── Card 2: Live transcripts + Call notes + in-call behavior ── */}
         {captioningOn && (
-          <section className="rounded-[8px] border border-[var(--sui-colors-neutral-b4)] bg-white">
-            {/* Live transcripts row */}
-            <div className="flex items-start gap-4 p-4">
-              <FeatureIcon as={TranscriptionMd} />
-              <div className="flex min-w-0 flex-1 flex-col gap-2">
-                <div className="flex min-h-[32px] w-full items-center gap-4">
-                  <h3 className="flex-1 text-[15px] font-bold leading-[20px] text-[var(--sui-colors-neutral-b1)]">
-                    Live transcripts
-                  </h3>
-                  <SpringSwitch checked={transcriptsOn} onCheckedChange={setTranscriptsOn} />
-                </div>
-                <p className="text-[14px] leading-[20px] text-[var(--sui-colors-neutral-b2)]">
-                  Provides real-time AI-generated call transcripts.{' '}
-                  <a href="#" className="text-[var(--sui-colors-primary-b)] underline">
-                    Learn more
-                  </a>
-                </p>
-              </div>
-            </div>
+          <section className="flex flex-col gap-4 rounded-[8px] border border-[var(--sui-colors-neutral-b4)] bg-white py-4">
 
-            {/* Call notes — nested inside LT card */}
-            {transcriptsOn && (
-              <div className="flex items-start gap-3 border-t border-[var(--sui-colors-neutral-b4)] px-4 py-3 pl-[52px]">
-                <FeatureIcon as={SmartNotesMd} size={18} />
-                <div className="flex min-w-0 flex-1 flex-col gap-1">
-                  <div className="flex items-center gap-4">
-                    <h4 className="flex-1 text-[14px] font-semibold leading-[20px] text-[var(--sui-colors-neutral-b1)]">
-                      Call notes
-                    </h4>
-                    <SpringSwitch checked={callNotesOn} onCheckedChange={setCallNotesOn} />
+            {/* LT icon + content row — owns its own px-4 */}
+            <div className="flex items-start gap-4 px-4">
+              {/* Icon wrapper — 32px tall to align with title row */}
+              <div className="flex h-[32px] w-5 shrink-0 items-center justify-center text-[var(--sui-colors-neutral-b1)]">
+                <SpringIcon as={TranscriptionMd} size={20} />
+              </div>
+
+              {/* Content column */}
+              <div className="flex min-w-0 flex-1 flex-col gap-4">
+
+                {/* LT line item */}
+                <div className="flex flex-col gap-1">
+                  <div className="flex min-h-[32px] items-center gap-4">
+                    <h3 className="flex-1 text-[15px] font-bold leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                      Live transcripts
+                    </h3>
+                    <SpringSwitch checked={transcriptsOn} onCheckedChange={setTranscriptsOn} />
                   </div>
-                  <p className="text-[13px] leading-[18px] text-[var(--sui-colors-neutral-b2)]">
-                    Generates call notes automatically for all your devices.{' '}
+                  <p className="pr-[130px] text-[14px] leading-[20px] text-[var(--sui-colors-neutral-b2)]">
+                    Provides real-time AI-generated call transcripts.{' '}
                     <a href="#" className="text-[var(--sui-colors-primary-b)] underline">
                       Learn more
                     </a>
                   </p>
                 </div>
+
+                {/* Call notes — border-t inside content column (indented by LT icon) */}
+                {transcriptsOn && (
+                  <div className="flex items-start gap-4 border-t border-[var(--sui-colors-neutral-b4)] pt-4">
+                    {/* CN icon */}
+                    <div className="flex h-[32px] w-5 shrink-0 items-center justify-center text-[var(--sui-colors-neutral-b1)]">
+                      <SpringIcon as={SmartNotesMd} size={20} />
+                    </div>
+                    {/* CN content */}
+                    <div className="flex min-w-0 flex-1 flex-col gap-4">
+                      <div className="flex flex-col gap-1">
+                        <div className="flex min-h-[32px] items-center gap-4">
+                          <h4 className="flex-1 text-[15px] font-bold leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                            Call notes
+                          </h4>
+                          <SpringSwitch checked={callNotesOn} onCheckedChange={setCallNotesOn} />
+                        </div>
+                        <p className="pr-[130px] text-[14px] leading-[20px] text-[var(--sui-colors-neutral-b2)]">
+                          Generates call notes for all your devices.{' '}
+                          <a href="#" className="text-[var(--sui-colors-primary-b)] underline">
+                            Learn more
+                          </a>
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+              </div>
+            </div>
+
+            {/* Notes in-call behavior — sibling of LT row, full-width border-t */}
+            {transcriptsOn && (
+              <div className="flex flex-col gap-4 px-4">
+                <div className="flex flex-col gap-4 border-t border-[var(--sui-colors-neutral-b4)] pt-4">
+
+                  {/* Line item: gap-3 between label row and checkbox row */}
+                  <div className="flex flex-col items-start gap-3">
+
+                    {/* Section label */}
+                    <p className="text-[12px] font-semibold uppercase leading-[15px] tracking-[0.2px] text-[var(--sui-colors-neutral-b2)]">
+                      Notes in-call behavior
+                    </p>
+
+                    {/* Checkbox + text */}
+                    <div className="flex items-start gap-4">
+                      {/* Checkbox */}
+                      <button
+                        type="button"
+                        onClick={() => setAutomaticCallNotes(!automaticCallNotes)}
+                        className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-[4px] ${
+                          automaticCallNotes
+                            ? 'bg-[var(--sui-colors-primary-b)]'
+                            : 'border border-[var(--sui-colors-neutral-b3)] bg-white'
+                        }`}
+                        aria-pressed={automaticCallNotes}
+                      >
+                        {automaticCallNotes && (
+                          <svg
+                            viewBox="0 0 12 10"
+                            className="h-3 w-3 text-white"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2.2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          >
+                            <polyline points="1.5 5 4.5 8 10.5 1.5" />
+                          </svg>
+                        )}
+                      </button>
+
+                      {/* Label + description */}
+                      <div className="flex flex-col gap-2">
+                        <p className="text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                          Automatic call notes
+                        </p>
+                        <p className="text-[14px] leading-[20px] text-[var(--sui-colors-neutral-b2)]">
+                          When Call notes is off, applies to Live transcripts only.
+                        </p>
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
               </div>
             )}
 
-            {/* Notes in-call behavior — group footer inside LT card */}
-            {transcriptsOn && (
-              <div className="border-t border-[var(--sui-colors-neutral-b4)] px-4 py-4">
-                <p className="mb-2 text-[12px] font-semibold uppercase leading-[15px] tracking-[0.2px] text-[var(--sui-colors-neutral-b2)]">
-                  Notes in-call behavior
-                </p>
-                <Checkbox
-                  checked={automaticCallNotes}
-                  onChange={setAutomaticCallNotes}
-                  label="Automatic call notes"
-                />
-                {automaticCallNotes && (
-                  <p className="mt-1 pl-[24px] text-[13px] leading-[18px] text-[var(--sui-colors-neutral-b2)]">
-                    {callNotesOn
-                      ? 'Notes start on automatically when a call begins.'
-                      : 'When Call notes is off, applies to Live transcripts only.'}
-                  </p>
-                )}
-              </div>
-            )}
           </section>
         )}
 
