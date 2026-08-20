@@ -203,7 +203,7 @@ export function SpringDialog({
 }
 
 export function SpringConfirmDialog({
-  open, title, body, onCancel, onConfirm, error, confirmLabel = 'Confirm'
+  open, title, body, onCancel, onConfirm, error, confirmLabel = 'Confirm', confirmDisabled
 }: {
   open: boolean;
   title: React.ReactNode;
@@ -212,6 +212,8 @@ export function SpringConfirmDialog({
   onConfirm: () => void;
   error?: boolean;
   confirmLabel?: string;
+  /** Disable the confirm button (e.g. Save with no changes yet). */
+  confirmDisabled?: boolean;
 }) {
   return (
     <DialogPrimitives.Root open={open} onOpenChange={(o) => !o && onCancel()}>
@@ -250,7 +252,8 @@ export function SpringConfirmDialog({
               <button
                 type="button"
                 onClick={onConfirm}
-                className="inline-flex h-[36px] min-w-[60px] cursor-pointer items-center justify-center rounded-[10px] bg-[var(--sui-colors-primary-b)] px-4 text-[15px] font-medium leading-[20px] text-white transition-colors hover:bg-[var(--sui-colors-primary-b-high-contrast)] focus:outline-none focus:ring-2 focus:ring-[var(--sui-colors-primary-b)]/30"
+                disabled={confirmDisabled}
+                className="inline-flex h-[36px] min-w-[60px] cursor-pointer items-center justify-center rounded-[10px] bg-[var(--sui-colors-primary-b)] px-4 text-[15px] font-medium leading-[20px] text-white transition-colors hover:bg-[var(--sui-colors-primary-b-high-contrast)] focus:outline-none focus:ring-2 focus:ring-[var(--sui-colors-primary-b)]/30 disabled:cursor-not-allowed disabled:bg-[var(--sui-colors-neutral-b3)] disabled:hover:bg-[var(--sui-colors-neutral-b3)]"
               >
                 {confirmLabel}
               </button>

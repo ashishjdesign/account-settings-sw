@@ -227,6 +227,9 @@ export default function AiPanel() {
   const [phoneAiSimpleEnableKey, setPhoneAiSimpleEnableKey] = useState<SubKey | null>(null);
   const [ltEnableOpen, setLtEnableOpen] = useState(false);
   const [ltPendingAutoStart, setLtPendingAutoStart] = useState(state.ai.notesAutoStart);
+  // "Manage Notes in-call behavior" modal — edits commit on Save only.
+  const [notesManageOpen, setNotesManageOpen] = useState(false);
+  const [notesPendingAutoStart, setNotesPendingAutoStart] = useState(state.ai.notesAutoStart);
   const [subDisableKey, setSubDisableKey] = useState<SubKey | null>(null);
   const [subEnableKey, setSubEnableKey] = useState<SubKey | null>(null);
 
@@ -576,6 +579,51 @@ export default function AiPanel() {
     showToast(`${labelFor(key)} turned on`, () => dispatch({ type: 'UNDO' }));
   };
 
+  const openNotesManage = () => {
+    setNotesPendingAutoStart(state.ai.notesAutoStart);
+    setNotesManageOpen(true);
+  };
+
+  const saveNotesManage = () => {
+    dispatch({ type: 'SET_NOTES_AUTO_START', payload: notesPendingAutoStart });
+    setNotesManageOpen(false);
+    showToast('Settings were updated.', () => dispatch({ type: 'UNDO' }));
+  };
+
+  // Bordered "Automatic call notes" checkbox box — shared by the LT turn-on
+  // dialog and the Manage Notes in-call behavior modal.
+  const renderAutoNotesCheckbox = (checked: boolean, onToggle: () => void) => (
+    <div className="flex flex-col gap-3 rounded-[8px] border border-[var(--sui-colors-neutral-b4)] p-4">
+      <div className="flex items-start gap-4">
+        <button
+          type="button"
+          onClick={onToggle}
+          aria-pressed={checked}
+          className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-[4px] transition-colors ${
+            checked
+              ? 'bg-[var(--sui-colors-primary-b)]'
+              : 'border border-[var(--sui-colors-neutral-b3)] bg-white'
+          }`}
+        >
+          {checked && (
+            <svg viewBox="0 0 12 10" className="h-3 w-3 text-white" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+              <polyline points="1.5 5 4.5 8 10.5 1.5" />
+            </svg>
+          )}
+        </button>
+        <div className="flex flex-col gap-2">
+          <p className="text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+            Automatic call notes
+          </p>
+          <p className="text-[14px] leading-[20px] text-[var(--sui-colors-neutral-b2)]">
+            Automatically capture notes for all calls. When Call notes is off, applies to Live
+            transcripts only.
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+
   const confirmLtEnable = () => {
     // One atomic dispatch → one undo snapshot for both LT and the checkbox.
     dispatch({ type: 'ENABLE_LIVE_TRANSCRIPTS', payload: { notesAutoStart: ltPendingAutoStart } });
@@ -820,43 +868,22 @@ export default function AiPanel() {
               </div>
             </div>
 
-            {/* Notes in-call behavior — full-width footer, sibling of LT row */}
+            {/* Notes in-call behavior — read-only summary pill + Manage.
+             * Editing happens in the "Manage Notes in-call behavior" modal. */}
             {state.ai.liveTranscripts.on && masterOn && (
               <div className="flex flex-col gap-4 px-4">
-                <div className="flex flex-col gap-4 border-t border-[var(--sui-colors-neutral-b4)] pt-4">
-                  <div className="flex flex-col items-start gap-3">
-                    {/* Section label — labelSemiBold */}
-                    <p className="text-[12px] font-semibold uppercase leading-[15px] tracking-[0.2px] text-[var(--sui-colors-neutral-b2)]">
-                      Notes in-call behavior
-                    </p>
-                    {/* Checkbox + text */}
-                    <div className="flex items-start gap-4">
-                      <button
-                        type="button"
-                        onClick={() => dispatch({ type: 'SET_NOTES_AUTO_START', payload: !state.ai.notesAutoStart })}
-                        aria-pressed={state.ai.notesAutoStart}
-                        className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-[4px] transition-colors ${
-                          state.ai.notesAutoStart
-                            ? 'bg-[var(--sui-colors-primary-b)]'
-                            : 'border border-[var(--sui-colors-neutral-b3)] bg-white'
-                        }`}
-                      >
-                        {state.ai.notesAutoStart && (
-                          <svg viewBox="0 0 12 10" className="h-3 w-3 text-white" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-                            <polyline points="1.5 5 4.5 8 10.5 1.5" />
-                          </svg>
-                        )}
-                      </button>
-                      <div className="flex flex-col gap-2">
-                        <p className="text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b1)]">
-                          Automatic call notes
-                        </p>
-                        <p className="text-[14px] leading-[20px] text-[var(--sui-colors-neutral-b2)]">
-                          When Call notes is off, applies to Live transcripts only.
-                        </p>
-                      </div>
-                    </div>
+                <div className="flex items-center justify-between gap-4 border-t border-[var(--sui-colors-neutral-b4)] pt-4">
+                  <div className="flex h-[32px] items-center gap-2 whitespace-nowrap rounded-[10px] bg-[var(--sui-colors-neutral-b5)] px-3 text-[14px] leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                    <span className="font-semibold">Automatic call notes:</span>
+                    <span className="font-normal">{state.ai.notesAutoStart ? 'On' : 'Off'}</span>
                   </div>
+                  <button
+                    type="button"
+                    onClick={openNotesManage}
+                    className="inline-flex h-[32px] shrink-0 cursor-pointer items-center justify-center gap-1.5 rounded-[10px] px-2 text-[14px] font-medium leading-[20px] text-[var(--sui-colors-primary-b)] transition-colors hover:bg-[var(--sui-colors-neutral-b5)] focus:outline-none focus:ring-2 focus:ring-[var(--sui-colors-primary-b)]/30"
+                  >
+                    Manage
+                  </button>
                 </div>
               </div>
             )}
@@ -1090,44 +1117,31 @@ export default function AiPanel() {
         title={<>Turn on <span className="font-normal">Live transcripts</span> for your organization?</>}
         body={
           <>
-            <p>This feature will be enabled for your account.</p>
-            <div className="flex flex-col gap-3">
-              <p className="text-[12px] font-semibold uppercase leading-[15px] tracking-[0.2px] text-[var(--sui-colors-neutral-b2)]">
-                Notes in-call behavior
-              </p>
-              <div className="flex flex-col gap-3 rounded-[8px] border border-[var(--sui-colors-neutral-b4)] p-4">
-                <div className="flex items-start gap-4">
-                  <button
-                    type="button"
-                    onClick={() => setLtPendingAutoStart(!ltPendingAutoStart)}
-                    aria-pressed={ltPendingAutoStart}
-                    className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-[4px] transition-colors ${
-                      ltPendingAutoStart
-                        ? 'bg-[var(--sui-colors-primary-b)]'
-                        : 'border border-[var(--sui-colors-neutral-b3)] bg-white'
-                    }`}
-                  >
-                    {ltPendingAutoStart && (
-                      <svg viewBox="0 0 12 10" className="h-3 w-3 text-white" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-                        <polyline points="1.5 5 4.5 8 10.5 1.5" />
-                      </svg>
-                    )}
-                  </button>
-                  <div className="flex flex-col gap-2">
-                    <p className="text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b1)]">
-                      Automatic call notes
-                    </p>
-                    <p className="text-[14px] leading-[20px] text-[var(--sui-colors-neutral-b2)]">
-                      When Call notes is off, applies to Live transcripts only.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <p>
+              This feature will be enabled for your account. Configure notes in-call behavior
+              below.
+            </p>
+            {renderAutoNotesCheckbox(ltPendingAutoStart, () =>
+              setLtPendingAutoStart(!ltPendingAutoStart),
+            )}
           </>
         }
         onCancel={() => setLtEnableOpen(false)}
         onConfirm={confirmLtEnable}
+      />
+
+      {/* Manage Notes in-call behavior — read-only card summary edits here.
+          Save stays disabled until the checkbox actually changes. */}
+      <SpringConfirmDialog
+        open={notesManageOpen}
+        confirmLabel="Save"
+        confirmDisabled={notesPendingAutoStart === state.ai.notesAutoStart}
+        title={<>Manage Notes in-call behavior</>}
+        body={renderAutoNotesCheckbox(notesPendingAutoStart, () =>
+          setNotesPendingAutoStart(!notesPendingAutoStart),
+        )}
+        onCancel={() => setNotesManageOpen(false)}
+        onConfirm={saveNotesManage}
       />
 
       {/* Simple turn-on confirm for CC / Call notes / AI voicemail summaries */}
