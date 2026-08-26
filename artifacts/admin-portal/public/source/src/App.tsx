@@ -1,0 +1,44 @@
+import React from 'react';
+import { Switch, Route, Router, Redirect } from "wouter";
+import { Toaster } from "sonner";
+import { SettingsProvider } from "./store";
+import Chrome from "./components/Chrome";
+import FeatureSettings from "./pages/FeatureSettings";
+import ValidatePage from "./pages/ValidatePage";
+
+function App() {
+  return (
+    <SettingsProvider>
+      <Router base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+        <Toaster
+          position="top-center"
+          offset={15}
+          className="swui-scope"
+          style={{ '--width': '880px' } as React.CSSProperties}
+          toastOptions={{ unstyled: true, classNames: { toast: 'w-[880px] max-w-[calc(100vw-380px)] mx-auto' } }}
+        />
+        <Chrome>
+          <Switch>
+            <Route path="/" component={() => <Redirect to="/feature-settings/general" />} />
+            <Route path="/feature-settings" component={() => <Redirect to="/feature-settings/general" />} />
+            <Route path="/settings/ai" component={() => <Redirect to="/feature-settings/ai" />} />
+            <Route path="/settings" component={() => <Redirect to="/feature-settings/general" />} />
+            <Route path="/validate/:feature">
+              {params => <ValidatePage feature={params.feature || ''} />}
+            </Route>
+            <Route path="/feature-settings/:tab">
+              {params => <FeatureSettings tab={params.tab || 'general'} />}
+            </Route>
+            <Route path="/:path*">
+              <div className="flex h-64 items-center justify-center text-gray-500">
+                <p>Coming soon</p>
+              </div>
+            </Route>
+          </Switch>
+        </Chrome>
+      </Router>
+    </SettingsProvider>
+  );
+}
+
+export default App;

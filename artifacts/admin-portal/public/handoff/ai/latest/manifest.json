@@ -1,0 +1,503 @@
+{
+  "schemaVersion": "2.0",
+  "feature": "ai",
+  "title": "Feature Settings — AI tab",
+  "description": "Master AI features card with per-product retention, plus AVA / Phone AI / Chat AI parent cards whose detail pages (deep-linkable via ?detail=) hold the dependent features and cascade rules.",
+  "generatedAt": "2026-08-26T02:58:39.167Z",
+  "prototypeUrl": "https://a138ed93-de74-4635-b2a4-a6f52dbbb102-00-2u3ovxvifa65f-imgi9zlb.janeway.replit.dev/feature-settings/ai",
+  "designSystem": {
+    "name": "Spring UI (tokens + icons; components are Spring-styled Tailwind/Radix equivalents)",
+    "package": "@ringcentral/spring-icon",
+    "version": "^1.9.2"
+  },
+  "validation": {
+    "status": "Pass with accepted deviations",
+    "report": "/docs/ai-validate.md"
+  },
+  "targets": [
+    {
+      "id": "ai.main",
+      "title": "AI tab — main list",
+      "type": "page",
+      "directUrl": "/feature-settings/ai",
+      "description": "Master card + three parent cards.",
+      "elements": [
+        {
+          "hierarchy": [
+            "SettingCard “AI features” (master) — switch, and while on: “AI data custom retention period” subsection with per-product summary pills (RingEX phone / Meetings / RingCX, 365 days each) and Manage",
+            "ParentCard “AVA” — “5 features” label + caret, opens ?detail=ava",
+            "ParentCard “Phone AI” — “4 features”, opens ?detail=phoneAi",
+            "ParentCard “Chat AI” — “4 features”, opens ?detail=chatAi"
+          ],
+          "layout": "Stacked cards; parent cards show a right-aligned “N features” descriptor + CaretRight, vertically centered.",
+          "styling": "Icons from @ringcentral/spring-icon (AiStarsMd, AvaMd, CallMd, Ivamd) rendered 20px via SpringIcon wrapper with currentColor."
+        }
+      ],
+      "responsive": [],
+      "states": [
+        {
+          "id": "default",
+          "description": "Panel content loaded."
+        },
+        {
+          "id": "loading",
+          "description": "Three 120px-tall pulsing slate skeleton bars replace the panel for ~250ms after every tab activation (FeatureSettings.tsx)."
+        },
+        {
+          "id": "master-off",
+          "description": "All three parent cards are hidden; only the master card (switch off, no retention subsection) remains."
+        }
+      ],
+      "motions": [],
+      "localInteractions": [
+        {
+          "trigger": "Click a parent card caret",
+          "outcome": "Navigates to /feature-settings/ai?detail=<ava|phoneAi|chatAi>; the detail page takes over the whole surface (page heading + pill tabs hidden)."
+        },
+        {
+          "trigger": "Toggle master switch",
+          "outcome": "Confirm dialog; turning off also cascades AVA off and returns to the main list."
+        },
+        {
+          "trigger": "Any confirmed settings change",
+          "outcome": "A top-center toast (“Settings were updated.” or “<Feature> turned on/off”) appears with an Undo action that reverts the last snapshot."
+        }
+      ],
+      "integrationBoundaries": [
+        {
+          "id": "settings-persistence",
+          "productionOwns": "persisting feature settings, error handling, and undo semantics",
+          "prototypeAssumption": "All changes mutate an in-memory reducer store; Undo restores a single snapshot; a simulateError flag fakes save failures.",
+          "productionQuestion": "Use the repository’s existing settings persistence, error handling, and undo/rollback approach."
+        },
+        {
+          "id": "user-counts",
+          "productionOwns": "real per-feature user override counts and org user totals",
+          "prototypeAssumption": "Counts such as “26/98 users” are mock constants seeded in the store.",
+          "productionQuestion": "Resolve counts from the production user-settings service."
+        },
+        {
+          "id": "retention-enforcement",
+          "productionOwns": "actual AI data retention/deletion",
+          "prototypeAssumption": "Retention values are numbers in mock state.",
+          "productionQuestion": "Bind to production retention policy services."
+        }
+      ],
+      "sourceRefs": [
+        "src/pages/tabs/AiPanel.tsx",
+        "src/pages/tabs/_aiRetention.tsx"
+      ],
+      "assetRefs": [],
+      "acceptance": [
+        "Deep links to any ?detail= page redirect to the main list when master AI is off.",
+        "Parent cards disappear when master is off."
+      ]
+    },
+    {
+      "id": "ai.ava-detail",
+      "title": "AVA detail page",
+      "type": "page",
+      "directUrl": "/feature-settings/ai?detail=ava",
+      "description": "Back-arrow detail page. AVA parent row (switch + summary + Manage) nests 5 dependent feature rows: Query, Messaging, Integrations, Actions, Knowledge Base — each with its own switch, summary pills, Manage.",
+      "elements": [
+        {
+          "hierarchy": [
+            "FeatureDetailPage header: back arrow + “AVA” title",
+            "AVA parent row",
+            "5 nested child rows (visible only while AVA is active)"
+          ],
+          "layout": "Single card; children indented under the parent row.",
+          "styling": "Child config lives in local component state (not the store); defaults: on, User default On, access Allowed."
+        }
+      ],
+      "responsive": [],
+      "states": [
+        {
+          "id": "ava-on",
+          "description": "All 5 children visible with pills and Manage."
+        },
+        {
+          "id": "ava-off",
+          "description": "Parent switch off; children hidden."
+        }
+      ],
+      "motions": [],
+      "localInteractions": [
+        {
+          "trigger": "Save AVA Manage with User default Off",
+          "outcome": "Cascade confirm “Turn off default for users?” listing the 5 children; confirming cascades default Off to every child."
+        },
+        {
+          "trigger": "Save AVA Manage with access Restricted",
+          "outcome": "Cascade confirm “Restrict users from changing this setting?”; confirming restricts every child. Both confirms chain when both changes apply."
+        },
+        {
+          "trigger": "Toggle a child",
+          "outcome": "Turn-off confirm or enable dialog; commits to local state with toast (no Undo for children)."
+        }
+      ],
+      "integrationBoundaries": [
+        {
+          "id": "ava-children-state",
+          "productionOwns": "backing state for the 5 AVA dependent features",
+          "prototypeAssumption": "Children use local component state keyed by title; Undo of an AVA cascade restores a local snapshot.",
+          "productionQuestion": "Model these features in the production settings store."
+        }
+      ],
+      "activationRecipe": {
+        "baseUrl": "/feature-settings/ai",
+        "target": "AVA cascade confirm",
+        "preconditions": [
+          "Master AI and AVA on"
+        ],
+        "actions": [
+          "Open AVA detail",
+          "Click Manage on the AVA row",
+          "Set User default to Off",
+          "Click Save"
+        ],
+        "expected": "“Turn off default for users?” confirm listing Query, Messaging, Integrations, Actions, Knowledge Bases.",
+        "reset": [
+          "Cancel"
+        ]
+      },
+      "sourceRefs": [
+        "src/pages/tabs/AiPanel.tsx",
+        "src/pages/tabs/_assistantConfirms.tsx"
+      ],
+      "assetRefs": [],
+      "acceptance": [
+        "Restrictive AVA changes always confirm the child cascade before committing."
+      ]
+    },
+    {
+      "id": "ai.phone-ai-detail",
+      "title": "Phone AI detail page",
+      "type": "page",
+      "directUrl": "/feature-settings/ai?detail=phoneAi",
+      "description": "Three cards implementing the Closed captioning → Live transcripts → Call notes dependency chain, plus AI voicemail summaries. No user deployment on any Phone AI feature.",
+      "elements": [
+        {
+          "hierarchy": [
+            "Card 1: Closed captioning (switch only)",
+            "Card 2 (hidden while CC off): Live transcripts row; nested Call notes row (hidden while LT off); footer “Automatic call notes: On/Off” pill + Manage",
+            "Card 3: AI voicemail summaries (switch only)"
+          ],
+          "layout": "Card 2 uses py-4 only so the footer border-t runs full width.",
+          "styling": "Spring icons: ClosedCaptionsMd, TranscriptMd, SmartNotesMd, VoicemailMd."
+        }
+      ],
+      "responsive": [],
+      "states": [
+        {
+          "id": "chain-on",
+          "description": "All rows visible; footer shows Automatic call notes value."
+        },
+        {
+          "id": "cc-off",
+          "description": "Card 2 hidden entirely."
+        },
+        {
+          "id": "lt-off",
+          "description": "Call notes row and footer hidden."
+        }
+      ],
+      "motions": [],
+      "localInteractions": [
+        {
+          "trigger": "Turn CC off",
+          "outcome": "Confirm warns Live transcripts and Call notes will also turn off; one CASCADE dispatch, single Undo restores the chain."
+        },
+        {
+          "trigger": "Turn LT on",
+          "outcome": "Custom confirm with an “Automatic call notes” checkbox; confirm enables CC+LT and saves the checkbox atomically."
+        },
+        {
+          "trigger": "Manage next to the footer pill",
+          "outcome": "“Manage Notes in-call behavior” modal; Save disabled until the checkbox changes."
+        }
+      ],
+      "integrationBoundaries": [],
+      "sourceRefs": [
+        "src/pages/tabs/AiPanel.tsx"
+      ],
+      "assetRefs": [],
+      "acceptance": [
+        "CC off hides card 2; LT off hides Call notes and the footer.",
+        "Disable confirms name every dependent feature that will also turn off."
+      ]
+    },
+    {
+      "id": "ai.chat-ai-detail",
+      "title": "Chat AI detail page",
+      "type": "page",
+      "directUrl": "/feature-settings/ai?detail=chatAi",
+      "description": "Four independent cards: AI writer for messaging, AI summary, AI translation, AI writer for SMS — each with switch, summary pills, Manage, standard enable/disable dialogs.",
+      "elements": [
+        {
+          "hierarchy": [
+            "Four FeatureDetailCards, one row each"
+          ],
+          "layout": "Stacked cards.",
+          "styling": "Icons AiWriterAltMd, AiSummaryMd, GlobeMd."
+        }
+      ],
+      "responsive": [],
+      "states": [
+        {
+          "id": "default",
+          "description": "All four on with pills."
+        },
+        {
+          "id": "feature-off",
+          "description": "A row without pills/Manage."
+        }
+      ],
+      "motions": [],
+      "localInteractions": [
+        {
+          "trigger": "Manage → Save",
+          "outcome": "PATCH_AI_FEATURE + undo toast; no cross-feature cascades on this page."
+        }
+      ],
+      "integrationBoundaries": [],
+      "sourceRefs": [
+        "src/pages/tabs/AiPanel.tsx"
+      ],
+      "assetRefs": [],
+      "acceptance": [
+        "The four features toggle independently."
+      ]
+    },
+    {
+      "id": "ai.dialogs",
+      "title": "AI tab dialogs (master, retention, upward cascade)",
+      "type": "state",
+      "description": "Master on/off confirms (off-confirm lists AVA + phone/chat/SMS AI cascading off); ManageAiFeaturesDialog for per-product retention (RingEX phone / Meetings / RingCX with preset + custom day values); RetentionConfirmDialog when any product gets shorter (data-loss warning); upward-cascade confirm “Turn on default for users?” when a child’s user default goes On while a parent’s is Off (Live transcripts → Call notes).",
+      "elements": [
+        {
+          "hierarchy": [
+            "Standard 600/720px dialog chrome as elsewhere"
+          ],
+          "layout": "Standard.",
+          "styling": "Standard."
+        }
+      ],
+      "responsive": [],
+      "motions": [],
+      "states": [
+        {
+          "id": "master-off-confirm",
+          "description": "Bold list of cascading features + restore note."
+        },
+        {
+          "id": "retention-manage",
+          "description": "Three product rows with day selectors."
+        },
+        {
+          "id": "retention-shorter-confirm",
+          "description": "Shown only when a value decreases."
+        },
+        {
+          "id": "upward-cascade-confirm",
+          "description": "Names the child and each parent whose default will also turn on."
+        }
+      ],
+      "localInteractions": [],
+      "integrationBoundaries": [],
+      "activationRecipe": {
+        "baseUrl": "/feature-settings/ai",
+        "target": "Retention shorter-period confirm",
+        "preconditions": [
+          "Master AI on"
+        ],
+        "actions": [
+          "Click Manage in the AI data custom retention section",
+          "Reduce any product’s period",
+          "Click Save"
+        ],
+        "expected": "Data-loss confirm dialog opens; only after confirming does the change commit.",
+        "reset": [
+          "Cancel both dialogs"
+        ]
+      },
+      "sourceRefs": [
+        "src/pages/tabs/_aiRetention.tsx",
+        "src/pages/tabs/AiPanel.tsx"
+      ],
+      "assetRefs": [],
+      "acceptance": [
+        "Shorter retention always confirms; longer-only changes commit directly."
+      ]
+    }
+  ],
+  "flows": [
+    {
+      "id": "ai-detail-navigation",
+      "title": "Main list ↔ detail pages",
+      "targetIds": [
+        "ai.main",
+        "ai.ava-detail",
+        "ai.phone-ai-detail",
+        "ai.chat-ai-detail"
+      ],
+      "notes": "Driven by ?detail= URL param; back arrow returns to /feature-settings/ai; invalid or unauthorized detail params normalize to the main list (replace navigation)."
+    },
+    {
+      "id": "cc-chain",
+      "title": "Closed captioning dependency chain",
+      "targetIds": [
+        "ai.phone-ai-detail",
+        "ai.dialogs"
+      ],
+      "notes": "CC off cascades LT+Notes off in one undoable dispatch; enabling LT re-enables CC atomically."
+    }
+  ],
+  "sourceFiles": [
+    {
+      "path": "src/App.tsx",
+      "published": "/source/src/App.tsx",
+      "description": "Root routes, redirects, base-path Router, Toaster, /validate/:feature review route"
+    },
+    {
+      "path": "src/pages/ValidatePage.tsx",
+      "published": "/source/src/pages/ValidatePage.tsx",
+      "description": "Designer-facing Spring UI validation review page rendering /docs/<feature>-validate.md"
+    },
+    {
+      "path": "src/main.tsx",
+      "published": "/source/src/main.tsx",
+      "description": "App bootstrap"
+    },
+    {
+      "path": "src/index.css",
+      "published": "/source/src/index.css",
+      "description": "Tailwind theme, Spring token variables (--sui-colors-*), chrome scopes"
+    },
+    {
+      "path": "src/fonts/rc-font.woff2",
+      "published": "/source/src/fonts/rc-font.woff2",
+      "description": "RingCentral UI font (woff2), loaded by src/index.css via relative URL"
+    },
+    {
+      "path": "src/fonts/rc-font.woff",
+      "published": "/source/src/fonts/rc-font.woff",
+      "description": "RingCentral UI font (woff fallback), loaded by src/index.css via relative URL"
+    },
+    {
+      "path": "src/store.tsx",
+      "published": "/source/src/store.tsx",
+      "description": "Mock settings store: reducer, feature configs, cascade + undo actions"
+    },
+    {
+      "path": "src/lib/utils.ts",
+      "published": "/source/src/lib/utils.ts",
+      "description": "cn class-merge utility"
+    },
+    {
+      "path": "src/components/Chrome.tsx",
+      "published": "/source/src/components/Chrome.tsx",
+      "description": "Admin Portal chrome: masthead, sub-nav, side nav, footer"
+    },
+    {
+      "path": "src/components/shared.tsx",
+      "published": "/source/src/components/shared.tsx",
+      "description": "Shared Spring-style primitives: SettingCard, dialogs, switch, tabs, toast, detail-page components"
+    },
+    {
+      "path": "src/pages/FeatureSettings.tsx",
+      "published": "/source/src/pages/FeatureSettings.tsx",
+      "description": "Tab shell: pill tabs, loading skeleton, panel switch, AI detail takeover"
+    },
+    {
+      "path": "src/pages/tabs/AiPanel.tsx",
+      "published": "/source/src/pages/tabs/AiPanel.tsx",
+      "description": "AI tab: main list, three detail pages, all dialogs and cascade logic"
+    },
+    {
+      "path": "src/pages/tabs/_aiRetention.tsx",
+      "published": "/source/src/pages/tabs/_aiRetention.tsx",
+      "description": "Retention products, Manage AI features dialog, shorter-period confirm"
+    },
+    {
+      "path": "src/pages/tabs/_assistantConfirms.tsx",
+      "published": "/source/src/pages/tabs/_assistantConfirms.tsx",
+      "description": "AVA/feature enable + disable confirm dialogs"
+    },
+    {
+      "path": "src/pages/tabs/GeneralPanel.tsx",
+      "published": "/source/src/pages/tabs/GeneralPanel.tsx",
+      "description": "(shared closure) General tab panel: cards and dialog wiring"
+    },
+    {
+      "path": "src/pages/tabs/PhonePanel.tsx",
+      "published": "/source/src/pages/tabs/PhonePanel.tsx",
+      "description": "(shared closure) Phone tab panel: three cards + dialogs"
+    },
+    {
+      "path": "src/pages/tabs/SmsPanel.tsx",
+      "published": "/source/src/pages/tabs/SmsPanel.tsx",
+      "description": "(shared closure) SMS tab panel: single read-only card"
+    },
+    {
+      "path": "src/pages/tabs/FaxPanel.tsx",
+      "published": "/source/src/pages/tabs/FaxPanel.tsx",
+      "description": "(shared closure) Fax tab panel: cards, confirms, customize drawer source (currently untriggered)"
+    }
+  ],
+  "assets": [
+    {
+      "id": "info",
+      "path": "public/figma-ref/icons/info.svg",
+      "url": "/handoff-assets/ai/info.svg",
+      "required": true,
+      "description": "Info glyph"
+    },
+    {
+      "id": "ringcentral-logo",
+      "path": "public/figma-ref/ringcentral-logo.svg",
+      "url": "/handoff-assets/ai/ringcentral-logo.svg",
+      "required": true,
+      "description": "Masthead brand logo"
+    }
+  ],
+  "acceptedDeviations": [
+    {
+      "id": "SUV-001",
+      "targetId": "ai.main",
+      "rule": "Spring component usage",
+      "requirement": "Keep the prototype’s Spring-styled Tailwind + Radix primitives (SettingCard, SpringSwitch, SpringConfirmDialog, etc.); @ringcentral/spring-ui is not installed and the task forbids redesigning the finalized UI.",
+      "approved": true
+    },
+    {
+      "id": "SUV-002",
+      "targetId": "ai.main",
+      "rule": "Spring icon usage",
+      "requirement": "Keep lucide-react utility glyphs (close X, chevrons, search, info) inside dialogs/controls; visual parity with the approved prototype takes precedence.",
+      "approved": true
+    },
+    {
+      "id": "SUV-003",
+      "targetId": "ai.main",
+      "rule": "Spring token usage",
+      "requirement": "Keep Tailwind default-palette utilities used for the loading skeleton (slate-100), error banners (red-50/red-800), overlays (black/40) and white surfaces.",
+      "approved": true
+    },
+    {
+      "id": "SUV-004",
+      "targetId": "ai.main",
+      "rule": "Color tokens in chrome",
+      "requirement": "Admin Portal chrome (masthead, side nav, footer) intentionally uses the legacy Service Web UI palette (#0679BA, #2F2F2F, #FBFBFB…) scoped under .swui-scope, not Spring tokens.",
+      "approved": true
+    },
+    {
+      "id": "SUV-005",
+      "targetId": "ai.phone-ai-detail",
+      "rule": "Spring icon usage",
+      "requirement": "Keep the inline checkmark SVG inside the “Automatic call notes” custom checkbox (visual parity with the approved dialog).",
+      "approved": true
+    }
+  ],
+  "coverageGaps": [],
+  "sourceClosureNote": "The app is a single SPA: src/App.tsx statically imports FeatureSettings.tsx, which statically imports all five tab panels and the AI helper modules. sourceFiles therefore lists the full transitive import graph — identical for every feature — so any manifest alone is a complete, buildable source set. Files primary to this feature carry feature-specific descriptions; the rest are marked (shared closure)."
+}

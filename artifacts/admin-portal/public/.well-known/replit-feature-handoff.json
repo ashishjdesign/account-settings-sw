@@ -1,0 +1,65 @@
+{
+  "schemaVersion": "2.0",
+  "projectName": "Admin Portal — Feature Settings",
+  "projectUrl": "https://a138ed93-de74-4635-b2a4-a6f52dbbb102-00-2u3ovxvifa65f-imgi9zlb.janeway.replit.dev",
+  "features": [
+    {
+      "id": "general",
+      "name": "Feature Settings — General tab",
+      "description": "Account-level General settings: User activation toggle and the Guides, tutorials & announcements feature with user-deployment management.",
+      "manifest": "/handoff/general/latest/manifest.json",
+      "generatedAt": "2026-08-26T02:58:39.167Z",
+      "routeHints": [
+        "/feature-settings/general"
+      ],
+      "validationStatus": "Pass with accepted deviations"
+    },
+    {
+      "id": "phone",
+      "name": "Feature Settings — Phone tab",
+      "description": "Phone settings: external-app launch for incoming calls (with deployment + URL config), Auto-answer calls, and Conference calls.",
+      "manifest": "/handoff/phone/latest/manifest.json",
+      "generatedAt": "2026-08-26T02:58:39.167Z",
+      "routeHints": [
+        "/feature-settings/phone"
+      ],
+      "validationStatus": "Pass with accepted deviations"
+    },
+    {
+      "id": "ai",
+      "name": "Feature Settings — AI tab",
+      "description": "Master AI features card with per-product retention, plus AVA / Phone AI / Chat AI parent cards whose detail pages (deep-linkable via ?detail=) hold the dependent features and cascade rules.",
+      "manifest": "/handoff/ai/latest/manifest.json",
+      "generatedAt": "2026-08-26T02:58:39.167Z",
+      "routeHints": [
+        "/feature-settings/ai",
+        "/feature-settings/ai?detail=ava",
+        "/feature-settings/ai?detail=phoneAi",
+        "/feature-settings/ai?detail=chatAi"
+      ],
+      "validationStatus": "Pass with accepted deviations"
+    },
+    {
+      "id": "sms",
+      "name": "Feature Settings — SMS tab",
+      "description": "Read-only SMS Service card: enabled at the account level and locked with an explanatory info tooltip.",
+      "manifest": "/handoff/sms/latest/manifest.json",
+      "generatedAt": "2026-08-26T02:58:39.167Z",
+      "routeHints": [
+        "/feature-settings/sms"
+      ],
+      "validationStatus": "Pass with accepted deviations"
+    },
+    {
+      "id": "fax",
+      "name": "Feature Settings — Fax tab",
+      "description": "Fax master toggle with dependent Email-to-Fax feature; dependent card hides entirely while Fax is off and turning Fax off cascades Email-to-Fax off.",
+      "manifest": "/handoff/fax/latest/manifest.json",
+      "generatedAt": "2026-08-26T02:58:39.167Z",
+      "routeHints": [
+        "/feature-settings/fax"
+      ],
+      "validationStatus": "Pass with accepted deviations"
+    }
+  ]
+}

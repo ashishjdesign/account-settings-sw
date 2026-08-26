@@ -1,0 +1,247 @@
+{
+  "schemaVersion": "2.0",
+  "feature": "sms",
+  "title": "Feature Settings — SMS tab",
+  "description": "Read-only SMS Service card: enabled at the account level and locked with an explanatory info tooltip.",
+  "generatedAt": "2026-08-26T02:58:39.167Z",
+  "prototypeUrl": "https://a138ed93-de74-4635-b2a4-a6f52dbbb102-00-2u3ovxvifa65f-imgi9zlb.janeway.replit.dev/feature-settings/sms",
+  "designSystem": {
+    "name": "Spring UI (tokens + icons; components are Spring-styled Tailwind/Radix equivalents)",
+    "package": "@ringcentral/spring-icon",
+    "version": "^1.9.2"
+  },
+  "validation": {
+    "status": "Pass with accepted deviations",
+    "report": "/docs/sms-validate.md"
+  },
+  "targets": [
+    {
+      "id": "sms.main",
+      "title": "SMS tab — read-only service card",
+      "type": "page",
+      "directUrl": "/feature-settings/sms",
+      "description": "Single SettingCard “SMS Service” with a disabled, on switch and an info button.",
+      "elements": [
+        {
+          "hierarchy": [
+            "SettingCard “SMS Service” — sms icon, description + Learn more, info button, disabled switch (on)"
+          ],
+          "layout": "Single card in the tab shell.",
+          "styling": "Disabled switch keeps the primary hue at 60% opacity on track and thumb (per spec — no whole-component opacity)."
+        }
+      ],
+      "responsive": [],
+      "states": [
+        {
+          "id": "default",
+          "description": "Panel content loaded."
+        },
+        {
+          "id": "loading",
+          "description": "Three 120px-tall pulsing slate skeleton bars replace the panel for ~250ms after every tab activation (FeatureSettings.tsx)."
+        },
+        {
+          "id": "tooltip-open",
+          "description": "Hovering/focusing the info button shows a dark tooltip: “SMS Service is enabled at the account level and cannot be turned off here. Contact your account team to change.”"
+        }
+      ],
+      "motions": [
+        {
+          "id": "tooltip-enter",
+          "trigger": "Info hover (200ms delay)",
+          "properties": [
+            "fade",
+            "zoom 95%→100%"
+          ],
+          "durationMs": 150,
+          "easing": "tailwind animate-in defaults",
+          "reducedMotion": "Not specially handled."
+        }
+      ],
+      "localInteractions": [
+        {
+          "trigger": "Click the switch",
+          "outcome": "Nothing — the control is disabled with a not-allowed cursor."
+        }
+      ],
+      "integrationBoundaries": [
+        {
+          "id": "sms-provisioning",
+          "productionOwns": "account-level SMS provisioning",
+          "prototypeAssumption": "smsOn is a mock constant; no action ever changes it.",
+          "productionQuestion": "Reflect the real account SMS entitlement."
+        }
+      ],
+      "activationRecipe": {
+        "baseUrl": "/feature-settings/sms",
+        "target": "Info tooltip",
+        "preconditions": [],
+        "actions": [
+          "Hover the info button on the SMS Service card"
+        ],
+        "expected": "Tooltip visible with the account-level explanation.",
+        "reset": [
+          "Move the pointer away"
+        ]
+      },
+      "sourceRefs": [
+        "src/pages/tabs/SmsPanel.tsx"
+      ],
+      "assetRefs": [
+        "sms",
+        "info"
+      ],
+      "acceptance": [
+        "Switch is visibly on but non-interactive; tooltip explains why."
+      ]
+    }
+  ],
+  "flows": [],
+  "sourceFiles": [
+    {
+      "path": "src/App.tsx",
+      "published": "/source/src/App.tsx",
+      "description": "Root routes, redirects, base-path Router, Toaster, /validate/:feature review route"
+    },
+    {
+      "path": "src/pages/ValidatePage.tsx",
+      "published": "/source/src/pages/ValidatePage.tsx",
+      "description": "Designer-facing Spring UI validation review page rendering /docs/<feature>-validate.md"
+    },
+    {
+      "path": "src/main.tsx",
+      "published": "/source/src/main.tsx",
+      "description": "App bootstrap"
+    },
+    {
+      "path": "src/index.css",
+      "published": "/source/src/index.css",
+      "description": "Tailwind theme, Spring token variables (--sui-colors-*), chrome scopes"
+    },
+    {
+      "path": "src/fonts/rc-font.woff2",
+      "published": "/source/src/fonts/rc-font.woff2",
+      "description": "RingCentral UI font (woff2), loaded by src/index.css via relative URL"
+    },
+    {
+      "path": "src/fonts/rc-font.woff",
+      "published": "/source/src/fonts/rc-font.woff",
+      "description": "RingCentral UI font (woff fallback), loaded by src/index.css via relative URL"
+    },
+    {
+      "path": "src/store.tsx",
+      "published": "/source/src/store.tsx",
+      "description": "Mock settings store: reducer, feature configs, cascade + undo actions"
+    },
+    {
+      "path": "src/lib/utils.ts",
+      "published": "/source/src/lib/utils.ts",
+      "description": "cn class-merge utility"
+    },
+    {
+      "path": "src/components/Chrome.tsx",
+      "published": "/source/src/components/Chrome.tsx",
+      "description": "Admin Portal chrome: masthead, sub-nav, side nav, footer"
+    },
+    {
+      "path": "src/components/shared.tsx",
+      "published": "/source/src/components/shared.tsx",
+      "description": "Shared Spring-style primitives: SettingCard, dialogs, switch, tabs, toast, detail-page components"
+    },
+    {
+      "path": "src/pages/FeatureSettings.tsx",
+      "published": "/source/src/pages/FeatureSettings.tsx",
+      "description": "Tab shell: pill tabs, loading skeleton, panel switch, AI detail takeover"
+    },
+    {
+      "path": "src/pages/tabs/SmsPanel.tsx",
+      "published": "/source/src/pages/tabs/SmsPanel.tsx",
+      "description": "SMS tab panel: single read-only card"
+    },
+    {
+      "path": "src/pages/tabs/GeneralPanel.tsx",
+      "published": "/source/src/pages/tabs/GeneralPanel.tsx",
+      "description": "(shared closure) General tab panel: cards and dialog wiring"
+    },
+    {
+      "path": "src/pages/tabs/PhonePanel.tsx",
+      "published": "/source/src/pages/tabs/PhonePanel.tsx",
+      "description": "(shared closure) Phone tab panel: three cards + dialogs"
+    },
+    {
+      "path": "src/pages/tabs/AiPanel.tsx",
+      "published": "/source/src/pages/tabs/AiPanel.tsx",
+      "description": "(shared closure) AI tab: main list, three detail pages, all dialogs and cascade logic"
+    },
+    {
+      "path": "src/pages/tabs/_aiRetention.tsx",
+      "published": "/source/src/pages/tabs/_aiRetention.tsx",
+      "description": "(shared closure) Retention products, Manage AI features dialog, shorter-period confirm"
+    },
+    {
+      "path": "src/pages/tabs/_assistantConfirms.tsx",
+      "published": "/source/src/pages/tabs/_assistantConfirms.tsx",
+      "description": "(shared closure) AVA/feature enable + disable confirm dialogs"
+    },
+    {
+      "path": "src/pages/tabs/FaxPanel.tsx",
+      "published": "/source/src/pages/tabs/FaxPanel.tsx",
+      "description": "(shared closure) Fax tab panel: cards, confirms, customize drawer source (currently untriggered)"
+    }
+  ],
+  "assets": [
+    {
+      "id": "sms",
+      "path": "public/figma-ref/icons/sms.svg",
+      "url": "/handoff-assets/sms/sms.svg",
+      "required": true,
+      "description": "SMS card icon"
+    },
+    {
+      "id": "info",
+      "path": "public/figma-ref/icons/info.svg",
+      "url": "/handoff-assets/sms/info.svg",
+      "required": true,
+      "description": "Info glyph"
+    },
+    {
+      "id": "ringcentral-logo",
+      "path": "public/figma-ref/ringcentral-logo.svg",
+      "url": "/handoff-assets/sms/ringcentral-logo.svg",
+      "required": true,
+      "description": "Masthead brand logo"
+    }
+  ],
+  "acceptedDeviations": [
+    {
+      "id": "SUV-001",
+      "targetId": "sms.main",
+      "rule": "Spring component usage",
+      "requirement": "Keep the prototype’s Spring-styled Tailwind + Radix primitives (SettingCard, SpringSwitch, SpringConfirmDialog, etc.); @ringcentral/spring-ui is not installed and the task forbids redesigning the finalized UI.",
+      "approved": true
+    },
+    {
+      "id": "SUV-002",
+      "targetId": "sms.main",
+      "rule": "Spring icon usage",
+      "requirement": "Keep lucide-react utility glyphs (close X, chevrons, search, info) inside dialogs/controls; visual parity with the approved prototype takes precedence.",
+      "approved": true
+    },
+    {
+      "id": "SUV-003",
+      "targetId": "sms.main",
+      "rule": "Spring token usage",
+      "requirement": "Keep Tailwind default-palette utilities used for the loading skeleton (slate-100), error banners (red-50/red-800), overlays (black/40) and white surfaces.",
+      "approved": true
+    },
+    {
+      "id": "SUV-004",
+      "targetId": "sms.main",
+      "rule": "Color tokens in chrome",
+      "requirement": "Admin Portal chrome (masthead, side nav, footer) intentionally uses the legacy Service Web UI palette (#0679BA, #2F2F2F, #FBFBFB…) scoped under .swui-scope, not Spring tokens.",
+      "approved": true
+    }
+  ],
+  "coverageGaps": [],
+  "sourceClosureNote": "The app is a single SPA: src/App.tsx statically imports FeatureSettings.tsx, which statically imports all five tab panels and the AI helper modules. sourceFiles therefore lists the full transitive import graph — identical for every feature — so any manifest alone is a complete, buildable source set. Files primary to this feature carry feature-specific descriptions; the rest are marked (shared closure)."
+}

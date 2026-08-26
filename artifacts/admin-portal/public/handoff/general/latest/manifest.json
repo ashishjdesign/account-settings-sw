@@ -1,0 +1,428 @@
+{
+  "schemaVersion": "2.0",
+  "feature": "general",
+  "title": "Feature Settings — General tab",
+  "description": "Account-level General settings: User activation toggle and the Guides, tutorials & announcements feature with user-deployment management.",
+  "generatedAt": "2026-08-26T02:58:39.167Z",
+  "prototypeUrl": "https://a138ed93-de74-4635-b2a4-a6f52dbbb102-00-2u3ovxvifa65f-imgi9zlb.janeway.replit.dev/feature-settings/general",
+  "designSystem": {
+    "name": "Spring UI (tokens + icons; components are Spring-styled Tailwind/Radix equivalents)",
+    "package": "@ringcentral/spring-icon",
+    "version": "^1.9.2"
+  },
+  "validation": {
+    "status": "Pass with accepted deviations",
+    "report": "/docs/general-validate.md"
+  },
+  "targets": [
+    {
+      "id": "general.main",
+      "title": "General tab — settings list",
+      "type": "page",
+      "directUrl": "/feature-settings/general",
+      "description": "Two setting cards under the Feature Settings heading and pill tabs.",
+      "elements": [
+        {
+          "hierarchy": [
+            "Page heading “Feature Settings” (20px semibold)",
+            "Pill tab row: General (selected), Phone, AI, SMS, Fax",
+            "SettingCard “User activation” — icon, description with Learn more link, switch (off by default)",
+            "Section heading “In-app notification”",
+            "SettingCard “Guides, tutorials & announcements” — switch (on), summary pills “User default: On” / “User access: Allowed”, Manage button"
+          ],
+          "layout": "Cards are full-width flex rows with 16px padding, 8px radius, 1px neutral-b4 border, stacked with 16px gap inside the tab shell (flex-1 next to a 190px side nav in a 1200px frame).",
+          "styling": "Spring tokens via CSS variables: text neutral-b1/b2, primary-b for links and switch-on, neutral-b5 summary pills (32px tall, 10px radius).",
+          "content": "Copy is exactly as coded in GeneralPanel.tsx; all data is mock store state."
+        }
+      ],
+      "responsive": [
+        {
+          "condition": "any viewport",
+          "behavior": "Fixed 1200px centered frame; pill tabs wrap with flex-wrap; no dedicated mobile layout."
+        }
+      ],
+      "states": [
+        {
+          "id": "default",
+          "description": "Panel content loaded."
+        },
+        {
+          "id": "loading",
+          "description": "Three 120px-tall pulsing slate skeleton bars replace the panel for ~250ms after every tab activation (FeatureSettings.tsx)."
+        },
+        {
+          "id": "guides-off",
+          "description": "When Guides is off its summary pills and Manage remain but Manage is disabled at 50% opacity; switch shows unchecked."
+        }
+      ],
+      "motions": [
+        {
+          "id": "panel-fade",
+          "trigger": "Loading skeleton resolves",
+          "properties": [
+            "opacity 0 to 1"
+          ],
+          "durationMs": 300,
+          "easing": "tailwind animate-in fade-in default",
+          "reducedMotion": "Not specially handled."
+        }
+      ],
+      "localInteractions": [
+        {
+          "trigger": "Click any pill tab",
+          "outcome": "Navigates to /feature-settings/<tab>; skeleton shows ~250ms."
+        },
+        {
+          "trigger": "Click either card switch",
+          "outcome": "Opens the matching confirm/enable dialog instead of toggling immediately."
+        },
+        {
+          "trigger": "Any confirmed settings change",
+          "outcome": "A top-center toast (“Settings were updated.” or “<Feature> turned on/off”) appears with an Undo action that reverts the last snapshot."
+        }
+      ],
+      "integrationBoundaries": [
+        {
+          "id": "settings-persistence",
+          "productionOwns": "persisting feature settings, error handling, and undo semantics",
+          "prototypeAssumption": "All changes mutate an in-memory reducer store; Undo restores a single snapshot; a simulateError flag fakes save failures.",
+          "productionQuestion": "Use the repository’s existing settings persistence, error handling, and undo/rollback approach."
+        },
+        {
+          "id": "user-counts",
+          "productionOwns": "real per-feature user override counts and org user totals",
+          "prototypeAssumption": "Counts such as “26/98 users” are mock constants seeded in the store.",
+          "productionQuestion": "Resolve counts from the production user-settings service."
+        }
+      ],
+      "sourceRefs": [
+        "src/pages/tabs/GeneralPanel.tsx",
+        "src/pages/FeatureSettings.tsx",
+        "src/components/shared.tsx"
+      ],
+      "assetRefs": [
+        "user-activation",
+        "resource-center",
+        "info"
+      ],
+      "acceptance": [
+        "General pill is selected on load and the two cards render in order.",
+        "Guides card shows both summary pills and an enabled Manage button while on.",
+        "Switch clicks never toggle silently — a dialog always intercepts."
+      ]
+    },
+    {
+      "id": "general.user-activation-confirm",
+      "title": "User activation on/off confirm dialog",
+      "type": "state",
+      "description": "600px SpringConfirmDialog. Title/body/confirm label swap between turn-on and turn-off copy based on current state.",
+      "elements": [
+        {
+          "hierarchy": [
+            "Title (24px regular)",
+            "Body paragraph",
+            "Footer: Cancel (secondary) + Turn on/Turn off (primary)"
+          ],
+          "layout": "Top-anchored (pt-24) centered 600px card, 12px radius.",
+          "styling": "Primary-b confirm button; black/40 overlay."
+        }
+      ],
+      "responsive": [],
+      "motions": [
+        {
+          "id": "dialog-enter",
+          "trigger": "Open",
+          "properties": [
+            "fade",
+            "zoom 95%→100%",
+            "slide from top 10%"
+          ],
+          "durationMs": 200,
+          "easing": "tailwind animate-in defaults",
+          "reducedMotion": "Not specially handled."
+        }
+      ],
+      "states": [
+        {
+          "id": "turn-on",
+          "description": "Title “Turn on User activation for your organization?”; confirm “Turn on”."
+        },
+        {
+          "id": "turn-off",
+          "description": "Title “Turn off…”; body warns users can’t re-generate activation email; confirm “Turn off”."
+        }
+      ],
+      "localInteractions": [
+        {
+          "trigger": "Confirm",
+          "outcome": "Dispatches the toggle, closes, shows undo toast."
+        },
+        {
+          "trigger": "Cancel / X / overlay",
+          "outcome": "Closes without change."
+        }
+      ],
+      "integrationBoundaries": [],
+      "activationRecipe": {
+        "baseUrl": "/feature-settings/general",
+        "target": "User activation confirm dialog",
+        "preconditions": [
+          "General tab loaded"
+        ],
+        "actions": [
+          "Click the User activation card switch"
+        ],
+        "expected": "The confirm dialog is open with turn-on copy (default state is off).",
+        "reset": [
+          "Click Cancel"
+        ]
+      },
+      "sourceRefs": [
+        "src/pages/tabs/GeneralPanel.tsx",
+        "src/components/shared.tsx"
+      ],
+      "assetRefs": [],
+      "acceptance": [
+        "Copy variant matches the current switch state."
+      ]
+    },
+    {
+      "id": "general.guides-dialogs",
+      "title": "Guides enable / disable / manage dialogs",
+      "type": "state",
+      "description": "Three flows on the Guides card: disable confirm (SpringConfirmDialog), enable dialog (SpringFeatureEnableDialog with user-deployment options and custom-users decision when customUsers > 0), and Manage dialog (SpringFeatureManageDialog with User default On/Off and User access checkbox).",
+      "elements": [
+        {
+          "hierarchy": [
+            "Enable/Manage: title, deployment radio/selects, custom-users section (26 users seeded)",
+            "Footer: Cancel + Save/Turn on"
+          ],
+          "layout": "720px dialog for manage/enable; 600px for confirm.",
+          "styling": "Error state renders a red-50 banner “Couldn’t save settings. Try again.” and the primary button reads Retry."
+        }
+      ],
+      "responsive": [],
+      "motions": [],
+      "states": [
+        {
+          "id": "disable-confirm",
+          "description": "“Turn off … for your organization?” with restore note."
+        },
+        {
+          "id": "enable",
+          "description": "Deployment options + “26 users have custom settings” decision."
+        },
+        {
+          "id": "manage",
+          "description": "Current default/access values editable; Save commits and toasts."
+        },
+        {
+          "id": "manage-error",
+          "description": "With store simulateError on, Save shows the red banner and Retry; the retry click clears the simulated error."
+        }
+      ],
+      "localInteractions": [
+        {
+          "trigger": "Save in Manage",
+          "outcome": "PATCH_GENERAL_GUIDES, close, undo toast."
+        }
+      ],
+      "integrationBoundaries": [
+        {
+          "id": "user-counts",
+          "productionOwns": "real per-feature user override counts and org user totals",
+          "prototypeAssumption": "Counts such as “26/98 users” are mock constants seeded in the store.",
+          "productionQuestion": "Resolve counts from the production user-settings service."
+        }
+      ],
+      "activationRecipe": {
+        "baseUrl": "/feature-settings/general",
+        "target": "Guides Manage dialog",
+        "preconditions": [
+          "Guides switch is on"
+        ],
+        "actions": [
+          "Click Manage on the Guides card"
+        ],
+        "expected": "Manage dialog open with User default: On, User access: Allowed.",
+        "reset": [
+          "Click Cancel"
+        ]
+      },
+      "sourceRefs": [
+        "src/pages/tabs/GeneralPanel.tsx",
+        "src/components/shared.tsx"
+      ],
+      "assetRefs": [],
+      "acceptance": [
+        "Turning Guides off requires the confirm; turning on opens the enable dialog with the custom-users decision."
+      ]
+    }
+  ],
+  "flows": [
+    {
+      "id": "general-toggle-flow",
+      "title": "Toggle a General feature",
+      "targetIds": [
+        "general.main",
+        "general.user-activation-confirm",
+        "general.guides-dialogs"
+      ],
+      "notes": "Every switch interaction routes through a dialog before the store changes; a toast with Undo follows every commit."
+    }
+  ],
+  "sourceFiles": [
+    {
+      "path": "src/App.tsx",
+      "published": "/source/src/App.tsx",
+      "description": "Root routes, redirects, base-path Router, Toaster, /validate/:feature review route"
+    },
+    {
+      "path": "src/pages/ValidatePage.tsx",
+      "published": "/source/src/pages/ValidatePage.tsx",
+      "description": "Designer-facing Spring UI validation review page rendering /docs/<feature>-validate.md"
+    },
+    {
+      "path": "src/main.tsx",
+      "published": "/source/src/main.tsx",
+      "description": "App bootstrap"
+    },
+    {
+      "path": "src/index.css",
+      "published": "/source/src/index.css",
+      "description": "Tailwind theme, Spring token variables (--sui-colors-*), chrome scopes"
+    },
+    {
+      "path": "src/fonts/rc-font.woff2",
+      "published": "/source/src/fonts/rc-font.woff2",
+      "description": "RingCentral UI font (woff2), loaded by src/index.css via relative URL"
+    },
+    {
+      "path": "src/fonts/rc-font.woff",
+      "published": "/source/src/fonts/rc-font.woff",
+      "description": "RingCentral UI font (woff fallback), loaded by src/index.css via relative URL"
+    },
+    {
+      "path": "src/store.tsx",
+      "published": "/source/src/store.tsx",
+      "description": "Mock settings store: reducer, feature configs, cascade + undo actions"
+    },
+    {
+      "path": "src/lib/utils.ts",
+      "published": "/source/src/lib/utils.ts",
+      "description": "cn class-merge utility"
+    },
+    {
+      "path": "src/components/Chrome.tsx",
+      "published": "/source/src/components/Chrome.tsx",
+      "description": "Admin Portal chrome: masthead, sub-nav, side nav, footer"
+    },
+    {
+      "path": "src/components/shared.tsx",
+      "published": "/source/src/components/shared.tsx",
+      "description": "Shared Spring-style primitives: SettingCard, dialogs, switch, tabs, toast, detail-page components"
+    },
+    {
+      "path": "src/pages/FeatureSettings.tsx",
+      "published": "/source/src/pages/FeatureSettings.tsx",
+      "description": "Tab shell: pill tabs, loading skeleton, panel switch, AI detail takeover"
+    },
+    {
+      "path": "src/pages/tabs/GeneralPanel.tsx",
+      "published": "/source/src/pages/tabs/GeneralPanel.tsx",
+      "description": "General tab panel: cards and dialog wiring"
+    },
+    {
+      "path": "src/pages/tabs/PhonePanel.tsx",
+      "published": "/source/src/pages/tabs/PhonePanel.tsx",
+      "description": "(shared closure) Phone tab panel: three cards + dialogs"
+    },
+    {
+      "path": "src/pages/tabs/AiPanel.tsx",
+      "published": "/source/src/pages/tabs/AiPanel.tsx",
+      "description": "(shared closure) AI tab: main list, three detail pages, all dialogs and cascade logic"
+    },
+    {
+      "path": "src/pages/tabs/_aiRetention.tsx",
+      "published": "/source/src/pages/tabs/_aiRetention.tsx",
+      "description": "(shared closure) Retention products, Manage AI features dialog, shorter-period confirm"
+    },
+    {
+      "path": "src/pages/tabs/_assistantConfirms.tsx",
+      "published": "/source/src/pages/tabs/_assistantConfirms.tsx",
+      "description": "(shared closure) AVA/feature enable + disable confirm dialogs"
+    },
+    {
+      "path": "src/pages/tabs/SmsPanel.tsx",
+      "published": "/source/src/pages/tabs/SmsPanel.tsx",
+      "description": "(shared closure) SMS tab panel: single read-only card"
+    },
+    {
+      "path": "src/pages/tabs/FaxPanel.tsx",
+      "published": "/source/src/pages/tabs/FaxPanel.tsx",
+      "description": "(shared closure) Fax tab panel: cards, confirms, customize drawer source (currently untriggered)"
+    }
+  ],
+  "assets": [
+    {
+      "id": "user-activation",
+      "path": "public/figma-ref/icons/user-activation.svg",
+      "url": "/handoff-assets/general/user-activation.svg",
+      "required": true,
+      "description": "User activation card icon"
+    },
+    {
+      "id": "resource-center",
+      "path": "public/figma-ref/icons/resource-center.svg",
+      "url": "/handoff-assets/general/resource-center.svg",
+      "required": true,
+      "description": "Guides card icon"
+    },
+    {
+      "id": "info",
+      "path": "public/figma-ref/icons/info.svg",
+      "url": "/handoff-assets/general/info.svg",
+      "required": true,
+      "description": "Info glyph used across cards"
+    },
+    {
+      "id": "ringcentral-logo",
+      "path": "public/figma-ref/ringcentral-logo.svg",
+      "url": "/handoff-assets/general/ringcentral-logo.svg",
+      "required": true,
+      "description": "Masthead brand logo"
+    }
+  ],
+  "acceptedDeviations": [
+    {
+      "id": "SUV-001",
+      "targetId": "general.main",
+      "rule": "Spring component usage",
+      "requirement": "Keep the prototype’s Spring-styled Tailwind + Radix primitives (SettingCard, SpringSwitch, SpringConfirmDialog, etc.); @ringcentral/spring-ui is not installed and the task forbids redesigning the finalized UI.",
+      "approved": true
+    },
+    {
+      "id": "SUV-002",
+      "targetId": "general.main",
+      "rule": "Spring icon usage",
+      "requirement": "Keep lucide-react utility glyphs (close X, chevrons, search, info) inside dialogs/controls; visual parity with the approved prototype takes precedence.",
+      "approved": true
+    },
+    {
+      "id": "SUV-003",
+      "targetId": "general.main",
+      "rule": "Spring token usage",
+      "requirement": "Keep Tailwind default-palette utilities used for the loading skeleton (slate-100), error banners (red-50/red-800), overlays (black/40) and white surfaces.",
+      "approved": true
+    },
+    {
+      "id": "SUV-004",
+      "targetId": "general.main",
+      "rule": "Color tokens in chrome",
+      "requirement": "Admin Portal chrome (masthead, side nav, footer) intentionally uses the legacy Service Web UI palette (#0679BA, #2F2F2F, #FBFBFB…) scoped under .swui-scope, not Spring tokens.",
+      "approved": true
+    }
+  ],
+  "coverageGaps": [],
+  "sourceClosureNote": "The app is a single SPA: src/App.tsx statically imports FeatureSettings.tsx, which statically imports all five tab panels and the AI helper modules. sourceFiles therefore lists the full transitive import graph — identical for every feature — so any manifest alone is a complete, buildable source set. Files primary to this feature carry feature-specific descriptions; the rest are marked (shared closure)."
+}

@@ -1,5 +1,17 @@
 import React from 'react';
-import { CaretDownMd, InfoMd, CheckMd } from '@ringcentral/spring-icon';
+import {
+  CaretDownMd as CaretDownMdIcon,
+  InfoMd as InfoMdIcon,
+  CheckMd as CheckMdIcon,
+} from '@ringcentral/spring-icon';
+
+/* The installed @ringcentral/spring-icon typings pull in a React-types
+ * variant that marks onPointerEnterCapture/onPointerLeaveCapture as required
+ * props. Re-type the icons as plain SVG components; runtime is unaffected. */
+type SvgIcon = React.ComponentType<React.SVGProps<SVGSVGElement>>;
+const CaretDownMd = CaretDownMdIcon as unknown as SvgIcon;
+const InfoMd = InfoMdIcon as unknown as SvgIcon;
+const CheckMd = CheckMdIcon as unknown as SvgIcon;
 import { cn } from '../../lib/utils';
 import type { AiCustomRetention, AiRetentionProductKey } from '../../store';
 

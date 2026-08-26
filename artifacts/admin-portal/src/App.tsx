@@ -4,6 +4,7 @@ import { Toaster } from "sonner";
 import { SettingsProvider } from "./store";
 import Chrome from "./components/Chrome";
 import FeatureSettings from "./pages/FeatureSettings";
+import ValidatePage from "./pages/ValidatePage";
 
 function App() {
   return (
@@ -22,6 +23,9 @@ function App() {
             <Route path="/feature-settings" component={() => <Redirect to="/feature-settings/general" />} />
             <Route path="/settings/ai" component={() => <Redirect to="/feature-settings/ai" />} />
             <Route path="/settings" component={() => <Redirect to="/feature-settings/general" />} />
+            <Route path="/validate/:feature">
+              {params => <ValidatePage feature={params.feature || ''} />}
+            </Route>
             <Route path="/feature-settings/:tab">
               {params => <FeatureSettings tab={params.tab || 'general'} />}
             </Route>

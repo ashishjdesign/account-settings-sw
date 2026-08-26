@@ -1,1 +1,2 @@
 - [AVA children state](ava-children-state.md) — AVA's 5 child features in admin-portal use local component state, not the AI feature store (unlike CC children).
+- [Handoff publishing](handoff-publishing.md) — Handoff MCP tools aren't sandbox callbacks; verify specs by HTTP emulation, and regenerate published source copies whenever tab UI changes.
