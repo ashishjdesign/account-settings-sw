@@ -18,7 +18,7 @@
     {
       "id": "sms.main",
       "title": "SMS tab — read-only service card",
-      "type": "page",
+      "type": "screen",
       "directUrl": "/feature-settings/sms",
       "description": "Single SettingCard “SMS Service” with a disabled, on switch and an info button.",
       "elements": [

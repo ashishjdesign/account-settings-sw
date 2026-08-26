@@ -18,7 +18,7 @@
     {
       "id": "general.main",
       "title": "General tab — settings list",
-      "type": "page",
+      "type": "screen",
       "directUrl": "/feature-settings/general",
       "description": "Two setting cards under the Feature Settings heading and pill tabs.",
       "elements": [

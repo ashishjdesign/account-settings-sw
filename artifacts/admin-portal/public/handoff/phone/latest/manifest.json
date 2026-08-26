@@ -18,7 +18,7 @@
     {
       "id": "phone.main",
       "title": "Phone tab — settings list",
-      "type": "page",
+      "type": "screen",
       "directUrl": "/feature-settings/phone",
       "description": "Three setting cards.",
       "elements": [

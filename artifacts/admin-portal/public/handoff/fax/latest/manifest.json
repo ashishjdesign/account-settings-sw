@@ -18,7 +18,7 @@
     {
       "id": "fax.main",
       "title": "Fax tab — settings list",
-      "type": "page",
+      "type": "screen",
       "directUrl": "/feature-settings/fax",
       "description": "Fax card, plus Email-to-Fax card only while Fax is on.",
       "elements": [
@@ -311,7 +311,10 @@
     }
   ],
   "coverageGaps": [
-    "FaxPanel.tsx contains a “Customize Fax Settings” right-side drawer (international toggle, cover-page select, required retention select, unsaved-changes guard), but no visible control currently opens it (openCustomize is unreferenced). It is published in source for completeness; treat it as not part of the current visible design until a trigger exists."
+    {
+      "id": "fax.customize-drawer",
+      "description": "FaxPanel.tsx contains a “Customize Fax Settings” right-side drawer (international toggle, cover-page select, required retention select, unsaved-changes guard), but no visible control currently opens it (openCustomize is unreferenced). It is published in source for completeness; treat it as not part of the current visible design until a trigger exists."
+    }
   ],
   "sourceClosureNote": "The app is a single SPA: src/App.tsx statically imports FeatureSettings.tsx, which statically imports all five tab panels and the AI helper modules. sourceFiles therefore lists the full transitive import graph — identical for every feature — so any manifest alone is a complete, buildable source set. Files primary to this feature carry feature-specific descriptions; the rest are marked (shared closure)."
 }

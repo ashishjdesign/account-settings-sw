@@ -18,7 +18,7 @@
     {
       "id": "ai.main",
       "title": "AI tab — main list",
-      "type": "page",
+      "type": "screen",
       "directUrl": "/feature-settings/ai",
       "description": "Master card + three parent cards.",
       "elements": [
@@ -96,7 +96,7 @@
     {
       "id": "ai.ava-detail",
       "title": "AVA detail page",
-      "type": "page",
+      "type": "screen",
       "directUrl": "/feature-settings/ai?detail=ava",
       "description": "Back-arrow detail page. AVA parent row (switch + summary + Manage) nests 5 dependent feature rows: Query, Messaging, Integrations, Actions, Knowledge Base — each with its own switch, summary pills, Manage.",
       "elements": [
@@ -173,7 +173,7 @@
     {
       "id": "ai.phone-ai-detail",
       "title": "Phone AI detail page",
-      "type": "page",
+      "type": "screen",
       "directUrl": "/feature-settings/ai?detail=phoneAi",
       "description": "Three cards implementing the Closed captioning → Live transcripts → Call notes dependency chain, plus AI voicemail summaries. No user deployment on any Phone AI feature.",
       "elements": [
@@ -230,7 +230,7 @@
     {
       "id": "ai.chat-ai-detail",
       "title": "Chat AI detail page",
-      "type": "page",
+      "type": "screen",
       "directUrl": "/feature-settings/ai?detail=chatAi",
       "description": "Four independent cards: AI writer for messaging, AI summary, AI translation, AI writer for SMS — each with switch, summary pills, Manage, standard enable/disable dialogs.",
       "elements": [
