@@ -30,7 +30,7 @@
       "name": "Feature Settings — AI tab",
       "description": "Master AI features card with per-product retention, plus AVA / Phone AI / Chat AI parent cards whose detail pages (deep-linkable via ?detail=) hold the dependent features and cascade rules.",
       "manifest": "/handoff/ai/latest/manifest.json",
-      "generatedAt": "2026-08-26T02:58:39.167Z",
+      "generatedAt": "2026-08-26T05:45:04.000Z",
       "routeHints": [
         "/feature-settings/ai",
         "/feature-settings/ai?detail=ava",
