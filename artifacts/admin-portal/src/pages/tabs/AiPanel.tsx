@@ -242,6 +242,7 @@ export default function AiPanel() {
     payload: Partial<{ on: boolean; defaultVal: 'On' | 'Off'; allowChange: boolean; customUsers: number }>;
     toastMsg: string;
     notesAutoStart?: boolean;
+    forceAutomaticOn?: boolean;
   } | null>(null);
 
   /** Parents in the CC → LT → Call notes chain whose user default is Off. */
@@ -253,6 +254,35 @@ export default function AiPanel() {
           ? ['closedCaptioning', 'liveTranscripts']
           : [];
     return parents.filter((p) => state.ai[p].defaultVal === 'Off');
+  };
+
+  const currentAutomaticBehaviorForced =
+    (state.ai.liveTranscripts.on &&
+      state.ai.liveTranscripts.defaultVal === 'On' &&
+      !state.ai.liveTranscripts.allowChange) ||
+    (state.ai.aiNotes.on &&
+      state.ai.aiNotes.defaultVal === 'On' &&
+      !state.ai.aiNotes.allowChange);
+
+  const deploymentWillNewlyForceAutomatic = (
+    key: SubKey,
+    result: { defaultVal: 'On' | 'Off'; allowChange: boolean },
+    featureWillBeOn = state.ai[key].on,
+    parentsDefaultingOn: SubKey[] = [],
+  ) => {
+    const changedFeatureWillForce =
+      featureWillBeOn &&
+      (key === 'liveTranscripts' || key === 'aiNotes') &&
+      result.defaultVal === 'On' &&
+      !result.allowChange;
+    const liveTranscriptsParentWillForce =
+      parentsDefaultingOn.includes('liveTranscripts') &&
+      state.ai.liveTranscripts.on &&
+      !state.ai.liveTranscripts.allowChange;
+    return (
+      !currentAutomaticBehaviorForced &&
+      (changedFeatureWillForce || liveTranscriptsParentWillForce)
+    );
   };
 
   const commitUpCascade = () => {
@@ -426,8 +456,15 @@ export default function AiPanel() {
     // parents' user defaults on together.
     if (result.defaultVal === 'On') {
       const parentsOff = parentsWithDefaultOff(key);
-      if (parentsOff.length > 0) {
-        setUpPending({ key, parentsOff, payload, toastMsg: `${labelFor(key)} turned on` });
+      const forceAutomaticOn = deploymentWillNewlyForceAutomatic(key, result, true, parentsOff);
+      if (parentsOff.length > 0 || forceAutomaticOn) {
+        setUpPending({
+          key,
+          parentsOff,
+          payload,
+          forceAutomaticOn,
+          toastMsg: `${labelFor(key)} turned on`,
+        });
         setSubEnableKey(null);
         return;
       }
@@ -446,11 +483,18 @@ export default function AiPanel() {
     // parents' user defaults on together.
     if (result.defaultVal === 'On') {
       const parentsOff = parentsWithDefaultOff(key);
-      if (parentsOff.length > 0) {
+      const forceAutomaticOn = deploymentWillNewlyForceAutomatic(
+        key,
+        result,
+        state.ai[key].on,
+        parentsOff,
+      );
+      if (parentsOff.length > 0 || forceAutomaticOn) {
         setUpPending({
           key,
           parentsOff,
           payload: { defaultVal: result.defaultVal, allowChange: result.allowChange },
+          forceAutomaticOn,
           toastMsg: 'Settings were updated.',
         });
         setSubManageKey(null);
@@ -587,8 +631,15 @@ export default function AiPanel() {
     };
     if (result.defaultVal === 'On') {
       const parentsOff = parentsWithDefaultOff(key);
-      if (parentsOff.length > 0) {
-        setUpPending({ key, parentsOff, payload, toastMsg: `${labelFor(key)} turned on` });
+      const forceAutomaticOn = deploymentWillNewlyForceAutomatic(key, result, true, parentsOff);
+      if (parentsOff.length > 0 || forceAutomaticOn) {
+        setUpPending({
+          key,
+          parentsOff,
+          payload,
+          forceAutomaticOn,
+          toastMsg: `${labelFor(key)} turned on`,
+        });
         setPhoneAiSimpleEnableKey(null);
         return;
       }
@@ -613,13 +664,7 @@ export default function AiPanel() {
   const automaticBehaviorLabel = state.ai.aiNotes.on
     ? 'Automatic live transcripts & call notes'
     : 'Automatic live transcripts';
-  const automaticBehaviorForced =
-    (state.ai.liveTranscripts.on &&
-      state.ai.liveTranscripts.defaultVal === 'On' &&
-      !state.ai.liveTranscripts.allowChange) ||
-    (state.ai.aiNotes.on &&
-      state.ai.aiNotes.defaultVal === 'On' &&
-      !state.ai.aiNotes.allowChange);
+  const automaticBehaviorForced = currentAutomaticBehaviorForced;
   const automaticBehaviorOn = automaticBehaviorForced || state.ai.notesAutoStart;
   const deploymentSummary = (key: SubKey) => [
     { label: 'User default:', value: state.ai[key].defaultVal },
@@ -682,12 +727,19 @@ export default function AiPanel() {
     };
     const parentsOff =
       result.defaultVal === 'On' ? parentsWithDefaultOff('liveTranscripts') : [];
-    if (parentsOff.length > 0) {
+    const forceAutomaticOn = deploymentWillNewlyForceAutomatic(
+      'liveTranscripts',
+      result,
+      true,
+      parentsOff,
+    );
+    if (parentsOff.length > 0 || forceAutomaticOn) {
       setUpPending({
         key: 'liveTranscripts',
         parentsOff,
         payload: featurePatch,
         notesAutoStart: ltPendingAutoStart,
+        forceAutomaticOn,
         toastMsg: 'Live transcripts turned on',
       });
       setLtEnableOpen(false);
@@ -1379,24 +1431,43 @@ export default function AiPanel() {
           default is Off (Live transcripts → Call notes). */}
       <SpringConfirmDialog
         open={upPending !== null}
-        confirmLabel="Turn default on"
-        title={<>Turn on default for users?</>}
+        confirmLabel={upPending?.parentsOff.length ? 'Turn default on' : 'Confirm'}
+        title={
+          upPending?.parentsOff.length
+            ? <>Turn on default for users?</>
+            : <>Confirm deployment change?</>
+        }
         body={
           upPending ? (
             <>
-              <p>
-                <span className="font-bold">{labelFor(upPending.key)}</span> will default to on in
-                user settings.
-              </p>
-              <p>
-                {upPending.parentsOff.map((p, i) => (
-                  <React.Fragment key={p}>
-                    {i > 0 && ' and '}
-                    <span className="font-bold">{labelFor(p)}</span>
-                  </React.Fragment>
-                ))}{' '}
-                will also default to on.
-              </p>
+              {upPending.parentsOff.length > 0 && (
+                <>
+                  <p>
+                    <span className="font-bold">{labelFor(upPending.key)}</span> will default to on
+                    in user settings.
+                  </p>
+                  <p>
+                    {upPending.parentsOff.map((p, i) => (
+                      <React.Fragment key={p}>
+                        {i > 0 && ' and '}
+                        <span className="font-bold">{labelFor(p)}</span>
+                      </React.Fragment>
+                    ))}{' '}
+                    will also default to on.
+                  </p>
+                </>
+              )}
+              {upPending.forceAutomaticOn && (
+                <p>
+                  <span className="font-bold">
+                    {state.ai.aiNotes.on ||
+                    (upPending.key === 'aiNotes' && upPending.payload.on === true)
+                      ? 'Automatic live transcripts & call notes'
+                      : 'Automatic live transcripts'}
+                  </span>{' '}
+                  will also be turned on because users are restricted from changing this setting.
+                </p>
+              )}
             </>
           ) : null
         }

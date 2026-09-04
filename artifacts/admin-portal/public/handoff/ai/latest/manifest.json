@@ -3,7 +3,7 @@
   "feature": "ai",
   "title": "Feature Settings — AI tab",
   "description": "Master AI features card with per-product retention, plus AVA / Phone AI / Chat AI parent cards whose detail pages (deep-linkable via ?detail=) hold the dependent features and cascade rules.",
-  "generatedAt": "2026-09-04T22:00:34.000Z",
+  "generatedAt": "2026-09-04T22:08:49.000Z",
   "prototypeUrl": "https://a138ed93-de74-4635-b2a4-a6f52dbbb102-00-2u3ovxvifa65f.janeway.replit.dev/feature-settings/ai",
   "designSystem": {
     "name": "Spring UI (tokens + icons; components are Spring-styled Tailwind/Radix equivalents)",
@@ -236,6 +236,10 @@
         {
           "trigger": "Save an affected feature as User default On + User access Restricted",
           "outcome": "The shared automatic behavior becomes On. Manage remains visible but disabled, and an adjacent info icon reveals the restriction reason on hover or keyboard focus."
+        },
+        {
+          "trigger": "Save a deployment change that newly forces automatic behavior On",
+          "outcome": "Before committing, opens a confirmation explaining that Automatic live transcripts or Automatic live transcripts & call notes will also turn on because users are restricted. Cancel preserves the previous state; Confirm commits the deployment, parent-default cascade, and effective automatic behavior atomically."
         }
       ],
       "integrationBoundaries": [],
@@ -252,7 +256,8 @@
         "All four turn-on flows include user-deployment management; Live transcripts includes shared automatic behavior in that same confirmation.",
         "Every Phone AI turn-off confirm includes: When turned back on, previous user settings can be restored.",
         "Dependency warnings mention only currently enabled features that will also turn off.",
-        "In-call behavior appears inline before the automatic-setting pill on the enabled settings page; the turn-on dialog keeps the section label above its container."
+        "In-call behavior appears inline before the automatic-setting pill on the enabled settings page; the turn-on dialog keeps the section label above its container.",
+        "A deployment change that newly forces automatic behavior On requires explicit confirmation with a label derived from the post-confirmation Call notes state."
       ]
     },
     {

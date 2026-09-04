@@ -709,6 +709,9 @@ export function SpringFeatureManageDialog({
                   <DialogPrimitives.Title className="text-[24px] font-normal leading-[32px] text-[var(--sui-colors-neutral-b0)]">
                     {title}
                   </DialogPrimitives.Title>
+                  <DialogPrimitives.Description className="sr-only">
+                    Configure user deployment for {title}.
+                  </DialogPrimitives.Description>
                 </div>
 
                 {/* Section: User deployment */}
