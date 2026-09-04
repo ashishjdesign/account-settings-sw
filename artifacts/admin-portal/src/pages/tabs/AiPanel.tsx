@@ -975,7 +975,7 @@ export default function AiPanel() {
                     type="button"
                     aria-label={`Manage ${automaticBehaviorLabel}`}
                     onClick={openNotesManage}
-                    className="inline-flex h-[32px] shrink-0 cursor-pointer items-center justify-center gap-1.5 rounded-[10px] px-2 text-[14px] font-medium leading-[20px] text-[var(--sui-colors-primary-b)] transition-colors hover:bg-[var(--sui-colors-neutral-b5)] focus:outline-none focus:ring-2 focus:ring-[var(--sui-colors-primary-b)]/30"
+                    className="h-[32px] shrink-0 rounded-[10px] px-1 text-[14px] font-medium leading-[20px] text-[var(--sui-colors-primary-b)] hover:text-[var(--sui-colors-primary-b-high-contrast)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sui-colors-primary-b)] focus-visible:ring-offset-2"
                   >
                     Manage
                   </button>
