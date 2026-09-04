@@ -1,7 +1,7 @@
 {
   "schemaVersion": "2.0",
   "projectName": "Admin Portal — Feature Settings",
-  "projectUrl": "https://a138ed93-de74-4635-b2a4-a6f52dbbb102-00-2u3ovxvifa65f-imgi9zlb.janeway.replit.dev",
+  "projectUrl": "https://a138ed93-de74-4635-b2a4-a6f52dbbb102-00-2u3ovxvifa65f.janeway.replit.dev",
   "features": [
     {
       "id": "general",
@@ -30,7 +30,7 @@
       "name": "Feature Settings — AI tab",
       "description": "Master AI features card with per-product retention, plus AVA / Phone AI / Chat AI parent cards whose detail pages (deep-linkable via ?detail=) hold the dependent features and cascade rules.",
       "manifest": "/handoff/ai/latest/manifest.json",
-      "generatedAt": "2026-08-26T05:45:04.000Z",
+      "generatedAt": "2026-09-04T21:19:33.000Z",
       "routeHints": [
         "/feature-settings/ai",
         "/feature-settings/ai?detail=ava",

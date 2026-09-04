@@ -225,7 +225,14 @@ type Action =
   | { type: 'PATCH_FAX_CUSTOMIZE'; payload: Partial<FaxConfig> }
   | { type: 'RESET_OVERRIDES_AI'; payload: AiFeatureKey }
   | { type: 'SET_NOTES_AUTO_START'; payload: boolean }
-  | { type: 'ENABLE_LIVE_TRANSCRIPTS'; payload: { notesAutoStart: boolean } };
+  | {
+      type: 'ENABLE_LIVE_TRANSCRIPTS';
+      payload: {
+        notesAutoStart: boolean;
+        featurePatch: Partial<FeatureConfig>;
+        parentDefaultOn: boolean;
+      };
+    };
 
 function withSnapshot(state: AppState): AppState {
   return { ...state, undoSnapshot: { ...state, undoSnapshot: null } };
@@ -404,8 +411,15 @@ function reducer(state: AppState, action: Action): AppState {
         ...withSnapshot(state),
         ai: {
           ...state.ai,
-          closedCaptioning: { ...state.ai.closedCaptioning, on: true },
-          liveTranscripts: { ...state.ai.liveTranscripts, on: true },
+          closedCaptioning: {
+            ...state.ai.closedCaptioning,
+            on: true,
+            ...(action.payload.parentDefaultOn ? { defaultVal: 'On' as const } : {}),
+          },
+          liveTranscripts: {
+            ...applyFeaturePatch(state.ai.liveTranscripts, action.payload.featurePatch),
+            on: true,
+          },
           notesAutoStart: action.payload.notesAutoStart,
         },
       };

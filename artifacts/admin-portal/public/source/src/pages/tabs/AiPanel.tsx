@@ -222,8 +222,8 @@ export default function AiPanel() {
   >(null);
   const [avaDefaultOffConfirm, setAvaDefaultOffConfirm] = useState(false);
   const [avaRestrictConfirm, setAvaRestrictConfirm] = useState(false);
-  // Phone AI features (CC/LT/CN/Voicemail) use simple enable/disable confirms —
-  // no user deployment, no Manage. LT gets a custom dialog with in-call behavior.
+  // Phone AI features use simple enable/disable confirms. Their user deployment
+  // is managed separately from the feature on/off control.
   const [phoneAiSimpleEnableKey, setPhoneAiSimpleEnableKey] = useState<SubKey | null>(null);
   const [ltEnableOpen, setLtEnableOpen] = useState(false);
   const [ltPendingAutoStart, setLtPendingAutoStart] = useState(state.ai.notesAutoStart);
@@ -241,13 +241,17 @@ export default function AiPanel() {
     parentsOff: SubKey[];
     payload: Partial<{ on: boolean; defaultVal: 'On' | 'Off'; allowChange: boolean; customUsers: number }>;
     toastMsg: string;
+    notesAutoStart?: boolean;
   } | null>(null);
 
-  /** Parents (in the LT → Call notes chain) whose user default is Off.
-   * On/off state follows the CC → LT → Call notes chain, but user-deployment
-   * defaults only apply to LT → Call notes (Phone AI has no user deployment). */
+  /** Parents in the CC → LT → Call notes chain whose user default is Off. */
   const parentsWithDefaultOff = (key: SubKey): SubKey[] => {
-    const parents: SubKey[] = key === 'aiNotes' ? ['liveTranscripts'] : [];
+    const parents: SubKey[] =
+      key === 'liveTranscripts'
+        ? ['closedCaptioning']
+        : key === 'aiNotes'
+          ? ['closedCaptioning', 'liveTranscripts']
+          : [];
     return parents.filter((p) => state.ai[p].defaultVal === 'Off');
   };
 
@@ -255,13 +259,24 @@ export default function AiPanel() {
     if (!upPending) return;
     // One CASCADE dispatch: the child gets its full payload, each Off parent
     // gets its user default turned On — a single Undo reverts everything.
-    dispatch({
-      type: 'CASCADE_AI_FEATURE',
-      key: upPending.key,
-      childKeys: upPending.parentsOff,
-      payload: upPending.payload,
-      childPayload: { defaultVal: 'On' },
-    });
+    if (upPending.key === 'liveTranscripts' && upPending.notesAutoStart !== undefined) {
+      dispatch({
+        type: 'ENABLE_LIVE_TRANSCRIPTS',
+        payload: {
+          notesAutoStart: upPending.notesAutoStart,
+          featurePatch: upPending.payload,
+          parentDefaultOn: true,
+        },
+      });
+    } else {
+      dispatch({
+        type: 'CASCADE_AI_FEATURE',
+        key: upPending.key,
+        childKeys: upPending.parentsOff,
+        payload: upPending.payload,
+        childPayload: { defaultVal: 'On' },
+      });
+    }
     const msg = upPending.toastMsg;
     setUpPending(null);
     showToast(msg, () => dispatch({ type: 'UNDO' }));
@@ -352,15 +367,6 @@ export default function AiPanel() {
     setAssistantEnableConfirmOpen(false);
     showToast('AVA turned on', () => dispatch({ type: 'UNDO' }));
   };
-
-  // Phone AI features have no end-user self-deployment — their confirm dialogs
-  // use account-level copy only (no "user settings restored" note).
-  const PHONE_AI_KEYS: SubKey[] = [
-    'closedCaptioning',
-    'liveTranscripts',
-    'aiNotes',
-    'aiVoicemailSummaries',
-  ];
 
   const toggleSubFeature = (key: SubKey) => {
     if (!masterOn) return;
@@ -556,9 +562,8 @@ export default function AiPanel() {
   };
 
   // ── Phone AI feature toggles (CC / LT / CN / Voicemail) ─────────────────
-  // These features no longer have user deployment or Manage. LT turn-on shows
-  // a custom dialog with the in-call behavior checkbox; all others get a simple
-  // "Turn on?" confirm. Turn-off reuses the existing subDisableKey flow.
+  // All four features restore the standard user-deployment confirmation.
+  // Live transcripts also includes the shared automatic-behavior choice.
   const handlePhoneAiToggle = (key: SubKey) => {
     if (!masterOn) return;
     if (state.ai[key].on) {
@@ -571,15 +576,30 @@ export default function AiPanel() {
     }
   };
 
-  const confirmPhoneAiSimpleEnable = () => {
+  const confirmPhoneAiSimpleEnable = (result: AssistantEnableResult) => {
     if (!phoneAiSimpleEnableKey) return;
     const key = phoneAiSimpleEnableKey;
-    dispatch({ type: 'PATCH_AI_FEATURE', key, payload: { on: true } });
+    const payload = {
+      on: true,
+      defaultVal: result.defaultVal,
+      allowChange: result.allowChange,
+      customUsers: result.customAction === 'reset' ? 0 : state.ai[key].customUsers,
+    };
+    if (result.defaultVal === 'On') {
+      const parentsOff = parentsWithDefaultOff(key);
+      if (parentsOff.length > 0) {
+        setUpPending({ key, parentsOff, payload, toastMsg: `${labelFor(key)} turned on` });
+        setPhoneAiSimpleEnableKey(null);
+        return;
+      }
+    }
+    dispatch({ type: 'PATCH_AI_FEATURE', key, payload });
     setPhoneAiSimpleEnableKey(null);
     showToast(`${labelFor(key)} turned on`, () => dispatch({ type: 'UNDO' }));
   };
 
   const openNotesManage = () => {
+    if (automaticBehaviorForced) return;
     setNotesPendingAutoStart(state.ai.notesAutoStart);
     setNotesManageOpen(true);
   };
@@ -590,8 +610,24 @@ export default function AiPanel() {
     showToast('Settings were updated.', () => dispatch({ type: 'UNDO' }));
   };
 
-  // Bordered "Automatic call notes" checkbox box — shared by the LT turn-on
-  // dialog and the Manage Notes in-call behavior modal.
+  const automaticBehaviorLabel = state.ai.aiNotes.on
+    ? 'Automatic live transcripts & call notes'
+    : 'Automatic live transcripts';
+  const automaticBehaviorForced =
+    (state.ai.liveTranscripts.on &&
+      state.ai.liveTranscripts.defaultVal === 'On' &&
+      !state.ai.liveTranscripts.allowChange) ||
+    (state.ai.aiNotes.on &&
+      state.ai.aiNotes.defaultVal === 'On' &&
+      !state.ai.aiNotes.allowChange);
+  const automaticBehaviorOn = automaticBehaviorForced || state.ai.notesAutoStart;
+  const deploymentSummary = (key: SubKey) => [
+    { label: 'User default:', value: state.ai[key].defaultVal },
+    { label: 'User access:', value: state.ai[key].allowChange ? 'Allowed' : 'Restricted' },
+  ];
+
+  // Shared automatic-behavior checkbox used by the LT turn-on dialog and the
+  // dedicated Manage modal.
   const renderAutoNotesCheckbox = (checked: boolean, onToggle: () => void) => (
     <div className="flex flex-col gap-3 rounded-[8px] border border-[var(--sui-colors-neutral-b4)] p-4">
       <div className="flex items-start gap-4">
@@ -599,6 +635,7 @@ export default function AiPanel() {
           type="button"
           onClick={onToggle}
           aria-pressed={checked}
+          aria-label={`Turn ${automaticBehaviorLabel.toLowerCase()} ${checked ? 'off' : 'on'}`}
           className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-[4px] transition-colors ${
             checked
               ? 'bg-[var(--sui-colors-primary-b)]'
@@ -613,20 +650,44 @@ export default function AiPanel() {
         </button>
         <div className="flex flex-col gap-2">
           <p className="text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b1)]">
-            Automatic call notes
+            {automaticBehaviorLabel}
           </p>
           <p className="text-[14px] leading-[20px] text-[var(--sui-colors-neutral-b2)]">
-            Automatically capture notes for all calls. When Call notes is off, applies to Live
-            transcripts only.
+            {state.ai.aiNotes.on
+              ? 'Automatically start live transcripts and call notes for all calls.'
+              : 'Automatically start live transcripts for all calls.'}
           </p>
         </div>
       </div>
     </div>
   );
 
-  const confirmLtEnable = () => {
-    // One atomic dispatch → one undo snapshot for both LT and the checkbox.
-    dispatch({ type: 'ENABLE_LIVE_TRANSCRIPTS', payload: { notesAutoStart: ltPendingAutoStart } });
+  const confirmLtEnable = (result: AssistantEnableResult) => {
+    const featurePatch = {
+      defaultVal: result.defaultVal,
+      allowChange: result.allowChange,
+      customUsers:
+        result.customAction === 'reset' ? 0 : state.ai.liveTranscripts.customUsers,
+    };
+    const parentsOff =
+      result.defaultVal === 'On' ? parentsWithDefaultOff('liveTranscripts') : [];
+    if (parentsOff.length > 0) {
+      setUpPending({
+        key: 'liveTranscripts',
+        parentsOff,
+        payload: featurePatch,
+        notesAutoStart: ltPendingAutoStart,
+        toastMsg: 'Live transcripts turned on',
+      });
+      setLtEnableOpen(false);
+      return;
+    }
+    // One atomic dispatch → one undo snapshot for deployment, CC dependency,
+    // Live transcripts, and the shared automatic behavior.
+    dispatch({
+      type: 'ENABLE_LIVE_TRANSCRIPTS',
+      payload: { notesAutoStart: ltPendingAutoStart, featurePatch, parentDefaultOn: false },
+    });
     setLtEnableOpen(false);
     showToast('Live transcripts turned on', () => dispatch({ type: 'UNDO' }));
   };
@@ -786,11 +847,11 @@ export default function AiPanel() {
       )}
 
       {/* Phone AI detail — three cards; on/off follows the CC → LT → Call notes chain.
-       * Card 1: Closed captioning (admin on/off, no user deployment).
+       * Card 1: Closed captioning.
        * Card 2: Live transcripts + Call notes (LT is LT's own parent; CN
        *   nested inside. When LT is on, "Notes in-call behavior" section shows
-       *   below as a full-width footer. No user deployment for either.)
-       * Card 3: AI voicemail summaries (admin on/off, no user deployment). */}
+       *   below using the established summary-row pattern.)
+       * Card 3: AI voicemail summaries. */}
       {page === 'phoneAi' && (
         <FeatureDetailPage title="Phone AI" onBack={backToMain}>
 
@@ -803,6 +864,8 @@ export default function AiPanel() {
               switchOn={state.ai.closedCaptioning.on && masterOn}
               disabled={!masterOn}
               onSwitchClick={() => handlePhoneAiToggle('closedCaptioning')}
+              summary={deploymentSummary('closedCaptioning')}
+              onManage={() => setSubManageKey('closedCaptioning')}
             />
           </FeatureDetailCard>
 
@@ -837,6 +900,19 @@ export default function AiPanel() {
                     Provides real-time AI-generated call transcripts.{' '}
                     <a href="#" onClick={(e) => e.preventDefault()} className="font-normal text-[var(--sui-colors-primary-b)] underline hover:text-[var(--sui-colors-primary-b-high-contrast)]">Learn more</a>
                   </p>
+                  {state.ai.liveTranscripts.on && (
+                    <div className="flex w-full items-center justify-between gap-4">
+                      <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
+                        {deploymentSummary('liveTranscripts').map((segment) => (
+                          <div key={segment.label} className="flex h-[32px] items-center gap-2 whitespace-nowrap rounded-[10px] bg-[var(--sui-colors-neutral-b5)] px-3 text-[14px] leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                            <span className="font-semibold">{segment.label}</span>
+                            <span>{segment.value}</span>
+                          </div>
+                        ))}
+                      </div>
+                      <button type="button" aria-label="Manage Live transcripts user deployment" onClick={() => setSubManageKey('liveTranscripts')} className="h-[32px] shrink-0 rounded-[10px] px-1 text-[14px] font-medium text-[var(--sui-colors-primary-b)] hover:text-[var(--sui-colors-primary-b-high-contrast)] focus:outline-none focus:ring-2 focus:ring-[var(--sui-colors-primary-b)]/30">Manage</button>
+                    </div>
+                  )}
                 </div>
 
                 {/* Call notes — border-t inside content column (indented by LT icon) */}
@@ -861,6 +937,19 @@ export default function AiPanel() {
                         Generates call notes for all your devices.{' '}
                         <a href="#" onClick={(e) => e.preventDefault()} className="font-normal text-[var(--sui-colors-primary-b)] underline hover:text-[var(--sui-colors-primary-b-high-contrast)]">Learn more</a>
                       </p>
+                      {state.ai.aiNotes.on && (
+                        <div className="flex w-full items-center justify-between gap-4">
+                          <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
+                            {deploymentSummary('aiNotes').map((segment) => (
+                              <div key={segment.label} className="flex h-[32px] items-center gap-2 whitespace-nowrap rounded-[10px] bg-[var(--sui-colors-neutral-b5)] px-3 text-[14px] leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                                <span className="font-semibold">{segment.label}</span>
+                                <span>{segment.value}</span>
+                              </div>
+                            ))}
+                          </div>
+                          <button type="button" aria-label="Manage Call notes user deployment" onClick={() => setSubManageKey('aiNotes')} className="h-[32px] shrink-0 rounded-[10px] px-1 text-[14px] font-medium text-[var(--sui-colors-primary-b)] hover:text-[var(--sui-colors-primary-b-high-contrast)] focus:outline-none focus:ring-2 focus:ring-[var(--sui-colors-primary-b)]/30">Manage</button>
+                        </div>
+                      )}
                     </div>
                   </div>
                 )}
@@ -874,16 +963,23 @@ export default function AiPanel() {
               <div className="flex flex-col gap-4 px-4">
                 <div className="flex items-center justify-between gap-4 border-t border-[var(--sui-colors-neutral-b4)] pt-4">
                   <div className="flex h-[32px] items-center gap-2 whitespace-nowrap rounded-[10px] bg-[var(--sui-colors-neutral-b5)] px-3 text-[14px] leading-[20px] text-[var(--sui-colors-neutral-b1)]">
-                    <span className="font-semibold">Automatic call notes:</span>
-                    <span className="font-normal">{state.ai.notesAutoStart ? 'On' : 'Off'}</span>
+                    <span className="font-semibold">{automaticBehaviorLabel}:</span>
+                    <span className="font-normal">{automaticBehaviorOn ? 'On' : 'Off'}</span>
                   </div>
-                  <button
+                  {automaticBehaviorForced ? (
+                    <div className="flex items-center gap-2">
+                      <span className="flex h-[32px] items-center rounded-[10px] bg-[var(--sui-colors-neutral-b5)] px-3 text-[14px] font-medium text-[var(--sui-colors-neutral-b1)]">Locked</span>
+                      <span className="text-[13px] text-[var(--sui-colors-neutral-b2)]">Always on because user access is restricted.</span>
+                    </div>
+                  ) : <button
                     type="button"
+                    aria-label={`Manage ${automaticBehaviorLabel}`}
                     onClick={openNotesManage}
                     className="inline-flex h-[32px] shrink-0 cursor-pointer items-center justify-center gap-1.5 rounded-[10px] px-2 text-[14px] font-medium leading-[20px] text-[var(--sui-colors-primary-b)] transition-colors hover:bg-[var(--sui-colors-neutral-b5)] focus:outline-none focus:ring-2 focus:ring-[var(--sui-colors-primary-b)]/30"
                   >
                     Manage
                   </button>
+                  }
                 </div>
               </div>
             )}
@@ -891,7 +987,7 @@ export default function AiPanel() {
           </section>
           )}
 
-          {/* ── Card 3: AI voicemail summaries — no user deployment ── */}
+          {/* ── Card 3: AI voicemail summaries ── */}
           <FeatureDetailCard>
             <FeatureDetailRow
               icon={<SpringIcon as={VoicemailMd} />}
@@ -900,6 +996,8 @@ export default function AiPanel() {
               switchOn={state.ai.aiVoicemailSummaries.on && masterOn}
               disabled={!masterOn}
               onSwitchClick={() => handlePhoneAiToggle('aiVoicemailSummaries')}
+              summary={deploymentSummary('aiVoicemailSummaries')}
+              onManage={() => setSubManageKey('aiVoicemailSummaries')}
             />
           </FeatureDetailCard>
 
@@ -1004,7 +1102,7 @@ export default function AiPanel() {
           <>
             <p>
               This feature will be turned off for your account and no longer available to users.
-              When turned back on, previous user settings can be restored.
+              {' '}When turned back on, previous user settings can be restored.
             </p>
             <p>
               <span className="font-bold">Query, Messaging, Integrations, Actions</span> and{' '}
@@ -1025,9 +1123,7 @@ export default function AiPanel() {
         onConfirm={confirmAssistantOn}
       />
 
-      {/* Sub-feature (Phone / Chat) Manage dialog.
-          CC, Live transcripts, and Call notes always allow users to manage their
-          own setting — the checkbox is locked checked+disabled for those keys. */}
+      {/* Sub-feature (Phone / Chat) user-deployment Manage dialog. */}
       <SpringFeatureManageDialog
         open={subManageKey !== null}
         title={subManageKey ? `Manage ${labelFor(subManageKey)}` : ''}
@@ -1036,11 +1132,6 @@ export default function AiPanel() {
         customCount={subManageKey ? state.ai[subManageKey].customUsers : 0}
         onCancel={() => setSubManageKey(null)}
         onConfirm={saveSubManage}
-        lockAllowChange={
-          subManageKey === 'closedCaptioning' ||
-          subManageKey === 'liveTranscripts' ||
-          subManageKey === 'aiNotes'
-        }
       />
 
       {/* AVA Manage dialog (Figma 2454-9168) */}
@@ -1110,22 +1201,16 @@ export default function AiPanel() {
         }}
       />
 
-      {/* Live transcripts turn-on — custom dialog with in-call behavior checkbox */}
-      <SpringConfirmDialog
+      {/* Live transcripts turn-on — standard deployment plus shared behavior. */}
+      <FeatureEnableConfirmDialog
         open={ltEnableOpen}
-        confirmLabel="Turn on"
-        title={<>Turn on <span className="font-normal">Live transcripts</span> for your organization?</>}
-        body={
-          <>
-            <p>
-              This feature will be enabled for your account. Configure notes in-call behavior
-              below.
-            </p>
-            {renderAutoNotesCheckbox(ltPendingAutoStart, () =>
-              setLtPendingAutoStart(!ltPendingAutoStart),
-            )}
-          </>
-        }
+        featureName="Live transcripts"
+        initialDefaultVal={state.ai.liveTranscripts.defaultVal}
+        initialAllowChange={state.ai.liveTranscripts.allowChange}
+        customCount={state.ai.liveTranscripts.customUsers}
+        extraContent={renderAutoNotesCheckbox(ltPendingAutoStart, () =>
+          setLtPendingAutoStart(!ltPendingAutoStart),
+        )}
         onCancel={() => setLtEnableOpen(false)}
         onConfirm={confirmLtEnable}
       />
@@ -1136,7 +1221,7 @@ export default function AiPanel() {
         open={notesManageOpen}
         confirmLabel="Save"
         confirmDisabled={notesPendingAutoStart === state.ai.notesAutoStart}
-        title={<>Manage Notes in-call behavior</>}
+        title={<>Manage {automaticBehaviorLabel.toLowerCase()}</>}
         body={renderAutoNotesCheckbox(notesPendingAutoStart, () =>
           setNotesPendingAutoStart(!notesPendingAutoStart),
         )}
@@ -1144,16 +1229,19 @@ export default function AiPanel() {
         onConfirm={saveNotesManage}
       />
 
-      {/* Simple turn-on confirm for CC / Call notes / AI voicemail summaries */}
-      <SpringConfirmDialog
+      {/* Standard user-deployment turn-on confirm for CC / Call notes / voicemail. */}
+      <FeatureEnableConfirmDialog
         open={phoneAiSimpleEnableKey !== null}
-        confirmLabel="Turn on"
-        title={
-          phoneAiSimpleEnableKey
-            ? <>Turn on <span className="font-normal">{labelFor(phoneAiSimpleEnableKey)}</span> for your organization?</>
-            : null
+        featureName={phoneAiSimpleEnableKey ? labelFor(phoneAiSimpleEnableKey) : ''}
+        initialDefaultVal={
+          phoneAiSimpleEnableKey ? state.ai[phoneAiSimpleEnableKey].defaultVal : 'On'
         }
-        body={<p>This feature will be enabled for your account.</p>}
+        initialAllowChange={
+          phoneAiSimpleEnableKey ? state.ai[phoneAiSimpleEnableKey].allowChange : true
+        }
+        customCount={
+          phoneAiSimpleEnableKey ? state.ai[phoneAiSimpleEnableKey].customUsers : 0
+        }
         onCancel={() => setPhoneAiSimpleEnableKey(null)}
         onConfirm={confirmPhoneAiSimpleEnable}
       />
@@ -1206,15 +1294,10 @@ export default function AiPanel() {
         }
         body={
           <>
-            {/* Phone AI features have no user deployment — no restore note. */}
-            {subDisableKey && PHONE_AI_KEYS.includes(subDisableKey) ? (
-              <p>This feature will be turned off for your account.</p>
-            ) : (
-              <p>
-                This feature will be turned off for your account and no longer available to users.
-                When turned back on, previous user settings can be restored.
-              </p>
-            )}
+            <p>
+              This feature will be turned off for your account and no longer available to users.
+              When turned back on, previous user settings can be restored.
+            </p>
             {subDisableKey === 'closedCaptioning' && state.ai.liveTranscripts.on && (
               <p>
                 <span className="font-bold">Live transcripts</span>
@@ -1228,7 +1311,7 @@ export default function AiPanel() {
                 )}
               </p>
             )}
-            {subDisableKey === 'liveTranscripts' && (
+            {subDisableKey === 'liveTranscripts' && state.ai.aiNotes.on && (
               <p>
                 <span className="font-bold">Call notes</span> will also be turned off.
               </p>

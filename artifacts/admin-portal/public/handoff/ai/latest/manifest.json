@@ -3,8 +3,8 @@
   "feature": "ai",
   "title": "Feature Settings — AI tab",
   "description": "Master AI features card with per-product retention, plus AVA / Phone AI / Chat AI parent cards whose detail pages (deep-linkable via ?detail=) hold the dependent features and cascade rules.",
-  "generatedAt": "2026-08-26T05:45:04.000Z",
-  "prototypeUrl": "https://a138ed93-de74-4635-b2a4-a6f52dbbb102-00-2u3ovxvifa65f-imgi9zlb.janeway.replit.dev/feature-settings/ai",
+  "generatedAt": "2026-09-04T21:19:33.000Z",
+  "prototypeUrl": "https://a138ed93-de74-4635-b2a4-a6f52dbbb102-00-2u3ovxvifa65f.janeway.replit.dev/feature-settings/ai",
   "designSystem": {
     "name": "Spring UI (tokens + icons; components are Spring-styled Tailwind/Radix equivalents)",
     "package": "@ringcentral/spring-icon",
@@ -175,46 +175,67 @@
       "title": "Phone AI detail page",
       "type": "screen",
       "directUrl": "/feature-settings/ai?detail=phoneAi",
-      "description": "Three cards implementing the Closed captioning → Live transcripts → Call notes dependency chain, plus AI voicemail summaries. No user deployment on any Phone AI feature.",
+      "description": "Three cards implementing the Closed captioning → Live transcripts → Call notes dependency chain, plus AI voicemail summaries. Every enabled feature shows User default and User access summaries with a Manage action.",
       "elements": [
         {
           "hierarchy": [
-            "Card 1: Closed captioning (switch only)",
-            "Card 2 (hidden while CC off): Live transcripts row; nested Call notes row (hidden while LT off); footer “Automatic call notes: On/Off” pill + Manage",
-            "Card 3: AI voicemail summaries (switch only)"
+            "Card 1: Closed captioning — switch, User default/User access pills, Manage",
+            "Card 2 (hidden while Closed captioning is off): Live transcripts row; nested Call notes row (hidden while Live transcripts is off); each enabled row has deployment pills and Manage",
+            "Card 2 shared row: standard divider + dynamic Automatic live transcripts [& call notes]: On/Off summary pill + Manage, or Locked status when policy is forced",
+            "Card 3: AI voicemail summaries — switch, User default/User access pills, Manage"
           ],
-          "layout": "Card 2 uses py-4 only so the footer border-t runs full width.",
-          "styling": "Spring icons: ClosedCaptionsMd, TranscriptMd, SmartNotesMd, VoicemailMd."
+          "layout": "Stacked established Feature Settings cards. Deployment summaries sit 8px below descriptions. The shared automatic behavior uses the existing divider, pill, and right-aligned action pattern.",
+          "styling": "Spring tokens and icons: ClosedCaptionsMd, TranscriptMd, SmartNotesMd, VoicemailMd. No feature-specific visual system."
         }
       ],
       "responsive": [],
       "states": [
         {
           "id": "chain-on",
-          "description": "All rows visible; footer shows Automatic call notes value."
+          "description": "All rows visible with deployment summaries. Shared row label is Automatic live transcripts & call notes."
+        },
+        {
+          "id": "call-notes-off",
+          "description": "Call notes remains visible with its switch off; its deployment summary hides. Shared row label changes to Automatic live transcripts."
         },
         {
           "id": "cc-off",
-          "description": "Card 2 hidden entirely."
+          "description": "Live transcripts/Call notes card hidden entirely."
         },
         {
           "id": "lt-off",
-          "description": "Call notes row and footer hidden."
+          "description": "Call notes row and shared automatic-behavior row hidden."
+        },
+        {
+          "id": "shared-policy-locked",
+          "description": "If an enabled affected feature has User default On and User access Restricted, automatic behavior is forced On; Manage is replaced by Locked and helper text."
         }
       ],
       "motions": [],
       "localInteractions": [
         {
-          "trigger": "Turn CC off",
-          "outcome": "Confirm warns Live transcripts and Call notes will also turn off; one CASCADE dispatch, single Undo restores the chain."
+          "trigger": "Turn on Closed captioning, Call notes, or AI voicemail summaries",
+          "outcome": "Opens the standard user-deployment confirmation with User default On/Off, User access Allowed/Restricted, and Reset/Restore choices when custom settings exist."
         },
         {
-          "trigger": "Turn LT on",
-          "outcome": "Custom confirm with an “Automatic call notes” checkbox; confirm enables CC+LT and saves the checkbox atomically."
+          "trigger": "Turn on Live transcripts",
+          "outcome": "Opens the same user-deployment confirmation with the shared automatic live transcripts/call notes behavior control in the same window; confirming saves deployment and automatic behavior atomically and also enables required Closed captioning."
         },
         {
-          "trigger": "Manage next to the footer pill",
-          "outcome": "“Manage Notes in-call behavior” modal; Save disabled until the checkbox changes."
+          "trigger": "Click Manage for an enabled Phone AI feature",
+          "outcome": "Opens the established user-deployment dialog; Save is disabled until changed."
+        },
+        {
+          "trigger": "Turn off any Phone AI feature",
+          "outcome": "The confirmation says the feature will be unavailable to users and that previous user settings can be restored when turned back on; dependency warnings name only enabled features that will also turn off."
+        },
+        {
+          "trigger": "Manage the shared automatic behavior",
+          "outcome": "Opens the standard Manage modal; the dynamic setting label reflects whether Call notes is enabled, and Save is disabled until changed."
+        },
+        {
+          "trigger": "Save an affected feature as User default On + User access Restricted",
+          "outcome": "The shared automatic behavior becomes On and locked while that qualifying feature remains enabled."
         }
       ],
       "integrationBoundaries": [],
@@ -223,8 +244,14 @@
       ],
       "assetRefs": [],
       "acceptance": [
-        "CC off hides card 2; LT off hides Call notes and the footer.",
-        "Disable confirms name every dependent feature that will also turn off."
+        "Every enabled Phone AI feature shows User default and User access pills plus Manage.",
+        "Deployment summaries sit exactly 8px below feature descriptions.",
+        "Closed captioning off hides the Live transcripts/Call notes card; Live transcripts off hides Call notes and the shared row.",
+        "The shared label is Automatic live transcripts when Call notes is off and Automatic live transcripts & call notes when it is on.",
+        "Only an enabled affected feature with default On and Restricted access forces the shared behavior On and locked.",
+        "All four turn-on flows include user-deployment management; Live transcripts includes shared automatic behavior in that same confirmation.",
+        "Every Phone AI turn-off confirm includes: When turned back on, previous user settings can be restored.",
+        "Dependency warnings mention only currently enabled features that will also turn off."
       ]
     },
     {
@@ -273,7 +300,7 @@
       "id": "ai.dialogs",
       "title": "AI tab dialogs (master, retention, upward cascade)",
       "type": "state",
-      "description": "Master on/off confirms (off-confirm lists AVA + phone/chat/SMS AI cascading off); ManageAiFeaturesDialog for per-product retention (RingEX phone / Meetings / RingCX with preset + custom day values); RetentionConfirmDialog when any product gets shorter (data-loss warning); upward-cascade confirm “Turn on default for users?” when a child’s user default goes On while a parent’s is Off (Live transcripts → Call notes).",
+      "description": "Master on/off confirms (off-confirm lists AVA + phone/chat/SMS AI cascading off); ManageAiFeaturesDialog for per-product retention (RingEX phone / Meetings / RingCX with preset + custom day values); RetentionConfirmDialog when any product gets shorter (data-loss warning); upward-cascade confirm “Turn on default for users?” when a child’s user default goes On while a parent’s is Off (Closed captioning → Live transcripts → Call notes).",
       "elements": [
         {
           "hierarchy": [
@@ -494,7 +521,7 @@
       "id": "SUV-005",
       "targetId": "ai.phone-ai-detail",
       "rule": "Spring icon usage",
-      "requirement": "Keep the inline checkmark SVG inside the “Automatic call notes” custom checkbox (visual parity with the approved dialog).",
+      "requirement": "Keep the inline checkmark SVG inside the shared automatic-behavior checkbox used by the Live transcripts enable and Manage dialogs (visual parity with the approved dialog).",
       "approved": true
     }
   ],

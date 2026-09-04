@@ -589,7 +589,7 @@ export function FeatureDetailRow({
           </p>
 
           {switchOn && summary && summary.length > 0 && (
-            <div className="mt-2 flex w-full items-center justify-between gap-4">
+            <div className="flex w-full items-center justify-between gap-4">
               <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
                 {summary.map((seg, i) => (
                   <div

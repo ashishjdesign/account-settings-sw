@@ -15,17 +15,21 @@ import { cn } from '../../lib/utils';
 const TOTAL_USERS = 98;
 
 function Radio({
-  checked, onChange, label,
-}: { checked: boolean; onChange: () => void; label: string }) {
+  checked, onChange, label, name,
+}: { checked: boolean; onChange: () => void; label: string; name: string }) {
   return (
     <label className="flex cursor-pointer items-center gap-2 text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
-      <button
-        type="button"
-        role="radio"
-        aria-checked={checked}
-        onClick={onChange}
+      <input
+        type="radio"
+        name={name}
+        checked={checked}
+        onChange={onChange}
+        className="peer sr-only"
+      />
+      <span
+        aria-hidden
         className={cn(
-          'flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-full border-[1.5px] bg-white transition-colors',
+          'flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-full border-[1.5px] bg-white transition-colors peer-focus-visible:ring-2 peer-focus-visible:ring-[var(--sui-colors-primary-b)]/30 peer-focus-visible:ring-offset-2',
           checked
             ? 'border-[var(--sui-colors-primary-b)]'
             : 'border-[var(--sui-colors-neutral-b2)] hover:border-[var(--sui-colors-neutral-b1)]',
@@ -34,7 +38,7 @@ function Radio({
         {checked && (
           <span className="h-[8px] w-[8px] rounded-full bg-[var(--sui-colors-primary-b)]" />
         )}
-      </button>
+      </span>
       {label}
     </label>
   );
@@ -188,6 +192,7 @@ export function FeatureEnableConfirmDialog({
   onCancel,
   onConfirm,
   lockAllowChange = false,
+  extraContent,
 }: {
   open: boolean;
   featureName: string;
@@ -199,6 +204,8 @@ export function FeatureEnableConfirmDialog({
   /** User access is always Allowed for this feature — checkbox stays checked
    * and disabled (matches the Manage dialog behavior). */
   lockAllowChange?: boolean;
+  /** Optional feature-specific settings shown after User deployment. */
+  extraContent?: React.ReactNode;
 }) {
   const [value, setValue] = useState<'On' | 'Off'>(initialDefaultVal);
   const [allow, setAllow] = useState(initialAllowChange);
@@ -229,10 +236,10 @@ export function FeatureEnableConfirmDialog({
                 </DialogPrimitives.Title>
               </div>
 
-              <p className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+              <DialogPrimitives.Description className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
                 This feature will be enabled for your account. Configure how it should be deployed
                 to users below.
-              </p>
+              </DialogPrimitives.Description>
 
               <div className="flex flex-col gap-2">
                 <h3 className="text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b2)]">
@@ -245,8 +252,8 @@ export function FeatureEnableConfirmDialog({
                         Default in user settings:
                       </span>
                       <div className="flex items-center gap-5">
-                        <Radio checked={value === 'On'} onChange={() => setValue('On')} label="On" />
-                        <Radio checked={value === 'Off'} onChange={() => setValue('Off')} label="Off" />
+                        <Radio name="feature-enable-default" checked={value === 'On'} onChange={() => setValue('On')} label="On" />
+                        <Radio name="feature-enable-default" checked={value === 'Off'} onChange={() => setValue('Off')} label="Off" />
                       </div>
                     </div>
                     {customCount === 0 && (
@@ -299,11 +306,13 @@ export function FeatureEnableConfirmDialog({
                   </p>
                   <div className="flex items-center gap-6">
                     <Radio
+                      name="feature-enable-custom-action"
                       checked={customAction === 'reset'}
                       onChange={() => setCustomAction('reset')}
                       label="Reset all to default"
                     />
                     <Radio
+                      name="feature-enable-custom-action"
                       checked={customAction === 'restore'}
                       onChange={() => setCustomAction('restore')}
                       label="Restore their custom settings"
@@ -311,6 +320,8 @@ export function FeatureEnableConfirmDialog({
                   </div>
                 </div>
               )}
+
+              {extraContent}
             </div>
 
             <div className="border-t border-[var(--sui-colors-neutral-b4)]/50" />
@@ -460,8 +471,8 @@ export function AssistantEnableConfirmDialog({
                         Default in user settings:
                       </span>
                       <div className="flex items-center gap-5">
-                        <Radio checked={value === 'On'} onChange={() => setValue('On')} label="On" />
-                        <Radio checked={value === 'Off'} onChange={() => setValue('Off')} label="Off" />
+                        <Radio name="assistant-enable-default" checked={value === 'On'} onChange={() => setValue('On')} label="On" />
+                        <Radio name="assistant-enable-default" checked={value === 'Off'} onChange={() => setValue('Off')} label="Off" />
                       </div>
                     </div>
                     {customCount === 0 && (
@@ -514,11 +525,13 @@ export function AssistantEnableConfirmDialog({
                   </p>
                   <div className="flex items-center gap-6">
                     <Radio
+                      name="assistant-enable-custom-action"
                       checked={customAction === 'reset'}
                       onChange={() => setCustomAction('reset')}
                       label="Reset all to default"
                     />
                     <Radio
+                      name="assistant-enable-custom-action"
                       checked={customAction === 'restore'}
                       onChange={() => setCustomAction('restore')}
                       label="Restore their custom settings"
@@ -641,8 +654,8 @@ export function EmailToFaxEnableConfirmDialog({
                         Default in user settings:
                       </span>
                       <div className="flex items-center gap-5">
-                        <Radio checked={value === 'On'} onChange={() => setValue('On')} label="On" />
-                        <Radio checked={value === 'Off'} onChange={() => setValue('Off')} label="Off" />
+                        <Radio name="email-fax-enable-default" checked={value === 'On'} onChange={() => setValue('On')} label="On" />
+                        <Radio name="email-fax-enable-default" checked={value === 'Off'} onChange={() => setValue('Off')} label="Off" />
                       </div>
                     </div>
                     {!firstTime && customCount === 0 && (
@@ -694,11 +707,13 @@ export function EmailToFaxEnableConfirmDialog({
                   </p>
                   <div className="flex items-center gap-6">
                     <Radio
+                      name="email-fax-enable-custom-action"
                       checked={customAction === 'reset'}
                       onChange={() => setCustomAction('reset')}
                       label="Reset all to default"
                     />
                     <Radio
+                      name="email-fax-enable-custom-action"
                       checked={customAction === 'restore'}
                       onChange={() => setCustomAction('restore')}
                       label="Restore their custom settings"
