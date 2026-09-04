@@ -29,7 +29,7 @@ function Pill({ label, value }: { label: string; value: string }) {
 
 function DeploymentSummary({ featureName }: { featureName: string }) {
   return (
-    <div className="mt-1 flex w-full flex-wrap items-center justify-between gap-2">
+    <div className="mt-2 flex w-full flex-wrap items-center justify-between gap-2">
       <div className="flex flex-wrap gap-2">
         <Pill label="User default" value="On" />
         <Pill label="User access" value="Allowed" />
