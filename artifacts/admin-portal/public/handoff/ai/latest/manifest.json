@@ -3,7 +3,7 @@
   "feature": "ai",
   "title": "Feature Settings — AI tab",
   "description": "Master AI features card with per-product retention, plus AVA / Phone AI / Chat AI parent cards whose detail pages (deep-linkable via ?detail=) hold the dependent features and cascade rules.",
-  "generatedAt": "2026-09-04T21:54:46.000Z",
+  "generatedAt": "2026-09-04T21:57:19.000Z",
   "prototypeUrl": "https://a138ed93-de74-4635-b2a4-a6f52dbbb102-00-2u3ovxvifa65f.janeway.replit.dev/feature-settings/ai",
   "designSystem": {
     "name": "Spring UI (tokens + icons; components are Spring-styled Tailwind/Radix equivalents)",
@@ -219,7 +219,7 @@
         },
         {
           "trigger": "Turn on Live transcripts",
-          "outcome": "Opens the same user-deployment confirmation with the shared automatic live transcripts/call notes behavior control in the same window; confirming saves deployment and automatic behavior atomically and also enables required Closed captioning."
+          "outcome": "Opens the same user-deployment confirmation with an In-call behavior section containing the shared automatic setting; confirming saves deployment and automatic behavior atomically and also enables required Closed captioning."
         },
         {
           "trigger": "Click Manage for an enabled Phone AI feature",
@@ -251,7 +251,8 @@
         "Only an enabled affected feature with default On and Restricted access forces the shared behavior On and locked.",
         "All four turn-on flows include user-deployment management; Live transcripts includes shared automatic behavior in that same confirmation.",
         "Every Phone AI turn-off confirm includes: When turned back on, previous user settings can be restored.",
-        "Dependency warnings mention only currently enabled features that will also turn off."
+        "Dependency warnings mention only currently enabled features that will also turn off.",
+        "The In-call behavior label uses the same section-label style as User deployment and appears both in Live transcripts turn-on and on the enabled settings page."
       ]
     },
     {

@@ -628,35 +628,46 @@ export default function AiPanel() {
 
   // Shared automatic-behavior checkbox used by the LT turn-on dialog and the
   // dedicated Manage modal.
-  const renderAutoNotesCheckbox = (checked: boolean, onToggle: () => void) => (
-    <div className="flex flex-col gap-3 rounded-[8px] border border-[var(--sui-colors-neutral-b4)] p-4">
-      <div className="flex items-start gap-4">
-        <button
-          type="button"
-          onClick={onToggle}
-          aria-pressed={checked}
-          aria-label={`Turn ${automaticBehaviorLabel.toLowerCase()} ${checked ? 'off' : 'on'}`}
-          className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-[4px] transition-colors ${
-            checked
-              ? 'bg-[var(--sui-colors-primary-b)]'
-              : 'border border-[var(--sui-colors-neutral-b3)] bg-white'
-          }`}
-        >
-          {checked && (
-            <svg viewBox="0 0 12 10" className="h-3 w-3 text-white" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-              <polyline points="1.5 5 4.5 8 10.5 1.5" />
-            </svg>
-          )}
-        </button>
-        <div className="flex flex-col gap-2">
-          <p className="text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b1)]">
-            {automaticBehaviorLabel}
-          </p>
-          <p className="text-[14px] leading-[20px] text-[var(--sui-colors-neutral-b2)]">
-            {state.ai.aiNotes.on
-              ? 'Automatically start live transcripts and call notes for all calls.'
-              : 'Automatically start live transcripts for all calls.'}
-          </p>
+  const renderAutoNotesCheckbox = (
+    checked: boolean,
+    onToggle: () => void,
+    showSectionLabel = false,
+  ) => (
+    <div className="flex flex-col gap-2">
+      {showSectionLabel && (
+        <h3 className="text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b2)]">
+          In-call behavior
+        </h3>
+      )}
+      <div className="flex flex-col gap-3 rounded-[8px] border border-[var(--sui-colors-neutral-b4)] p-4">
+        <div className="flex items-start gap-4">
+          <button
+            type="button"
+            onClick={onToggle}
+            aria-pressed={checked}
+            aria-label={`Turn ${automaticBehaviorLabel.toLowerCase()} ${checked ? 'off' : 'on'}`}
+            className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-[4px] transition-colors ${
+              checked
+                ? 'bg-[var(--sui-colors-primary-b)]'
+                : 'border border-[var(--sui-colors-neutral-b3)] bg-white'
+            }`}
+          >
+            {checked && (
+              <svg viewBox="0 0 12 10" className="h-3 w-3 text-white" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                <polyline points="1.5 5 4.5 8 10.5 1.5" />
+              </svg>
+            )}
+          </button>
+          <div className="flex flex-col gap-2">
+            <p className="text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+              {automaticBehaviorLabel}
+            </p>
+            <p className="text-[14px] leading-[20px] text-[var(--sui-colors-neutral-b2)]">
+              {state.ai.aiNotes.on
+                ? 'Automatically start live transcripts and call notes for all calls.'
+                : 'Automatically start live transcripts for all calls.'}
+            </p>
+          </div>
         </div>
       </div>
     </div>
@@ -960,7 +971,10 @@ export default function AiPanel() {
             {/* Notes in-call behavior — read-only summary pill + Manage.
              * Editing happens in the "Manage Notes in-call behavior" modal. */}
             {state.ai.liveTranscripts.on && masterOn && (
-              <div className="flex flex-col gap-4 px-4">
+              <div className="flex flex-col gap-2 px-4">
+                <h3 className="text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b2)]">
+                  In-call behavior
+                </h3>
                 <div className="flex items-center justify-between gap-4 border-t border-[var(--sui-colors-neutral-b4)] pt-4">
                   <div className="flex h-[32px] items-center gap-2 whitespace-nowrap rounded-[10px] bg-[var(--sui-colors-neutral-b5)] px-3 text-[14px] leading-[20px] text-[var(--sui-colors-neutral-b1)]">
                     <span className="font-semibold">{automaticBehaviorLabel}:</span>
@@ -1225,8 +1239,10 @@ export default function AiPanel() {
         initialDefaultVal={state.ai.liveTranscripts.defaultVal}
         initialAllowChange={state.ai.liveTranscripts.allowChange}
         customCount={state.ai.liveTranscripts.customUsers}
-        extraContent={renderAutoNotesCheckbox(ltPendingAutoStart, () =>
-          setLtPendingAutoStart(!ltPendingAutoStart),
+        extraContent={renderAutoNotesCheckbox(
+          ltPendingAutoStart,
+          () => setLtPendingAutoStart(!ltPendingAutoStart),
+          true,
         )}
         onCancel={() => setLtEnableOpen(false)}
         onConfirm={confirmLtEnable}

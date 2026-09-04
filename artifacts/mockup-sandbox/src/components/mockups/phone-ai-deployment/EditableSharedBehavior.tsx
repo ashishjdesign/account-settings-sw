@@ -144,43 +144,48 @@ export function EditableSharedBehavior({
             </div>
 
             {transcriptsOn && (
-              <div className="mt-4 flex items-center justify-between gap-4 border-t border-[var(--sui-colors-neutral-b4)] pt-4">
-                <Pill
-                  label={callNotesOn ? 'Automatic live transcripts & call notes' : 'Automatic live transcripts'}
-                  value={automaticOn ? 'On' : 'Off'}
-                />
-                {automaticRestricted ? (
-                  <div className="group relative">
+              <div className="mt-4 flex flex-col gap-2">
+                <h3 className="text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b2)]">
+                  In-call behavior
+                </h3>
+                <div className="flex items-center justify-between gap-4 border-t border-[var(--sui-colors-neutral-b4)] pt-4">
+                  <Pill
+                    label={callNotesOn ? 'Automatic live transcripts & call notes' : 'Automatic live transcripts'}
+                    value={automaticOn ? 'On' : 'Off'}
+                  />
+                  {automaticRestricted ? (
+                    <div className="group relative">
+                      <button
+                        type="button"
+                        aria-disabled="true"
+                        aria-describedby="mockup-automatic-behavior-locked-reason"
+                        className="flex h-[32px] cursor-not-allowed items-center gap-1 rounded-[10px] px-1 text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b2)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sui-colors-primary-b)] focus-visible:ring-offset-2"
+                      >
+                        Manage
+                        <svg aria-hidden viewBox="0 0 16 16" className="h-4 w-4 fill-none stroke-current" strokeWidth="1.5">
+                          <circle cx="8" cy="8" r="6.25" />
+                          <path d="M8 7.1v4M8 4.6v.1" strokeLinecap="round" />
+                        </svg>
+                      </button>
+                      <div
+                        id="mockup-automatic-behavior-locked-reason"
+                        role="tooltip"
+                        className="pointer-events-none absolute bottom-full right-0 z-20 mb-2 hidden w-max max-w-[280px] rounded-[6px] bg-[var(--sui-colors-neutral-b0)] px-3 py-2 text-[12px] font-normal leading-[16px] text-white shadow-lg group-hover:block group-focus-within:block"
+                      >
+                        Always on because user access is restricted.
+                      </div>
+                    </div>
+                  ) : (
                     <button
                       type="button"
-                      aria-disabled="true"
-                      aria-describedby="mockup-automatic-behavior-locked-reason"
-                      className="flex h-[32px] cursor-not-allowed items-center gap-1 rounded-[10px] px-1 text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b2)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sui-colors-primary-b)] focus-visible:ring-offset-2"
+                      aria-label={`Manage ${callNotesOn ? 'automatic live transcripts and call notes' : 'automatic live transcripts'}`}
+                      onClick={() => setAutomaticOn((value) => !value)}
+                      className="h-[32px] shrink-0 rounded-[10px] px-1 text-[14px] font-medium leading-[20px] text-[var(--sui-colors-primary-b)] hover:text-[var(--sui-colors-primary-b-high-contrast)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sui-colors-primary-b)] focus-visible:ring-offset-2"
                     >
                       Manage
-                      <svg aria-hidden viewBox="0 0 16 16" className="h-4 w-4 fill-none stroke-current" strokeWidth="1.5">
-                        <circle cx="8" cy="8" r="6.25" />
-                        <path d="M8 7.1v4M8 4.6v.1" strokeLinecap="round" />
-                      </svg>
                     </button>
-                    <div
-                      id="mockup-automatic-behavior-locked-reason"
-                      role="tooltip"
-                      className="pointer-events-none absolute bottom-full right-0 z-20 mb-2 hidden w-max max-w-[280px] rounded-[6px] bg-[var(--sui-colors-neutral-b0)] px-3 py-2 text-[12px] font-normal leading-[16px] text-white shadow-lg group-hover:block group-focus-within:block"
-                    >
-                      Always on because user access is restricted.
-                    </div>
-                  </div>
-                ) : (
-                  <button
-                    type="button"
-                    aria-label={`Manage ${callNotesOn ? 'automatic live transcripts and call notes' : 'automatic live transcripts'}`}
-                    onClick={() => setAutomaticOn((value) => !value)}
-                    className="h-[32px] shrink-0 rounded-[10px] px-1 text-[14px] font-medium leading-[20px] text-[var(--sui-colors-primary-b)] hover:text-[var(--sui-colors-primary-b-high-contrast)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sui-colors-primary-b)] focus-visible:ring-offset-2"
-                  >
-                    Manage
-                  </button>
-                )}
+                  )}
+                </div>
               </div>
             )}
           </section>
