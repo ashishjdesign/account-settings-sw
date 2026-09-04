@@ -279,8 +279,10 @@ export default function AiPanel() {
       parentsDefaultingOn.includes('liveTranscripts') &&
       state.ai.liveTranscripts.on &&
       !state.ai.liveTranscripts.allowChange;
+    const automaticBehaviorCurrentlyOn =
+      currentAutomaticBehaviorForced || state.ai.notesAutoStart;
     return (
-      !currentAutomaticBehaviorForced &&
+      !automaticBehaviorCurrentlyOn &&
       (changedFeatureWillForce || liveTranscriptsParentWillForce)
     );
   };

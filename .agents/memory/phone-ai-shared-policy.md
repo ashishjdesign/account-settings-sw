@@ -7,4 +7,4 @@ Automatic in-call behavior belongs in a shared policy footer under the Live tran
 
 **Why:** The behavior affects both features simultaneously, so a separate card misrepresents it as an independent feature. The grouped footer shows shared scope without competing with feature-level controls.
 
-**How to apply:** Restore User default/User access pills and Manage actions for Closed captioning, Live transcripts, Call notes, and AI voicemail summaries. If any enabled affected feature is User default On and User access Restricted, force the shared policy On and lock editing; otherwise keep it manageable.
+**How to apply:** Restore User default/User access pills and Manage actions for Closed captioning, Live transcripts, Call notes, and AI voicemail summaries. If any enabled affected feature is User default On and User access Restricted, force the shared policy On and lock editing; otherwise keep it manageable. Show the deployment consequence confirmation only when this changes the effective automatic behavior from Off to forced On—skip it when the stored preference was already On.
