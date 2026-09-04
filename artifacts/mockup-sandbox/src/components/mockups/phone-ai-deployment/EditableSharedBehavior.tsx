@@ -144,17 +144,18 @@ export function EditableSharedBehavior({
             </div>
 
             {transcriptsOn && (
-              <div className="mt-4 flex flex-col gap-2">
-                <h3 className="text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b2)]">
-                  In-call behavior
-                </h3>
-                <div className="flex items-center justify-between gap-4 border-t border-[var(--sui-colors-neutral-b4)] pt-4">
+              <div className="mt-4 flex items-center justify-between gap-4 border-t border-[var(--sui-colors-neutral-b4)] pt-4">
+                <div className="flex items-center gap-2">
+                  <span className="text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b2)]">
+                    In-call behavior:
+                  </span>
                   <Pill
                     label={callNotesOn ? 'Automatic live transcripts & call notes' : 'Automatic live transcripts'}
                     value={automaticOn ? 'On' : 'Off'}
                   />
-                  {automaticRestricted ? (
-                    <div className="group relative">
+                </div>
+                {automaticRestricted ? (
+                  <div className="group relative">
                       <button
                         type="button"
                         aria-disabled="true"
@@ -174,8 +175,8 @@ export function EditableSharedBehavior({
                       >
                         Always on because user access is restricted.
                       </div>
-                    </div>
-                  ) : (
+                  </div>
+                ) : (
                     <button
                       type="button"
                       aria-label={`Manage ${callNotesOn ? 'automatic live transcripts and call notes' : 'automatic live transcripts'}`}
@@ -184,8 +185,7 @@ export function EditableSharedBehavior({
                     >
                       Manage
                     </button>
-                  )}
-                </div>
+                )}
               </div>
             )}
           </section>

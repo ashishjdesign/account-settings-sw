@@ -971,14 +971,16 @@ export default function AiPanel() {
             {/* Notes in-call behavior — read-only summary pill + Manage.
              * Editing happens in the "Manage Notes in-call behavior" modal. */}
             {state.ai.liveTranscripts.on && masterOn && (
-              <div className="flex flex-col gap-2 px-4">
-                <h3 className="text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b2)]">
-                  In-call behavior
-                </h3>
+              <div className="px-4">
                 <div className="flex items-center justify-between gap-4 border-t border-[var(--sui-colors-neutral-b4)] pt-4">
-                  <div className="flex h-[32px] items-center gap-2 whitespace-nowrap rounded-[10px] bg-[var(--sui-colors-neutral-b5)] px-3 text-[14px] leading-[20px] text-[var(--sui-colors-neutral-b1)]">
-                    <span className="font-semibold">{automaticBehaviorLabel}:</span>
-                    <span className="font-normal">{automaticBehaviorOn ? 'On' : 'Off'}</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b2)]">
+                      In-call behavior:
+                    </span>
+                    <div className="flex h-[32px] items-center gap-2 whitespace-nowrap rounded-[10px] bg-[var(--sui-colors-neutral-b5)] px-3 text-[14px] leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+                      <span className="font-semibold">{automaticBehaviorLabel}:</span>
+                      <span className="font-normal">{automaticBehaviorOn ? 'On' : 'Off'}</span>
+                    </div>
                   </div>
                   {automaticBehaviorForced ? (
                     <div className="group relative">

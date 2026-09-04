@@ -3,7 +3,7 @@
   "feature": "ai",
   "title": "Feature Settings — AI tab",
   "description": "Master AI features card with per-product retention, plus AVA / Phone AI / Chat AI parent cards whose detail pages (deep-linkable via ?detail=) hold the dependent features and cascade rules.",
-  "generatedAt": "2026-09-04T21:57:19.000Z",
+  "generatedAt": "2026-09-04T22:00:34.000Z",
   "prototypeUrl": "https://a138ed93-de74-4635-b2a4-a6f52dbbb102-00-2u3ovxvifa65f.janeway.replit.dev/feature-settings/ai",
   "designSystem": {
     "name": "Spring UI (tokens + icons; components are Spring-styled Tailwind/Radix equivalents)",
@@ -252,7 +252,7 @@
         "All four turn-on flows include user-deployment management; Live transcripts includes shared automatic behavior in that same confirmation.",
         "Every Phone AI turn-off confirm includes: When turned back on, previous user settings can be restored.",
         "Dependency warnings mention only currently enabled features that will also turn off.",
-        "The In-call behavior label uses the same section-label style as User deployment and appears both in Live transcripts turn-on and on the enabled settings page."
+        "In-call behavior appears inline before the automatic-setting pill on the enabled settings page; the turn-on dialog keeps the section label above its container."
       ]
     },
     {
