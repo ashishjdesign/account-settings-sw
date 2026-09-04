@@ -967,9 +967,26 @@ export default function AiPanel() {
                     <span className="font-normal">{automaticBehaviorOn ? 'On' : 'Off'}</span>
                   </div>
                   {automaticBehaviorForced ? (
-                    <div className="flex items-center gap-2">
-                      <span className="flex h-[32px] items-center rounded-[10px] bg-[var(--sui-colors-neutral-b5)] px-3 text-[14px] font-medium text-[var(--sui-colors-neutral-b1)]">Locked</span>
-                      <span className="text-[13px] text-[var(--sui-colors-neutral-b2)]">Always on because user access is restricted.</span>
+                    <div className="group relative">
+                      <button
+                        type="button"
+                        aria-disabled="true"
+                        aria-describedby="automatic-behavior-locked-reason"
+                        className="flex h-[32px] cursor-not-allowed items-center gap-1 rounded-[10px] px-1 text-[14px] font-medium leading-[20px] text-[var(--sui-colors-neutral-b2)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sui-colors-primary-b)] focus-visible:ring-offset-2"
+                      >
+                        Manage
+                        <svg aria-hidden viewBox="0 0 16 16" className="h-4 w-4 fill-none stroke-current" strokeWidth="1.5">
+                          <circle cx="8" cy="8" r="6.25" />
+                          <path d="M8 7.1v4M8 4.6v.1" strokeLinecap="round" />
+                        </svg>
+                      </button>
+                      <div
+                        id="automatic-behavior-locked-reason"
+                        role="tooltip"
+                        className="pointer-events-none absolute bottom-full right-0 z-20 mb-2 hidden w-max max-w-[280px] rounded-[6px] bg-[var(--sui-colors-neutral-b0)] px-3 py-2 text-[12px] font-normal leading-[16px] text-white shadow-lg group-hover:block group-focus-within:block"
+                      >
+                        Always on because user access is restricted.
+                      </div>
                     </div>
                   ) : <button
                     type="button"

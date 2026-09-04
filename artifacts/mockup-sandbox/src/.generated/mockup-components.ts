@@ -212,11 +212,11 @@ export const modules: ModuleMap = {
   "./components/mockups/ai-feature-settings-copy-d67HE7ZE/ConceptSummarySms.tsx": () => import("../components/mockups/ai-feature-settings-copy-d67HE7ZE/ConceptSummarySms.tsx"),
   "./components/mockups/ai-feature-settings-copy-d67HE7ZE/ConceptUserActivationDisable.tsx": () => import("../components/mockups/ai-feature-settings-copy-d67HE7ZE/ConceptUserActivationDisable.tsx"),
   "./components/mockups/ai-feature-settings-copy-d67HE7ZE/ConceptUserActivationEnable.tsx": () => import("../components/mockups/ai-feature-settings-copy-d67HE7ZE/ConceptUserActivationEnable.tsx"),
+  "./components/mockups/incall-default/ConceptA.tsx": () => import("../components/mockups/incall-default/ConceptA.tsx"),
+  "./components/mockups/incall-default/ConceptB.tsx": () => import("../components/mockups/incall-default/ConceptB.tsx"),
+  "./components/mockups/incall-default/ConceptC.tsx": () => import("../components/mockups/incall-default/ConceptC.tsx"),
   "./components/mockups/phone-ai-deployment/BothFeaturesOn.tsx": () => import("../components/mockups/phone-ai-deployment/BothFeaturesOn.tsx"),
   "./components/mockups/phone-ai-deployment/EditableSharedBehavior.tsx": () => import("../components/mockups/phone-ai-deployment/EditableSharedBehavior.tsx"),
   "./components/mockups/phone-ai-deployment/ForcedLockedBehavior.tsx": () => import("../components/mockups/phone-ai-deployment/ForcedLockedBehavior.tsx"),
-  "./components/mockups/phone-ai-deployment/LiveTranscriptsOnly.tsx": () => import("../components/mockups/phone-ai-deployment/LiveTranscriptsOnly.tsx"),
-  "./components/mockups/incall-default/ConceptA.tsx": () => import("../components/mockups/incall-default/ConceptA.tsx"),
-  "./components/mockups/incall-default/ConceptB.tsx": () => import("../components/mockups/incall-default/ConceptB.tsx"),
-  "./components/mockups/incall-default/ConceptC.tsx": () => import("../components/mockups/incall-default/ConceptC.tsx")
+  "./components/mockups/phone-ai-deployment/LiveTranscriptsOnly.tsx": () => import("../components/mockups/phone-ai-deployment/LiveTranscriptsOnly.tsx")
 };
