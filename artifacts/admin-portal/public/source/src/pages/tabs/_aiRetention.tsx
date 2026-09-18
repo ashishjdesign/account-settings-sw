@@ -58,7 +58,7 @@ export const RETENTION_PRODUCTS: ReadonlyArray<{
       </>
     ),
     defaultDays: 365,
-    minDays: 7,
+    minDays: 1,
     maxDays: 365,
   },
   {
@@ -88,9 +88,10 @@ export function productFor(key: AiRetentionProductKey) {
 /** "365 days (default)" / "333 days (custom)" / "90 days" */
 export function retentionDaysLabel(key: AiRetentionProductKey, days: number): string {
   const product = productFor(key);
-  if (days === product.defaultDays) return `${days} days (default)`;
-  if (!RETENTION_PRESET_DAYS.includes(days)) return `${days} days (custom)`;
-  return `${days} days`;
+  const label = `${days} ${days === 1 ? 'day' : 'days'}`;
+  if (days === product.defaultDays) return `${label} (default)`;
+  if (!RETENTION_PRESET_DAYS.includes(days)) return `${label} (custom)`;
+  return label;
 }
 
 /* -----------------------------------------------------------------------------
