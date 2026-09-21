@@ -453,12 +453,16 @@ export function RetentionConfirmDialog({
             </p>
           </div>
           <label className="flex w-[534px] max-w-full cursor-pointer items-start gap-2">
+            <input
+              type="checkbox"
+              className="peer sr-only"
+              checked={acknowledged}
+              onChange={(e) => setAcknowledged(e.target.checked)}
+            />
             <span
-              role="checkbox"
-              aria-checked={acknowledged}
-              onClick={() => setAcknowledged((v) => !v)}
+              aria-hidden="true"
               className={cn(
-                'mt-px flex h-5 w-5 shrink-0 items-center justify-center rounded-[4px] border-[1.2px] transition-colors',
+                'mt-px flex h-5 w-5 shrink-0 items-center justify-center rounded-[4px] border-[1.2px] transition-colors peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-[var(--sui-colors-primary-b)]',
                 acknowledged
                   ? 'border-[var(--sui-colors-primary-b)] bg-[var(--sui-colors-primary-b)] text-white'
                   : 'border-[var(--sui-colors-neutral-b2)] bg-white',
@@ -468,12 +472,6 @@ export function RetentionConfirmDialog({
                 <CheckMd width={14} height={14} fill="currentColor" aria-hidden focusable={false} />
               )}
             </span>
-            <input
-              type="checkbox"
-              className="sr-only"
-              checked={acknowledged}
-              onChange={(e) => setAcknowledged(e.target.checked)}
-            />
             <span className="flex-1 text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
               I understand this action may result in data loss.
             </span>
