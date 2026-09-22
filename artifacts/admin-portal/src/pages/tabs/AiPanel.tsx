@@ -1149,6 +1149,7 @@ export default function AiPanel() {
               </p>
               <p>If you turn it back on, previous user settings will be restored.</p>
             </div>
+            <p>Turning off AI features won’t delete stored AI data. Your existing retention periods will continue to apply.</p>
           </>
         }
         onCancel={() => setMasterConfirmOpen(false)}
