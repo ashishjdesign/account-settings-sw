@@ -38,7 +38,7 @@ export const RETENTION_PRODUCTS: ReadonlyArray<{
       <>
         Applies to call notes and transcripts from phone calls and phone recordings. Call notes
         and transcripts may be deleted before the selected retention period if the related call
-        or recording is deleted or expires.
+        or recording is deleted.
       </>
     ),
     defaultDays: 365,
