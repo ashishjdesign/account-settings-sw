@@ -423,9 +423,9 @@ export function RetentionConfirmDialog({
                 {title}
               </h2>
             </div>
-            <p className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+            <RetentionInfoSnackbar>
               Selecting a shorter retention period than your current policy may result in the removal of previously stored AI data that falls outside the new limit.
-            </p>
+            </RetentionInfoSnackbar>
           </div>
           <label className="flex w-[534px] max-w-full cursor-pointer items-start gap-2">
             <input
