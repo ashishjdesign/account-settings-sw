@@ -1151,7 +1151,7 @@ export default function AiPanel() {
               <p>If you turn it back on, previous user settings will be restored.</p>
             </div>
             <RetentionInfoSnackbar>
-              Turning off AI features won’t delete stored AI data. Your existing retention periods will continue to apply.
+              Turning off AI features won’t change your retention settings. Existing AI data will be permanently deleted when its configured retention period expires.
             </RetentionInfoSnackbar>
           </>
         }
