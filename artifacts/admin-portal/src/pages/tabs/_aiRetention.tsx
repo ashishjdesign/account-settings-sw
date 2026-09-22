@@ -32,11 +32,11 @@ export const RETENTION_PRODUCTS: ReadonlyArray<{
 }> = [
   {
     key: 'ringexPhone',
-    title: 'RingEX Phone Call notes and transcripts',
+    title: 'Phone call notes and transcripts',
     shortLabel: 'Phone',
     description: (
       <>
-        Applies to Call notes and transcripts from phone calls and phone recordings. Call notes
+        Applies to call notes and transcripts from phone calls and phone recordings. Call notes
         and transcripts may be deleted before the selected retention period if the related call
         or recording is deleted or expires.
       </>
@@ -47,13 +47,12 @@ export const RETENTION_PRODUCTS: ReadonlyArray<{
   },
   {
     key: 'meetings',
-    title: 'Meetings Call notes and transcripts',
+    title: 'Meetings call notes and transcripts',
     shortLabel: 'Meetings',
     description: (
       <>
-        Applies to Call notes and transcripts from meetings.
-        <br />
-        If the meeting was recorded, the recording is kept for the same retention period and
+        Applies to AI notes and transcripts from meetings. The meeting recording
+        and in-meeting chat, when present, are kept for the same period and
         deleted along with them.
       </>
     ),
