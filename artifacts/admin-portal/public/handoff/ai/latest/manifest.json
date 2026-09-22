@@ -3,7 +3,7 @@
   "feature": "ai",
   "title": "Feature Settings — AI tab",
   "description": "Master AI features card with per-product retention, plus AVA / Phone AI / Chat AI parent cards whose detail pages (deep-linkable via ?detail=) hold the dependent features and cascade rules.",
-  "generatedAt": "2026-09-22T16:18:24.000Z",
+  "generatedAt": "2026-09-22T16:27:08.000Z",
   "prototypeUrl": "https://a138ed93-de74-4635-b2a4-a6f52dbbb102-00-2u3ovxvifa65f.janeway.replit.dev/feature-settings/ai",
   "designSystem": {
     "name": "Spring UI (tokens + icons; components are Spring-styled Tailwind/Radix equivalents)",

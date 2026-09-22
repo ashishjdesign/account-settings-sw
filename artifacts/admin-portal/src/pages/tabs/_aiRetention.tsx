@@ -81,6 +81,9 @@ export const RETENTION_PRODUCTS: ReadonlyArray<{
 
 export const RETENTION_PRESET_DAYS: ReadonlyArray<number> = [7, 30, 90, 180, 365];
 
+// RingCX is hidden from the current retention UI; retain its stored policy.
+export const VISIBLE_RETENTION_PRODUCTS = RETENTION_PRODUCTS.filter((p) => p.key !== 'ringcx');
+
 export function productFor(key: AiRetentionProductKey) {
   return RETENTION_PRODUCTS.find((p) => p.key === key)!;
 }
@@ -312,7 +315,7 @@ export function ManageAiFeaturesDialog({
     if (open) setRetention(initialRetention);
   }, [open, initialRetention]);
   if (!open) return null;
-  const dirty = RETENTION_PRODUCTS.some((p) => retention[p.key] !== initialRetention[p.key]);
+  const dirty = VISIBLE_RETENTION_PRODUCTS.some((p) => retention[p.key] !== initialRetention[p.key]);
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/40 pt-16">
       <div className="absolute inset-0" onClick={onCancel} aria-hidden="true" />
@@ -338,7 +341,7 @@ export function ManageAiFeaturesDialog({
             </p>
           </div>
           <div className="flex flex-col gap-4">
-            {RETENTION_PRODUCTS.map((p) => (
+            {VISIBLE_RETENTION_PRODUCTS.map((p) => (
               <div
                 key={p.key}
                 className="flex flex-col gap-1 rounded-[8px] border border-[var(--sui-colors-neutral-b4)] p-4"

@@ -36,7 +36,7 @@ import {
   ManageAiFeaturesDialog,
   RetentionConfirmDialog,
   RetentionInfoSnackbar,
-  RETENTION_PRODUCTS,
+  VISIBLE_RETENTION_PRODUCTS,
   retentionDaysLabel,
 } from './_aiRetention';
 import {
@@ -323,12 +323,12 @@ export default function AiPanel() {
   // change the per-product periods. Any product going shorter risks data
   // loss, so it confirms first; longer-only changes commit directly.
   const handleManageSave = (next: AiCustomRetention) => {
-    const changed = RETENTION_PRODUCTS.some((p) => next[p.key] !== customRetention[p.key]);
+    const changed = VISIBLE_RETENTION_PRODUCTS.some((p) => next[p.key] !== customRetention[p.key]);
     if (!changed) {
       setManageModal(null);
       return;
     }
-    const anyShorter = RETENTION_PRODUCTS.some((p) => next[p.key] < customRetention[p.key]);
+    const anyShorter = VISIBLE_RETENTION_PRODUCTS.some((p) => next[p.key] < customRetention[p.key]);
     if (anyShorter) {
       setPending(next);
       setAiChangeConfirmOpen(true);
@@ -795,7 +795,7 @@ export default function AiPanel() {
     );
   };
 
-  const retentionSummary = RETENTION_PRODUCTS.map((p) => ({
+  const retentionSummary = VISIBLE_RETENTION_PRODUCTS.map((p) => ({
     label: `${p.shortLabel}:`,
     value: retentionDaysLabel(p.key, customRetention[p.key]),
   }));
