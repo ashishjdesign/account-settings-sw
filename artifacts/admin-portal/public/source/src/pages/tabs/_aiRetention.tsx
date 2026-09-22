@@ -79,7 +79,7 @@ export const RETENTION_PRODUCTS: ReadonlyArray<{
   },
 ];
 
-export const RETENTION_PRESET_DAYS: ReadonlyArray<number> = [7, 30, 90, 180, 365];
+export const RETENTION_PRESET_DAYS: ReadonlyArray<number> = [7, 14, 30, 90, 180, 365];
 
 // RingCX is hidden from the current retention UI; retain its stored policy.
 export const VISIBLE_RETENTION_PRODUCTS = RETENTION_PRODUCTS.filter((p) => p.key !== 'ringcx');
@@ -98,26 +98,18 @@ export function retentionDaysLabel(key: AiRetentionProductKey, days: number): st
 }
 
 /* -----------------------------------------------------------------------------
- * Per-product retention select. Popper lists the current custom value first
- * (when not a preset), then the presets, then a "Set custom" footer action.
+ * Per-product retention select. Only the supported preset periods are selectable.
  * --------------------------------------------------------------------------- */
 export function RetentionPeriodSelect({
-  productKey, value, onChange, onSetCustom,
+  productKey, value, onChange,
 }: {
   productKey: AiRetentionProductKey;
   value: number;
   onChange: (next: number) => void;
-  onSetCustom: () => void;
 }) {
   const [open, setOpen] = React.useState(false);
   const ref = React.useRef<HTMLDivElement>(null);
-  const product = productFor(productKey);
-  // Presets outside the product's allowed range are not offered.
-  const presets = RETENTION_PRESET_DAYS.filter(
-    (d) => d >= product.minDays && d <= product.maxDays,
-  );
-  const isCustom = !presets.includes(value);
-  const options: number[] = isCustom ? [value, ...presets] : [...presets];
+  const options = RETENTION_PRESET_DAYS;
 
   React.useEffect(() => {
     if (!open) return;
@@ -179,18 +171,6 @@ export function RetentionPeriodSelect({
               </div>
             );
           })}
-          <div className="mt-1 border-t border-[var(--sui-colors-neutral-b4)]">
-            <button
-              type="button"
-              onClick={() => {
-                setOpen(false);
-                onSetCustom();
-              }}
-              className="flex min-h-[44px] w-full cursor-pointer items-center justify-center rounded-b-[10px] px-2 text-[15px] font-medium leading-[20px] text-[var(--sui-colors-primary-b)] hover:bg-[var(--sui-colors-neutral-b4)]/40"
-            >
-              Set custom
-            </button>
-          </div>
         </div>
       )}
     </div>
@@ -310,7 +290,6 @@ export function ManageAiFeaturesDialog({
   onSave: (next: AiCustomRetention) => void;
 }) {
   const [retention, setRetention] = React.useState<AiCustomRetention>(initialRetention);
-  const [customFor, setCustomFor] = React.useState<AiRetentionProductKey | null>(null);
   React.useEffect(() => {
     if (open) setRetention(initialRetention);
   }, [open, initialRetention]);
@@ -354,7 +333,6 @@ export function ManageAiFeaturesDialog({
                     productKey={p.key}
                     value={retention[p.key]}
                     onChange={(days) => setRetention((r) => ({ ...r, [p.key]: days }))}
-                    onSetCustom={() => setCustomFor(p.key)}
                   />
                 </div>
                 <div className="flex w-full items-center pr-[216px]">
@@ -393,15 +371,6 @@ export function ManageAiFeaturesDialog({
           </div>
         </div>
 
-        <SetCustomRetentionDialog
-          open={customFor !== null}
-          productKey={customFor}
-          onCancel={() => setCustomFor(null)}
-          onApply={(days) => {
-            if (customFor) setRetention((r) => ({ ...r, [customFor]: days }));
-            setCustomFor(null);
-          }}
-        />
       </div>
     </div>
   );
