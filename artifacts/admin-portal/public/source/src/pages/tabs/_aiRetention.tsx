@@ -402,8 +402,7 @@ export function RetentionConfirmDialog({
   const [acknowledged, setAcknowledged] = React.useState(false);
   React.useEffect(() => { if (open) setAcknowledged(false); }, [open]);
   if (!open) return null;
-  const title = 'Change custom retention period for AI features?';
-  const snackbar = 'Changing a custom retention period may permanently delete older AI data.';
+  const title = 'Shorten retention period for AI features?';
   const confirmLabel = 'Confirm';
   return (
     <div className="fixed inset-0 z-[60] flex items-start justify-center bg-black/40 pt-24">
@@ -424,7 +423,6 @@ export function RetentionConfirmDialog({
                 {title}
               </h2>
             </div>
-            <RetentionInfoSnackbar>{snackbar}</RetentionInfoSnackbar>
             <p className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
               Selecting a shorter retention period than your current policy may result in the removal of previously stored AI data that falls outside the new limit.
             </p>
@@ -450,7 +448,7 @@ export function RetentionConfirmDialog({
               )}
             </span>
             <span className="flex-1 text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
-              I understand this action may result in data loss.
+              I understand the risk.
             </span>
           </label>
         </div>
