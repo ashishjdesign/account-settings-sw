@@ -32,13 +32,12 @@ export const RETENTION_PRODUCTS: ReadonlyArray<{
 }> = [
   {
     key: 'ringexPhone',
-    title: 'Phone call notes and transcripts',
+    title: 'Phone AI notes and transcripts',
     shortLabel: 'Phone',
     description: (
       <>
-        Applies to call notes and transcripts from phone calls and phone recordings. Call notes
-        and transcripts may be deleted before the selected retention period if the related call
-        or recording is deleted.
+        Notes and transcripts from phone calls and recordings are deleted after the
+        selected period, regardless of how long call logs are kept.
       </>
     ),
     defaultDays: 365,
@@ -47,13 +46,13 @@ export const RETENTION_PRODUCTS: ReadonlyArray<{
   },
   {
     key: 'meetings',
-    title: 'Meetings call notes and transcripts',
+    title: 'Meetings AI notes and transcripts',
     shortLabel: 'Meetings',
     description: (
       <>
-        Applies to AI notes and transcripts from meetings. The meeting recording
-        and in-meeting chat, when present, are kept for the same period and
-        deleted along with them.
+        AI notes and transcripts from meetings are deleted after the selected
+        period. Meeting recordings and in-meeting chat, when present, are deleted
+        at the same time, regardless of how long meeting logs are kept.
       </>
     ),
     defaultDays: 365,
@@ -310,7 +309,7 @@ export function ManageAiFeaturesDialog({
                 id="manage-ai-retention-title"
                 className="flex-1 text-[24px] font-normal leading-[32px] text-[var(--sui-colors-neutral-b0)]"
               >
-                Manage AI data custom retention period
+                Manage AI data retention period
               </h2>
             </div>
             <p className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b2)]">
@@ -342,6 +341,9 @@ export function ManageAiFeaturesDialog({
               </div>
             ))}
           </div>
+          <p className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b2)]">
+            Other RingCentral features may access AI notes and transcripts until they are deleted.
+          </p>
         </div>
         <div className="flex w-full items-start justify-end overflow-clip border-t border-[#DDDFE5]/50 px-6 pt-5">
           <div className="flex flex-1 items-center justify-end">
