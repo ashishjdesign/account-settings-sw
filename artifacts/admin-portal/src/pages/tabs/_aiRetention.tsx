@@ -426,7 +426,7 @@ export function RetentionConfirmDialog({
               </h2>
             </div>
             <RetentionInfoSnackbar>
-              Selecting a shorter retention period than your current policy may result in the removal of previously stored AI data that falls outside the new limit.
+              Selecting a shorter retention period than your current policy will delete, in the next daily cleanup, any previously stored AI data that falls outside the new limit.
             </RetentionInfoSnackbar>
           </div>
           <label className="flex w-[534px] max-w-full cursor-pointer items-start gap-2">
