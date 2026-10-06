@@ -36,8 +36,8 @@ export const RETENTION_PRODUCTS: ReadonlyArray<{
     shortLabel: 'Phone',
     description: (
       <>
-        Notes and transcripts from phone calls and recordings are deleted after the
-        selected period, regardless of how long call logs are kept.
+        Notes and transcripts from phone calls and call recordings are deleted after the
+        selected period. This policy does not affect call recordings or call log retention.
       </>
     ),
     defaultDays: 365,

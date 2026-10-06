@@ -14,3 +14,9 @@ Shortening retention deletes previously stored AI data outside the new limit in 
 **Why:** The user specified daily cleanup as the product's deletion timing, rather than immediate deletion or a possible deletion.
 
 **How to apply:** Preserve this timing in retention warnings and future retention-enforcement work; copy edits alone do not implement cleanup.
+
+Phone AI notes and transcripts retention does not affect call recordings or call log retention.
+
+**Why:** The user explicitly separated the Phone AI data policy from recording and call-log policies.
+
+**How to apply:** Keep these policies independent in descriptions and future enforcement; do not extend this rule to Meetings.
