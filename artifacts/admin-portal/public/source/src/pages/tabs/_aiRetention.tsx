@@ -314,7 +314,15 @@ export function ManageAiFeaturesDialog({
             </div>
             <p className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b2)]">
               Set how long AI-generated data is retained across supported AI features. This data
-              is permanently deleted after the selected period.
+              is permanently deleted after the selected period.{' '}
+              <a
+                href="https://support.ringcentral.com/article-v2/RingCentral-data-retention-policies.html?brand=RingCentral&product=RingEX&language=en_US"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[var(--sui-colors-primary-b)] underline hover:text-[var(--sui-colors-primary-b-high-contrast)]"
+              >
+                Learn more
+              </a>
             </p>
           </div>
           <div className="flex flex-col gap-4">
@@ -341,9 +349,6 @@ export function ManageAiFeaturesDialog({
               </div>
             ))}
           </div>
-          <p className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b2)]">
-            Other RingCentral features may access AI notes and transcripts until they are deleted.
-          </p>
         </div>
         <div className="flex w-full items-start justify-end overflow-clip border-t border-[#DDDFE5]/50 px-6 pt-5">
           <div className="flex flex-1 items-center justify-end">
