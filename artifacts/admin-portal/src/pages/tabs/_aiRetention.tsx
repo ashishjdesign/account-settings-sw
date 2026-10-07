@@ -2,7 +2,6 @@ import React from 'react';
 import {
   CaretDownMd as CaretDownMdIcon,
   InfoMd as InfoMdIcon,
-  CheckMd as CheckMdIcon,
 } from '@ringcentral/spring-icon';
 
 /* The installed @ringcentral/spring-icon typings pull in a React-types
@@ -11,7 +10,6 @@ import {
 type SvgIcon = React.ComponentType<React.SVGProps<SVGSVGElement>>;
 const CaretDownMd = CaretDownMdIcon as unknown as SvgIcon;
 const InfoMd = InfoMdIcon as unknown as SvgIcon;
-const CheckMd = CheckMdIcon as unknown as SvgIcon;
 import { cn } from '../../lib/utils';
 import type { AiCustomRetention, AiRetentionProductKey } from '../../store';
 
@@ -406,8 +404,6 @@ export function RetentionConfirmDialog({
   onCancel: () => void;
   onConfirm: () => void;
 }) {
-  const [acknowledged, setAcknowledged] = React.useState(false);
-  React.useEffect(() => { if (open) setAcknowledged(false); }, [open]);
   if (!open) return null;
   const title = 'Shorten retention period for AI features?';
   const confirmLabel = 'Confirm';
@@ -431,33 +427,17 @@ export function RetentionConfirmDialog({
               </h2>
             </div>
             <RetentionInfoSnackbar>
-              Selecting a shorter retention period than your current policy will delete, in the next daily cleanup, any previously stored AI data that falls outside the new limit.
+              Selecting a shorter retention period than your current policy will delete, in the next daily cleanup, any previously stored AI data that falls outside the new limit.{' '}
+              <a
+                href="https://support.ringcentral.com/article-v2/RingCentral-data-retention-policies.html?brand=RingCentral&product=RingEX&language=en_US"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[var(--sui-colors-primary-b)] underline hover:text-[var(--sui-colors-primary-b-high-contrast)]"
+              >
+                Learn more
+              </a>
             </RetentionInfoSnackbar>
           </div>
-          <label className="flex w-[534px] max-w-full cursor-pointer items-start gap-2">
-            <input
-              type="checkbox"
-              className="peer sr-only"
-              checked={acknowledged}
-              onChange={(e) => setAcknowledged(e.target.checked)}
-            />
-            <span
-              aria-hidden="true"
-              className={cn(
-                'mt-px flex h-5 w-5 shrink-0 items-center justify-center rounded-[4px] border-[1.2px] transition-colors peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-[var(--sui-colors-primary-b)]',
-                acknowledged
-                  ? 'border-[var(--sui-colors-primary-b)] bg-[var(--sui-colors-primary-b)] text-white'
-                  : 'border-[var(--sui-colors-neutral-b2)] bg-white',
-              )}
-            >
-              {acknowledged && (
-                <CheckMd width={14} height={14} fill="currentColor" aria-hidden focusable={false} />
-              )}
-            </span>
-            <span className="flex-1 text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
-              I understand the risk.
-            </span>
-          </label>
         </div>
         <div className="flex w-full items-start justify-end overflow-clip border-t border-[#DDDFE5]/50 px-6 pt-5">
           <div className="flex flex-1 items-center justify-end">
@@ -472,13 +452,7 @@ export function RetentionConfirmDialog({
               <button
                 type="button"
                 onClick={onConfirm}
-                disabled={!acknowledged}
-                className={cn(
-                  'inline-flex h-[36px] min-w-[60px] items-center justify-center rounded-[10px] px-4 text-[15px] font-medium leading-[20px] text-white transition-colors',
-                  acknowledged
-                    ? 'cursor-pointer bg-[var(--sui-colors-primary-b)] hover:bg-[var(--sui-colors-primary-b-high-contrast)]'
-                    : 'cursor-not-allowed bg-[var(--sui-colors-neutral-b3)]',
-                )}
+                className="inline-flex h-[36px] min-w-[60px] cursor-pointer items-center justify-center rounded-[10px] bg-[var(--sui-colors-primary-b)] px-4 text-[15px] font-medium leading-[20px] text-white transition-colors hover:bg-[var(--sui-colors-primary-b-high-contrast)]"
               >
                 {confirmLabel}
               </button>
