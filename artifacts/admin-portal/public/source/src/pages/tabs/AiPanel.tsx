@@ -811,8 +811,8 @@ export default function AiPanel() {
             icon={<SpringIcon as={AiStarsMd} />}
             description="Turn on AI support for calls, messages and video meetings. Deliver real-time answers, call notes, transcripts and meeting recaps to help teams stay focused and organized. Empower users to communicate clearly with built-in writing and polishing tools."
             summary={masterOn ? retentionSummary : undefined}
-            summaryHeading="AI data custom retention period"
-            summaryDescription="Set how long to keep AI notes, phone call and Meeting transcripts, Meeting recordings, and in-meeting chats. This data is permanently deleted after the selected period."
+            summaryHeading="AI data retention"
+            summaryDescription="Set how long AI-generated data is retained across supported AI features. This data is permanently deleted after the selected period."
             onManage={() => setManageModal('aiFeatures')}
             onSwitchClick={handleMasterToggle}
           />
