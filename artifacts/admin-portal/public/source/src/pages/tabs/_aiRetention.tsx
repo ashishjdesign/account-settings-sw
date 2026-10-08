@@ -307,11 +307,11 @@ export function ManageAiFeaturesDialog({
                 id="manage-ai-retention-title"
                 className="flex-1 text-[24px] font-normal leading-[32px] text-[var(--sui-colors-neutral-b0)]"
               >
-                Manage AI data retention period
+                Manage AI data retention
               </h2>
             </div>
             <p className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b2)]">
-              Set how long AI-generated data is retained across supported AI features. This data
+              Set how long data is retained across supported AI features. This data
               is permanently deleted after the selected period.{' '}
               <a
                 href="https://support.ringcentral.com/article-v2/RingCentral-data-retention-policies.html?brand=RingCentral&product=RingEX&language=en_US"

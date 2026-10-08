@@ -1,0 +1,2 @@
+Manage AI data retention
+a.  Set how long data is retained across supported AI features. This data is permanently deleted after the selected period. Learn more 
