@@ -30,11 +30,11 @@ export const RETENTION_PRODUCTS: ReadonlyArray<{
 }> = [
   {
     key: 'ringexPhone',
-    title: 'Phone AI notes and transcripts',
+    title: 'Phone AI data retention',
     shortLabel: 'Phone',
     description: (
       <>
-        AI notes and transcripts from phone calls, including those in call logs and call
+        Phone AI data such as AI notes and transcripts from phone calls, including those in call logs and call
         recordings logs, are permanently deleted after the selected period. The logs
         themselves and call recordings aren’t affected.
       </>
