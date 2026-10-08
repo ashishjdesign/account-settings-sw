@@ -430,7 +430,15 @@ export function RetentionConfirmDialog({
             <RetentionInfoSnackbar>
               Data older than the new retention period will be permanently deleted during the next daily cleanup.
               <br />
-              Deleted data can’t be recovered.
+              Deleted data can’t be recovered.{' '}
+              <a
+                href="https://support.ringcentral.com/article-v2/RingCentral-data-retention-policies.html?brand=RingCentral&product=RingEX&language=en_US"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="whitespace-nowrap text-[var(--sui-colors-primary-b)] underline hover:text-[var(--sui-colors-primary-b-high-contrast)]"
+              >
+                Learn more
+              </a>
             </RetentionInfoSnackbar>
           </div>
           <p className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
