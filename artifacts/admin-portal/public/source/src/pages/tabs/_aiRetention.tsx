@@ -428,9 +428,14 @@ export function RetentionConfirmDialog({
               </h2>
             </div>
             <RetentionInfoSnackbar>
-              Data older than the new retention period will be permanently deleted during the next daily cleanup. Deleted data can’t be recovered. Are you sure you want to shorten the retention period?
+              Data older than the new retention period will be permanently deleted during the next daily cleanup.
+              <br />
+              Deleted data can’t be recovered.
             </RetentionInfoSnackbar>
           </div>
+          <p className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
+            Are you sure you want to shorten the retention period?
+          </p>
         </div>
         <div className="flex w-full items-start justify-end overflow-clip border-t border-[#DDDFE5]/50 px-6 pt-5">
           <div className="flex flex-1 items-center justify-end">
