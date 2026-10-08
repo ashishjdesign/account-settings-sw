@@ -406,8 +406,8 @@ export function RetentionConfirmDialog({
   onConfirm: () => void;
 }) {
   if (!open) return null;
-  const title = 'Shorten retention period for AI features?';
-  const confirmLabel = 'Confirm';
+  const title = 'Shorten retention period?';
+  const confirmLabel = 'Acknowledge and confirm';
   return (
     <div className="fixed inset-0 z-[60] flex items-start justify-center bg-black/40 pt-24">
       <div className="absolute inset-0" onClick={onCancel} aria-hidden="true" />
@@ -428,15 +428,7 @@ export function RetentionConfirmDialog({
               </h2>
             </div>
             <RetentionInfoSnackbar>
-              Selecting a shorter retention period than your current policy will delete, in the next daily cleanup, any previously stored AI data that falls outside the new limit.{' '}
-              <a
-                href="https://support.ringcentral.com/article-v2/RingCentral-data-retention-policies.html?brand=RingCentral&product=RingEX&language=en_US"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-[var(--sui-colors-primary-b)] underline hover:text-[var(--sui-colors-primary-b-high-contrast)]"
-              >
-                Learn more
-              </a>
+              Data older than the new retention period will be permanently deleted during the next daily cleanup. Deleted data can’t be recovered. Are you sure you want to shorten the retention period?
             </RetentionInfoSnackbar>
           </div>
         </div>
