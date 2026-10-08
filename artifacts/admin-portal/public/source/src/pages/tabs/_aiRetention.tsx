@@ -45,13 +45,13 @@ export const RETENTION_PRODUCTS: ReadonlyArray<{
   },
   {
     key: 'meetings',
-    title: 'Meetings AI notes and transcripts',
+    title: 'Meeting AI data retention',
     shortLabel: 'Meetings',
     description: (
       <>
-        AI notes and transcripts from meetings are deleted after the selected
-        period. Meeting recordings and in-meeting chat, when present, are deleted
-        at the same time, regardless of how long meeting logs are kept.
+        AI notes and transcripts from meetings are permanently deleted after the selected
+        period. Meeting recordings and in-meeting chats, when present, are deleted
+        at the same time. This setting doesn’t affect how long the Meetings log is kept.
       </>
     ),
     defaultDays: 365,
