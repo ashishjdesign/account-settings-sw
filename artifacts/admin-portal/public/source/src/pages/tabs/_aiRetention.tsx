@@ -317,7 +317,7 @@ export function ManageAiFeaturesDialog({
                 href="https://support.ringcentral.com/article-v2/RingCentral-data-retention-policies.html?brand=RingCentral&product=RingEX&language=en_US"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-[var(--sui-colors-primary-b)] underline hover:text-[var(--sui-colors-primary-b-high-contrast)]"
+                className="whitespace-nowrap text-[var(--sui-colors-primary-b)] underline hover:text-[var(--sui-colors-primary-b-high-contrast)]"
               >
                 Learn more
               </a>
