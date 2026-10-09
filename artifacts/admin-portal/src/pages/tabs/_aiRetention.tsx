@@ -441,9 +441,6 @@ export function RetentionConfirmDialog({
               </a>
             </RetentionInfoSnackbar>
           </div>
-          <p className="text-[14px] font-normal leading-[20px] text-[var(--sui-colors-neutral-b1)]">
-            Are you sure you want to shorten the retention period?
-          </p>
         </div>
         <div className="flex w-full items-start justify-end overflow-clip border-t border-[#DDDFE5]/50 px-6 pt-5">
           <div className="flex flex-1 items-center justify-end">
