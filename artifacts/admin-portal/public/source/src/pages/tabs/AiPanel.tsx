@@ -1140,7 +1140,7 @@ export default function AiPanel() {
         title={<>Turn off <span className="font-normal">AI features</span> for your organization?</>}
         body={
           <>
-            <p>This will disable all AI features across your entire account and hide it from all users.</p>
+            <p>Turning off this setting will immediately disable AI features for your organization. Users will lose access to tools like AI notes, AI summaries, and AI writer.</p>
             <div className="flex flex-col gap-0">
               <p>
                 <span className="font-bold">AVA </span>
@@ -1151,8 +1151,9 @@ export default function AiPanel() {
               <p>If you turn it back on, previous user settings will be restored.</p>
             </div>
             <RetentionInfoSnackbar>
-              Turning off AI features won’t change your retention settings. Existing AI data will be permanently deleted when its configured retention period expires.
+              This won’t change your retention settings — existing AI data will still be permanently deleted when its configured retention period expires.
             </RetentionInfoSnackbar>
+            <p>You can re-enable AI features anytime in account settings.</p>
           </>
         }
         onCancel={() => setMasterConfirmOpen(false)}
